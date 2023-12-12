@@ -27,8 +27,14 @@
     </script>
 @endpush
 
-<!-- Coordonne Gps Field -->
+{{-- <!-- Coordonne Gps Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('coordonne_gps', __('models/rotations.fields.coordonne_gps').':') !!}
     {!! Form::text('coordonne_gps', null, ['class' => 'form-control']) !!}
+</div> --}}
+
+<!-- Coordonne Gps Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('adresse', __('models/rotations.fields.adresse').':') !!}
+    {!! Form::text('adresse', null, ['class' => 'form-control']) !!}
 </div>

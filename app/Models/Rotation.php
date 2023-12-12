@@ -34,7 +34,9 @@ class Rotation extends Model
         'matricule',
         'mouvement',
         'date_heur',
-        'coordonne_gps'
+        'coordonne_gps',
+        'adresse',
+        'tranche',
     ];
 
     /**
@@ -47,7 +49,9 @@ class Rotation extends Model
         'matricule' => 'string',
         'mouvement' => 'string',
         'date_heur' => 'datetime',
-        'coordonne_gps' => 'string'
+        'coordonne_gps' => 'string',
+        'adresse' => 'string',
+        'tranche' => 'string',
     ];
 
     /**

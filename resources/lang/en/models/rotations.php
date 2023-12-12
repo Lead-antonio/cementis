@@ -10,5 +10,6 @@ return array (
     'mouvement' => 'Mouvement',
     'date_heur' => 'Date Heur',
     'coordonne_gps' => 'Coordonnée Gps',
+    'adresse' => 'Adresse',
   ),
 );

@@ -16,10 +16,13 @@ class CreateRotationTable extends Migration
     {
         Schema::create('rotation', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('matricule');
-            $table->string('mouvement');
-            $table->dateTime('date_heur');
-            $table->string('coordonne_gps');
+            $table->string('matricule')->nullable();
+            $table->string('mouvement')->nullable();
+            $table->timestamp('date_heur')->nullable();
+            $table->string('coordonne_gps')->nullable();
+            $table->string('adresse')->nullable();
+            $table->string('tranche')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

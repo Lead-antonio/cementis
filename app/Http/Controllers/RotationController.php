@@ -6,9 +6,12 @@ use App\DataTables\RotationDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateRotationRequest;
 use App\Http\Requests\UpdateRotationRequest;
+use Carbon\Carbon;
 use App\Repositories\RotationRepository;
 use Flash;
 use App\Http\Controllers\AppBaseController;
+use App\Models\Rotation;
+use Carbon\CarbonInterval;
 use Response;
 
 class RotationController extends AppBaseController
@@ -30,7 +33,12 @@ class RotationController extends AppBaseController
      */
     public function index(RotationDataTable $rotationDataTable)
     {
-        return $rotationDataTable->render('rotations.index');
+        $immatriculation1 = "3993AH";
+        $immatriculation2 = "9345TK";
+        $totalRotationIbity = calculerDureeTotale($immatriculation1);
+        $totalRotationTamatave = calculerDureeTotale($immatriculation2);
+        
+        return $rotationDataTable->render('rotations.index', compact('totalRotationIbity', 'totalRotationTamatave'));
     }
 
     /**
@@ -81,6 +89,7 @@ class RotationController extends AppBaseController
         return view('rotations.show')->with('rotation', $rotation);
     }
 
+
     /**
      * Show the form for editing the specified Rotation.
      *
@@ -112,14 +121,20 @@ class RotationController extends AppBaseController
     public function update($id, UpdateRotationRequest $request)
     {
         $rotation = $this->rotationRepository->find($id);
+        $data = $request->all();
+
+        if (isset($data['date_heur'])) {
+            $data['date_heur'] = Carbon::parse($data['date_heur'])->format('Y-m-d H:i:s');
+        }
 
         if (empty($rotation)) {
             Flash::error(__('messages.not_found', ['model' => __('models/rotations.singular')]));
 
             return redirect(route('rotations.index'));
         }
+       
 
-        $rotation = $this->rotationRepository->update($request->all(), $id);
+        $rotation = $this->rotationRepository->update($data, $id);
 
         Flash::success(__('messages.updated', ['model' => __('models/rotations.singular')]));
 

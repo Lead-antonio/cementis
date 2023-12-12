@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-@can('generator_builder.index')
+{{-- @can('generator_builder.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
@@ -104,11 +104,12 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
        <i class="nav-icon fas fa-comment"></i>
         <p>@lang('models/messages.plural')</p>
     </a>
-</li>
+</li> --}}
 
 <li class="nav-item">
     <a href="{{ route('rotations.index') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-location-arrow"></i>
         <p>@lang('models/rotations.plural')</p>
     </a>
 </li>

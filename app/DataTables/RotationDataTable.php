@@ -48,35 +48,8 @@ class RotationDataTable extends DataTable
                 'dom'       => 'Bfrtip',
                 'stateSave' => true,
                 'order'     => [[0, 'desc']],
-                'buttons'   => [
-                    [
-                       'extend' => 'create',
-                       'className' => 'btn btn-default btn-sm no-corner',
-                       'text' => '<i class="fa fa-plus"></i> ' .__('auth.app.create').''
-                    ],
-                    [
-                       'extend' => 'export',
-                       'className' => 'btn btn-default btn-sm no-corner',
-                       'text' => '<i class="fa fa-download"></i> ' .__('auth.app.export').''
-                    ],
-                    [
-                       'extend' => 'print',
-                       'className' => 'btn btn-default btn-sm no-corner',
-                       'text' => '<i class="fa fa-print"></i> ' .__('auth.app.print').''
-                    ],
-                    [
-                       'extend' => 'reset',
-                       'className' => 'btn btn-default btn-sm no-corner',
-                       'text' => '<i class="fa fa-undo"></i> ' .__('auth.app.reset').''
-                    ],
-                    [
-                       'extend' => 'reload',
-                       'className' => 'btn btn-default btn-sm no-corner',
-                       'text' => '<i class="fa fa-refresh"></i> ' .__('auth.app.reload').''
-                    ],
-                ],
                  'language' => [
-                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/English.json'),
+                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/French.json'),
                  ],
             ]);
     }
@@ -95,11 +68,11 @@ class RotationDataTable extends DataTable
             'date_heur' => new Column([
                 'title' => __('models/rotations.fields.date_heur'),
                 'data' => 'date_heur',
-                'render' => 'function(data, type, row, meta) {
-                    return moment(data).format("DD-MM-YYYY HH:mm:ss");
+                'render' => 'function() {
+                    return moment(full.date_heur).format("DD-MM-YYYY HH:mm:ss");
                 }'
             ]),
-            'coordonne_gps' => new Column(['title' => __('models/rotations.fields.coordonne_gps'), 'data' => 'coordonne_gps'])
+            'adresse' => new Column(['title' => __('models/rotations.fields.adresse'), 'data' => 'adresse'])
         ];
     }
 
