@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\WebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,8 @@ Route::get('/checkOnline', function (App\Repositories\AttendanceRepository $atte
     if (Auth::check()) { }
     return $attendanceRepo->CountUserOnline();
 })->name('checkOnline');
+
+
+
+
+Route::match(['get', 'post'], '/webhook-endpoint', [WebhookController::class, 'handle']);

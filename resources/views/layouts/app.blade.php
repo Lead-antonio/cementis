@@ -40,6 +40,8 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
+
+    
     <div class="wrapper">
         <!-- Main Header -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -140,6 +142,30 @@
         })
     </script>
     -->
+    <script>
+        import Echo from 'laravel-echo';
+
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: process.env.MIX_PUSHER_APP_KEY,
+            cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+            encrypted: true,
+        });
+
+        // Votre code JavaScript ici
+        window.Echo.channel('webhooks')
+            .listen('WebhookReceived', (event) => {
+                console.log('Webhook received:', event.webhookData);
+
+                // Vérifiez la condition et rafraîchissez la page si nécessaire
+                if (event.refresh) {
+                    window.location.reload();
+                } else {
+                    // Mettez à jour l'interface utilisateur en fonction des données reçues...
+                    alert(event.webhookData);
+                }
+            });
+    </script>
     <script type="text/javascript">
         $(function() {
             bsCustomFileInput.init();
