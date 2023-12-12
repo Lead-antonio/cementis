@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WebhookController;
 
 Route::get('/', [
     App\Http\Controllers\DashboardController::class, 'index'
@@ -43,3 +44,4 @@ Route::resource('messages', App\Http\Controllers\MessageController::class);
 
 
 Route::resource('rotations', App\Http\Controllers\RotationController::class);
+

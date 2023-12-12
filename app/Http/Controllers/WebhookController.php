@@ -11,15 +11,7 @@ class WebhookController extends Controller
     {
         // Accédez aux données du webhook
         $webhookData = $request->all();
+        info('WebhookController handle method reached');
         event(new WebhookReceived($webhookData));
-
-        // Condition pour vérifier si $webhookData est vide
-        if (empty($webhookData)) {
-            // Si $webhookData est vide, vous pouvez retourner une indication pour rafraîchir la page
-            return response()->json(['Webhook' => $webhookData, 'refresh' => true]);
-        }
-
-        // Répondez au service émetteur du webhook si nécessaire
-        return response()->json(['Webhook' => $webhookData, 'refresh' => false]);
     }
 }
