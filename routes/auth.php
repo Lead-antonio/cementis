@@ -40,3 +40,6 @@ Route::resource('fileUploads', App\Http\Controllers\FileUploadController::class)
 
 
 Route::resource('messages', App\Http\Controllers\MessageController::class);
+
+
+Route::resource('rotations', App\Http\Controllers\RotationController::class);
