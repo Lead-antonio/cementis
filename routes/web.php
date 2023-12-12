@@ -16,6 +16,9 @@ use App\Http\Controllers\WebhookController;
 |
 */
 
+
+Route::post('/webhook-endpoint', [WebhookController::class, 'handle']);
+
 Route::get('lang/{lang}', ['as' => 'lang.switch', 'uses' => 'App\Http\Controllers\LanguageController@switchLang']);
 Auth::routes();
 
@@ -29,6 +32,3 @@ Route::get('/checkOnline', function (App\Repositories\AttendanceRepository $atte
 })->name('checkOnline');
 
 
-
-
-Route::match(['get', 'post'], '/webhook-endpoint', [WebhookController::class, 'handle']);
