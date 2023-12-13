@@ -61,6 +61,7 @@ class RotationDataTable extends DataTable
      */
     protected function getColumns()
     {
+        // return moment(full.date_heur).format("DD-MM-YYYY HH:mm:ss");
         return [
           
             'matricule' => new Column(['title' => __('models/rotations.fields.matricule'), 'data' => 'matricule']),
@@ -69,7 +70,7 @@ class RotationDataTable extends DataTable
                 'title' => __('models/rotations.fields.date_heur'),
                 'data' => 'date_heur',
                 'render' => 'function() {
-                    return moment(full.date_heur).format("DD-MM-YYYY HH:mm:ss");
+                    return moment.utc(full.date_heur).local().format("DD/MM/YYYY HH:mm:ss");
                 }'
             ]),
             'adresse' => new Column(['title' => __('models/rotations.fields.adresse'), 'data' => 'adresse'])

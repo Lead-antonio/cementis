@@ -6,6 +6,11 @@
     <title>{{ config('app.name') }}</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 
+    <!-- Remplacez le chemin avec le vôtre -->
+    <link rel="icon" type="image/png" href="{{ asset('images/cementis.jpg') }}">
+
+
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
 
@@ -54,10 +59,10 @@
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link" href="#"  aria-haspopup="true" aria-expanded="false">
                         <span class="flag-icon flag-icon-{{Config::get('languages')[App::getLocale()]['flag-icon']}}"></span> {{ Config::get('languages')[App::getLocale()]['display'] }}
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <div class="dropdown-menu" aria-labelledby="">
                         @foreach (Config::get('languages') as $lang => $language)
                         @if ($lang != App::getLocale())
                         <a class="dropdown-item" href="{{ route('lang.switch', $lang) }}"><span class="flag-icon flag-icon-{{$language['flag-icon']}}"></span> {{$language['display']}}</a>
@@ -67,13 +72,13 @@
                 </li>
                 <li class="nav-item dropdown user-menu">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{url('images/logo.png')}}" class="user-image img-circle elevation-2" alt="User Image">
+                        <img src="{{url('images/avatars.png')}}" class="user-image img-circle elevation-2" alt="User Image">
                         <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <!-- User image -->
                         <li class="user-header bg-primary">
-                            <img src="{{url('images/logo.png')}}" class="img-circle elevation-2" alt="User Image">
+                            <img src="{{url('images/cementis.jpg')}}" class="img-circle elevation-2" alt="User Image">
                             <p>
                                 {{ Auth::user()->name }}
                                 <small>Member since {{ Auth::user()->created_at->format('M. Y') }}</small>
@@ -107,9 +112,9 @@
         <!-- Main Footer -->
         <footer class="main-footer">
             <div class="float-right d-none d-sm-block">
-                <b>Version</b> 0.0.2
+                
             </div>
-            <strong>Copyright &copy; 2022 <a href="https://hau.xyz">hau.xyz</a>.</strong> All rights
+            <strong>Copyright &copy; 2022 <a href="#">M-TEC</a>.</strong> All rights
             reserved.
         </footer>
     </div>

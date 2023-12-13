@@ -6,7 +6,8 @@ hold-transition login-page
 @section('content')
 <div class="login-box">
     <div class="login-logo">
-        <a href="{{ route('home') }}">Cementis</a>
+        <a href="{{ route('home') }}"><img src="{{url('images/cementis.jpg')}}" alt="" style="width: 70%;
+            border-radius: 20px;"></a>
     </div>
 
     <!-- /.login-logo -->
