@@ -31,12 +31,13 @@ class Rotation extends Model
 
     public $fillable = [
         'id',
-        'matricule',
-        'mouvement',
-        'date_heur',
-        'coordonne_gps',
-        'adresse',
-        'tranche',
+        'imei',
+        'type',
+        'description',
+        'vehicule',
+        'date_heure',
+        'latitude',
+        'longitude',
     ];
 
     /**
@@ -46,12 +47,13 @@ class Rotation extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'matricule' => 'string',
-        'mouvement' => 'string',
-        'date_heur' => 'datetime',
-        'coordonne_gps' => 'string',
-        'adresse' => 'string',
-        'tranche' => 'string',
+        'imei' => 'string',
+        'type' => 'string',
+        'description' => 'string',
+        'vehicule' => 'string',
+        'date_heure' => 'datetime',
+        'latitude' => 'string',
+        'longitude' => 'string',
     ];
 
     /**

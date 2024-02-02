@@ -2,6 +2,7 @@
 
 @section('content')
     <section class="content-header">
+      {{-- @dd($data['totalHours']); --}}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
@@ -15,10 +16,6 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                               <h5>Ibity</h5>
                               <span class="badge badge-success badge-pill"><h5>75 heures</h5></span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <h5>Tamatave</h5>
-                              <span class="badge badge-success badge-pill"><h5>40 heures</h5></span>
                             </li>
                           </ul>
                       </div>
@@ -35,12 +32,8 @@
                         <div class="card-title" style="width: 100%;">
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center text-danger">
-                                <h5>Le véhicule portant l'immatriculation 3993AH a effectué :</h5>
-                                <span class="badge badge-danger badge-pill"><h5>{{$totalRotationIbity}} heures</h5></span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <h5> Le véhicule portant l'immatriculation 9345TK a effectué :</h5>
-                                <span class="badge badge-success badge-pill"><h5>{{$totalRotationTamatave}} heures</h5></span>
+                                <h5>Le véhicule portant l'immatriculation 3695TAH a effectué :</h5>
+                                <span class="badge badge-danger badge-pill"><h5>{{$info['totalHours']}} heures</h5></span>
                                 </li>
                             </ul>
                         </div>

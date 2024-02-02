@@ -6,10 +6,12 @@ return array (
   'fields' => 
   array (
     'id' => 'Id',
-    'matricule' => 'Matricule',
-    'mouvement' => 'Mouvement',
-    'date_heur' => 'Date Heur',
-    'coordonne_gps' => 'Coordonnée Gps',
-    'adresse' => 'Adresse',
+    'imei' => 'Imei',
+    'type' => 'Type',
+    'date_heure' => 'Date et heure',
+    'description' => 'Description',
+    'vehicule' => 'Véhicule',
+    'latitude' => 'Latitude',
+    'longitude' => 'Longitude',
   ),
 );

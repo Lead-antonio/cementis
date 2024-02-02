@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-{{-- @can('generator_builder.index')
+ {{-- @can('generator_builder.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
@@ -24,9 +24,9 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan
+@endcan --}}
 
-@can('attendances.index')
+{{--@can('attendances.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*attendances*');
 @endphp
@@ -113,4 +113,14 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         <p>@lang('models/rotations.plural')</p>
     </a>
 </li>
+
+
+<li class="nav-item">
+    <a href="{{ route('get.data.api') }}"
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-database"></i>
+        <p>Last Event For 7 days</p>
+    </a>
+</li>
+
 

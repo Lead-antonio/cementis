@@ -64,16 +64,19 @@ class RotationDataTable extends DataTable
         // return moment(full.date_heur).format("DD-MM-YYYY HH:mm:ss");
         return [
           
-            'matricule' => new Column(['title' => __('models/rotations.fields.matricule'), 'data' => 'matricule']),
-            'mouvement' => new Column(['title' => __('models/rotations.fields.mouvement'), 'data' => 'mouvement']),
-            'date_heur' => new Column([
-                'title' => __('models/rotations.fields.date_heur'),
+            'imei' => new Column(['title' => __('models/rotations.fields.imei'), 'data' => 'imei']),
+            'type' => new Column(['title' => __('models/rotations.fields.type'), 'data' => 'type']),
+            'vehicule' => new Column(['title' => __('models/rotations.fields.vehicule'), 'data' => 'vehicule']),
+            'description' => new Column(['title' => __('models/rotations.fields.description'), 'data' => 'description']),
+            'date_heure' => new Column([
+                'title' => __('models/rotations.fields.date_heure'),
                 'data' => 'date_heur',
                 'render' => 'function() {
-                    return moment.utc(full.date_heur).local().format("DD/MM/YYYY HH:mm:ss");
+                    return moment.utc(full.date_heure).local().format("DD/MM/YYYY HH:mm:ss");
                 }'
             ]),
-            'adresse' => new Column(['title' => __('models/rotations.fields.adresse'), 'data' => 'adresse'])
+            'latitude' => new Column(['title' => __('models/rotations.fields.latitude'), 'data' => 'latitude']),
+            'longitude' => new Column(['title' => __('models/rotations.fields.longitude'), 'data' => 'longitude']),
         ];
     }
 

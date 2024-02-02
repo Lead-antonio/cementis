@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RotationController;
 use App\Http\Controllers\WebhookController;
 
 /*
@@ -31,4 +32,6 @@ Route::get('/checkOnline', function (App\Repositories\AttendanceRepository $atte
     return $attendanceRepo->CountUserOnline();
 })->name('checkOnline');
 
+
+Route::get('/get/data/api', 'App\Http\Controllers\RotationController@getDataFromApi')->name('get.data.api');
 
