@@ -14,10 +14,18 @@
                       <div class="card-title" style="width: 100%;">
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                              <div class="form-group">
+                              {{-- <div class="form-group">
                                 {!! Form::label('vehicule', 'Choisir le véhicule :') !!}
                                 {!! Form::select('vehicule', ['' => 'Sélectionnez un véhicule'] + $vehicules, null, ['class' => 'form-control','id' => 'vehicleHandle']) !!}
+                              </div> --}}
+                               
+                              <div class="mb-2 row">
+                                {!! Form::label('vehicule', 'Choisir le véhicule :') !!}
+                                <div class="col-sm-7">
+                                  {!! Form::select('vehicule', ['' => 'Sélectionnez un véhicule'] + $vehicules, null, ['class' => 'form-control','id' => 'vehicleHandle']) !!}
+                                </div>
                               </div>
+
                             </li>
                           </ul>
                       </div>
@@ -35,7 +43,7 @@
                             <ul class="list-group" id="rotation-report">
                               <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <h5>
-                                  
+                                  Aucun véhicule Sélectionné
                                 </h5>
                               </li>
                             </ul>
