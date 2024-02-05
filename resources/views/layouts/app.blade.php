@@ -104,6 +104,8 @@
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
+            <div id="loader" class="loader"></div>
+            <div id="overlay"></div>
             <section class="content">
                 @yield('content')
             </section>
@@ -163,6 +165,44 @@
             })
         }, 10000);
     </script>
+
+<style>
+       
+    #loader {
+         display: none;
+         border: 8px solid #f3f3f3;
+         border-top: 8px solid #3498db;
+         border-radius: 50%;
+         width: 50px;
+         height: 50px;
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         margin-top: -25px; /* La moitié de la hauteur du loader */
+         margin-left: -25px; /* La moitié de la largeur du loader */
+         z-index: 9999;
+         animation: spin 1s linear infinite;
+     }
+
+     #overlay {
+         display: none;
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background-color: rgba(128, 128, 128, 0.7); /* Couleur semi-transparente gris */
+         z-index: 9998; /* Assure que l'overlay est au-dessus de tout autre contenu */
+     }
+
+
+     @keyframes spin {
+         0% { transform: rotate(0deg); }
+         100% { transform: rotate(360deg); }
+     }
+
+
+ </style>
 
     @stack('third_party_scripts')
 

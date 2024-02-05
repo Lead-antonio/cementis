@@ -8,14 +8,16 @@
                 <div class="col-sm-6">
                   <div class="card border-success">
                     <div class="card-header">
-                        <h3>L'objectif d'une rotation par zone</h3>
+                        <h3>Véhicule à vérifier</h3>
                     </div>
-                    <div class="card-body text-success">
+                    <div class="card-body">
                       <div class="card-title" style="width: 100%;">
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                              <h5>Ibity</h5>
-                              <span class="badge badge-success badge-pill"><h5>75 heures</h5></span>
+                              <div class="form-group">
+                                {!! Form::label('vehicule', 'Choisir le véhicule :') !!}
+                                {!! Form::select('vehicule', ['' => 'Sélectionnez un véhicule'] + $vehicules, null, ['class' => 'form-control','id' => 'vehicleHandle']) !!}
+                              </div>
                             </li>
                           </ul>
                       </div>
@@ -28,13 +30,14 @@
                     <div class="card-header">
                         <h3>Rapport de Rotations</h3>
                     </div>
-                    <div class="card-body text-success">
+                    <div class="card-body">
                         <div class="card-title" style="width: 100%;">
-                            <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between align-items-center text-danger">
-                                <h5>Le véhicule portant l'immatriculation 3695TAH a effectué :</h5>
-                                <span class="badge badge-danger badge-pill"><h5>{{$info['totalHours']}} heures</h5></span>
-                                </li>
+                            <ul class="list-group" id="rotation-report">
+                              <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <h5>
+                                  
+                                </h5>
+                              </li>
                             </ul>
                         </div>
                      </div>
@@ -64,5 +67,7 @@
     </div>
 
 @endsection
+
+@include('rotations.script')
 
 

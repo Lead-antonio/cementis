@@ -35,3 +35,5 @@ Route::get('/checkOnline', function (App\Repositories\AttendanceRepository $atte
 
 Route::get('/get/data/api', 'App\Http\Controllers\RotationController@getDataFromApi')->name('get.data.api');
 
+Route::get('/get-rotations/{vehicle}', 'App\Http\Controllers\RotationController@getRotationDurations')->name('rotations.by.vehicle');
+

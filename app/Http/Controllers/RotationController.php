@@ -35,7 +35,8 @@ class RotationController extends AppBaseController
      */
     public function index(RotationDataTable $rotationDataTable){
         $client = new Client();
-        $info = $this->getRotationDurations();
+        // $info = $this->getRotationDurations();
+        $vehicules = $this->getVehiculeRotation();
 
          // Spécifiez l'URL de l'API que vous souhaitez interroger
          $apiUrl = 'www.m-tectracking.mg/api/api.php?api=user&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
@@ -67,7 +68,7 @@ class RotationController extends AppBaseController
             }
         }
         
-        return $rotationDataTable->render('rotations.index', compact('info'));
+        return $rotationDataTable->render('rotations.index', compact('vehicules'));
     }
 
     public function getDataFromApi(){
@@ -94,9 +95,15 @@ class RotationController extends AppBaseController
         return view('data.index', ['data' => $data]);
     }
 
-    public function getRotationDurations(){
+    public function getVehiculeRotation(){
+        $vehicles = Rotation::distinct()->pluck('vehicule', 'vehicule')->toArray();
+
+        return $vehicles;
+    }
+
+    public function getRotationDurations($vehicle){
          // Sélectionnez toutes les rotations pour le véhicule donné
-        $rotations = Rotation::where('vehicule', "=" ,"3695TAH")->get();
+        $rotations = Rotation::where('vehicule', "=" ,$vehicle)->get();
 
         $rotationDurationsDetail = [];
         $totalDuration = 0;
@@ -130,10 +137,12 @@ class RotationController extends AppBaseController
         
 
         // Retournez le tableau contenant les durées pour chaque rotation
-        return $data = [
+        $data = [
+            'vehicule' => $vehicle,
             'détail' => $rotationDurationsDetail,
             'totalHours' => $totalDuration
         ];
+        return response()->json($data);
     }
 
     public function getTotalRotationDuration($vehicle){
