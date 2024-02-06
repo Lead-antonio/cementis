@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\DataTables\RotationDataTable;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Http\Requests;
 use App\Http\Requests\CreateRotationRequest;
 use App\Http\Requests\UpdateRotationRequest;
 use Carbon\Carbon;
 use App\Repositories\RotationRepository;
 use Flash;
+use Requests;
 use App\Http\Controllers\AppBaseController;
 use App\Models\Rotation;
 use GuzzleHttp\Client;
@@ -35,14 +35,13 @@ class RotationController extends AppBaseController
      */
     public function index(RotationDataTable $rotationDataTable){
         $client = new Client();
-        // $info = $this->getRotationDurations();
         $vehicules = $this->getVehiculeRotation();
 
-         // Spécifiez l'URL de l'API que vous souhaitez interroger
-         $apiUrl = 'www.m-tectracking.mg/api/api.php?api=user&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
+        // Spécifiez l'URL de l'API que vous souhaitez interroger
+        $apiUrl = 'www.m-tectracking.mg/api/api.php?api=user&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
  
-         // Faites la requête GET à l'API
-         $response = $client->get($apiUrl);
+        // Faites la requête GET à l'API
+        $response = $client->get($apiUrl);
 
          // Obtenez le contenu de la réponse
         $data = json_decode($response->getBody()->getContents(), true);
@@ -72,17 +71,15 @@ class RotationController extends AppBaseController
     }
 
     public function getDataFromApi(){
-         // Créez une instance de Guzzle
-         $client = new Client();
 
-         // Spécifiez l'URL de l'API que vous souhaitez interroger
-         $apiUrl = 'www.m-tectracking.mg/api/api.php?api=user&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
- 
-         // Faites la requête GET à l'API
-         $response = $client->get($apiUrl);
+        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
 
-         // Obtenez le contenu de la réponse
-        $data = json_decode($response->getBody()->getContents(), true);
+        $ch = curl_init($zone);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($response, true);
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;

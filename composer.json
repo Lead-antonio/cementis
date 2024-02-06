@@ -22,6 +22,7 @@
         "laravel/ui": "^3.0",
         "laravelcollective/html": "^6.2",
         "pusher/pusher-php-server": "^7.2",
+        "rmccue/requests": "^2.0",
         "spatie/laravel-permission": "^4.2",
         "twilio/sdk": "^7.12",
         "vonage/client": "^4.0",

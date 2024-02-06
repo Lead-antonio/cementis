@@ -45,3 +45,6 @@ Route::resource('messages', App\Http\Controllers\MessageController::class);
 
 Route::resource('rotations', App\Http\Controllers\RotationController::class);
 
+
+
+Route::resource('parametres', App\Http\Controllers\ParametreController::class);
