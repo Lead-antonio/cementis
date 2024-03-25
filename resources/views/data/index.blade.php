@@ -7,13 +7,13 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Véhicule</th>
-                    <th scope="col">Date et Heure</th>
-                    <th scope="col">Latitude</th>
-                    <th scope="col">Longitude</th>
+                    <th scope="col">@lang('models/api.fields.id') </th>
+                    <th scope="col">@lang('models/api.fields.type') </th>
+                    <th scope="col">@lang('models/api.fields.description')</th>
+                    <th scope="col">@lang('models/api.fields.vehicle')</th>
+                    <th scope="col">@lang('models/api.fields.date')</th>
+                    <th scope="col">@lang('models/api.fields.latitude')</th>
+                    <th scope="col">@lang('models/api.fields.longitude')</th>
                 </tr>
                 </thead>
                 <tbody class="table-group-divider">
