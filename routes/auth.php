@@ -48,3 +48,6 @@ Route::resource('rotations', App\Http\Controllers\RotationController::class);
 
 
 Route::resource('parametres', App\Http\Controllers\ParametreController::class);
+
+
+Route::resource('dataExcels', App\Http\Controllers\DataExcelController::class);
