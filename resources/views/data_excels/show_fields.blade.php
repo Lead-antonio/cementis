@@ -1,8 +1,8 @@
 <!-- Id Field -->
-<div class="col-sm-12">
+{{-- <div class="col-sm-12">
     {!! Form::label('id', __('models/dataExcels.fields.id').':') !!}
     <p>{{ $dataExcel->id }}</p>
-</div>
+</div> --}}
 
 <!-- Camion Field -->
 <div class="col-sm-12">
@@ -45,7 +45,7 @@
     {!! Form::label('adresse_livraison', __('models/dataExcels.fields.adresse_livraison').':') !!}
     <p>{{ $dataExcel->adresse_livraison }}</p>
 </div>
-
+{{-- 
 <!-- Created At Field -->
 <div class="col-sm-12">
     {!! Form::label('created_at', __('models/dataExcels.fields.created_at').':') !!}
@@ -56,5 +56,5 @@
 <div class="col-sm-12">
     {!! Form::label('updated_at', __('models/dataExcels.fields.updated_at').':') !!}
     <p>{{ $dataExcel->updated_at }}</p>
-</div>
+</div> --}}
 

@@ -7,7 +7,7 @@
 <!-- Date Debut Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('date_debut', __('models/dataExcels.fields.date_debut').':') !!}
-    {!! Form::text('date_debut', null, ['class' => 'form-control','id'=>'date_debut']) !!}
+    {!! Form::date('date_debut', null, ['class' => 'form-control','id'=>'date_debut']) !!}
 </div>
 
 @push('page_scripts')
@@ -20,10 +20,9 @@
     </script>
 @endpush
 
-<!-- Date Fin Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('date_fin', __('models/dataExcels.fields.date_fin').':') !!}
-    {!! Form::text('date_fin', null, ['class' => 'form-control','id'=>'date_fin']) !!}
+    {!! Form::date('date_fin', null, ['class' => 'form-control', 'id' => 'date_fin']) !!}
 </div>
 
 @push('page_scripts')
