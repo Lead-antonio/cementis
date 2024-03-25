@@ -119,7 +119,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     <a href="{{ route('get.data.api') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-database"></i>
-        <p>Last Event For 7 days</p>
+        <p>@lang('models/rotations.fields.event')</p>
     </a>
 </li>
 

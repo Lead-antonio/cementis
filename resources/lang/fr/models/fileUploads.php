@@ -1,14 +1,13 @@
 <?php
 
 return array (
-  'singular' => 'Setting',
-  'plural' => 'Settings',
+  'singular' => 'FileUpload',
+  'plural' => 'FileUploads',
   'fields' => 
   array (
     'id' => 'Id',
-    'name' => 'Zone',
-    'color' => 'Color',
-    'limite' => 'Limite',
+    'name' => 'Name',
+    'file_upload' => 'File Upload',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
   ),

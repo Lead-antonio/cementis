@@ -1,13 +1,13 @@
 <?php
 
 return array (
-  'singular' => 'Setting',
-  'plural' => 'Settings',
+  'singular' => 'Paramètre',
+  'plural' => 'Paramètres',
   'fields' => 
   array (
     'id' => 'Id',
     'name' => 'Zone',
-    'color' => 'Color',
+    'color' => 'Couleur',
     'limite' => 'Limite',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
