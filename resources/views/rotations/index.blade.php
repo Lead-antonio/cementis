@@ -8,14 +8,14 @@
                 <div class="col-sm-6">
                   <div class="card border-success">
                     <div class="card-header">
-                        <h3>Véhicule à vérifier</h3>
+                        <h3>@lang('models/rotations.fields.check_vehicle')</h3>
                     </div>
                     <div class="card-body">
                       <div class="card-title" style="width: 100%;">
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                               <div class="mb-2 row">
-                                {!! Form::label('vehicule', 'Choisir le véhicule :') !!}
+                                {!! Form::label('vehicule', __('models/rotations.fields.choose').':') !!}
                                 <div class="col-sm-7">
                                   {!! Form::select('vehicule', ['' => 'Sélectionnez un véhicule'] + $vehicules, null, ['class' => 'form-control','id' => 'vehicleHandle']) !!}
                                 </div>
@@ -31,14 +31,14 @@
                 <div class="col-sm-6">
                   <div class="card">
                     <div class="card-header">
-                        <h3>Rapport de Rotations</h3>
+                        <h3>@lang('models/rotations.fields.report')</h3>
                     </div>
                     <div class="card-body">
                         <div class="card-title" style="width: 100%;">
                             <ul class="list-group" id="rotation-report">
                               <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <h5>
-                                  Aucun véhicule sélectionné
+                                   @lang('models/rotations.fields.no_vehicle') 
                                 </h5>
                               </li>
                             </ul>
