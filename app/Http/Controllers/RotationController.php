@@ -74,7 +74,7 @@ class RotationController extends AppBaseController
 
         $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS_7D';
 
-        $ch = curl_init($zone);
+        $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         $response = curl_exec($ch);
@@ -82,7 +82,7 @@ class RotationController extends AppBaseController
         $data = json_decode($response, true);
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
+        $perPage = 10;       
 
         $currentPageSearchResults = array_slice($data, ($currentPage - 1) * $perPage, $perPage);
 

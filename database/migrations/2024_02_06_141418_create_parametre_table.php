@@ -18,7 +18,7 @@ class CreateParametreTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('color');
-            $table->integer('limite');
+            $table->integer('limite')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
