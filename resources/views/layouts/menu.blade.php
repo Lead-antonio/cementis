@@ -24,7 +24,7 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan  --}}
+@endcan --}
 
 {{--@can('attendances.index')
 @php
@@ -130,13 +130,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         {{-- <i class="nav-icon fas fa-gear"></i> --}}
         <i class="nav-icon fas fa-wrench"></i>
         <p>@lang('models/parametres.plural')</p>
-    </a>
-</li>
-
-<li class="nav-item">
-    <a href="{{ route('dataExcels.index') }}" class="nav-link {{ Request::is('dataExcels*') ? 'active' : '' }}">
-        <i class="fas fa-file-excel"></i> <!-- Icône Excel -->
-        <p>@lang('models/dataExcels.plural')</p>
     </a>
 </li>
 
