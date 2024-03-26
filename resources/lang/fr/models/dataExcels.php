@@ -1,19 +1,19 @@
 <?php
 
 return array (
-  'singular' => 'DataExcel',
-  'plural' => 'DataExcels',
+  'singular' => 'Donnée Excel',
+  'plural' => 'Données Excels',
   'fields' => 
   array (
     'id' => 'Id',
     'camion' => 'Camion',
-    'date_debut' => 'Date Debut',
-    'date_fin' => 'Date Fin',
-    'delais_route' => 'Delais Route',
+    'date_debut' => 'Date de début',
+    'date_fin' => 'Date de Fin',
+    'delais_route' => 'Délais de route',
     'sigdep_reel' => 'Sigdep Reel',
     'marche' => 'Marché',
     'adresse_livraison' => 'Adresse Livraison',
-    'created_at' => 'Created At',
-    'updated_at' => 'Updated At',
+    'created_at' => 'Crée le',
+    'updated_at' => 'Modifiée le',
   ),
 );

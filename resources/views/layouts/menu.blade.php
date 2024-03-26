@@ -141,9 +141,8 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li>
 
- 
-    <a href="{{ route('fichierExcels.index') }}"
-       class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
+<li>
+    <a href="{{ route('fichierExcels.index') }}" class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-file"></i> 
        <p>@lang('models/fichierExcels.plural')</p>
     </a>
