@@ -1,9 +1,9 @@
 {!! Form::open(['route' => ['fichierExcels.destroy', $id], 'method' => 'delete']) !!}
 <div class='btn-group'>
-    <a href="{{ route('fichierExcels.show', $id) }}" class='btn btn-default btn-xs'>
+    <a href="{{ route('fichierExcels.show', $id) }}" class='btn btn-primary btn-xs'>
         <i class="fa fa-eye"></i>
     </a>
-    <a href="{{ route('fichierExcels.edit', $id) }}" class='btn btn-default btn-xs'>
+    <a href="{{ route('fichierExcels.edit', $id) }}" class='btn btn-secondary btn-xs'>
         <i class="fa fa-edit"></i>
     </a>
     {!! Form::button('<i class="fa fa-trash"></i>', [
