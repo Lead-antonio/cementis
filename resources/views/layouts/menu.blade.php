@@ -18,7 +18,7 @@ $isDashboardActive = Request::is($urlAdmin);
 
 @can('generator_builder.index')
 {{-- @can('generator_builder.index') --}}
-@php
+{{-- @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
 <li class="nav-item">
@@ -27,7 +27,7 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan  
+@endcan   --}}
 
 
 {{--@can('attendances.index')

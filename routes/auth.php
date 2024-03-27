@@ -38,36 +38,13 @@ Route::post(
 
 Route::resource('fileUploads', App\Http\Controllers\FileUploadController::class);
 
-
-
 Route::resource('messages', App\Http\Controllers\MessageController::class);
 
-
 Route::resource('rotations', App\Http\Controllers\RotationController::class);
-
-
 
 Route::resource('parametres', App\Http\Controllers\ParametreController::class);
 
 
-Route::resource('dataExcels', App\Http\Controllers\DataExcelController::class);
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
-
-// Route::post('/import-excel', 'App\Http\Controllers\FichierExcelController@import_excel')->name('import.excel');
-
-// Route::get('/import-affichage', 'App\Http\Controllers\FichierExcelController@affichage_import')->name('import.affichage');
-
-
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
-
-
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
-
-
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
-
-
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
 
 Route::resource('penalites', App\Http\Controllers\PenaliteController::class);
 

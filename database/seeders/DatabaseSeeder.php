@@ -14,9 +14,6 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(UserSeeder::class);
-        // $this->call(DataExcelTableSeeder::class);
-        // $this->call(ImportExcelSeeder::class);
-        // $this->call(DataExcelTableSeeder::class);
         $this->call(PenaliteTableSeeder::class);
         // $this->call(RotationTableSeeder::class);
     }
