@@ -68,3 +68,6 @@ Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::cl
 
 
 Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
+
+
+Route::resource('penalites', App\Http\Controllers\PenaliteController::class);

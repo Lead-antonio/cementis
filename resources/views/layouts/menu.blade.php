@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-{{-- @can('generator_builder.index')
+ {{-- @can('generator_builder.index') --}}
 @can('generator_builder.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
@@ -25,7 +25,8 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan  --}}
+@endcan 
+
 
 {{--@can('attendances.index')
 @php
@@ -136,15 +137,43 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('dataExcels.index') }}" class="nav-link {{ Request::is('dataExcels*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-file-excel"></i> <!-- Icône Excel -->
+        <i class="fas fa-file-excel"></i> <!-- Icône Excel -->
         <p>@lang('models/dataExcels.plural')</p>
     </a>
 </li>
 
-<li class="nav-item">
-    <a href="{{ route('fichierExcels.index') }}" class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
+ 
+    <a href="{{ route('fichierExcels.index') }}"
+       class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-file"></i> 
        <p>@lang('models/fichierExcels.plural')</p>
     </a>
 </li>
+
+<li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-cog"></i>
+        <p>
+            Paramètres
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                <p>@lang('models/penalites.plural')</p>
+            </a>
+        </li>
+        <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
+    </ul>
+</li>
+
+{{-- <li class="nav-item">
+    <a href="{{ route('penalites.index') }}"
+       class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-exclamation-triangle"></i> 
+        <p>@lang('models/penalites.plural')</p>
+    </a>
+</li> --}}
 
