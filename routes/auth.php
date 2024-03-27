@@ -53,12 +53,9 @@ Route::resource('parametres', App\Http\Controllers\ParametreController::class);
 Route::resource('dataExcels', App\Http\Controllers\DataExcelController::class);
 Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
 
-Route::post('/import-excel', 'App\Http\Controllers\FichierExcelController@import_excel')->name('import.excel');
+// Route::post('/import-excel', 'App\Http\Controllers\FichierExcelController@import_excel')->name('import.excel');
 
-Route::get('/import-affichage', 'App\Http\Controllers\FichierExcelController@affichage_import')->name('import.affichage');
-
-
-Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
+// Route::get('/import-affichage', 'App\Http\Controllers\FichierExcelController@affichage_import')->name('import.affichage');
 
 
 Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
@@ -69,5 +66,14 @@ Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::cl
 
 Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
 
+
+Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
 
 Route::resource('penalites', App\Http\Controllers\PenaliteController::class);
+
+Route::resource('importExcels', App\Http\Controllers\ImportExcelController::class);
+
+Route::get('/import-affichage', 'App\Http\Controllers\ImportExcelController@affichage_import')->name('import.affichage');
+
+Route::post('/import-excel', 'App\Http\Controllers\ImportExcelController@import_excel')->name('import.excel');
+
