@@ -20,7 +20,7 @@ class CreateImportExcelTable extends Migration
             $table->string('rfid_chauffeur');
             $table->string('camion');
             $table->dateTime('date_debut');
-            $table->dateTime('date_fin');
+            $table->dateTime('date_fin')->nullable();
             $table->decimal('delais_route');
             $table->string('sigdep_reel');
             $table->string('marche');
