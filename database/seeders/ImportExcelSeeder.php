@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\DataExcel;
-class DataExcelTableSeeder extends Seeder
+use App\Models\ImportExcel;
+use Faker\Factory as Faker;
+
+class ImportExcelSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -23,7 +25,7 @@ class DataExcelTableSeeder extends Seeder
             ['6366TBM', '2024-01-30', '2024-02-05', 3, 'D011', 'ABS', 'QIE SOASOA RASON AMBOSITRA'],
             ['7748TBM', '2024-02-01', '2024-02-02', 0.25, 'D006', 'FNR', 'Q. RAHERY AMBALAVAO'],
             ['8446TAU', '2024-02-01', '2024-02-01', 0.25, 'D011', 'TAV', 'ADRESSE DE LIVRAISON'],
-            ['99999', '2024-02-01', '2024-02-01', 0.25, 'D011', 'TAV', 'ADRESSE DE LIVRAISON'],
+            ['9999TZV', '2024-02-01', '2024-02-01', 0.25, 'D011', 'TAV', 'ADRESSE DE LIVRAISON'],
             ['8428TBL', '2024-02-02', '2024-02-02', 0.25, 'D001S', 'TNR', 'AMPITATAFIKA'],
             ['0192TBE', '2024-02-02', '2024-02-02', 0.25, 'D001S', 'TNR', 'AMPITATAFIKA'],
             ['7512TAP', '2024-02-02', '2024-02-02', 0.25, 'D001S', 'TNR', 'AMPANGABE - USINE JR METAUX'],
@@ -39,8 +41,12 @@ class DataExcelTableSeeder extends Seeder
             // Ajoutez ici les autres données d'importation
         ];
 
+        $faker = Faker::create();
+
         foreach ($data as $row) {
-            DataExcel::create([
+            ImportExcel::create([
+                'name_importation' => $faker->unique()->word, // Générer une valeur aléatoire pour name_importation
+                'rfid_chauffeur' => $faker->unique()->word,
                 'camion' => $row[0],
                 'date_debut' => $row[1],
                 'date_fin' => $row[2],
@@ -51,4 +57,4 @@ class DataExcelTableSeeder extends Seeder
             ]);
         }
     }
-    }
+}

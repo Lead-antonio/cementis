@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     @lang('models/fichierExcels.singular')
+                     <h1>@lang('models/fichierExcels.singular')</h1>
                 </div>
             </div>
         </div>
@@ -24,16 +24,26 @@
             <div class="card-body">
                 <div class="row">
                     
+                    {{-- <div class="form-group col-sm-6">
+                        {!! Form::label('fichier', __('Veuillez importer le fichier excel'), ['class' => 'custom-file-label']) !!}
+                        {!! Form::file('excel_file', ['class' => 'custom-file-input']) !!}
+                    </div> --}}
+
                     <div class="form-group col-sm-6">
-                        {!! Form::label('fichier', __('Veuillez importer le fichier excel').':') !!}
-                        {!! Form::file('excel_file', ['class' => 'form-control']) !!}
+                        {!! Form::label('file_upload', __('models/fileUploads.fields.file_upload').':') !!}
+                        <div class="input-group">
+                            <div class="custom-file">
+                                {!! Form::file('excel_file', ['class' => 'custom-file-input']) !!}
+                                {!! Form::label('excel_file', 'Veuillez importer le fichier excel', ['class' => 'custom-file-label']) !!}
+                            </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
 
             <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
+                {!! Form::submit(__('crud.save'), ['class' => 'btn btn-primary']) !!}
                 <a href="{{ route('fichierExcels.index') }}" class="btn btn-default">
                  @lang('crud.cancel')
                 </a>

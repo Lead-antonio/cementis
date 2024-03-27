@@ -7,7 +7,6 @@ use App\Http\Requests;
 use App\Http\Requests\CreateImportExcelRequest;
 use App\Http\Requests\UpdateImportExcelRequest;
 use App\Repositories\ImportExcelRepository;
-use Flash;
 use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
 use Response;
@@ -18,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ImportExcel;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Importer;
+use RealRashid\SweetAlert\Facades\Alert;
 use Excel;
 
 class ImportExcelController extends AppBaseController
@@ -39,7 +39,29 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable)
     {
+        // dd($this->calendar("tempora", "2024-01-29", ""));
         return $importExcelDataTable->render('import_excels.index');
+    }
+
+    public function calendar($rfid, $date_debut, $date_fin){
+        $valeur_retour = 0;
+        if($date_debut !== null && $date_fin !== null){
+            $dateExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+                ->where('date_debut', '<=', $date_fin)
+                ->where('date_fin', '>=', $date_debut)
+                ->get();
+            if(!$dateExcel->isEmpty()){
+                $valeur_retour = 1;
+            }
+        } elseif($date_debut !== null && $date_fin === null) {
+            $dateExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+                        ->where('date_debut', '=', $date_debut)
+                        ->get();        
+            if(!$dateExcel->isEmpty()){
+                $valeur_retour = 1;
+            }
+        }
+        return $valeur_retour;
     }
 
     /**
@@ -65,7 +87,7 @@ class ImportExcelController extends AppBaseController
 
         $importExcel = $this->importExcelRepository->create($input);
 
-        Flash::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
+        Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
 
         return redirect(route('importExcels.index'));
     }
@@ -82,7 +104,7 @@ class ImportExcelController extends AppBaseController
         $importExcel = $this->importExcelRepository->find($id);
 
         if (empty($importExcel)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
 
             return redirect(route('importExcels.index'));
         }
@@ -102,7 +124,7 @@ class ImportExcelController extends AppBaseController
         $importExcel = $this->importExcelRepository->find($id);
 
         if (empty($importExcel)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
 
             return redirect(route('importExcels.index'));
         }
@@ -123,14 +145,14 @@ class ImportExcelController extends AppBaseController
         $importExcel = $this->importExcelRepository->find($id);
 
         if (empty($importExcel)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
 
             return redirect(route('importExcels.index'));
         }
 
         $importExcel = $this->importExcelRepository->update($request->all(), $id);
 
-        Flash::success(__('messages.updated', ['model' => __('models/importExcels.singular')]));
+        Alert::success(__('messages.updated', ['model' => __('models/importExcels.singular')]));
 
         return redirect(route('importExcels.index'));
     }
@@ -147,14 +169,14 @@ class ImportExcelController extends AppBaseController
         $importExcel = $this->importExcelRepository->find($id);
 
         if (empty($importExcel)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importExcels.singular')]));
 
             return redirect(route('importExcels.index'));
         }
 
         $this->importExcelRepository->delete($id);
 
-        Flash::success(__('messages.deleted', ['model' => __('models/importExcels.singular')]));
+        Alert::success(__('messages.deleted', ['model' => __('models/importExcels.singular')]));
 
         return redirect(route('importExcels.index'));
     }
@@ -167,7 +189,7 @@ class ImportExcelController extends AppBaseController
      */
     public function affichage_import()
     {
-        return view('fichier_excels.create');
+        return view('import_excels.import');
     }
 
 
@@ -203,7 +225,7 @@ class ImportExcelController extends AppBaseController
         Excel::import($import, $file);
 
 
-        Flash::success(__('Importation réussie'));
+        Alert::success(__('Importation réussie'));
 
         return redirect(route('importExcels.index'));
     }

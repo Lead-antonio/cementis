@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                   @lang('models/importExcels.plural')
+                   <h1>@lang('models/importExcels.plural')</h1>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
@@ -20,7 +20,7 @@
 
     <div class="content px-3">
 
-        @include('flash::message')
+        @include('sweetalert::alert')
 
         <div class="clearfix"></div>
 

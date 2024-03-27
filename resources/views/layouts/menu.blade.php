@@ -14,8 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-@can('generator_builder.index')
-{{-- @can('generator_builder.index') --}}
+{{-- @can('generator_builder.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
@@ -25,7 +24,7 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan 
+@endcan  --}}
 
 {{--@can('attendances.index')
 @php
@@ -125,14 +124,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li>
 
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('parametres.index') }}"
        class="nav-link {{ Request::is('parametres*') ? 'active' : '' }}">
-        {{-- <i class="nav-icon fas fa-gear"></i> --}}
         <i class="nav-icon fas fa-wrench"></i>
         <p>@lang('models/parametres.plural')</p>
     </a>
-</li>
+</li> --}}
 
 {{-- <li class="nav-item">
     <a href="{{ route('dataExcels.index') }}" class="nav-link {{ Request::is('dataExcels*') ? 'active' : '' }}">
