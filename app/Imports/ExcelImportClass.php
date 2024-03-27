@@ -6,49 +6,48 @@ use App\Models\ImportExcel;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-class ExcelImportClass implements ToModel
+class ExcelImportClass implements ToModel, WithHeadingRow
 {
+    protected $name_file_excel;
+
+    public function __construct($name_file_excel)
+    {
+        $this->name_file_excel = $name_file_excel;
+    }
 
     public function model(array $row)
     {
-        dd($row[0]);
+        $date_fin = $row['fin'];
+
+        $excel_date = $row['date_debut'];
+        $unix_timestamp = Date::excelToTimestamp($excel_date);
+        $date_debut = Carbon::createFromTimestamp($unix_timestamp);
+
+        // Vérifier si la valeur de date_fin est vide
+        if (empty($date_fin)) {
+
+        }else{
+
+            $excel_date_fin = $row['fin'];
+            $unix_timestamp_datefin = Date::excelToTimestamp($excel_date_fin);
+            $date_fin = Carbon::createFromTimestamp($unix_timestamp_datefin);
+        }
+
         return new ImportExcel([
-            'name_importation' => "test",
+            'name_importation' => $this->name_file_excel,
             'rfid_chauffeur' => "test",
-            'camion' => $row[0],
-            'date_debut' => Carbon::createFromFormat('j/m/Y H:i:s', $row[1])->format('Y-m-d H:i:s'),
-            'date_fin' => Carbon::createFromFormat('j/m/Y H:i:s', $row[2])->format('Y-m-d H:i:s'),
-            'delais_route' => $row[3],
-            'sigdep_reel' => $row[4],
-            'marche' => $row[5],
-            'adresse_livraison' => $row[6],
-            // Map other columns as needed
+            'camion' => $row['camion'],
+            'date_debut' => $date_debut,
+            'date_fin' => $date_fin,
+            'delais_route' => $row['delais_de_route'],
+            'sigdep_reel' => $row['sigdep_reel'],
+            'marche' => $row['marche'],
+            'adresse_livraison' => $row['adresse_de_livraison'],
         ]);
     }
-
-    // /**
-    // * @param Collection $collection
-    // */
-    // public function collection(Collection $collection)
-    // {
-    //     //
-    //     $importedData = [];
-
-
-        
-    //     // foreach ($collection as $row) {
-    //     //     $importedData[] = [
-    //     //         'camion' => $row[0],
-    //     //         'date_debut' => $row[1],
-    //     //         'date_fin' => $row[2],
-    //     //         'delais_route' => $row[3],
-    //     //         'sigdep_reel' => $row[4],
-    //     //         'marche' => $row[5],
-    //     //         'adresse_livraison' => $row[6],
-    //     //     ];
-    //     // }
-    // }
 }

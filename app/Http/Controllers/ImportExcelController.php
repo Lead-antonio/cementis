@@ -14,9 +14,11 @@ use Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
+// use Maatwebsite\Excel\Facades\Excel;
 use App\Models\ImportExcel;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Importer;
+use Excel;
 
 class ImportExcelController extends AppBaseController
 {
@@ -193,15 +195,17 @@ class ImportExcelController extends AppBaseController
         ]);
 
 
-        $file = $request->file('excel_file');
+        $file = $request->file('excel_file');  
 
-        // dd($file);
+        // Ajout du nom du fichier importer 
+        $import = new ExcelImportClass($name_file_excel);
 
-        Excel::import(new ExcelImportClass, $file);
-        
-        Flash::success(__('Importation reussie'));
+        Excel::import($import, $file);
 
-        return redirect(route('fichierExcels.index'));
+
+        Flash::success(__('Importation réussie'));
+
+        return redirect(route('importExcels.index'));
     }
 
 
