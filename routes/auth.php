@@ -69,6 +69,8 @@ Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::cl
 
 Route::resource('fichierExcels', App\Http\Controllers\FichierExcelController::class);
 
+Route::resource('penalites', App\Http\Controllers\PenaliteController::class);
+
 Route::resource('importExcels', App\Http\Controllers\ImportExcelController::class);
 
 Route::get('/import-affichage', 'App\Http\Controllers\ImportExcelController@affichage_import')->name('import.affichage');
