@@ -1,12 +1,12 @@
 <?php
 
 return array (
-  'singular' => 'Penalite',
-  'plural' => 'Penalites',
+  'singular' => 'Pénalité',
+  'plural' => 'Pénalités',
   'fields' => 
   array (
     'id' => 'Id',
-    'event' => 'Evenement',
-    'point_penalite' => 'Point de penalite',
+    'event' => 'Evénement',
+    'point_penalite' => 'Point de pénalités',
   ),
 );
