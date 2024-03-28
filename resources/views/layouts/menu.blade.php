@@ -14,6 +14,20 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
+
+@can('generator_builder.index')
+@php
+$isUserActive = Request::is($urlAdmin.'*generator_builder*');
+@endphp
+<li class="nav-item">
+    <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
+        <i class="nav-icon fas fa-coins"></i>
+        <p>@lang('menu.generator_builder.title')</p>
+    </a>
+</li>
+@endcan  
+
+
 {{-- @can('generator_builder.index')
 
 @can('generator_builder.index')
@@ -151,15 +165,41 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li> --}}
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('importExcels.index') }}"
        class="nav-link {{ Request::is('importExcels*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-file"></i> 
         <p>@lang('models/importExcels.plural')</p>
     </a>
-</li>
+</li> --}}
 
 <li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-calendar"></i> 
+        <p>
+            Import Calendrier
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+
+    <ul class="nav nav-treeview" style="padding-left:8px">
+        <li class="nav-item">
+            <a href="{{ route('importcalendars.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-list"></i>
+                <p>Liste des importations</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('importExcels.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file"></i>
+                <p>Details</p>
+            </a>
+        </li>
+        <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
+    </ul>
+</li>
+
+<li class="nav-item has-treeview" >
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-cog"></i>
         <p>
@@ -167,7 +207,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
             <i class="right fas fa-angle-left"></i>
         </p>
     </a>
-    <ul class="nav nav-treeview">
+    <ul class="nav nav-treeview" style="padding-left:8px">
         <li class="nav-item">
             <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -186,3 +226,16 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li> --}}
 
+{{-- <li class="nav-item">
+    <a href="{{ route('fichierExcels.index') }}"
+       class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
+        <p>@lang('models/fichierExcels.plural')</p>
+    </a>
+</li> --}}
+
+{{-- <li class="nav-item">
+    <a href="{{ route('importcalendars.index') }}"
+       class="nav-link {{ Request::is('importcalendars*') ? 'active' : '' }}">
+        <p>@lang('models/importcalendars.plural')</p>
+    </a>
+</li> --}}

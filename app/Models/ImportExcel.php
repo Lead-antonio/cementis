@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $sigdep_reel
  * @property string $marche
  * @property string $adresse_livraison
+ * @property integer $import_calendar_id
  */
 class ImportExcel extends Model
 {
@@ -42,7 +43,8 @@ class ImportExcel extends Model
         'delais_route',
         'sigdep_reel',
         'marche',
-        'adresse_livraison'
+        'adresse_livraison',
+        'import_calendar_id'
     ];
 
     /**
@@ -60,7 +62,8 @@ class ImportExcel extends Model
         'delais_route' => 'decimal:2',
         'sigdep_reel' => 'string',
         'marche' => 'string',
-        'adresse_livraison' => 'string'
+        'adresse_livraison' => 'string',
+        'import_calendar_id' => 'integer'
     ];
 
     /**
@@ -71,6 +74,16 @@ class ImportExcel extends Model
     public static $rules = [
         
     ];
+
+     /**
+     * Méthode pour obtenir les données groupées par la colonne 'name_importation'.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function groupByName()
+    {
+        return self::groupBy('name_importation');
+    }
 
     
 }

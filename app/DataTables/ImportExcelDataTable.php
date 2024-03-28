@@ -30,7 +30,14 @@ class ImportExcelDataTable extends DataTable
      */
     public function query(ImportExcel $model)
     {
-        return $model->newQuery();
+        $import_calendar_id = request()->route('id');
+
+        if($import_calendar_id ==null ){
+            return $model->newQuery();
+        }else{
+             // Filtrer les données par import_calendar_id
+            return $model->newQuery()->where('import_calendar_id', $import_calendar_id);
+        }
     }
 
     /**
@@ -68,8 +75,29 @@ class ImportExcelDataTable extends DataTable
             'name_importation' => new Column(['title' => __('models/importExcels.fields.name_importation'), 'data' => 'name_importation']),
             'rfid_chauffeur' => new Column(['title' => __('models/importExcels.fields.rfid_chauffeur'), 'data' => 'rfid_chauffeur']),
             'camion' => new Column(['title' => __('models/importExcels.fields.camion'), 'data' => 'camion']),
-            'date_debut' => new Column(['title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut']),
-            'date_fin' => new Column(['title' => __('models/importExcels.fields.date_fin'), 'data' => 'date_fin']),
+            'date_debut' => new Column([
+                'title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut',
+                'render' => 'function() {
+                    var date = new Date(full.date_debut);
+                    var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+                    var date_heure = date.toLocaleString("fr-FR", options);
+
+                    return date_heure;
+                }',
+            ]),
+            'date_fin' => new Column(['title' => __('models/importExcels.fields.date_fin'), 'data' => 'date_fin',
+            'render' => 'function() {
+                var date_heure = "";
+
+                if(full.date_fin!=null){
+                    var date = new Date(full.date_fin);
+                    var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+                    date_heure = date.toLocaleString("fr-FR", options);
+                }
+                return date_heure;
+             }'
+        
+        ]),
             'delais_route' => new Column(['title' => __('models/importExcels.fields.delais_route'), 'data' => 'delais_route']),
             'sigdep_reel' => new Column(['title' => __('models/importExcels.fields.sigdep_reel'), 'data' => 'sigdep_reel']),
             'marche' => new Column(['title' => __('models/importExcels.fields.marche'), 'data' => 'marche']),

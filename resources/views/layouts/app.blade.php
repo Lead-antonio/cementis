@@ -38,6 +38,10 @@
             content: '(*)';
             color: red;
             padding-left: 5px;
+        },
+
+        .nav-child{
+            padding-left: 8px;
         }
     </style>
     @stack('page_css')

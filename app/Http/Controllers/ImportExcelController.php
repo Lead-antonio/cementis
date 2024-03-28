@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateImportExcelRequest;
 use App\Repositories\ImportExcelRepository;
 use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
+use App\Models\Importcalendar;
 use Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -37,9 +38,12 @@ class ImportExcelController extends AppBaseController
      *
      * @return Response
      */
-    public function index(ImportExcelDataTable $importExcelDataTable)
+    public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
-        // dd($this->calendar("tempora", "2024-01-29", ""));
+        if ($id !== null) {
+            return $this->detail_liste_importation($id, $importExcelDataTable);
+        }
+
         return $importExcelDataTable->render('import_excels.index');
     }
 
@@ -181,15 +185,29 @@ class ImportExcelController extends AppBaseController
         return redirect(route('importExcels.index'));
     }
 
-    
+
     /**
-     * redirection vers affichage import excel.
+     * Liste des fichiers importer.
      *
      * @return Response
      */
     public function affichage_import()
     {
         return view('import_excels.import');
+    }
+
+    
+    /**
+     * redirection vers affichage import excel.
+     *
+     * @return Response
+     */
+    public function liste_importation()
+    {
+        // ImportExcel::groupBy('id')
+        $distinctNames = ImportExcel::groupBy('name_importation')->pluck('name_importation');
+     
+        return view('import_excels.liste_import.blade', compact('distinctNames'));
     }
 
 
@@ -202,33 +220,70 @@ class ImportExcelController extends AppBaseController
      */
     public function import_excel(Request $request)
     {
-        // recuperation de la date d'importation du fichier excel
-        $maintenant = Carbon::now();
-        $dateFormatee = $maintenant->format('d-m-Y H:i');
 
-        // Recupération du nom de l'utilisateur connecté
-        $user = Auth::user();
-
-        // Concatenation du nom de l'user connecté avec la date importation 
-        $name_file_excel = $user->name ."-".$dateFormatee;
-
+        // Verfication de l'extension du fichier 
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls'
         ]);
-
-
         $file = $request->file('excel_file');  
 
-        // Ajout du nom du fichier importer 
-        $import = new ExcelImportClass($name_file_excel);
+        //Recupération du nom du fichier excel
+        $nomCompletFichierExcel = $file->getClientOriginalName();
+        $nomFichier = pathinfo($nomCompletFichierExcel, PATHINFO_FILENAME);
 
+        $verification = Importcalendar::where('name',$nomFichier)->first();
+
+        if($verification!=null){
+            return redirect()->back()->with('alert', 'Ce fichier a été déjà importé.');
+        }
+
+            
+        // Enregistrement de l'import calendar avec le nom du fichier
+        $import_calendar = new Importcalendar([
+            "name" => $nomFichier
+        ]);
+        $import_calendar->save();
+        
+        // Ajout du nom du fichier importer 
+        $import = new ExcelImportClass($nomFichier,$import_calendar->id);
         Excel::import($import, $file);
+
+        //Recuperation de la date debut et fin du fichier inserer
+        $date_debut = ImportExcel::where('import_calendar_id', $import_calendar->id)->first('date_debut');
+
+        $max_id_import_excel = ImportExcel::where('import_calendar_id',  $import_calendar->id)->max('id');
+        $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
+
+        if($date_finals->date_fin == null){
+            $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
+            $date_finals = $date_fin_fichier->date_debut;
+        }else{
+            $date_finals = $date_finals->date_fin;
+        }
+
+        $import_calendar->update([
+            'date_debut' => $date_debut->date_debut,
+            'date_fin' => $date_finals
+        ]);
 
 
         Alert::success(__('Importation réussie'));
 
-        return redirect(route('importExcels.index'));
+        return redirect(route('importcalendars.index'));
     }
+    
 
+    /**
+     * Display a listing of the ImportExcel filtered by id.
+     *
+     * @param int $id
+     * @param ImportExcelDataTable $importExcelDataTable
+     * @return Response
+     */
+    public function detail_liste_importation($id, ImportExcelDataTable $importExcelDataTable)
+    {
+        return $importExcelDataTable->with('id', $id)->render('import_excels.index');
+    }
+    
 
 }

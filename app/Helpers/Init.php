@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ImportExcel;
 use App\Models\Rotation;
 use Carbon\Carbon;
 if (!function_exists('fast_trans')) {
@@ -14,6 +15,28 @@ if (!function_exists('fast_trans')) {
     }
 
 }
+
+
+    // function Update_importExcel($id_importcalendar){
+    //     // $import_calendar->id
+    //     //Recuperation de la date debut et fin du fichier inserer
+    //     $date_debut = ImportExcel::where('import_calendar_id', $id_importcalendar)->first('date_debut');
+
+    //     $max_id_import_excel = ImportExcel::where('import_calendar_id',  $id_importcalendar)->max('id');
+    //     $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
+
+    //     if($date_finals->date_fin == null){
+    //         $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
+    //         $date_finals = $date_fin_fichier->date_debut;
+    //     }else{
+    //         $date_finals = $date_finals->date_fin;
+    //     }
+
+    //     $import_calendar->update([
+    //         'date_debut' => $date_debut->date_debut,
+    //         'date_fin' => $date_finals
+    //     ]);
+    // }
 
 if (!function_exists('calculerDureeTotale')) {
     function calculerDureeTotale($immatriculation)
@@ -48,4 +71,8 @@ if (!function_exists('calculerDureeTotale')) {
 
         return $dureeTotale;
     }
+
 }
+
+
+
