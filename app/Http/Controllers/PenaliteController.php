@@ -31,7 +31,7 @@ class PenaliteController extends AppBaseController
      */
     public function index(PenaliteDataTable $penaliteDataTable)
     {
-       // dd($this->checkInfraction("Temps de repos hebdomadaire"));
+        //dd($this->checkInfraction("Temps de conduite continue"));
         return $penaliteDataTable->render('penalites.index');
         
     }

@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\DataTables\PenaliteChauffeurDataTable;
+use App\Http\Requests;
+use App\Http\Requests\CreatePenaliteChauffeurRequest;
+use App\Http\Requests\UpdatePenaliteChauffeurRequest;
+use App\Repositories\PenaliteChauffeurRepository;
+use RealRashid\SweetAlert\Facades\Alert;
+use App\Http\Controllers\AppBaseController;
+use Response;
+
+class PenaliteChauffeurController extends AppBaseController
+{
+    /** @var PenaliteChauffeurRepository $penaliteChauffeurRepository*/
+    private $penaliteChauffeurRepository;
+
+    public function __construct(PenaliteChauffeurRepository $penaliteChauffeurRepo)
+    {
+        $this->penaliteChauffeurRepository = $penaliteChauffeurRepo;
+    }
+
+    /**
+     * Display a listing of the PenaliteChauffeur.
+     *
+     * @param PenaliteChauffeurDataTable $penaliteChauffeurDataTable
+     *
+     * @return Response
+     */
+    public function index(PenaliteChauffeurDataTable $penaliteChauffeurDataTable)
+    {
+        return $penaliteChauffeurDataTable->render('penalite_chauffeurs.index');
+    }
+
+    /**
+     * Show the form for creating a new PenaliteChauffeur.
+     *
+     * @return Response
+     */
+    public function create()
+    {
+        return view('penalite_chauffeurs.create');
+    }
+
+    /**
+     * Store a newly created PenaliteChauffeur in storage.
+     *
+     * @param CreatePenaliteChauffeurRequest $request
+     *
+     * @return Response
+     */
+    public function store(CreatePenaliteChauffeurRequest $request)
+    {
+        $input = $request->all();
+
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->create($input);
+
+        Alert::success(__('messages.saved', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+        return redirect(route('penaliteChauffeurs.index'));
+    }
+
+    /**
+     * Display the specified PenaliteChauffeur.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function show($id)
+    {
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->find($id);
+
+        if (empty($penaliteChauffeur)) {
+            Alert::error(__('messages.not_found', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+            return redirect(route('penaliteChauffeurs.index'));
+        }
+
+        return view('penalite_chauffeurs.show')->with('penaliteChauffeur', $penaliteChauffeur);
+    }
+
+    /**
+     * Show the form for editing the specified PenaliteChauffeur.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->find($id);
+
+        if (empty($penaliteChauffeur)) {
+            Alert::error(__('messages.not_found', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+            return redirect(route('penaliteChauffeurs.index'));
+        }
+
+        return view('penalite_chauffeurs.edit')->with('penaliteChauffeur', $penaliteChauffeur);
+    }
+
+    /**
+     * Update the specified PenaliteChauffeur in storage.
+     *
+     * @param int $id
+     * @param UpdatePenaliteChauffeurRequest $request
+     *
+     * @return Response
+     */
+    public function update($id, UpdatePenaliteChauffeurRequest $request)
+    {
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->find($id);
+
+        if (empty($penaliteChauffeur)) {
+            Alert::error(__('messages.not_found', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+            return redirect(route('penaliteChauffeurs.index'));
+        }
+
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->update($request->all(), $id);
+
+        Alert::success(__('messages.updated', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+        return redirect(route('penaliteChauffeurs.index'));
+    }
+
+    /**
+     * Remove the specified PenaliteChauffeur from storage.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        $penaliteChauffeur = $this->penaliteChauffeurRepository->find($id);
+
+        if (empty($penaliteChauffeur)) {
+            Alert::error(__('messages.not_found', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+            return redirect(route('penaliteChauffeurs.index'));
+        }
+
+        $this->penaliteChauffeurRepository->delete($id);
+
+        Alert::success(__('messages.deleted', ['model' => __('models/penaliteChauffeurs.singular')]));
+
+        return redirect(route('penaliteChauffeurs.index'));
+    }
+}

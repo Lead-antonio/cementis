@@ -14,25 +14,8 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-
-@can('generator_builder.index')
-@php
-$isUserActive = Request::is($urlAdmin.'*generator_builder*');
-@endphp
-<li class="nav-item">
-    <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
-        <i class="nav-icon fas fa-coins"></i>
-        <p>@lang('menu.generator_builder.title')</p>
-    </a>
-</li>
-@endcan  
-
-
-{{-- @can('generator_builder.index')
-
-@can('generator_builder.index')
-{{-- @can('generator_builder.index') --}}
-{{-- @php
+{{-- @can('generator_builder.index') 
+ @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
 <li class="nav-item">
@@ -202,8 +185,9 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 <li class="nav-item has-treeview" >
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-cog"></i>
+        <i class="nav-icon fas fa-database"></i>
         <p>
-            Paramètres
+            Données de base
             <i class="right fas fa-angle-left"></i>
         </p>
     </a>
@@ -215,6 +199,21 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
             </a>
         </li>
         <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
+        <li class="nav-item">
+            <a href="{{ route('chauffeurs.index') }}"
+               class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}">
+               <i class="nav-icon fas fa-user-circle"></i> 
+                <p>@lang('models/chauffeurs.plural')</p>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('penaliteChauffeurs.index') }}"
+               class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}">
+               <i class="nav-icon fas fa-car-crash"></i> 
+                <p>@lang('models/penaliteChauffeurs.plural')</p>
+            </a>
+        </li>
     </ul>
 </li>
 
@@ -225,6 +224,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         <p>@lang('models/penalites.plural')</p>
     </a>
 </li> --}}
+
 
 {{-- <li class="nav-item">
     <a href="{{ route('fichierExcels.index') }}"
@@ -239,3 +239,4 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         <p>@lang('models/importcalendars.plural')</p>
     </a>
 </li> --}}
+
