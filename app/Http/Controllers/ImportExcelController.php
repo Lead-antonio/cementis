@@ -11,6 +11,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
 use App\Models\Importcalendar;
 use Response;
+use App\Models\Penalite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ use App\Models\ImportExcel;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Importer;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\Event;
 use Excel;
 
 class ImportExcelController extends AppBaseController
@@ -47,21 +49,87 @@ class ImportExcelController extends AppBaseController
         return $importExcelDataTable->render('import_excels.index');
     }
 
+    public function getTrajetOfDriverMonthly($chauffeur, $month){
+        $livraisons = ImportExcel::where('rfid_chauffeur', $chauffeur)
+            ->whereMonth('date_debut', $month)
+            ->get();
+
+        return $livraisons;
+
+    }
+
+    public function associateEventWithPenality($evenements){
+        $penalites = [];
+
+            foreach ($evenements as $event){
+                $typeEvent = $event->type;
+                $penalite = Penalite::where('event', $typeEvent)->first(); // Assume qu'il n'y a qu'une seule pénalité par événement
+                if ($penalite) {
+                    $penalites[$event->id] = $penalite->point_penalite; // Stockez le point de pénalité associé à l'événement
+                }
+            }
+
+        return $penalites;
+    }
+
+
+    public function associateEventWithJourney(Request $request){
+        $chauffeur = $request->input('chauffeur');
+        $month = $request->input('mois');
+        
+        $eventInstance = new Event();
+        $events = $eventInstance->getEventMonthly($chauffeur, $month);
+        $livraisons = $this->getTrajetOfDriverMonthly($chauffeur, $month);
+
+        $results = [];
+
+        // Associer les événements aux livraisons correspondantes
+        foreach ($livraisons as $livraison) {
+            // Récupérer les événements déclenchés pendant cette livraison
+            $evenementsLivraison = $events->filter(function ($event) use ($livraison) {
+                return $event->date >= $livraison->date_debut &&
+                    $event->date <= $livraison->date_fin;
+            });
+
+            $penalites = [];
+
+            foreach ($evenementsLivraison as $event){
+                $typeEvent = $event->type;
+                $penalite = Penalite::where('event', $typeEvent)->first(); // Assume qu'il n'y a qu'une seule pénalité par événement
+                if ($penalite) {
+                    $penalites[$event->id] = $penalite->point_penalite; // Stockez le point de pénalité associé à l'événement
+                }
+            }
+            
+            // Ajouter la livraison avec les événements correspondants au tableau
+            $results[] = [
+                'livraison' => $livraison,
+                'evenements' => $evenementsLivraison,
+                'penalites' => $penalites,
+            ];
+        }
+
+        
+        return view('events.resultats', compact('results'));
+    }
+
     public function calendar($rfid, $date_debut, $date_fin){
         $valeur_retour = 0;
+
         if($date_debut !== null && $date_fin !== null){
-            $dateExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+            $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
                 ->where('date_debut', '<=', $date_fin)
                 ->where('date_fin', '>=', $date_debut)
                 ->get();
-            if(!$dateExcel->isEmpty()){
+            if(!$dataExcel->isEmpty()){
                 $valeur_retour = 1;
             }
-        } elseif($date_debut !== null && $date_fin === null) {
-            $dateExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+        } elseif(($date_debut !== null && $date_fin === null)) {
+            $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
                         ->where('date_debut', '=', $date_debut)
+                        ->whereNull('date_fin')
                         ->get();        
-            if(!$dateExcel->isEmpty()){
+            if(!$dataExcel->isEmpty()){
                 $valeur_retour = 1;
             }
         }

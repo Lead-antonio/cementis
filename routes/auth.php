@@ -68,3 +68,10 @@ Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
 Route::resource('penaliteChauffeurs', App\Http\Controllers\PenaliteChauffeurController::class);
 
+Route::get('/scoring/{chauffeur}/{mois}', 'App\Http\Controllers\ImportExcelController@associateEventWithJourney')->name('scoring.monthly');
+
+Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')->name('events.scoring');
+
+
+
+Route::resource('events', App\Http\Controllers\EventController::class);

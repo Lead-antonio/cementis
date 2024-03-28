@@ -16,6 +16,9 @@ $isDashboardActive = Request::is($urlAdmin);
 
 {{-- @can('generator_builder.index') 
  @php
+{{-- @can('generator_builder.index')
+
+@php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
 <li class="nav-item">
@@ -108,6 +111,14 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li> --}}
 
 <li class="nav-item">
+    <a href="{{ route('events.scoring') }}"
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-bullseye"></i>
+        <p>@lang('models/events.fields.score')</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('rotations.index') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-location-arrow"></i>
@@ -121,6 +132,14 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-database"></i>
         <p>@lang('models/rotations.fields.event')</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('events.index') }}"
+       class="nav-link {{ Request::is('events*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-calendar"></i>
+        <p>@lang('models/events.plural')</p>
     </a>
 </li>
 
@@ -184,7 +203,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item has-treeview" >
     <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-cog"></i>
         <i class="nav-icon fas fa-database"></i>
         <p>
             Données de base
