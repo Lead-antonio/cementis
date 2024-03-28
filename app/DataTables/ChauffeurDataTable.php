@@ -2,12 +2,12 @@
 
 namespace App\DataTables;
 
-use App\Models\Penalite;
+use App\Models\Chauffeur;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Column;
 
-class PenaliteDataTable extends DataTable
+class ChauffeurDataTable extends DataTable
 {
     /**
      * Build DataTable class.
@@ -19,16 +19,16 @@ class PenaliteDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'penalites.datatables_actions');
+        return $dataTable->addColumn('action', 'chauffeurs.datatables_actions');
     }
 
     /**
      * Get query source of dataTable.
      *
-     * @param \App\Models\Penalite $model
+     * @param \App\Models\Chauffeur $model
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function query(Penalite $model)
+    public function query(Chauffeur $model)
     {
         return $model->newQuery();
     }
@@ -51,7 +51,7 @@ class PenaliteDataTable extends DataTable
                 'buttons'   => [
                     [
                         'excel', 'csv', 'print',
-                    ],     
+                    ],           
                 ],
                  'language' => [
                    'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/English.json'),
@@ -67,9 +67,10 @@ class PenaliteDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'id' => new Column(['title' => __('models/penalites.fields.id'), 'data' => 'id']),
-            'event' => new Column(['title' => __('models/penalites.fields.event'), 'data' => 'event']),
-            'point_penalite' => new Column(['title' => __('models/penalites.fields.point_penalite'), 'data' => 'point_penalite'])
+            //'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
+            'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
+            'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom']),
+            'contact' => new Column(['title' => __('models/chauffeurs.fields.contact'), 'data' => 'contact'])
         ];
     }
 
@@ -80,6 +81,6 @@ class PenaliteDataTable extends DataTable
      */
     protected function filename()
     {
-        return 'penalites_datatable_' . time();
+        return 'chauffeurs_datatable_' . time();
     }
 }

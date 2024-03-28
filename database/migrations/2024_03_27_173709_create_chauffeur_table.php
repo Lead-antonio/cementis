@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePenaliteTable extends Migration
+class CreateChauffeurTable extends Migration
 {
 
     /**
@@ -14,10 +14,11 @@ class CreatePenaliteTable extends Migration
      */
     public function up()
     {
-        Schema::create('penalite', function (Blueprint $table) {
+        Schema::create('chauffeur', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('event')->nullable();;
-            $table->integer('point_penalite');
+            $table->string('rfid');
+            $table->string('nom');
+            $table->string('contact');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,6 +31,6 @@ class CreatePenaliteTable extends Migration
      */
     public function down()
     {
-        Schema::drop('penalite');
+        Schema::drop('chauffeur');
     }
 }
