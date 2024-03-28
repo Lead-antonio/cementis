@@ -25,6 +25,8 @@ class CreateImportExcelTable extends Migration
             $table->string('sigdep_reel');
             $table->string('marche');
             $table->string('adresse_livraison');
+            $table->unsignedInteger('import_calendar_id');
+            $table->foreign('import_calendar_id')->references('id')->on('Import_calendar')->onDelete('cascade');
             $table->softDeletes();
         });
     }

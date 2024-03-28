@@ -14,10 +14,12 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 class ExcelImportClass implements ToModel, WithHeadingRow
 {
     protected $name_file_excel;
+    protected $import_calendar_id;
 
-    public function __construct($name_file_excel)
+    public function __construct($name_file_excel,$import_calendar_id)
     {
         $this->name_file_excel = $name_file_excel;
+        $this->import_calendar_id = $import_calendar_id;
     }
 
     public function model(array $row)
@@ -48,6 +50,7 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'sigdep_reel' => $row['sigdep_reel'],
             'marche' => $row['marche'],
             'adresse_livraison' => $row['adresse_de_livraison'],
+            'import_calendar_id' => $this->import_calendar_id
         ]);
     }
 }
