@@ -6,6 +6,7 @@ use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Event;
 use App\Models\Penalite;
+use App\Models\Chauffeur;
 
 
 /**
@@ -62,17 +63,31 @@ class Event extends Model
         
     ];
 
-
-    public function getExistingDriverInEvent(){
+    public function createExistingDriverInEvent(){
         $existingDrivers = Event::distinct()
                             ->where(function ($query) {
                                 $query->whereNotNull('chauffeur')
-                                      ->orWhere('chauffeur', '');
+                                      ->where('chauffeur','<>', '');
                             })
                             ->pluck('chauffeur');
-
-        return $existingDrivers;
+        
+        $existingDrivers->each(function ($name) {
+            // Utilisez firstOrCreate pour éviter les doublons
+            Chauffeur::firstOrCreate(['nom' => $name]);
+        });
     }
+
+
+    // public function getExistingDriverInEvent(){
+    //     $existingDrivers = Event::distinct()
+    //                         ->where(function ($query) {
+    //                             $query->whereNotNull('chauffeur')
+    //                                   ->where('chauffeur','<>', '');
+    //                         })
+    //                         ->pluck('chauffeur');
+ 
+    //     return $existingDrivers;
+    // }
 
     public function getEventMonthly($Chauffeur, $month){
         $events = Event::where('chauffeur', $Chauffeur)

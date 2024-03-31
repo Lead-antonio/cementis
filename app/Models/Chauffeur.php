@@ -56,5 +56,13 @@ class Chauffeur extends Model
         
     ];
 
+
+    public function getDriverByName($name){
+        $existingDrivers = Chauffeur::where('nom','=', $name)
+                            ->first();
+ 
+        return $existingDrivers;
+    }
+
     
 }

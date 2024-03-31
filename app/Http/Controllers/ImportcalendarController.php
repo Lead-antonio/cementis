@@ -7,7 +7,7 @@ use App\Http\Requests;
 use App\Http\Requests\CreateImportcalendarRequest;
 use App\Http\Requests\UpdateImportcalendarRequest;
 use App\Repositories\ImportcalendarRepository;
-use Flash;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Controllers\AppBaseController;
 use Response;
 
@@ -56,7 +56,7 @@ class ImportcalendarController extends AppBaseController
 
         $importcalendar = $this->importcalendarRepository->create($input);
 
-        Flash::success(__('messages.saved', ['model' => __('models/importcalendars.singular')]));
+        Alert::success(__('messages.saved', ['model' => __('models/importcalendars.singular')]));
 
         return redirect(route('importcalendars.index'));
     }
@@ -73,7 +73,7 @@ class ImportcalendarController extends AppBaseController
         $importcalendar = $this->importcalendarRepository->find($id);
 
         if (empty($importcalendar)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
 
             return redirect(route('importcalendars.index'));
         }
@@ -93,7 +93,7 @@ class ImportcalendarController extends AppBaseController
         $importcalendar = $this->importcalendarRepository->find($id);
 
         if (empty($importcalendar)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
 
             return redirect(route('importcalendars.index'));
         }
@@ -114,14 +114,14 @@ class ImportcalendarController extends AppBaseController
         $importcalendar = $this->importcalendarRepository->find($id);
 
         if (empty($importcalendar)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
 
             return redirect(route('importcalendars.index'));
         }
 
         $importcalendar = $this->importcalendarRepository->update($request->all(), $id);
 
-        Flash::success(__('messages.updated', ['model' => __('models/importcalendars.singular')]));
+        Alert::success(__('messages.updated', ['model' => __('models/importcalendars.singular')]));
 
         return redirect(route('importcalendars.index'));
     }
@@ -138,14 +138,14 @@ class ImportcalendarController extends AppBaseController
         $importcalendar = $this->importcalendarRepository->find($id);
 
         if (empty($importcalendar)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
 
             return redirect(route('importcalendars.index'));
         }
 
         $this->importcalendarRepository->delete($id);
 
-        Flash::success(__('messages.deleted', ['model' => __('models/importcalendars.singular')]));
+        Alert::success(__('messages.deleted', ['model' => __('models/importcalendars.singular')]));
 
         return redirect(route('importcalendars.index'));
     }

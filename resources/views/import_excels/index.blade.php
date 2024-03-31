@@ -5,7 +5,8 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                   @lang('models/importExcels.plural')
+                   {{-- @lang('models/importExcels.plural') --}}
+                   <h1>Contenu du planning</h1>
                 </div>
                 {{-- <div class="col-sm-6">
                     <a class="btn btn-primary float-right"

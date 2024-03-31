@@ -17,20 +17,19 @@ class CreatePenaliteChauffeurTable extends Migration
     {
         Schema::create('penalite_chauffeur', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('rfid_id')->unsigned()->nullable();
+            $table->integer('id_chauffeur')->unsigned()->nullable();
             $table->integer('id_calendar')->unsigned()->nullable();
-            $table->integer('event_id')->unsigned()->nullable();
-            $table->dateTime('date');
-            $table->integer('point_penalite')->nullable();
+            $table->integer('id_event')->unsigned()->nullable();
+            $table->integer('id_penalite')->unsigned()->nullable();
+            $table->dateTime('date')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             // Définition des clés étrangères
-            $table->foreign('rfid_id')->references('id')->on('chauffeur')->onDelete('cascade');
-            $table->foreign('id_calendar')->references('id')->on('penalite')->onDelete('cascade');
-            $table->foreign('event_id')->references('id')->on('import_excel')->onDelete('cascade');
-           
-
+            $table->foreign('id_chauffeur')->references('id')->on('chauffeur')->onDelete('cascade');
+            $table->foreign('id_calendar')->references('id')->on('import_excel')->onDelete('cascade');
+            $table->foreign('id_event')->references('id')->on('event')->onDelete('cascade');
+            $table->foreign('id_penalite')->references('id')->on('penalite')->onDelete('cascade');
 
         });
     }

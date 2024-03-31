@@ -16,9 +16,9 @@ class CreateChauffeurTable extends Migration
     {
         Schema::create('chauffeur', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('rfid');
+            $table->string('rfid')->nullable();
             $table->string('nom');
-            $table->string('contact');
+            $table->string('contact')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

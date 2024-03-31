@@ -11,6 +11,7 @@ use App\Http\Controllers\AppBaseController;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Event;
 use App\Models\Penalite;
+use App\Models\Chauffeur;
 use GuzzleHttp\Client;
 use Response;
 
@@ -58,8 +59,9 @@ class EventController extends AppBaseController
     }    
 
     public function viewScoring(){
-        $eventIntance = new Event();
-        $drivers = $eventIntance->getExistingDriverInEvent()->toArray();
+        // $eventIntance = new Event();
+        // $drivers = $eventIntance->getExistingDriverInEvent()->toArray();
+        $drivers = Chauffeur::all()->pluck('nom')->toArray();
         
         return view('events.scoring', compact('drivers'));
     }
@@ -73,7 +75,9 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
+        $eventIntance = new Event();
         $this->getEventFromApi();
+        $eventIntance->createExistingDriverInEvent();
         return $eventDataTable->render('events.index');
     }
 

@@ -118,22 +118,22 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li>
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('rotations.index') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-location-arrow"></i>
         <p>@lang('models/rotations.plural')</p>
     </a>
-</li>
+</li> --}}
 
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('get.data.api') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-database"></i>
         <p>@lang('models/rotations.fields.event')</p>
     </a>
-</li>
+</li> --}}
 
 <li class="nav-item">
     <a href="{{ route('events.index') }}"

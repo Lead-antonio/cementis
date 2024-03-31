@@ -30,7 +30,7 @@ class PenaliteChauffeurDataTable extends DataTable
      */
     public function query(PenaliteChauffeur $model)
     {
-        return $model->newQuery();
+        return $model->newQuery()->with(['related_event', 'related_driver', 'related_calendar', 'related_penalite']);
     }
 
     /**
@@ -69,19 +69,20 @@ class PenaliteChauffeurDataTable extends DataTable
         return [
             //'id' => new Column(['title' => __('models/penaliteChauffeurs.fields.id'), 'data' => 'id']),
            // 'nom_chauffeur' => new Column(['title' => __('models/penaliteChauffeurs.fields.nom_chauffeur'), 'data' => 'nom_chauffeur']),
-           'rfid' => new Column(['title' => __('models/penaliteChauffeurs.fields.rfid'), 'data' => 'chauffeur.rfid', 'searchable' => false, 'orderable' => false]),
-           'id_calendar' => new Column(['title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'import_excel.id', 'searchable' => false, 'orderable' => false]),
-           'event' => new Column(['title' => __('models/penaliteChauffeurs.fields.event'), 'data' => 'penalite.event', 'searchable' => false, 'orderable' => false]),
-            'date' => new Column ([
-                'title' => __('models/penaliteChauffeurs.fields.date'), 
-                'data' => 'date',
-                'render' =>'function() {
-                    var dataCreated = full.created_at;
-                    var created_at = moment(dataCreated).format("YYYY-MM-DD HH:mm:ss");
-                    return created_at;
-                }',
-            ]),
-            'point_penalite' => new Column(['title' => __('models/penaliteChauffeurs.fields.point_penalite'), 'data' => 'point_penalite'])
+           'id_chauffeur' => new Column(['title' => __('models/penaliteChauffeurs.fields.chauffeur'), 'data' => 'related_driver.nom']),
+           'camion' => new Column(['title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'related_calendar.camion']),
+           'id_calendar' => new Column(['title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'related_calendar.adresse_livraison']),
+           'id_event' => new Column(['title' => __('models/penaliteChauffeurs.fields.event'), 'data' => 'related_event.type']),
+           'id_penalite' => new Column(['title' => __('models/penaliteChauffeurs.fields.point_penalite'), 'data' => 'related_penalite.point_penalite']),
+           'date' => new Column ([
+               'title' => __('models/penaliteChauffeurs.fields.date'), 
+               'data' => 'date',
+               'render' =>'function() {
+                   var dataCreated = full.date;
+                   var created_at = moment(dataCreated).format("YYYY-MM-DD HH:mm:ss");
+                   return created_at;
+               }',
+           ]),
         ];
     }
 

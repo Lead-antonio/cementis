@@ -10,17 +10,18 @@ use App\Repositories\ImportExcelRepository;
 use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
 use App\Models\Importcalendar;
-use Response;
 use App\Models\Penalite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-// use Maatwebsite\Excel\Facades\Excel;
 use App\Models\ImportExcel;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Importer;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Event;
+use App\Models\Chauffeur;
+use App\Models\PenaliteChauffeur;
+use Response;
 use Excel;
 
 class ImportExcelController extends AppBaseController
@@ -78,6 +79,8 @@ class ImportExcelController extends AppBaseController
         $month = $request->input('mois');
         
         $eventInstance = new Event();
+        $driverInstance = new Chauffeur();
+        $drive = $driverInstance->getDriverByName($chauffeur);
         $events = $eventInstance->getEventMonthly($chauffeur, $month);
         $livraisons = $this->getTrajetOfDriverMonthly($chauffeur, $month);
 
@@ -87,11 +90,14 @@ class ImportExcelController extends AppBaseController
         foreach ($livraisons as $livraison) {
             // Récupérer les événements déclenchés pendant cette livraison
             $evenementsLivraison = $events->filter(function ($event) use ($livraison) {
-                return $event->date >= $livraison->date_debut &&
-                    $event->date <= $livraison->date_fin;
+                if ($livraison->date_fin === null) {
+                    return $event->date = $livraison->date_debut;
+                } else {
+                    return $event->date >= $livraison->date_debut &&
+                           $event->date <= $livraison->date_fin;
+                }
             });
 
-            $penalites = [];
 
             foreach ($evenementsLivraison as $event){
                 $typeEvent = $event->type;
@@ -99,6 +105,15 @@ class ImportExcelController extends AppBaseController
                 if ($penalite) {
                     $penalites[$event->id] = $penalite->point_penalite; // Stockez le point de pénalité associé à l'événement
                 }
+                // Enregistrer dans la table Penalité chauffeur
+
+                $penality = PenaliteChauffeur::firstOrCreate([
+                    'id_chauffeur' => $drive->id,
+                    'id_calendar' => $livraison->id,
+                    'id_event' => $event->id,
+                    'id_penalite' => $penalite->id,
+                    'date' => $event->date,
+                ]);
             }
             
             // Ajouter la livraison avec les événements correspondants au tableau
