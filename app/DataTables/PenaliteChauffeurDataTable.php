@@ -54,7 +54,7 @@ class PenaliteChauffeurDataTable extends DataTable
                     ], 
                 ],
                  'language' => [
-                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/English.json'),
+                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/French.json'),
                  ],
             ]);
     }
@@ -67,10 +67,9 @@ class PenaliteChauffeurDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            //'id' => new Column(['title' => __('models/penaliteChauffeurs.fields.id'), 'data' => 'id']),
-           // 'nom_chauffeur' => new Column(['title' => __('models/penaliteChauffeurs.fields.nom_chauffeur'), 'data' => 'nom_chauffeur']),
+            'id' => new Column(['title' => __('models/penaliteChauffeurs.fields.id'), 'data' => 'id']),
            'id_chauffeur' => new Column(['title' => __('models/penaliteChauffeurs.fields.chauffeur'), 'data' => 'related_driver.nom']),
-           'camion' => new Column(['title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'related_calendar.camion']),
+           'matricule' => new Column(['title' => __('models/penaliteChauffeurs.fields.matricule'), 'data' => 'related_calendar.camion']),
            'id_calendar' => new Column(['title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'related_calendar.adresse_livraison']),
            'id_event' => new Column(['title' => __('models/penaliteChauffeurs.fields.event'), 'data' => 'related_event.type']),
            'id_penalite' => new Column(['title' => __('models/penaliteChauffeurs.fields.point_penalite'), 'data' => 'related_penalite.point_penalite']),
@@ -79,7 +78,7 @@ class PenaliteChauffeurDataTable extends DataTable
                'data' => 'date',
                'render' =>'function() {
                    var dataCreated = full.date;
-                   var created_at = moment(dataCreated).format("YYYY-MM-DD HH:mm:ss");
+                   var created_at = moment(dataCreated).format("DD-MM-YYYY HH:mm:ss");
                    return created_at;
                }',
            ]),

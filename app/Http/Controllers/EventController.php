@@ -76,7 +76,7 @@ class EventController extends AppBaseController
     public function index(EventDataTable $eventDataTable)
     {
         $eventIntance = new Event();
-        $this->getEventFromApi();
+        // $this->getEventFromApi();
         $eventIntance->createExistingDriverInEvent();
         return $eventDataTable->render('events.index');
     }

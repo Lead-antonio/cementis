@@ -42,7 +42,7 @@ class ExcelImportClass implements ToModel, WithHeadingRow
 
         return new ImportExcel([
             'name_importation' => $this->name_file_excel,
-            'rfid_chauffeur' => "Antonio",
+            'rfid_chauffeur' => $row['chauffeur'],
             'camion' => $row['camion'],
             'date_debut' => $date_debut,
             'date_fin' => $date_fin,

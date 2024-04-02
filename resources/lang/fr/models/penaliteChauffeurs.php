@@ -6,11 +6,12 @@ return array (
   'fields' => 
   array (
     'id' => 'Id',
-    'rfid' => 'Rfid',
-    'id_calendar' => 'Calendrier',
-    'date' => 'Date',
-    'event' => 'Evénement',
-    'point_penalite' => 'Point de Pénalités',
+    'chauffeur' => 'Conducteur',
+    'matricule' => 'Matricule',
+    'id_calendar' => 'Trajet',
+    'event' => 'Événement',
+    'point_penalite' => 'Point de pénalité',
+    'date' => 'Date de déclenchement',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
   ),

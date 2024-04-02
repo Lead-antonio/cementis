@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     <h1>Scoring</h1>
+                     <h1>Pénalités par chauffeur</h1>
                 </div>
             </div>
         </div>

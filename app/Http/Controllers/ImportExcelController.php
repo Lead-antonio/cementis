@@ -11,6 +11,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
 use App\Models\Importcalendar;
 use App\Models\Penalite;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +51,7 @@ class ImportExcelController extends AppBaseController
         return $importExcelDataTable->render('import_excels.index');
     }
 
-    public function getTrajetOfDriverMonthly($chauffeur, $month){
+    public function getJourneyOfDriverMonthly($chauffeur, $month){
         $livraisons = ImportExcel::where('rfid_chauffeur', $chauffeur)
             ->whereMonth('date_debut', $month)
             ->get();
@@ -58,6 +59,21 @@ class ImportExcelController extends AppBaseController
         return $livraisons;
 
     }
+
+    public function getPointPenaliteTotalMonthly($id_chauffeur, $monthly){
+        $result = DB::table('penalite_chauffeur as pc')
+            ->join('penalite as p', 'pc.id_event', '=', 'p.id')
+            ->join('event as e', 'pc.id_event', '=', 'e.id')
+            ->select('pc.id_chauffeur', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
+            ->where('pc.id_chauffeur', $id_chauffeur)
+            ->whereMonth('e.date', '=', $monthly)
+            ->whereYear('e.date', '=', 2024)
+            ->groupBy('pc.id_chauffeur')
+            ->first();
+
+            return $result->total_point_penalite;
+
+    } 
 
     public function associateEventWithPenality($evenements){
         $penalites = [];
@@ -82,7 +98,7 @@ class ImportExcelController extends AppBaseController
         $driverInstance = new Chauffeur();
         $drive = $driverInstance->getDriverByName($chauffeur);
         $events = $eventInstance->getEventMonthly($chauffeur, $month);
-        $livraisons = $this->getTrajetOfDriverMonthly($chauffeur, $month);
+        $livraisons = $this->getJourneyOfDriverMonthly($chauffeur, $month);
 
         $results = [];
 
@@ -115,6 +131,7 @@ class ImportExcelController extends AppBaseController
                     'date' => $event->date,
                 ]);
             }
+
             
             // Ajouter la livraison avec les événements correspondants au tableau
             $results[] = [
@@ -123,9 +140,9 @@ class ImportExcelController extends AppBaseController
                 'penalites' => $penalites,
             ];
         }
-
+        $point_total = $this->getPointPenaliteTotalMonthly($drive->id, $month);
         
-        return view('events.resultats', compact('results'));
+        return view('events.resultats', compact('results', 'point_total'));
     }
 
     public function calendar($rfid, $date_debut, $date_fin){
