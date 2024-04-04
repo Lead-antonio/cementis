@@ -1,11 +1,13 @@
-<div class="card" style="width: 20rem;">
-    <div class="card-header text-center">
-        <h3>Somme totale des points de pénalité</h3>
+@if($point_total)
+    <div class="card" style="width: 20rem;">
+        <div class="card-header text-center">
+            <h3>Somme totale des points de pénalité</h3>
+        </div>
+        <div class="card-body">
+            Total des points de pénalité pour le chauffeur : {{ $point_total }}
+        </div>        
     </div>
-    <div class="card-body">
-        Total des points de pénalité pour le chauffeur : {{ $point_total }}
-    </div>        
-</div>
+@endif
 
 
 @foreach($results as $livraisonAvecEvenements)
@@ -35,7 +37,7 @@
                             <hr>
                             <div class="col-md-7">
                                 @foreach($livraisonAvecEvenements['evenements'] as $evenement)
-                                    <ul class="list-group">
+                                    <ul class="list-group" style="margin: 0% 0% 1% 0%;">
                                         <li class="list-group-item">Type : {{ $evenement->type }}, Description : {{ $evenement->description }}, Date : {{ $evenement->date }}, Point de pénalité : {{ $livraisonAvecEvenements['penalites'][$evenement->id] }}</li>
                                     </ul>
                                 @endforeach
@@ -46,14 +48,32 @@
                 </div>
             </div>
         </div>
-        <style>
-            hr{
-                height:auto;
-                width:.1vw;
-                border-width:0;
-                color:#000;
-                background-color:#000;
-                }
-        </style>
+    {{-- @else
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="alert alert-info" role="alert">
+                    Aucun événement déclenché durant ce trajet.
+                </div>
+            </div>
+        </div> --}}
     @endif
 @endforeach
+
+{{-- @else
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <p>Aucun Événement déclencher durant ses trajets</p>
+                </div>
+            </div>
+        </div>    
+    @endif --}}
+<style>
+    hr{
+        height:auto;
+        width:.1vw;
+        border-width:0;
+        color:#000;
+        background-color:#000;
+        }
+</style>

@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateEventRequest;
 use App\Repositories\EventRepository;
 use App\Http\Controllers\AppBaseController;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use App\Models\Penalite;
 use App\Models\Chauffeur;
@@ -23,44 +24,9 @@ class EventController extends AppBaseController
     public function __construct(EventRepository $eventRepo)
     {
         $this->eventRepository = $eventRepo;
-    }
-
-
-    public function getEventFromApi(){
-
-        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS';
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $data = json_decode($response, true);
-        
-        if (!empty($data)) {
-            foreach ($data as $item) {
-                // Vérifiez si une entrée identique existe déjà dans la table Rotation
-                $existingEvent = Event::where('imei', $item[2])
-                ->where('date', $item[4])
-                ->first();
-                // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
-                if (!$existingEvent) {
-                    Event::create([
-                        'imei' => $item[2],
-                        'chauffeur' => "",
-                        'vehicule' => $item[3],
-                        'type' => $item[0],
-                        'date' => $item[4],
-                        'description' => $item[1],
-                    ]);
-                }
-            }
-        }
-    }    
+    }   
 
     public function viewScoring(){
-        // $eventIntance = new Event();
-        // $drivers = $eventIntance->getExistingDriverInEvent()->toArray();
         $drivers = Chauffeur::all()->pluck('nom')->toArray();
         
         return view('events.scoring', compact('drivers'));
@@ -75,9 +41,8 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
-        $eventIntance = new Event();
-        // $this->getEventFromApi();
-        $eventIntance->createExistingDriverInEvent();
+        // getEventFromApi();
+        createExistingDriverInEvent();
         return $eventDataTable->render('events.index');
     }
 

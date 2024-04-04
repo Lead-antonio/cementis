@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateImportExcelRequest;
 use App\Repositories\ImportExcelRepository;
 use App\Http\Controllers\AppBaseController;
 use App\Imports\ExcelImportClass;
+use Illuminate\Support\Facades\Session;
 use App\Models\Importcalendar;
 use App\Models\Penalite;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,20 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
+        if(Session::has('success')){
+            Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
+            Session::forget('success');
+        }
+
+        if(Session::has('updated')){
+            Alert::success(__('messages.updated', ['model' => __('models/importExcels.singular')]));
+            Session::forget('updated');
+        }
+
+        if(Session::has('deleted')){
+            Alert::success(__('messages.deleted', ['model' => __('models/importExcels.singular')]));
+            Session::forget('deleted');
+        }
         if ($id !== null) {
             return $this->detail_liste_importation($id, $importExcelDataTable);
         }
@@ -51,66 +66,40 @@ class ImportExcelController extends AppBaseController
         return $importExcelDataTable->render('import_excels.index');
     }
 
-    public function getJourneyOfDriverMonthly($chauffeur, $month){
-        $livraisons = ImportExcel::where('rfid_chauffeur', $chauffeur)
-            ->whereMonth('date_debut', $month)
-            ->get();
 
-        return $livraisons;
-
-    }
-
-    public function getPointPenaliteTotalMonthly($id_chauffeur, $monthly){
-        $result = DB::table('penalite_chauffeur as pc')
-            ->join('penalite as p', 'pc.id_event', '=', 'p.id')
-            ->join('event as e', 'pc.id_event', '=', 'e.id')
-            ->select('pc.id_chauffeur', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
-            ->where('pc.id_chauffeur', $id_chauffeur)
-            ->whereMonth('e.date', '=', $monthly)
-            ->whereYear('e.date', '=', 2024)
-            ->groupBy('pc.id_chauffeur')
-            ->first();
-
-            return $result->total_point_penalite;
-
-    } 
-
-    public function associateEventWithPenality($evenements){
-        $penalites = [];
-
-            foreach ($evenements as $event){
-                $typeEvent = $event->type;
-                $penalite = Penalite::where('event', $typeEvent)->first(); // Assume qu'il n'y a qu'une seule pénalité par événement
-                if ($penalite) {
-                    $penalites[$event->id] = $penalite->point_penalite; // Stockez le point de pénalité associé à l'événement
-                }
-            }
-
-        return $penalites;
-    }
 
 
     public function associateEventWithJourney(Request $request){
         $chauffeur = $request->input('chauffeur');
         $month = $request->input('mois');
         
-        $eventInstance = new Event();
-        $driverInstance = new Chauffeur();
-        $drive = $driverInstance->getDriverByName($chauffeur);
-        $events = $eventInstance->getEventMonthly($chauffeur, $month);
-        $livraisons = $this->getJourneyOfDriverMonthly($chauffeur, $month);
+        $drive = getDriverByName($chauffeur);
+        $events = getEventMonthly($chauffeur, $month);
+        $livraisons = getJourneyOfDriverMonthly($chauffeur, $month);
 
         $results = [];
+        $penalites = [];
+        
 
         // Associer les événements aux livraisons correspondantes
         foreach ($livraisons as $livraison) {
             // Récupérer les événements déclenchés pendant cette livraison
             $evenementsLivraison = $events->filter(function ($event) use ($livraison) {
+                // if ($livraison->date_fin === null) {
+                //     dd($livraison, $event->date);
+                //     return $event->date = $livraison->date_debut;
+                // } else {
+                //     return $event->date >= $livraison->date_debut &&
+                //            $event->date <= $livraison->date_fin;
+                // }
+                $eventDate = Carbon::parse($event->date)->startOfDay();
+                $debutLivraisonDate = Carbon::parse($livraison->date_debut)->startOfDay();
+
                 if ($livraison->date_fin === null) {
-                    return $event->date = $livraison->date_debut;
+                    return $eventDate->eq($debutLivraisonDate); // Utilise gte pour inclure la date de début de livraison
                 } else {
-                    return $event->date >= $livraison->date_debut &&
-                           $event->date <= $livraison->date_fin;
+                    $finLivraisonDate = Carbon::parse($livraison->date_fin)->startOfDay();
+                    return $eventDate->between($debutLivraisonDate, $finLivraisonDate);
                 }
             });
 
@@ -123,7 +112,7 @@ class ImportExcelController extends AppBaseController
                 }
                 // Enregistrer dans la table Penalité chauffeur
 
-                $penality = PenaliteChauffeur::firstOrCreate([
+                $penality = PenaliteChauffeur::updateOrCreate([
                     'id_chauffeur' => $drive->id,
                     'id_calendar' => $livraison->id,
                     'id_event' => $event->id,
@@ -140,33 +129,33 @@ class ImportExcelController extends AppBaseController
                 'penalites' => $penalites,
             ];
         }
-        $point_total = $this->getPointPenaliteTotalMonthly($drive->id, $month);
+        $point_total = getPointPenaliteTotalMonthly($drive->id, $month);
         
         return view('events.resultats', compact('results', 'point_total'));
     }
 
-    public function calendar($rfid, $date_debut, $date_fin){
-        $valeur_retour = 0;
+    // public function calendar($rfid, $date_debut, $date_fin){
+    //     $valeur_retour = 0;
 
-        if($date_debut !== null && $date_fin !== null){
-            $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
-                ->where('date_debut', '<=', $date_fin)
-                ->where('date_fin', '>=', $date_debut)
-                ->get();
-            if(!$dataExcel->isEmpty()){
-                $valeur_retour = 1;
-            }
-        } elseif(($date_debut !== null && $date_fin === null)) {
-            $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
-                        ->where('date_debut', '=', $date_debut)
-                        ->whereNull('date_fin')
-                        ->get();        
-            if(!$dataExcel->isEmpty()){
-                $valeur_retour = 1;
-            }
-        }
-        return $valeur_retour;
-    }
+    //     if($date_debut !== null && $date_fin !== null){
+    //         $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+    //             ->where('date_debut', '<=', $date_fin)
+    //             ->where('date_fin', '>=', $date_debut)
+    //             ->get();
+    //         if(!$dataExcel->isEmpty()){
+    //             $valeur_retour = 1;
+    //         }
+    //     } elseif(($date_debut !== null && $date_fin === null)) {
+    //         $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
+    //                     ->where('date_debut', '=', $date_debut)
+    //                     ->whereNull('date_fin')
+    //                     ->get();        
+    //         if(!$dataExcel->isEmpty()){
+    //             $valeur_retour = 1;
+    //         }
+    //     }
+    //     return $valeur_retour;
+    // }
 
     /**
      * Show the form for creating a new ImportExcel.
@@ -191,7 +180,8 @@ class ImportExcelController extends AppBaseController
 
         $importExcel = $this->importExcelRepository->create($input);
 
-        Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
+        // Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
+        Session::put('success', 'success');
 
         return redirect(route('importExcels.index'));
     }
@@ -256,7 +246,8 @@ class ImportExcelController extends AppBaseController
 
         $importExcel = $this->importExcelRepository->update($request->all(), $id);
 
-        Alert::success(__('messages.updated', ['model' => __('models/importExcels.singular')]));
+        // Alert::success(__('messages.updated', ['model' => __('models/importExcels.singular')]));
+        Session::put('updated', 'updated');
 
         return redirect(route('importExcels.index'));
     }
@@ -280,7 +271,8 @@ class ImportExcelController extends AppBaseController
 
         $this->importExcelRepository->delete($id);
 
-        Alert::success(__('messages.deleted', ['model' => __('models/importExcels.singular')]));
+        // Alert::success(__('messages.deleted', ['model' => __('models/importExcels.singular')]));
+        Session::put('deleted', 'deleted');
 
         return redirect(route('importExcels.index'));
     }

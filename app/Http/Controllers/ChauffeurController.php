@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Http\Requests\CreateChauffeurRequest;
 use App\Http\Requests\UpdateChauffeurRequest;
 use App\Repositories\ChauffeurRepository;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AppBaseController;
 use RealRashid\SweetAlert\Facades\Alert;
 use Response;
@@ -30,6 +31,21 @@ class ChauffeurController extends AppBaseController
      */
     public function index(ChauffeurDataTable $chauffeurDataTable)
     {
+
+        if(Session::has('success')){
+            Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+            Session::forget('success');
+        }
+
+        if(Session::has('updated')){
+            Alert::success(__('messages.updated', ['model' => __('models/chauffeurs.singular')]));
+            Session::forget('updated');
+        }
+
+        if(Session::has('deleted')){
+            Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
+            Session::forget('deleted');
+        }
         return $chauffeurDataTable->render('chauffeurs.index');
     }
 
@@ -56,7 +72,8 @@ class ChauffeurController extends AppBaseController
 
         $chauffeur = $this->chauffeurRepository->create($input);
 
-        Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+        // Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+        Session::put('success', 'success');
 
         return redirect(route('chauffeurs.index'));
     }
@@ -121,7 +138,8 @@ class ChauffeurController extends AppBaseController
 
         $chauffeur = $this->chauffeurRepository->update($request->all(), $id);
 
-        Alert::success(__('messages.updated', ['model' => __('models/chauffeurs.singular')]));
+        // Alert::success(__('messages.updated', ['model' => __('models/chauffeurs.singular')]));
+        Session::put('updated', 'updated');
 
         return redirect(route('chauffeurs.index'));
     }
@@ -145,7 +163,8 @@ class ChauffeurController extends AppBaseController
 
         $this->chauffeurRepository->delete($id);
 
-        Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
+        // Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
+        Session::put('deleted', 'deleted');
 
         return redirect(route('chauffeurs.index'));
     }

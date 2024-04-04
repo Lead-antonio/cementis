@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Evènement',
-  'plural' => 'Evènements',
+  'singular' => 'Événement',
+  'plural' => 'Événements',
   'fields' => 
   array (
     'id' => 'Id',

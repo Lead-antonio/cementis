@@ -82,7 +82,7 @@
 
                   {{-- <div class="row mt-3"> --}}
                     <div class="col-sm-12 text-center" style="padding: 0% 0% 1% 0%;">
-                        {!! Form::button('Voir', ['class' => 'btn btn-primary', 'id' => 'voirButton']) !!}
+                        {!! Form::button('Voir', ['class' => 'btn btn-primary', 'id' => 'voirButton', 'onsubmit' => 'return submitForm();']) !!}
                     </div>
                   {{-- </div> --}}
 

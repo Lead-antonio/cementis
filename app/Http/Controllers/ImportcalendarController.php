@@ -6,8 +6,10 @@ use App\DataTables\ImportcalendarDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateImportcalendarRequest;
 use App\Http\Requests\UpdateImportcalendarRequest;
+use Illuminate\Support\Facades\Session;
 use App\Repositories\ImportcalendarRepository;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\ImportExcel;
 use App\Http\Controllers\AppBaseController;
 use Response;
 
@@ -30,6 +32,20 @@ class ImportcalendarController extends AppBaseController
      */
     public function index(ImportcalendarDataTable $importcalendarDataTable)
     {
+        if(Session::has('success')){
+            Alert::success(__('messages.saved', ['model' => __('models/importcalendars.singular')]));
+            Session::forget('success');
+        }
+
+        if(Session::has('updated')){
+            Alert::success(__('messages.updated', ['model' => __('models/importcalendars.singular')]));
+            Session::forget('updated');
+        }
+
+        if(Session::has('deleted')){
+            Alert::success(__('messages.deleted', ['model' => __('models/importcalendars.singular')]));
+            Session::forget('deleted');
+        }
         return $importcalendarDataTable->render('importcalendars.index');
     }
 
@@ -56,7 +72,8 @@ class ImportcalendarController extends AppBaseController
 
         $importcalendar = $this->importcalendarRepository->create($input);
 
-        Alert::success(__('messages.saved', ['model' => __('models/importcalendars.singular')]));
+        // Alert::success(__('messages.saved', ['model' => __('models/importcalendars.singular')]));
+        Session::put('success', 'success');
 
         return redirect(route('importcalendars.index'));
     }
@@ -121,7 +138,8 @@ class ImportcalendarController extends AppBaseController
 
         $importcalendar = $this->importcalendarRepository->update($request->all(), $id);
 
-        Alert::success(__('messages.updated', ['model' => __('models/importcalendars.singular')]));
+        // Alert::success(__('messages.updated', ['model' => __('models/importcalendars.singular')]));
+        Session::put('updated', 'updated');
 
         return redirect(route('importcalendars.index'));
     }
@@ -136,6 +154,10 @@ class ImportcalendarController extends AppBaseController
     public function destroy($id)
     {
         $importcalendar = $this->importcalendarRepository->find($id);
+        $detailExcel = ImportExcel::where('import_calendar_id', $id)->get();
+        foreach ($detailExcel as $record) {
+            ImportExcel::where('id', $record->id)->delete();
+        }
 
         if (empty($importcalendar)) {
             Alert::error(__('messages.not_found', ['model' => __('models/importcalendars.singular')]));
@@ -145,7 +167,8 @@ class ImportcalendarController extends AppBaseController
 
         $this->importcalendarRepository->delete($id);
 
-        Alert::success(__('messages.deleted', ['model' => __('models/importcalendars.singular')]));
+        // Alert::success(__('messages.deleted', ['model' => __('models/importcalendars.singular')]));
+        Session::put('deleted', 'deleted');
 
         return redirect(route('importcalendars.index'));
     }

@@ -8,7 +8,8 @@ use App\Models\Penalite;
 use App\Http\Requests\CreatePenaliteRequest;
 use App\Http\Requests\UpdatePenaliteRequest;
 use App\Repositories\PenaliteRepository;
-use Flash;
+use Illuminate\Support\Facades\Session;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Controllers\AppBaseController;
 use Response;
 
@@ -31,18 +32,22 @@ class PenaliteController extends AppBaseController
      */
     public function index(PenaliteDataTable $penaliteDataTable)
     {
-        //dd($this->checkInfraction("Temps de conduite continue"));
+        if(Session::has('success')){
+            Alert::success(__('messages.saved', ['model' => __('models/penalites.singular')]));
+            Session::forget('success');
+        }
+
+        if(Session::has('updated')){
+            Alert::success(__('messages.updated', ['model' => __('models/penalites.singular')]));
+            Session::forget('updated');
+        }
+
+        if(Session::has('deleted')){
+            Alert::success(__('messages.deleted', ['model' => __('models/penalites.singular')]));
+            Session::forget('deleted');
+        }
         return $penaliteDataTable->render('penalites.index');
         
-    }
-
-    public function checkInfraction($event)
-    {
-        //modèle Penalite pour vérifier l'infraction et obtenir le point de pénalité correspondant
-        $pointPenalite = Penalite::where('event', $event)->value('point_penalite');
-        
-        // Retourner le point de pénalité ou 0 si aucun enregistrement n'est trouvé
-        return $pointPenalite ?? 0;
     }
 
     /**
@@ -68,7 +73,8 @@ class PenaliteController extends AppBaseController
 
         $penalite = $this->penaliteRepository->create($input);
 
-        Flash::success(__('messages.saved', ['model' => __('models/penalites.singular')]));
+        // Alert::success(__('messages.saved', ['model' => __('models/penalites.singular')]));
+        Session::put('success', 'success');
 
         return redirect(route('penalites.index'));
     }
@@ -85,7 +91,7 @@ class PenaliteController extends AppBaseController
         $penalite = $this->penaliteRepository->find($id);
 
         if (empty($penalite)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
 
             return redirect(route('penalites.index'));
         }
@@ -105,7 +111,7 @@ class PenaliteController extends AppBaseController
         $penalite = $this->penaliteRepository->find($id);
 
         if (empty($penalite)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
 
             return redirect(route('penalites.index'));
         }
@@ -126,14 +132,15 @@ class PenaliteController extends AppBaseController
         $penalite = $this->penaliteRepository->find($id);
 
         if (empty($penalite)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
 
             return redirect(route('penalites.index'));
         }
 
         $penalite = $this->penaliteRepository->update($request->all(), $id);
 
-        Flash::success(__('messages.updated', ['model' => __('models/penalites.singular')]));
+        // Alert::success(__('messages.updated', ['model' => __('models/penalites.singular')]));
+        Session::put('updated', 'updated');
 
         return redirect(route('penalites.index'));
     }
@@ -150,14 +157,15 @@ class PenaliteController extends AppBaseController
         $penalite = $this->penaliteRepository->find($id);
 
         if (empty($penalite)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/penalites.singular')]));
 
             return redirect(route('penalites.index'));
         }
 
         $this->penaliteRepository->delete($id);
 
-        Flash::success(__('messages.deleted', ['model' => __('models/penalites.singular')]));
+        // Alert::success(__('messages.deleted', ['model' => __('models/penalites.singular')]));
+        Session::put('deleted', 'deleted');
 
         return redirect(route('penalites.index'));
     }

@@ -68,9 +68,9 @@ class ChauffeurDataTable extends DataTable
     {
         return [
             //'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
-            'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
-            'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom']),
-            'contact' => new Column(['title' => __('models/chauffeurs.fields.contact'), 'data' => 'contact'])
+            // 'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
+            'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom'])
+            // 'contact' => new Column(['title' => __('models/chauffeurs.fields.contact'), 'data' => 'contact'])
         ];
     }
 

@@ -30,5 +30,5 @@ class PenaliteTableSeeder extends Seeder
             Penalite::create($row);
         }
     }
-    }
+}
 

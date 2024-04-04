@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserSeeder::class);
         $this->call(PenaliteTableSeeder::class);
         $this->call(ChauffeursTableSeeder::class);
+        $this->call(EventTableSeeder::class);
        // $this->call(PenaliteChauffeurTableSeeder::class);
         // $this->call(RotationTableSeeder::class);
     }

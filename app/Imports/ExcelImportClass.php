@@ -29,7 +29,6 @@ class ExcelImportClass implements ToModel, WithHeadingRow
         $excel_date = $row['date_debut'];
         $unix_timestamp = Date::excelToTimestamp($excel_date);
         $date_debut = Carbon::createFromTimestamp($unix_timestamp);
-
         // Vérifier si la valeur de date_fin est vide
         if (empty($date_fin)) {
 

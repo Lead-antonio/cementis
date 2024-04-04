@@ -7,7 +7,7 @@
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 
     <!-- Remplacez le chemin avec le vôtre -->
-    <link rel="icon" type="image/png" href="{{ asset('images/cementis.jpg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/alpha_ciment.jpg') }}">
 
 
 
@@ -108,8 +108,15 @@
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            <div id="loader" class="loader"></div>
-            <div id="overlay"></div>
+            {{-- <div id="loader" class="loader"></div>
+            <div id="overlay"></div> --}}
+            <div class="overlay" id="overlay"></div>
+
+            {{-- <div class="loader-wrapper" id="loader-wrapper"> --}}
+                <div class="lds-default" id="lds-default">
+                    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+                </div>
+            {{-- </div> --}}
             <section class="content">
                 @yield('content')
             </section>
@@ -120,10 +127,11 @@
             <div class="float-right d-none d-sm-block">
                 
             </div>
-            <strong>Copyright &copy; 2022 <a href="#">M-TEC</a>.</strong> All rights
-            reserved.
+            <strong>Droits d'auteur &copy; 2023 <a> M-Tec</a>.</strong> Tous droits réservés.
         </footer>
     </div>
+
+    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 
@@ -153,6 +161,21 @@
         })
     </script>
     -->
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // Masquer le loader et l'overlay lorsque la page est chargée
+            $('#overlay').hide();
+            $('#lds-default').hide();
+        });
+        function submitForm() {
+            // Afficher le loader
+            $('#overlay').show();
+            $('#lds-default').show();
+            return true; // Permettre la soumission du formulaire
+        }
+    </script>
+    
     <script type="text/javascript">
         $(function() {
             bsCustomFileInput.init();
@@ -172,7 +195,7 @@
 
 <style>
        
-    #loader {
+    #lds-default {
          display: none;
          border: 8px solid #f3f3f3;
          border-top: 8px solid #3498db;
@@ -182,10 +205,10 @@
          position: fixed;
          top: 50%;
          left: 50%;
-         margin-top: -25px; /* La moitié de la hauteur du loader */
-         margin-left: -25px; /* La moitié de la largeur du loader */
+         margin-top: -25px; 
+         margin-left: -25px; 
          z-index: 9999;
-         animation: spin 1s linear infinite;
+         animation: lds-default 1.2s linear infinite;
      }
 
      #overlay {
@@ -195,8 +218,8 @@
          left: 0;
          width: 100%;
          height: 100%;
-         background-color: rgba(128, 128, 128, 0.7); /* Couleur semi-transparente gris */
-         z-index: 9998; /* Assure que l'overlay est au-dessus de tout autre contenu */
+         background-color: rgba(128, 128, 128, 0.7); 
+         z-index: 9998;
      }
 
 
@@ -205,7 +228,94 @@
          100% { transform: rotate(360deg); }
      }
 
+     
 
+        /* .lds-default,
+        .lds-default div {
+        box-sizing: border-box;
+        }
+        .lds-default {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+        }
+        .lds-default div {
+        position: absolute;
+        width: 6.4px;
+        height: 6.4px;
+        background: currentColor;
+        border-radius: 50%;
+        animation: lds-default 1.2s linear infinite;
+        }
+        .lds-default div:nth-child(1) {
+        animation-delay: 0s;
+        top: 36.8px;
+        left: 66.24px;
+        }
+        .lds-default div:nth-child(2) {
+        animation-delay: -0.1s;
+        top: 22.08px;
+        left: 62.29579px;
+        }
+        .lds-default div:nth-child(3) {
+        animation-delay: -0.2s;
+        top: 11.30421px;
+        left: 51.52px;
+        }
+        .lds-default div:nth-child(4) {
+        animation-delay: -0.3s;
+        top: 7.36px;
+        left: 36.8px;
+        }
+        .lds-default div:nth-child(5) {
+        animation-delay: -0.4s;
+        top: 11.30421px;
+        left: 22.08px;
+        }
+        .lds-default div:nth-child(6) {
+        animation-delay: -0.5s;
+        top: 22.08px;
+        left: 11.30421px;
+        }
+        .lds-default div:nth-child(7) {
+        animation-delay: -0.6s;
+        top: 36.8px;
+        left: 7.36px;
+        }
+        .lds-default div:nth-child(8) {
+        animation-delay: -0.7s;
+        top: 51.52px;
+        left: 11.30421px;
+        }
+        .lds-default div:nth-child(9) {
+        animation-delay: -0.8s;
+        top: 62.29579px;
+        left: 22.08px;
+        }
+        .lds-default div:nth-child(10) {
+        animation-delay: -0.9s;
+        top: 66.24px;
+        left: 36.8px;
+        }
+        .lds-default div:nth-child(11) {
+        animation-delay: -1s;
+        top: 62.29579px;
+        left: 51.52px;
+        }
+        .lds-default div:nth-child(12) {
+        animation-delay: -1.1s;
+        top: 51.52px;
+        left: 62.29579px;
+        }
+        @keyframes lds-default {
+        0%, 20%, 80%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.5);
+        }
+        } */
  </style>
 
     @stack('third_party_scripts')
