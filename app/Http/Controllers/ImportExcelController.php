@@ -283,7 +283,6 @@ class ImportExcelController extends AppBaseController
      */
     public function import_excel(Request $request)
     {
-
         // Verfication de l'extension du fichier 
         $request->validate([
             'excel_file' => 'required|mimes:xlsx,xls'

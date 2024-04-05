@@ -63,15 +63,21 @@ class ChauffeurController extends AppBaseController
     }
 
     public function import_driver_excel(Request $request){
-        // Verfication de l'extension du fichier 
-        $request->validate([
-            'excel_file' => 'required|mimes:xlsx,xls'
-        ]);
-        $file = $request->file('excel_file'); 
-        
-        // Ajout du nom du fichier importer 
-        $import = new DriverImportClass();
-        Excel::import($import, $file);
+        try{
+            // Verfication de l'extension du fichier 
+            $request->validate([
+                'excel_file' => 'required|mimes:xlsx,xls'
+            ]);
+            $file = $request->file('excel_file'); 
+            
+            // Ajout du nom du fichier importer 
+            $import = new DriverImportClass();
+            Excel::import($import, $file);
+            Alert::success(__('Importation réussie'));
+            return redirect(route('chauffeurs.index'));
+        }catch(\Exception $e){
+            Alert::error(__('Erreur lors de l\'importation du fichier'));
+        }
     }
 
     /**
