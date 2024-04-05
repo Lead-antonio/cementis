@@ -14,6 +14,7 @@ return array (
     'date' => 'Date',
     'created_at' => 'Crée le',
     'updated_at' => 'Modifiée le',
-    'score' => 'Pénalités chauffeur'
+    'score' => 'Pénalités chauffeur',
+    'route' => 'Distance'
   ),
 );

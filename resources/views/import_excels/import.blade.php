@@ -23,9 +23,9 @@
         
         <div class="card">
 
-            {{-- {!! Form::open(['route' => 'import.excel']) !!} --}}
-            {!! Form::open(['route' => 'import.excel', 'method' => 'post', 'enctype' => 'multipart/form-data']) !!}
-            @csrf
+            {!! Form::open(['route' => 'import.excel']) !!}
+            {{-- {!! Form::open(['route' => 'import.excel', 'method' => 'post', 'enctype' => 'multipart/form-data']) !!}
+            @csrf --}}
             
             <div class="card-body">
                 <div class="row">

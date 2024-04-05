@@ -10,7 +10,7 @@
                 <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
                        href="{{ route('chauffeurs.create') }}">
-                         @lang('crud.add_new')
+                         Import Excel
                     </a>
                 </div>
             </div>

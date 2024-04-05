@@ -1,11 +1,19 @@
 @if($point_total)
-    <div class="card" style="width: 20rem;">
-        <div class="card-header text-center">
-            <h3>Somme totale des points de pénalité</h3>
+    <div class="d-flex justify-content-center">
+        <div class="card" style="width: 35rem;">
+            <div class="card-header text-center">
+                <h2>Somme totale des points de pénalité</h2>
+            </div>
+            <div class="card-body">
+                <!--<h5><i class="fas fa-exclamation-triangle"></i>Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}</h5>-->
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <div>
+                     Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}
+                  </div>
+                </div>
+            </div>        
         </div>
-        <div class="card-body">
-            Total des points de pénalité pour le chauffeur : {{ $point_total }}
-        </div>        
     </div>
 @endif
 
@@ -38,7 +46,9 @@
                             <div class="col-md-7">
                                 @foreach($livraisonAvecEvenements['evenements'] as $evenement)
                                     <ul class="list-group" style="margin: 0% 0% 1% 0%;">
-                                        <li class="list-group-item">Type : {{ $evenement->type }}, Description : {{ $evenement->description }}, Date : {{ $evenement->date }}, Point de pénalité : {{ $livraisonAvecEvenements['penalites'][$evenement->id] }}</li>
+                                        <li class="list-group-item">
+                                            Type : {{ $evenement->type }}, Description : {{ $evenement->description }}, Date : {{ $evenement->date }}, Point de pénalité : {{ $livraisonAvecEvenements['penalites'][$evenement->id] }}
+                                        </li>
                                     </ul>
                                 @endforeach
                             </div>

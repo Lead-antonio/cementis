@@ -134,28 +134,6 @@ class ImportExcelController extends AppBaseController
         return view('events.resultats', compact('results', 'point_total'));
     }
 
-    // public function calendar($rfid, $date_debut, $date_fin){
-    //     $valeur_retour = 0;
-
-    //     if($date_debut !== null && $date_fin !== null){
-    //         $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
-    //             ->where('date_debut', '<=', $date_fin)
-    //             ->where('date_fin', '>=', $date_debut)
-    //             ->get();
-    //         if(!$dataExcel->isEmpty()){
-    //             $valeur_retour = 1;
-    //         }
-    //     } elseif(($date_debut !== null && $date_fin === null)) {
-    //         $dataExcel = ImportExcel::where('rfid_chauffeur', $rfid)
-    //                     ->where('date_debut', '=', $date_debut)
-    //                     ->whereNull('date_fin')
-    //                     ->get();        
-    //         if(!$dataExcel->isEmpty()){
-    //             $valeur_retour = 1;
-    //         }
-    //     }
-    //     return $valeur_retour;
-    // }
 
     /**
      * Show the form for creating a new ImportExcel.

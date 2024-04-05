@@ -9,7 +9,10 @@ use App\Http\Requests\UpdateChauffeurRequest;
 use App\Repositories\ChauffeurRepository;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AppBaseController;
+use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Imports\DriverImportClass;
+use Excel;
 use Response;
 
 class ChauffeurController extends AppBaseController
@@ -57,6 +60,18 @@ class ChauffeurController extends AppBaseController
     public function create()
     {
         return view('chauffeurs.create');
+    }
+
+    public function import_driver_excel(Request $request){
+        // Verfication de l'extension du fichier 
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls'
+        ]);
+        $file = $request->file('excel_file'); 
+        
+        // Ajout du nom du fichier importer 
+        $import = new DriverImportClass();
+        Excel::import($import, $file);
     }
 
     /**

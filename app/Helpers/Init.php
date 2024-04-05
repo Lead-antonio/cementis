@@ -21,25 +21,16 @@ if (!function_exists('fast_trans')) {
 
 }
 
-if (!function_exists('getRoutes')) {
 
-    function getRoutes(){
-        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=USER_GET_ROUTES,865135060228283';
+if (!function_exists('insertToPenalityChauffeur')) {
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $data = json_decode($response, true);
-
-        dd($data);
+    function insertToPenalityChauffeur($driverID, $calendarId, $eventId)
+    {
+        
     }
 
 }
 
-
-// Création du chauffeur à partir d'un évènement
 if (!function_exists('createExistingDriverInEvent')) {
     function createExistingDriverInEvent(){
         $existingDrivers = Event::distinct()
@@ -81,18 +72,29 @@ if (!function_exists('getDriverByName')) {
 if (!function_exists('getPointPenaliteTotalMonthly')) {
 
     function getPointPenaliteTotalMonthly($id_chauffeur, $monthly){
+        // $result = DB::table('penalite_chauffeur as pc')
+        //     ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
+        //     ->join('event as e', 'pc.id_event', '=', 'e.id')
+        //     ->join('Import_excel as c', 'pc.id_calendar', '=', 'c.id')
+        //     ->select('pc.id_chauffeur', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
+        //     ->where('pc.id_chauffeur', $id_chauffeur)
+        //     ->whereMonth('e.date', '=', $monthly)
+        //     ->whereYear('e.date', '=', 2024)
+        //     ->groupBy('pc.id_chauffeur')
+        //     ->first();
         $result = DB::table('penalite_chauffeur as pc')
             ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
             ->join('event as e', 'pc.id_event', '=', 'e.id')
-            ->join('import_excel as c', 'pc.id_calendar', '=', 'c.id')
-            ->select('pc.id_chauffeur', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
+            ->join('Import_excel as c', 'pc.id_calendar', '=', 'c.id')
+            ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+            ->select('pc.id_chauffeur', 'ch.nom', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
             ->where('pc.id_chauffeur', $id_chauffeur)
             ->whereMonth('e.date', '=', $monthly)
             ->whereYear('e.date', '=', 2024)
-            ->groupBy('pc.id_chauffeur')
+            ->groupBy('pc.id_chauffeur', 'ch.nom')
             ->first();
         if($result){
-            return $result->total_point_penalite;
+            return $result;
         }else{
             return 0;
         }
@@ -112,6 +114,23 @@ if (!function_exists('getJourneyOfDriverMonthly')) {
     }
 }
 
+if (!function_exists('getRoutes')) {
+
+    function getRoutes(){
+        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,351510093054214,20240405,20240406,20';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($response, true);
+
+        dd($data);
+    }
+
+}
+
 // Récupération des derniers évènements dans l'API M-TEC Tracking et enregistrer dans la table Event
 if (!function_exists('getEventFromApi')) {
 
@@ -125,6 +144,7 @@ if (!function_exists('getEventFromApi')) {
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response, true);
+        // dd($data);
         
         if (!empty($data)) {
             foreach ($data as $item) {
@@ -134,20 +154,43 @@ if (!function_exists('getEventFromApi')) {
                 ->first();
                 // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
                 if (!$existingEvent) {
-                    Event::create([
-                        'imei' => $item[2],
-                        'chauffeur' => "",
-                        'vehicule' => $item[3],
-                        'type' => $item[0],
-                        'date' => $item[4],
-                        'description' => $item[1],
-                    ]);
+                    if(isset($item[10]['rfid'])){
+                        Event::create([
+                            'imei' => $item[2],
+                            'chauffeur' => $item[10]['rfid'],
+                            'vehicule' => $item[3],
+                            'type' => $item[0],
+                            'date' => $item[4],
+                            'description' => $item[1],
+                        ]);
+                    }
                 }
             }
         }
     }    
 }
 
+
+    // function Update_importExcel($id_importcalendar){
+    //     // $import_calendar->id
+    //     //Recuperation de la date debut et fin du fichier inserer
+    //     $date_debut = ImportExcel::where('import_calendar_id', $id_importcalendar)->first('date_debut');
+
+    //     $max_id_import_excel = ImportExcel::where('import_calendar_id',  $id_importcalendar)->max('id');
+    //     $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
+
+    //     if($date_finals->date_fin == null){
+    //         $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
+    //         $date_finals = $date_fin_fichier->date_debut;
+    //     }else{
+    //         $date_finals = $date_finals->date_fin;
+    //     }
+
+    //     $import_calendar->update([
+    //         'date_debut' => $date_debut->date_debut,
+    //         'date_fin' => $date_finals
+    //     ]);
+    // }
 
 if (!function_exists('calculerDureeTotale')) {
     function calculerDureeTotale($immatriculation)

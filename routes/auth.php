@@ -54,11 +54,11 @@ Route::get('/import-affichage', 'App\Http\Controllers\ImportExcelController@affi
 
 Route::post('/import-excel', 'App\Http\Controllers\ImportExcelController@import_excel')->name('import.excel');
 
+Route::post('import/driver/excel', 'App\Http\Controllers\ChauffeurController@import_driver_excel')->name('import.driver.excel');
 
 Route::get('/import-liste', 'App\Http\Controllers\ImportExcelController@liste_importation')->name('import.liste');
 
 Route::get('import-excels/detail/{id}', 'App\Http\Controllers\ImportExcelController@detail_liste_importation')->name('import_excels.detail_liste_importation');
-
 
 Route::resource('importcalendars', App\Http\Controllers\ImportcalendarController::class);
 
@@ -71,6 +71,10 @@ Route::resource('penaliteChauffeurs', App\Http\Controllers\PenaliteChauffeurCont
 Route::get('/scoring/{chauffeur}/{mois}', 'App\Http\Controllers\ImportExcelController@associateEventWithJourney')->name('scoring.monthly');
 
 Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')->name('events.scoring');
+
+
+Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
+
 
 
 

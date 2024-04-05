@@ -41,9 +41,14 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
-        // getEventFromApi();
+        getEventFromApi();
         createExistingDriverInEvent();
         return $eventDataTable->render('events.index');
+    }
+
+
+    public function getRoutes(){
+        dd(getRoutes());
     }
 
     /**

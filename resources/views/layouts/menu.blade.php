@@ -118,6 +118,14 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li>
 
+<li class="nav-item">
+    <a href="{{ route('event.routes') }}"
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-thermometer"></i>
+        <p>@lang('models/events.fields.route')</p>
+    </a>
+</li>
+
 {{-- <li class="nav-item">
     <a href="{{ route('rotations.index') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
