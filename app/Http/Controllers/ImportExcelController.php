@@ -85,13 +85,6 @@ class ImportExcelController extends AppBaseController
         foreach ($livraisons as $livraison) {
             // Récupérer les événements déclenchés pendant cette livraison
             $evenementsLivraison = $events->filter(function ($event) use ($livraison) {
-                // if ($livraison->date_fin === null) {
-                //     dd($livraison, $event->date);
-                //     return $event->date = $livraison->date_debut;
-                // } else {
-                //     return $event->date >= $livraison->date_debut &&
-                //            $event->date <= $livraison->date_fin;
-                // }
                 $eventDate = Carbon::parse($event->date)->startOfDay();
                 $debutLivraisonDate = Carbon::parse($livraison->date_debut)->startOfDay();
 
