@@ -109,7 +109,11 @@ class ImportExcelController extends AppBaseController
                 'evenements' => $eventsDuringDelivery,
                 'penalites' => $penalites,
             ];
+
+
         }
+
+        // dd($results[0]['evenements']);
         $point_total = getPointPenaliteTotalMonthly($drive->id);
         
         return view('events.resultats', compact('results', 'point_total'));
