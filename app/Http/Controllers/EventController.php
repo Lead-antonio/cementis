@@ -48,7 +48,7 @@ class EventController extends AppBaseController
 
 
     public function getRoutes(){
-        dd(getRoutes());
+        dd(getDistanceWithImeiAndPeriod('351510093054214','20240401', '20240430'));
     }
 
     /**
