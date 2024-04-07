@@ -69,13 +69,12 @@ class ImportExcelController extends AppBaseController
 
 
 
-    public function associateEventWithJourney(Request $request){
+    public function associateEventWithCalendar(Request $request){
         $chauffeur = $request->input('chauffeur');
-        $month = $request->input('mois');
         
         $drive = getDriverByName($chauffeur);
-        $events = getEventMonthly($chauffeur, $month);
-        $livraisons = getJourneyOfDriverMonthly($chauffeur, $month);
+        $events = getEventMonthly($drive->rfid);
+        $livraisons = getCalendarOfDriverMonthly($drive->nom);
 
         $results = [];
         $penalites = [];
@@ -83,46 +82,35 @@ class ImportExcelController extends AppBaseController
 
         // Associer les événements aux livraisons correspondantes
         foreach ($livraisons as $livraison) {
-            // Récupérer les événements déclenchés pendant cette livraison
-            $evenementsLivraison = $events->filter(function ($event) use ($livraison) {
-                $eventDate = Carbon::parse($event->date)->startOfDay();
-                $debutLivraisonDate = Carbon::parse($livraison->date_debut)->startOfDay();
+            $dateDebut = Carbon::parse($livraison->date_debut)->startOfDay();
+            $dateFin = $livraison->date_fin ? Carbon::parse($livraison->date_fin)->startOfDay() : null;
 
-                if ($livraison->date_fin === null) {
-                    return $eventDate->eq($debutLivraisonDate); // Utilise gte pour inclure la date de début de livraison
+            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $drive) {
+                $eventDate = Carbon::parse($event->date)->startOfDay();
+    
+                if ($dateFin === null) {
+                    return $event->chauffeur == $drive->rfid && $eventDate->eq($dateDebut);
                 } else {
-                    $finLivraisonDate = Carbon::parse($livraison->date_fin)->startOfDay();
-                    return $eventDate->between($debutLivraisonDate, $finLivraisonDate);
+                    return $event->chauffeur == $drive->rfid && $eventDate->between($dateDebut, $dateFin);
                 }
             });
 
-
-            foreach ($evenementsLivraison as $event){
+            foreach ($eventsDuringDelivery as $event){
                 $typeEvent = $event->type;
                 $penalite = Penalite::where('event', $typeEvent)->first(); // Assume qu'il n'y a qu'une seule pénalité par événement
                 if ($penalite) {
                     $penalites[$event->id] = $penalite->point_penalite; // Stockez le point de pénalité associé à l'événement
                 }
-                // Enregistrer dans la table Penalité chauffeur
-
-                $penality = PenaliteChauffeur::updateOrCreate([
-                    'id_chauffeur' => $drive->id,
-                    'id_calendar' => $livraison->id,
-                    'id_event' => $event->id,
-                    'id_penalite' => $penalite->id,
-                    'date' => $event->date,
-                ]);
             }
 
-            
             // Ajouter la livraison avec les événements correspondants au tableau
             $results[] = [
                 'livraison' => $livraison,
-                'evenements' => $evenementsLivraison,
+                'evenements' => $eventsDuringDelivery,
                 'penalites' => $penalites,
             ];
         }
-        $point_total = getPointPenaliteTotalMonthly($drive->id, $month);
+        $point_total = getPointPenaliteTotalMonthly($drive->id);
         
         return view('events.resultats', compact('results', 'point_total'));
     }

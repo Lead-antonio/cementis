@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use App\Models\Chauffeur;
+use App\Models\PenaliteChauffeur;
 
 
 if (!function_exists('fast_trans')) {
@@ -22,13 +23,47 @@ if (!function_exists('fast_trans')) {
 }
 
 
-if (!function_exists('insertToPenalityChauffeur')) {
+if (!function_exists('topDriver')) {
 
-    function insertToPenalityChauffeur($driverID, $calendarId, $eventId)
+    function topDriver()
     {
+        $topChauffeur = PenaliteChauffeur::select('chauffeur.nom', 'penalite_chauffeur.id_chauffeur', DB::raw('SUM(penalite.point_penalite) as total_penalite'))
+            ->join('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
+            ->join('chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
+            ->groupBy('penalite_chauffeur.id_chauffeur', 'chauffeur.nom')
+            ->orderBy ('total_penalite')
+            ->get();
         
+        return $topChauffeur;
     }
 
+}
+
+if (!function_exists('driverChart')) {
+    function driverChart()
+    {
+        // Récupérez les données sur les pénalités
+        $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
+        ->groupBy('id_chauffeur')
+        ->get();
+
+        // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
+        $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
+
+        // Préparez les données pour le graphique
+        $labels = [];
+        $data = [];
+
+        foreach ($penalitesData as $penalite) {
+            $labels[] = $chauffeursNames[$penalite->id_chauffeur];
+            $data[] = $penalite->penalite_count;
+        }
+
+        return [
+            'labels' => $labels,
+            'data' => $data,
+        ];
+    }
 }
 
 if (!function_exists('createExistingDriverInEvent')) {
@@ -49,9 +84,10 @@ if (!function_exists('createExistingDriverInEvent')) {
 
 // Récupérer les évènements d'un chauffeur par mois
 if (!function_exists('getEventMonthly')) {
-    function getEventMonthly($Chauffeur, $month){
-        $events = Event::where('chauffeur', $Chauffeur)
-            ->whereMonth('date', $month)
+    function getEventMonthly($rfid_chauffeur){
+        $moisActuel = Carbon::now()->month;
+        $events = Event::where('chauffeur', $rfid_chauffeur)
+            ->whereMonth('date', $moisActuel)
             ->get();
         
         return $events;
@@ -71,17 +107,8 @@ if (!function_exists('getDriverByName')) {
 //Récupération du somme totale d'un point de pénalité d'un chauffeur par mois
 if (!function_exists('getPointPenaliteTotalMonthly')) {
 
-    function getPointPenaliteTotalMonthly($id_chauffeur, $monthly){
-        // $result = DB::table('penalite_chauffeur as pc')
-        //     ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
-        //     ->join('event as e', 'pc.id_event', '=', 'e.id')
-        //     ->join('Import_excel as c', 'pc.id_calendar', '=', 'c.id')
-        //     ->select('pc.id_chauffeur', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
-        //     ->where('pc.id_chauffeur', $id_chauffeur)
-        //     ->whereMonth('e.date', '=', $monthly)
-        //     ->whereYear('e.date', '=', 2024)
-        //     ->groupBy('pc.id_chauffeur')
-        //     ->first();
+    function getPointPenaliteTotalMonthly($id_chauffeur){
+        $moisActuel = Carbon::now()->month;
         $result = DB::table('penalite_chauffeur as pc')
             ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
             ->join('event as e', 'pc.id_event', '=', 'e.id')
@@ -89,7 +116,7 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
             ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
             ->select('pc.id_chauffeur', 'ch.nom', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
             ->where('pc.id_chauffeur', $id_chauffeur)
-            ->whereMonth('e.date', '=', $monthly)
+            ->whereMonth('e.date', '=', $moisActuel)
             ->whereYear('e.date', '=', 2024)
             ->groupBy('pc.id_chauffeur', 'ch.nom')
             ->first();
@@ -103,11 +130,12 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
 }
 
 //Récuperation des calendriers d'un chauffeur par mois
-if (!function_exists('getJourneyOfDriverMonthly')) {
+if (!function_exists('getCalendarOfDriverMonthly')) {
 
-    function getJourneyOfDriverMonthly($chauffeur, $month){
+    function getCalendarOfDriverMonthly($chauffeur){
+        $moisActuel = Carbon::now()->month;
         $livraisons = ImportExcel::where('rfid_chauffeur', $chauffeur)
-            ->whereMonth('date_debut', $month)
+            ->whereMonth('date_debut', $moisActuel)
             ->get();
 
         return $livraisons;
@@ -117,7 +145,7 @@ if (!function_exists('getJourneyOfDriverMonthly')) {
 if (!function_exists('getRoutes')) {
 
     function getRoutes(){
-        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,865135060228283,20240405,20240406,20';
+        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,865135060228283,20240401,20240430,20';
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -126,10 +154,12 @@ if (!function_exists('getRoutes')) {
         curl_close($ch);
         $data = json_decode($response, true);
 
-        dd($data);
+        dd($data['route_length']);
     }
 
 }
+
+
 
 // Récupération des derniers évènements dans l'API M-TEC Tracking et enregistrer dans la table Event
 if (!function_exists('getEventFromApi')) {

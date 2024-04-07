@@ -5,13 +5,22 @@
                 <h2>Somme totale des points de pénalité</h2>
             </div>
             <div class="card-body">
-                <!--<h5><i class="fas fa-exclamation-triangle"></i>Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}</h5>-->
-                <div class="alert alert-warning d-flex align-items-center" role="alert">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  <div>
-                     Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}
-                  </div>
-                </div>
+                @if($point_total->total_point_penalite >= 5)
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                        Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}
+                        </div>
+                    </div>
+                @else
+                    <div class="alert alert-warning d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                        Total des points de pénalité pour le chauffeur {{ $point_total->nom }} : {{ $point_total->total_point_penalite}}
+                        </div>
+                    </div>
+                @endif
+                
             </div>        
         </div>
     </div>

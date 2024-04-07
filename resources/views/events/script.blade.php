@@ -4,14 +4,14 @@
     $(document).ready(function() {
         $('#voirButton').click(function() {
             var chauffeur = $('#chauffeurSelect').val();
-            var mois = $('#moisSelect').val();
+            // var mois = $('#moisSelect').val();
 
-            console.log(chauffeur, mois);
+            console.log(chauffeur);
             
             $.ajax({
-                url: "{{ route('scoring.monthly', ['chauffeur' => ':chauffeur', 'mois' => ':mois']) }}".replace(':chauffeur', chauffeur).replace(':mois', mois),
+                url: "{{ route('scoring.monthly', ['chauffeur' => ':chauffeur']) }}".replace(':chauffeur', chauffeur),
                 method: 'GET',
-                data: { chauffeur: chauffeur, mois: mois },
+                data: { chauffeur: chauffeur },
                 success: function(response) {
                     $('#resultats').html(response);
                 },

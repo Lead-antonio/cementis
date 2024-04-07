@@ -41,8 +41,13 @@ class DashboardRepository
         $dashboardInfo['role_count'] =  $this->roleRepository->count();
         $dashboardInfo['permission_count'] =  $this->permissionRepository->count();
         $dashboardInfo['user_online'] =  $this->attendanceRepository->CountUserOnline();
+        $dashboardInfo['topDriver'] = topDriver();
+
+
         return $dashboardInfo;
     }
+
+
     private function getChartUserCheckinInfo()
     {
         $labels = [];
@@ -81,11 +86,11 @@ class DashboardRepository
         $chart['data'] = $data;
         return $chart;
     }
-    public function GetData()
-    {
+    public function GetData(){
         $dashboard = [];
         $dashboard['dashboardInfo'] = $this->getDashboardInfo();
         $dashboard['chartUserCheckin'] = $this->getChartUserCheckinInfo();
+        $dashboard['chartDriver'] =  driverChart();
         return $dashboard;
     }
 }
