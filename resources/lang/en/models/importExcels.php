@@ -7,7 +7,7 @@ return array (
   array (
     'id' => 'Id',
     'name_importation' => 'Name importation',
-    'rfid_chauffeur' => 'Driver rfid ',
+    'rfid_chauffeur' => 'Driver ',
     'camion' => 'Truck',
     'date_debut' => 'Start date',
     'date_fin' => 'End date',
@@ -15,6 +15,7 @@ return array (
     'sigdep_reel' => 'Sigdep Reel',
     'marche' => 'Walk',
     'adresse_livraison' => 'Delivery address',
+    'distance' => 'Distance traveled',
     'import_calendar' => 'Import calendar',
     'import_calendar' => 'List of imports',
     'import_detail' => 'Details'

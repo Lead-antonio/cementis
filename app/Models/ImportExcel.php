@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $marche
  * @property string $adresse_livraison
  * @property integer $import_calendar_id
+ * @property integer $distance
  */
 class ImportExcel extends Model
 {
@@ -44,7 +45,8 @@ class ImportExcel extends Model
         'sigdep_reel',
         'marche',
         'adresse_livraison',
-        'import_calendar_id'
+        'import_calendar_id',
+        'distance',
     ];
 
     /**
@@ -63,7 +65,8 @@ class ImportExcel extends Model
         'sigdep_reel' => 'string',
         'marche' => 'string',
         'adresse_livraison' => 'string',
-        'import_calendar_id' => 'integer'
+        'import_calendar_id' => 'integer',
+        'distance' => 'integer',
     ];
 
     /**

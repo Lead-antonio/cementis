@@ -44,6 +44,7 @@ class DashboardRepository
         $dashboardInfo['topDriver'] = topDriver();
         $dashboardInfo['driverTop'] = driverTop();
         $dashboardInfo['driverWorst'] = driverWorst();
+        $dashboardInfo['scoring'] = scoringCard();
 
         return $dashboardInfo;
     }

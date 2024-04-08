@@ -34,6 +34,7 @@ return [
         ]
     ],
     'number_driver_stat' => 'Number of penalties per driver',
-    'top_driver' => 'Top drivers by penalty points'
+    'top_driver' => 'Top drivers by penalty points',
+    'scoring' => 'Scoring Card for Drivers This Month',
 
 ];

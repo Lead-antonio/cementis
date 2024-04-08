@@ -140,11 +140,13 @@
             <!-- /.col -->
         </div> --}}
 
+        
+
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title ">@lang('common.number_driver_stat') </h1>
+                        <h1 class="card-title ">@lang('common.scoring') </h1>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -158,8 +160,42 @@
                     <!-- /.card-header -->
 
                     <div class="card-body">
-                        <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas>
-                        <!-- /.row -->
+                        <div class="table-responsive">
+                            <table class="table table-hover m-b-0 without-header" id="ticketsTable">
+                                <tbody>
+                                    @if($dashboardInfo['scoring']->isNotEmpty())
+                                        @foreach ($dashboardInfo['scoring'] as $key => $item)
+                                            <tr> 
+                                                <td>
+                                                    <div class="d-inline-block align-middle">
+                                                        <img src="{{ asset('images/avatardash.png') }}" alt="user image" class="img-radius img-40 align-top m-r-15" width="10%">
+                                                        <div class="d-inline-block" style="margin-top: 10px;margin-left: 16px;">
+                                                            <h6>
+                                                                {{$item->nom}} 
+                                                                @if($key === 0)
+                                                                    <span class="text-warning">&#9733;</span>
+                                                                @endif
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h6 class="f-w-700">
+                                                        {{round($item->scoring_card)}}
+                                                    </h6>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr> 
+                                            <td class="text-center" colspan="2">
+                                                Aucun élément trouvé
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                    
                 </div>
@@ -226,6 +262,33 @@
                 <!-- /.card -->
             </div>
             <!-- /.col -->
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title ">@lang('common.number_driver_stat') </h1>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+
+                <div class="card-body">
+                    <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas>
+                    <!-- /.row -->
+                </div>
+               
+            </div>
+            <!-- /.card -->
         </div>
     </div>
         <!-- /.row -->

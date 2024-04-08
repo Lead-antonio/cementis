@@ -26,6 +26,7 @@ class CreateImportExcelTable extends Migration
             $table->string('marche');
             $table->string('adresse_livraison');
             $table->unsignedInteger('import_calendar_id');
+            $table->integer('distance')->default(0);
             $table->foreign('import_calendar_id')->references('id')->on('Import_calendar')->onDelete('cascade');
             $table->softDeletes();
         });

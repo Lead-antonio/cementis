@@ -48,7 +48,8 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'sigdep_reel' => $row['sigdep_reel'],
             'marche' => $row['marche'],
             'adresse_livraison' => $row['adresse_de_livraison'],
-            'import_calendar_id' => $this->import_calendar_id
+            'import_calendar_id' => $this->import_calendar_id,
+            'distance' => $row['distance_parcourue']
         ]);
     }
 }

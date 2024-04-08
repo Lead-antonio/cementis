@@ -101,7 +101,12 @@ class ImportExcelDataTable extends DataTable
             'delais_route' => new Column(['title' => __('models/importExcels.fields.delais_route'), 'data' => 'delais_route']),
             'sigdep_reel' => new Column(['title' => __('models/importExcels.fields.sigdep_reel'), 'data' => 'sigdep_reel']),
             'marche' => new Column(['title' => __('models/importExcels.fields.marche'), 'data' => 'marche']),
-            'adresse_livraison' => new Column(['title' => __('models/importExcels.fields.adresse_livraison'), 'data' => 'adresse_livraison'])
+            'adresse_livraison' => new Column(['title' => __('models/importExcels.fields.adresse_livraison'), 'data' => 'adresse_livraison']),
+            'distance' => new Column(['title' => __('models/importExcels.fields.distance'), 'data' => 'distance',
+            'render' => 'function() {
+                return full.distance + " Km";
+             }'
+        ])
         ];
     }
 
