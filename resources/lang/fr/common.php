@@ -36,6 +36,8 @@ return [
         ]
     ],
     'number_driver_stat' => 'Nombre de pénalités par chauffeur',
-    'top_driver' => 'Top chauffeurs par points de pénalité'
+    'top_driver' => 'Top chauffeurs par points de pénalité',
+    'top' => 'Meilleur chauffeur',
+    'worst' => 'Pire chauffeur'
 
 ];

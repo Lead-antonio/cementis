@@ -7,7 +7,7 @@ return array (
   array (
     'id' => 'Id',
     'imei' => 'Imei',
-    'chauffeur' => 'Chauffeur',
+    'chauffeur' => 'Rfid',
     'vehicule' => 'Véhicule',
     'type' => 'Type',
     'description' => 'Description',

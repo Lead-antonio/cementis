@@ -65,7 +65,7 @@ class EventDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'imei' => new Column(['title' => __('models/events.fields.imei'), 'data' => 'imei']),
+            // 'imei' => new Column(['title' => __('models/events.fields.imei'), 'data' => 'imei']),
             'chauffeur' => new Column(['title' => __('models/events.fields.chauffeur'), 'data' => 'chauffeur']),
             'vehicule' => new Column(['title' => __('models/events.fields.vehicule'), 'data' => 'vehicule']),
             'type' => new Column(['title' => __('models/events.fields.type'), 'data' => 'type']),

@@ -13,7 +13,8 @@ return [
     |
     */
     'header' => [
-        'index' => 'Tableau de bord'
+        'index' => 'Tableau de bord',
+        'home' => 'accueil'
     ],
     'fields' => [
         'user_id' => 'Full name',

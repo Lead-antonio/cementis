@@ -10,8 +10,8 @@
             </div><!-- /.col -->
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard</li>
+                    <li class="breadcrumb-item"><a href="">@lang('models/dashboards.header.home')</a></li>
+                    <li class="breadcrumb-item active">@lang('models/dashboards.header.index')</li>
                 </ol>
             </div><!-- /.col -->
         </div><!-- /.row -->
@@ -24,7 +24,7 @@
     <div class="container-fluid">
         <!-- Info boxes -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-md-3">
+            {{-- <div class="col-12 col-sm-6 col-md-3">
                 <div class="info-box">
                     <span class="info-box-icon bg-info elevation-1">
                         <i class="fas fa-users"></i></span>
@@ -54,22 +54,23 @@
                     <!-- /.info-box-content -->
                 </div>
                 <!-- /.info-box -->
-            </div>
+            </div> --}}
             <!-- /.col -->
 
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-success elevation-1">
-                        <i class="fas fa-shield-alt"></i>
+                        {{-- <i class="fas fa-shield-alt"></i> --}}
+                        <i class="fas fa-star"></i>
                     </span>
 
                     <div class="info-box-content">
-                        <span class="info-box-text">Perrmisons</span>
+                        <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            {{$dashboardInfo['permission_count']}}
+                            {{$dashboardInfo['driverTop']->nom_chauffeur}}
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -77,15 +78,15 @@
                 <!-- /.info-box -->
             </div>
             <!-- /.col -->
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
-                    <span class="info-box-icon bg-warning elevation-1">
-                        <i class="fas fa-signal"></i>
+                    <span class="info-box-icon bg-danger elevation-1">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </span>
 
                     <div class="info-box-content">
-                        <span class="info-box-text">Online</span>
-                        <span class="info-box-number" id="user_online">{{$dashboardInfo['user_online']}}</span>
+                        <span class="info-box-text">@lang('common.worst')</span>
+                        <span class="info-box-number" >{{$dashboardInfo['driverWorst']->nom_chauffeur}}</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>

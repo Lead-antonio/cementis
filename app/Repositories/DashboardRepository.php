@@ -42,7 +42,8 @@ class DashboardRepository
         $dashboardInfo['permission_count'] =  $this->permissionRepository->count();
         $dashboardInfo['user_online'] =  $this->attendanceRepository->CountUserOnline();
         $dashboardInfo['topDriver'] = topDriver();
-
+        $dashboardInfo['driverTop'] = driverTop();
+        $dashboardInfo['driverWorst'] = driverWorst();
 
         return $dashboardInfo;
     }

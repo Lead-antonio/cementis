@@ -23,6 +23,38 @@ if (!function_exists('fast_trans')) {
 }
 
 
+if (!function_exists('driverTop')){
+    function driverTop()
+    {
+        $driverTop = DB::table('penalite_chauffeur')
+            ->select(DB::raw('MAX(chauffeur.id) AS drive_id'), 'chauffeur.nom AS nom_chauffeur', DB::raw('SUM(penalite.point_penalite) as total_penalite'))
+            ->join('chauffeur', 'penalite_chauffeur.id_chauffeur', '=', 'chauffeur.id')
+            ->join('penalite', 'penalite_chauffeur.id_penalite', '=', 'penalite.id')
+            ->groupBy('penalite_chauffeur.id_chauffeur', 'chauffeur.nom')
+            ->orderByRaw('SUM(penalite.point_penalite) ASC')
+            ->limit(1)
+            ->first();
+
+        return $driverTop;
+    }
+}
+
+
+if (!function_exists('driverWorst')){
+    function driverWorst(){
+        $driverWorst = DB::table('penalite_chauffeur')
+        ->select(DB::raw('MAX(chauffeur.id) AS drive_id'), 'chauffeur.nom AS nom_chauffeur', DB::raw('SUM(penalite.point_penalite) as total_penalite'))
+        ->join('chauffeur', 'penalite_chauffeur.id_chauffeur', '=', 'chauffeur.id')
+        ->join('penalite', 'penalite_chauffeur.id_penalite', '=', 'penalite.id')
+        ->groupBy('penalite_chauffeur.id_chauffeur', 'chauffeur.nom')
+        ->orderByRaw('SUM(penalite.point_penalite) DESC')
+        ->limit(1)
+        ->first();
+
+        return $driverWorst;
+    }
+}
+
 if (!function_exists('topDriver')) {
 
     function topDriver()

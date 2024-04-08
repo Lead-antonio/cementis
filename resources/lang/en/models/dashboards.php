@@ -13,7 +13,8 @@ return [
     |
     */
     'header' => [
-        'index' => 'Dashboard'
+        'index' => 'Dashboard',
+        'home' => 'Home'
     ],
     'fields' => [
         'user_id' => 'Full name',
