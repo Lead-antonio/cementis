@@ -15,5 +15,8 @@ return array (
     'sigdep_reel' => 'Sigdep Reel',
     'marche' => 'Marche',
     'adresse_livraison' => 'Adresse Livraison',
+    'import_calendar' => 'Import calendrier',
+    'import_list' => 'Liste des importations',
+    'import_detail' => 'Détails'
   ),
 );

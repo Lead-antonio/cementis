@@ -141,7 +141,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title ">Nombre de pénalités par chauffeur </h1>
+                        <h1 class="card-title ">@lang('common.number_driver_stat') </h1>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -167,7 +167,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Top chauffeurs par points de pénalité </h5>
+                        <h5 class="card-title">@lang('common.top_driver')  </h5>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">

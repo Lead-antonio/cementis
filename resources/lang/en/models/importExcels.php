@@ -6,14 +6,17 @@ return array (
   'fields' => 
   array (
     'id' => 'Id',
-    'name_importation' => 'Name Importation',
-    'rfid_chauffeur' => 'Rfid Chauffeur',
-    'camion' => 'Camion',
-    'date_debut' => 'Date Debut',
-    'date_fin' => 'Date Fin',
-    'delais_route' => 'Delais Route',
+    'name_importation' => 'Name importation',
+    'rfid_chauffeur' => 'Driver rfid ',
+    'camion' => 'Truck',
+    'date_debut' => 'Start date',
+    'date_fin' => 'End date',
+    'delais_route' => 'Road Delays',
     'sigdep_reel' => 'Sigdep Reel',
-    'marche' => 'Marche',
-    'adresse_livraison' => 'Adresse Livraison',
+    'marche' => 'Walk',
+    'adresse_livraison' => 'Delivery address',
+    'import_calendar' => 'Import calendar',
+    'import_calendar' => 'List of imports',
+    'import_detail' => 'Details'
   ),
 );

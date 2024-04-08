@@ -11,9 +11,10 @@ return array (
     'vehicule' => 'Vehicle',
     'type' => 'Type',
     'description' => 'Description',
-    'date' => 'Date Time',
+    'date' => 'Date and time',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
-    'score' => 'Driver scoring'
+    'detail_penalite' => 'Details of penalty',
+    'route' => 'Distance'
   ),
 );

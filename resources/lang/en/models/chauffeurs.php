@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Chauffeur',
-  'plural' => 'Chauffeurs',
+  'singular' => 'Driver',
+  'plural' => 'Drivers',
   'fields' => 
   array (
     'id' => 'Id',

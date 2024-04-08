@@ -24,7 +24,10 @@ return [
     ],
     'attendances'=>[
         'title'=>'Checkin/out'
-    ]
+    ],
+    'database' => [
+        'title' => 'Basic data'
+    ],
 
 
 ];

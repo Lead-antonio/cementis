@@ -35,5 +35,7 @@ return [
             'rollback' => 'Reculer2'
         ]
     ],
+    'number_driver_stat' => 'Nombre de pénalités par chauffeur',
+    'top_driver' => 'Top chauffeurs par points de pénalité'
 
 ];

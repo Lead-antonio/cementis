@@ -33,5 +33,7 @@ return [
             'rollback'=>'Rollback2'
         ]
     ],
+    'number_driver_stat' => 'Number of penalties per driver',
+    'top_driver' => 'Top drivers by penalty points'
 
 ];

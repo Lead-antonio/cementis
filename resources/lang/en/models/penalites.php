@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Penalite',
-  'plural' => 'Penalites',
+  'singular' => 'Penalty',
+  'plural' => 'Penalty',
   'fields' => 
   array (
     'id' => 'Id',

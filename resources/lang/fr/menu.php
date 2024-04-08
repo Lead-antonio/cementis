@@ -28,73 +28,7 @@ return [
     'attendances'=>[
         'title'=>'Pointages'
     ],
-    'basic' => [
+    'database' => [
         'title' => 'Données de base'
     ],
-    'checkout' => [
-        'title' => 'Enregistrement/Désenregistrement de l\'utilisateur'
-    ],
-    'villes' => [
-        'title' => 'Villes'
-    ],
-    'customer' => [
-        'title' => 'Clients'
-    ],
-    'tickets' => [
-        'title' => 'Tickets'
-    ],
-    'customer_liste' => [
-        'title' => 'Listes de clients '
-    ]
-    ,
-    'customer_statut' => [
-        'title' => 'Statut des clients'
-    ],
-    'ticket_statut' => [
-        'title' => 'Ticket statut'
-    ],
-    'canal' => [
-        'title' => 'Canal'
-    ],
-    'interlocuteur' => [
-        'title' => 'Interlocuteur'
-    ],
-    'vehicule' => [
-        'title' => 'Véhicule'
-    ],
-    'ticket' => [
-        'list_ticket' => 'Liste des tickets'
-    ],
-    'ticketType' => [
-        'title' => 'Type de ticket'
-    ],
-    'ticketGroupe' => [
-        'title' => 'Groupe de tickets'
-    ],
-    'gestionTicket' => [
-        'title' => 'Gestion des tickets'
-    ],
-    'suiviTicket' => [
-        'title' => 'Suivi des tickets'
-    ],
-    'ajouTicket' => [
-        'title' => 'Ajout des tickets'
-    ],
-    'archive' => [
-        'title' => 'Ticket archivé'
-    ],
-    'carnetadresse' =>
-    [
-        'title' => 'Carnet d\'adresse'
-    ],
-    'historique' =>
-    [
-        'title' => 'Historiques'
-    ],
-    'parametre' =>
-    [
-        'title' => 'Paramètre'
-    ]
-
-
 ];

@@ -111,10 +111,60 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li> --}}
 
 <li class="nav-item">
+    <a href="{{ route('chauffeurs.index') }}"
+       class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-user-circle"></i> 
+        <p>@lang('models/chauffeurs.plural')</p>
+    </a>
+</li>
+
+<li class="nav-item has-treeview">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-calendar"></i> 
+        <p>
+            @lang('models/importExcels.fields.import_calendar')
+            <i class="right fas fa-angle-left"></i>
+        </p>
+    </a>
+
+    <ul class="nav nav-treeview" style="padding-left:8px">
+        <li class="nav-item">
+            <a href="{{ route('importcalendars.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-list"></i>
+                <p>@lang('models/importExcels.fields.import_list')</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ route('importExcels.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-file"></i>
+                <p>@lang('models/importExcels.fields.import_detail')</p>
+            </a>
+        </li>
+        <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
+    </ul>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('events.index') }}"
+       class="nav-link {{ Request::is('events*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-calendar"></i>
+        <p>@lang('models/events.plural')</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('penaliteChauffeurs.index') }}"
+       class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-car-crash"></i> 
+        <p>@lang('models/penaliteChauffeurs.plural')</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('events.scoring') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-bullseye"></i>
-        <p>@lang('models/events.fields.score')</p>
+        <p>@lang('models/events.fields.detail_penalite')</p>
     </a>
 </li>
 
@@ -143,13 +193,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li> --}}
 
-<li class="nav-item">
-    <a href="{{ route('events.index') }}"
-       class="nav-link {{ Request::is('events*') ? 'active' : '' }}">
-       <i class="nav-icon fas fa-calendar"></i>
-        <p>@lang('models/events.plural')</p>
-    </a>
-</li>
 
 
 {{-- <li class="nav-item">
@@ -183,37 +226,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li> --}}
 
-<li class="nav-item has-treeview">
-    <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-calendar"></i> 
-        <p>
-            Import Calendrier
-            <i class="right fas fa-angle-left"></i>
-        </p>
-    </a>
 
-    <ul class="nav nav-treeview" style="padding-left:8px">
-        <li class="nav-item">
-            <a href="{{ route('importcalendars.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-list"></i>
-                <p>Liste des importations</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('importExcels.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-file"></i>
-                <p>Details</p>
-            </a>
-        </li>
-        <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
-    </ul>
-</li>
 
 <li class="nav-item has-treeview" >
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-database"></i>
         <p>
-            Données de base
+            @lang('menu.database.title')
             <i class="right fas fa-angle-left"></i>
         </p>
     </a>
@@ -222,22 +241,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
             <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-exclamation-triangle"></i>
                 <p>@lang('models/penalites.plural')</p>
-            </a>
-        </li>
-        <!-- Autres éléments de sous-menu peuvent être ajoutés ici -->
-        <li class="nav-item">
-            <a href="{{ route('chauffeurs.index') }}"
-               class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}">
-               <i class="nav-icon fas fa-user-circle"></i> 
-                <p>@lang('models/chauffeurs.plural')</p>
-            </a>
-        </li>
-        
-        <li class="nav-item">
-            <a href="{{ route('penaliteChauffeurs.index') }}"
-               class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}">
-               <i class="nav-icon fas fa-car-crash"></i> 
-                <p>@lang('models/penaliteChauffeurs.plural')</p>
             </a>
         </li>
     </ul>
