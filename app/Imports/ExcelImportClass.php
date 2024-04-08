@@ -25,7 +25,6 @@ class ExcelImportClass implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $date_fin = $row['fin'];
-
         $excel_date = $row['date_debut'];
         $unix_timestamp = Date::excelToTimestamp($excel_date);
         $date_debut = Carbon::createFromTimestamp($unix_timestamp);

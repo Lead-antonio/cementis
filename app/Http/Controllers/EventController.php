@@ -12,6 +12,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use App\Models\Penalite;
+use App\Models\ImportExcel;
 use App\Models\Chauffeur;
 use GuzzleHttp\Client;
 use Response;
@@ -41,14 +42,12 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
-        // getEventFromApi();
-        // createExistingDriverInEvent();
         return $eventDataTable->render('events.index');
     }
 
 
     public function getRoutes(){
-        dd(getDistanceWithImeiAndPeriod('351510093054214','20240401', '20240430'));
+        dd(getDistanceWithImeiAndPeriod('865135060228283','20240404080000', '20240404170000'));
     }
 
     /**

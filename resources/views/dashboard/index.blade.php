@@ -70,7 +70,9 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            {{$dashboardInfo['driverTop']->nom_chauffeur}}
+                            @if(isset($dashboardInfo['driverTop']))
+                                {{$dashboardInfo['driverTop']->nom_chauffeur}}
+                            @endif
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -86,7 +88,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.worst')</span>
-                        <span class="info-box-number" >{{$dashboardInfo['driverWorst']->nom_chauffeur}}</span>
+                        <span class="info-box-number" >@if(isset($dashboardInfo['driverTop'])){{$dashboardInfo['driverWorst']->nom_chauffeur}}@endif</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>

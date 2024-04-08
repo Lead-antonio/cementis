@@ -174,6 +174,39 @@ if (!function_exists('getCalendarOfDriverMonthly')) {
     }
 }
 
+if (!function_exists('getImeiOfCalendarTruck')) {
+
+    function getImeiOfCalendarTruck($truck){
+        $data = getUserVehicule();
+        foreach($data as $arrayItem) {
+            if($arrayItem["name"] === $truck) {
+                return  $arrayItem["imei"];
+            }
+        }
+        return null;
+    }
+
+}
+
+if (!function_exists('getUserVehicule')) {
+
+    function getUserVehicule(){
+        // Formatage des dates au format YYYYMMDD
+
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=USER_GET_OBJECTS";
+        
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($response, true);
+
+        return $data;
+    }
+
+}
+
 if (!function_exists('getDistanceWithImeiAndPeriod')) {
 
     function getDistanceWithImeiAndPeriod($imei,$startDate, $endDate){
@@ -188,7 +221,7 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
         curl_close($ch);
         $data = json_decode($response, true);
 
-        return $data['route_length'];
+        return $data;
     }
 
 }

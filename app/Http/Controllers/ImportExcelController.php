@@ -45,6 +45,13 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
+        $calendar = importExcel::all();
+        foreach($calendar as $item) {
+            $imei =  getImeiOfCalendarTruck($item->camion);
+            if($imei !== null){
+                importExcel::where('id', $item->id)->update(['imei' => $imei]);
+            }
+        }
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
             Session::forget('success');
