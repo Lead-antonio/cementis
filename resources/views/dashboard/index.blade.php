@@ -70,8 +70,9 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            @if(isset($dashboardInfo['driverTop']))
-                                {{$dashboardInfo['driverTop']->nom_chauffeur}}
+                            @if(isset($dashboardInfo['scoring']->first()->nom))
+                                {{-- {{$dashboardInfo['driverTop']->nom_chauffeur}} --}}
+                                {{$dashboardInfo['scoring']->first()->nom}}
                             @endif
                         </span>
                     </div>
@@ -88,7 +89,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.worst')</span>
-                        <span class="info-box-number" >@if(isset($dashboardInfo['driverTop'])){{$dashboardInfo['driverWorst']->nom_chauffeur}}@endif</span>
+                        <span class="info-box-number" >@if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
@@ -181,7 +182,7 @@
                                                 </td>
                                                 <td class="text-right">
                                                     <h6 class="f-w-700">
-                                                        {{round($item->scoring_card)}}
+                                                        {{number_format($item->scoring_card, 2)}}
                                                     </h6>
                                                 </td>
                                             </tr>
