@@ -59,14 +59,15 @@ if (!function_exists('scoringCard')) {
 
     function scoringCard()
     {
-        $data = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
-            DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(import_excel.distance), 0), 0) AS scoring_card'))
-            ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
-            ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
-            ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
-            ->groupBy('chauffeur.id', 'chauffeur.nom')
-            ->orderBy('scoring_card', 'asc')
-            ->get();
+        $data = null;
+        // $data = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
+        //     DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(import_excel.distance), 0), 0) AS scoring_card'))
+        //     ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
+        //     ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
+        //     ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
+        //     ->groupBy('chauffeur.id', 'chauffeur.nom')
+        //     ->orderBy('scoring_card', 'asc')
+        //     ->get();
         
         return $data;
     }
@@ -182,10 +183,9 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
 //Récuperation des calendriers d'un chauffeur par mois
 if (!function_exists('getCalendarOfDriverMonthly')) {
 
-    function getCalendarOfDriverMonthly($chauffeur){
+    function getCalendarOfDriverMonthly(){
         $moisActuel = Carbon::now()->month;
-        $livraisons = ImportExcel::where('rfid_chauffeur', $chauffeur)
-            ->whereMonth('date_debut', $moisActuel)
+        $livraisons = ImportExcel::whereMonth('date_debut', $moisActuel)
             ->get();
 
         return $livraisons;

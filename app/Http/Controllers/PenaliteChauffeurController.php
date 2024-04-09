@@ -37,22 +37,19 @@ class PenaliteChauffeurController extends AppBaseController
     public function index(PenaliteChauffeurDataTable $penaliteChauffeurDataTable)
     {
         $importExcelRows = ImportExcel::all();
+        // dd($importExcelRows);
         $events = Event::all();
 
         foreach ($importExcelRows as $importRow) {
-            $chauffeur = Chauffeur::where('nom', $importRow->rfid_chauffeur)->first();
-            if ($chauffeur) {
-                $dateDebut = Carbon::parse($importRow->date_debut)->startOfDay();
-                $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin)->startOfDay() : null;
-        
+                $dateDebut = Carbon::parse($importRow->date_debut);
+                $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin) : null;
                 // Récupérer les événements déclenchés pendant cette livraison
-                $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $chauffeur) {
-                    $eventDate = Carbon::parse($event->date)->startOfDay();
-        
+                $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin) {
+                    $eventDate = Carbon::parse($event->date);
                     if ($dateFin === null) {
-                        return $event->chauffeur == $chauffeur->rfid && $eventDate->eq($dateDebut);
+                        return  $eventDate->eq($dateDebut);
                     } else {
-                        return $event->chauffeur == $chauffeur->rfid && $eventDate->between($dateDebut, $dateFin);
+                        return  $eventDate->between($dateDebut, $dateFin);
                     }
                 });
         
@@ -62,14 +59,13 @@ class PenaliteChauffeurController extends AppBaseController
                     // Enregistrer dans la table Penalité chauffeur
         
                     $penality = PenaliteChauffeur::updateOrCreate([
-                        'id_chauffeur' => $chauffeur->id,
+                        // 'id_chauffeur' => $chauffeur->id,
                         'id_calendar' => $importRow->id,
                         'id_event' => $event->id,
                         'id_penalite' => $penalite->id,
                         'date' => $event->date,
                     ]);
                 }
-            }
         }        
         return $penaliteChauffeurDataTable->render('penalite_chauffeurs.index');
     }

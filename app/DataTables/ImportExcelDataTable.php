@@ -73,7 +73,7 @@ class ImportExcelDataTable extends DataTable
     {
         return [
             'name_importation' => new Column(['title' => __('models/importExcels.fields.name_importation'), 'data' => 'name_importation']),
-            'rfid_chauffeur' => new Column(['title' => __('models/importExcels.fields.rfid_chauffeur'), 'data' => 'rfid_chauffeur']),
+            // 'rfid_chauffeur' => new Column(['title' => __('models/importExcels.fields.rfid_chauffeur'), 'data' => 'rfid_chauffeur']),
             'camion' => new Column(['title' => __('models/importExcels.fields.camion'), 'data' => 'camion']),
             'date_debut' => new Column([
                 'title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut',
@@ -101,12 +101,7 @@ class ImportExcelDataTable extends DataTable
             'delais_route' => new Column(['title' => __('models/importExcels.fields.delais_route'), 'data' => 'delais_route']),
             'sigdep_reel' => new Column(['title' => __('models/importExcels.fields.sigdep_reel'), 'data' => 'sigdep_reel']),
             'marche' => new Column(['title' => __('models/importExcels.fields.marche'), 'data' => 'marche']),
-            'adresse_livraison' => new Column(['title' => __('models/importExcels.fields.adresse_livraison'), 'data' => 'adresse_livraison']),
-            'distance' => new Column(['title' => __('models/importExcels.fields.distance'), 'data' => 'distance',
-            'render' => 'function() {
-                return full.distance + " Km";
-             }'
-        ])
+            'adresse_livraison' => new Column(['title' => __('models/importExcels.fields.adresse_livraison'), 'data' => 'adresse_livraison'])
         ];
     }
 

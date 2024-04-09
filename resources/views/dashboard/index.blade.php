@@ -70,10 +70,9 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom))
-                                {{-- {{$dashboardInfo['driverTop']->nom_chauffeur}} --}}
+                            {{-- @if(isset($dashboardInfo['scoring']->first()->nom))
                                 {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
+                            @endif --}}
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -89,7 +88,9 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.worst')</span>
-                        <span class="info-box-number" >@if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif</span>
+                        <span class="info-box-number" >
+                            {{-- @if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif --}}
+                        </span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
@@ -99,50 +100,7 @@
         </div>
         <!-- /.row -->
 
-        {{-- <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">User checkin/out</h5>
-
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fas fa-wrench"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                    <a href="#" class="dropdown-item">Action</a>
-                                    <a href="#" class="dropdown-item">Another action</a>
-                                    <a href="#" class="dropdown-item">Something else here</a>
-                                    <a class="dropdown-divider"></a>
-                                    <a href="#" class="dropdown-item">Separated link</a>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        <canvas id="userCheckinChart" height="315" style="height: 180px; display: block; width: 462px;" width="808" class="chartjs-render-monitor"></canvas>
-                        <!-- /.row -->
-                    </div>
-                    <!-- ./card-body -->
-                    <div class="card-footer">
-                    </div>
-                    <!-- /.card-footer -->
-                </div>
-                <!-- /.card -->
-            </div>
-            <!-- /.col -->
-        </div> --}}
-
-        
-
+    
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
@@ -160,7 +118,7 @@
                     </div>
                     <!-- /.card-header -->
 
-                    <div class="card-body">
+                    {{-- <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover m-b-0 without-header" id="ticketsTable">
                                 <tbody>
@@ -197,7 +155,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> --}}
                    
                 </div>
                 <!-- /.card -->
