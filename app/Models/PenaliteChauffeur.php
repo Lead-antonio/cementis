@@ -50,7 +50,6 @@ class PenaliteChauffeur extends Model
         'id_calendar' => 'integer',
         'id_penalite' => 'integer',
         'id_event' => 'integer',
-        'id_penalite' => 'integer',
         'date' => 'datetime',
     ];
 

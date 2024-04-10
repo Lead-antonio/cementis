@@ -19,7 +19,10 @@ class ChauffeurDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'chauffeurs.datatables_actions');
+        return $dataTable->addColumn('action', 'chauffeurs.datatables_actions')
+            ->addColumn('transporteur', function ($chauffeur) {
+                return $chauffeur->transporteur ? $chauffeur->transporteur->nom : '';
+            });
     }
 
     /**
@@ -69,7 +72,8 @@ class ChauffeurDataTable extends DataTable
         return [
             'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
             'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
-            'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom'])
+            'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom']),
+            'transporteur' => new Column(['title' => __('models/chauffeurs.fields.transporteur_id'), 'data' => 'transporteur']),
             // 'contact' => new Column(['title' => __('models/chauffeurs.fields.contact'), 'data' => 'contact'])
         ];
     }

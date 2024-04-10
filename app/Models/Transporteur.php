@@ -7,34 +7,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 /**
- * Class Chauffeur
+ * Class Transporteur
  * @package App\Models
- * @version March 27, 2024, 5:37 pm +07
+ * @version April 9, 2024, 10:58 am CEST
  *
- * @property integer $id
- * @property string $rfid
  * @property string $nom
- * @property string $contact
- * @property integer $transporteur_id
+ * @property string $Adresse
  */
-class Chauffeur extends Model
+class Transporteur extends Model
 {
     use SoftDeletes;
 
 
-    public $table = 'chauffeur';
+    public $table = 'transporteur';
     
+    public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 
 
 
     public $fillable = [
-        'id',
-        'rfid',
         'nom',
-        'contact',
-        'transporteur_id'
+        'Adresse'
     ];
 
     /**
@@ -44,16 +39,9 @@ class Chauffeur extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'rfid' => 'string',
         'nom' => 'string',
-        'contact' => 'string',
-        'transporteur_id' => 'integer',
+        'Adresse' => 'string'
     ];
-
-    public function transporteur()
-    {
-        return $this->belongsTo(Transporteur::class);
-    }
 
     /**
      * Validation rules
@@ -61,6 +49,8 @@ class Chauffeur extends Model
      * @var array
      */
     public static $rules = [
-        
+        'nom' => 'required',
     ];
+
+    
 }

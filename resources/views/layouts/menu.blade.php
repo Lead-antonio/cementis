@@ -14,11 +14,11 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-{{-- @can('generator_builder.index') 
+@can('generator_builder.index') 
  @php
-{{-- @can('generator_builder.index')
+// {{-- @can('generator_builder.index')
 
-@php
+// @php
 $isUserActive = Request::is($urlAdmin.'*generator_builder*');
 @endphp
 <li class="nav-item">
@@ -27,7 +27,7 @@ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
         <p>@lang('menu.generator_builder.title')</p>
     </a>
 </li>
-@endcan   --}}
+@endcan  
 
 
 {{--@can('attendances.index')
@@ -243,6 +243,15 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
                 <p>@lang('models/penalites.plural')</p>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a href="{{ route('transporteurs.index') }}"
+               class="nav-link {{ Request::is('transporteurs*') ? 'active' : '' }}">
+               <i class="nav-icon fas fa-truck"></i>
+                <p>@lang('models/transporteurs.plural')</p>
+            </a>
+        </li>
+        
     </ul>
 </li>
 
@@ -268,4 +277,5 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         <p>@lang('models/importcalendars.plural')</p>
     </a>
 </li> --}}
+
 

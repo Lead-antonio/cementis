@@ -9,6 +9,7 @@ return array (
     'nom' => 'Nom',
     'rfid' => 'Rfid',
     'contact' => 'Contact',
+    'transporteur_id' => 'Transporteur',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
   ),
