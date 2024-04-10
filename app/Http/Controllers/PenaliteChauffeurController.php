@@ -38,38 +38,49 @@ class PenaliteChauffeurController extends AppBaseController
     {
         $importExcelRows = ImportExcel::all();
         $events = Event::all();
+        $distance = 0;
 
         foreach ($importExcelRows as $importRow) {
-            $chauffeur = Chauffeur::where('nom', $importRow->rfid_chauffeur)->first();
-            if ($chauffeur) {
-                $dateDebut = Carbon::parse($importRow->date_debut)->startOfDay();
-                $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin)->startOfDay() : null;
-        
+                $dateDebut = Carbon::parse($importRow->date_debut);
+                $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin) : null;
                 // Récupérer les événements déclenchés pendant cette livraison
-                $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $chauffeur) {
-                    $eventDate = Carbon::parse($event->date)->startOfDay();
-        
-                    if ($dateFin === null) {
-                        return $event->chauffeur == $chauffeur->rfid && $eventDate->eq($dateDebut);
-                    } else {
-                        return $event->chauffeur == $chauffeur->rfid && $eventDate->between($dateDebut, $dateFin);
-                    }
+                // $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin) {
+                //     $eventDate = Carbon::parse($event->date);
+                //     if ($dateFin === null) {
+                //         return  $eventDate->eq($dateDebut);
+                //     } else {
+                //         return  $eventDate->between($dateDebut, $dateFin);
+                //     }
+                // });
+
+                $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $importRow) {
+                    $eventDate = Carbon::parse($event->date);
+                    // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
+                    $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
+                    // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
+                    $isMatchingIMEIAndCamion = $importRow->imei === $event->imei && $importRow->camion === $event->vehicule;
+                    // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
+                    return $isEventInDeliveryPeriod && $isMatchingIMEIAndCamion;
                 });
         
                 foreach ($eventsDuringDelivery as $event){
                     $typeEvent = $event->type;
+                    $distance = getDistanceWithImeiAndPeriod($event->chauffeur, $event->imei, $importRow->date_debut, $importRow->date_fin);
                     $penalite = Penalite::where('event', $typeEvent)->first();
-                    // Enregistrer dans la table Penalité chauffeur
-        
-                    $penality = PenaliteChauffeur::updateOrCreate([
-                        'id_chauffeur' => $chauffeur->id,
+
+                    $existingPenalty = PenaliteChauffeur::where([
+                        'id_chauffeur' => getIdByRFID($event->chauffeur),
                         'id_calendar' => $importRow->id,
                         'id_event' => $event->id,
                         'id_penalite' => $penalite->id,
-                        'date' => $event->date,
-                    ]);
+                        'date' => $event->date
+                    ])->first();
+
+                    // Enregistrer dans la table Penalité chauffeur
+                    if(!$existingPenalty && $importRow->imei === $event->imei && $importRow->camion === $event->vehicule) {
+                        insertPenaliteDrive($event, $importRow, $penalite, $distance);
+                    }  
                 }
-            }
         }        
         return $penaliteChauffeurDataTable->render('penalite_chauffeurs.index');
     }

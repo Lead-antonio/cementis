@@ -46,7 +46,7 @@ class ImportExcel extends Model
         'marche',
         'adresse_livraison',
         'import_calendar_id',
-        'distance',
+        'imei',
     ];
 
     /**
@@ -59,14 +59,14 @@ class ImportExcel extends Model
         'name_importation' => 'string',
         'rfid_chauffeur' => 'string',
         'camion' => 'string',
-        'date_debut' => 'date',
-        'date_fin' => 'date',
+        'date_debut' => 'datetime',
+        'date_fin' => 'datetime',
         'delais_route' => 'decimal:2',
         'sigdep_reel' => 'string',
         'marche' => 'string',
         'adresse_livraison' => 'string',
         'import_calendar_id' => 'integer',
-        'distance' => 'integer',
+        'imei' => 'string',
     ];
 
     /**

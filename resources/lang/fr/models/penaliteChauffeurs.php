@@ -12,6 +12,7 @@ return array (
     'event' => 'Événement',
     'point_penalite' => 'Point de pénalité',
     'date' => 'Date de déclenchement',
+    'distance' => 'Distance parcourue',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
   ),

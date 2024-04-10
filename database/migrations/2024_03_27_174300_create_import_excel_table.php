@@ -14,19 +14,19 @@ class CreateImportExcelTable extends Migration
      */
     public function up()
     {
-        Schema::create('Import_excel', function (Blueprint $table) {
+        Schema::create('import_excel', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name_importation');
-            $table->string('rfid_chauffeur');
-            $table->string('camion');
+            $table->string('name_importation')->nullable();
+            $table->string('rfid_chauffeur')->nullable();
+            $table->string('camion')->nullable();
             $table->dateTime('date_debut');
             $table->dateTime('date_fin')->nullable();
-            $table->decimal('delais_route');
-            $table->string('sigdep_reel');
-            $table->string('marche');
-            $table->string('adresse_livraison');
+            $table->decimal('delais_route')->nullable();
+            $table->string('sigdep_reel')->nullable();
+            $table->string('marche')->nullable();
+            $table->string('adresse_livraison')->nullable();
             $table->unsignedInteger('import_calendar_id');
-            $table->integer('distance')->default(0);
+            $table->string('imei')->nullable();
             $table->foreign('import_calendar_id')->references('id')->on('Import_calendar')->onDelete('cascade');
             $table->softDeletes();
         });
@@ -39,6 +39,6 @@ class CreateImportExcelTable extends Migration
      */
     public function down()
     {
-        Schema::drop('Import_excel');
+        Schema::drop('import_excel');
     }
 }

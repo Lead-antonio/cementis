@@ -14,7 +14,7 @@ class CreateImportCalendarTable extends Migration
      */
     public function up()
     {
-        Schema::create('Import_calendar', function (Blueprint $table) {
+        Schema::create('import_calendar', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
             $table->dateTime('date_debut')->nullable();
@@ -31,6 +31,6 @@ class CreateImportCalendarTable extends Migration
      */
     public function down()
     {
-        Schema::drop('Import_calendar');
+        Schema::drop('import_calendar');
     }
 }

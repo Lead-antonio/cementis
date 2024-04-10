@@ -38,9 +38,13 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             $date_fin = Carbon::createFromTimestamp($unix_timestamp_datefin);
         }
 
+        $userObject = \getUserVehicule();
+        $imei = \getImeiOfCalendarTruck($userObject ,$row['camion']);
+        
+
         return new ImportExcel([
             'name_importation' => $this->name_file_excel,
-            'rfid_chauffeur' => $row['chauffeur'],
+            // 'rfid_chauffeur' => $row['chauffeur'],
             'camion' => $row['camion'],
             'date_debut' => $date_debut,
             'date_fin' => $date_fin,
@@ -49,7 +53,7 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'marche' => $row['marche'],
             'adresse_livraison' => $row['adresse_de_livraison'],
             'import_calendar_id' => $this->import_calendar_id,
-            'distance' => $row['distance_parcourue']
+            'imei' => $imei
         ]);
     }
 }

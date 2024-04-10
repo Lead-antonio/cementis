@@ -45,13 +45,6 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
-        $calendar = importExcel::all();
-        foreach($calendar as $item) {
-            $imei =  getImeiOfCalendarTruck($item->camion);
-            if($imei !== null){
-                importExcel::where('id', $item->id)->update(['imei' => $imei]);
-            }
-        }
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
             Session::forget('success');
@@ -81,7 +74,7 @@ class ImportExcelController extends AppBaseController
         
         $drive = getDriverByName($chauffeur);
         $events = getEventMonthly($drive->rfid);
-        $livraisons = getCalendarOfDriverMonthly($drive->nom);
+        $livraisons = getCalendarOfDriverMonthly();
 
         $results = [];
         $penalites = [];
@@ -89,17 +82,27 @@ class ImportExcelController extends AppBaseController
 
         // Associer les événements aux livraisons correspondantes
         foreach ($livraisons as $livraison) {
-            $dateDebut = Carbon::parse($livraison->date_debut)->startOfDay();
-            $dateFin = $livraison->date_fin ? Carbon::parse($livraison->date_fin)->startOfDay() : null;
+            $dateDebut = Carbon::parse($livraison->date_debut);
+            $dateFin = $livraison->date_fin ? Carbon::parse($livraison->date_fin) : null;
 
-            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $drive) {
-                $eventDate = Carbon::parse($event->date)->startOfDay();
+            // $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin) {
+            //     $eventDate = Carbon::parse($event->date);
     
-                if ($dateFin === null) {
-                    return $event->chauffeur == $drive->rfid && $eventDate->eq($dateDebut);
-                } else {
-                    return $event->chauffeur == $drive->rfid && $eventDate->between($dateDebut, $dateFin);
-                }
+            //     if ($dateFin === null) {
+            //         return  $eventDate->eq($dateDebut);
+            //     } else {
+            //         return  $eventDate->between($dateDebut, $dateFin);
+            //     }
+            // });
+
+            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $livraison) {
+                $eventDate = Carbon::parse($event->date);
+                // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
+                $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
+                // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
+                $isMatchingIMEIAndCamion = $livraison->imei === $event->imei && $livraison->camion === $event->vehicule;
+                // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
+                return $isEventInDeliveryPeriod && $isMatchingIMEIAndCamion;
             });
 
             foreach ($eventsDuringDelivery as $event){
