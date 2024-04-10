@@ -19,6 +19,8 @@ class CreateChauffeurTable extends Migration
             $table->string('rfid')->nullable();
             $table->string('nom');
             $table->string('contact')->nullable();
+            $table->unsignedInteger('transporteur_id')->nullable();
+            $table->foreign('transporteur_id')->references('id')->on('transporteur'); 
             $table->timestamps();
             $table->softDeletes();
         });

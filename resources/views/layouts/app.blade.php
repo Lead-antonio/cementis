@@ -32,7 +32,66 @@
     <style>
         .dataTables_wrapper {
             margin: 20px;
+        },
+
+        .loaders {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px; /* La moitié de la hauteur du loader */
+            margin-left: -25px; /* La moitié de la largeur du loader */
+            z-index: 9999;
+            animation: spin 1s linear infinite;
+        },
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(128, 128, 128, 0.7); /* Couleur semi-transparente gris */
+            z-index: 9998; /* Assure que l'overlay est au-dessus de tout autre contenu */
         }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+        .lds-dual-ring {
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        }
+        .lds-dual-ring:after {
+        content: " ";
+        display: block;
+        width: 46px;
+        height: 46px;
+        margin: 1px;
+        border-radius: 50%;
+        border: 5px solid #cef;
+        border-color: #cef transparent #cef transparent;
+        animation: lds-dual-ring 1.2s linear infinite;
+        }
+        @keyframes lds-dual-ring {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+        }
+
 
         .required:after {
             content: '(*)';
@@ -104,20 +163,30 @@
         </nav>
 
         <!-- Left side column. contains the logo and sidebar -->
+        {{-- @include('sweetalert::alert') --}}
         @include('layouts.sidebar')
+
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            {{-- <div id="loader" class="loader"></div>
-            <div id="overlay"></div> --}}
-            <div class="overlay" id="overlay"></div>
+            
+            {{-- <div id="loader" class="loader"></div> --}}
+            {{-- <div id="overlay"></div> --}}
+            {{-- <div class="overlay" id="overlay"></div> --}}
 
             {{-- <div class="loader-wrapper" id="loader-wrapper"> --}}
+                
+            {{-- </div> --}}
+
+            {{-- <div id="lds-default" ></div> --}}
+            
+            <section class="content">
                 <div class="lds-default" id="lds-default">
                     <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
                 </div>
-            {{-- </div> --}}
-            <section class="content">
+                <div id="overlay"></div>
+                {{-- <div id="loader" class="loaders"></div> --}}
+
                 @yield('content')
             </section>
         </div>
@@ -171,7 +240,7 @@
         function submitForm() {
             // Afficher le loader
             $('#overlay').show();
-            $('#lds-default').show();
+            // $('#lds-default').show();
             return true; // Permettre la soumission du formulaire
         }
     </script>
@@ -191,6 +260,87 @@
                 console.log($rs);
             })
         }, 10000);
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('select-all').addEventListener('change', function () {
+                var selectAllCheckbox = this; // Stockez une référence à la case à cocher "Sélectionner tout"
+                var checkboxes = document.querySelectorAll('.select-checkbox');
+                // console.log("checkboxes",checkboxes);
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            var selectCheckboxes = document.querySelectorAll('.select-checkbox');
+            selectCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    var allChecked = true;
+                    selectCheckboxes.forEach(function(cb) {
+                        if (!cb.checked) {
+                            allChecked = false;
+                        }
+                    });
+                    document.getElementById('select-all').checked = allChecked;
+                });
+            });
+        });
+
+
+        function update_transporteurid(id){
+
+            var selectedValues = [];
+            var checkboxes = document.querySelectorAll('.select-checkbox:checked');
+            checkboxes.forEach(function(checkbox) {
+                selectedValues.push(checkbox.value);
+            });
+
+            if(selectedValues.length === 0){
+                alert('Veuillez selectionner un ou plusieurs chauffeurs! ');
+            }else{
+
+                submitForm();
+
+                var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/admin/chauffeur/updatetransporteur', 
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken 
+                    },
+
+                    data: {
+                        transporteur_id : id,
+                        chauffeur: selectedValues
+                    },
+
+                    success: function (response) {
+                        window.location.reload();
+
+                        Swal.fire({
+                            title: 'Succès!',
+                            text:  'effectué avec succès.',
+                            icon: 'success',
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                        // $('#lds-default').hide();
+                        $('#overlay').hide();
+
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Erreur lors de la mise à jour de l\'état du client : ' + error);
+                        // Afficher un message d'erreur ou effectuer d'autres actions si nécessaire
+                    }
+                });
+
+            }
+            
+        }
+
     </script>
 
 <style>

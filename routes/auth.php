@@ -65,6 +65,9 @@ Route::resource('importcalendars', App\Http\Controllers\ImportcalendarController
 
 Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
+Route::post('chauffeur/updatetransporteur', 'App\Http\Controllers\ChauffeurController@update_tranporteur_id')->name('chauffeur.updatetransporteur');
+
+
 
 Route::resource('penaliteChauffeurs', App\Http\Controllers\PenaliteChauffeurController::class);
 
@@ -79,3 +82,6 @@ Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->n
 
 
 Route::resource('events', App\Http\Controllers\EventController::class);
+
+
+Route::resource('transporteurs', App\Http\Controllers\TransporteurController::class);

@@ -12,6 +12,7 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Imports\DriverImportClass;
+use App\Models\Chauffeur;
 use Excel;
 use Response;
 
@@ -161,6 +162,27 @@ class ChauffeurController extends AppBaseController
 
         // Alert::success(__('messages.updated', ['model' => __('models/chauffeurs.singular')]));
         Session::put('updated', 'updated');
+
+        return redirect(route('chauffeurs.index'));
+    }
+
+
+    /**
+     * Update the specified Chauffeur in storage.
+     *
+     *
+     * @return Response
+     */
+    public function update_tranporteur_id(Request $request)
+    {
+
+        $transporteur_id = $request->transporteur_id;
+        $chauffeur_id = $request->chauffeur;
+        $chauffeurIdsInt = array_map('intval', $chauffeur_id);
+        
+        Chauffeur::whereIn('id',$chauffeurIdsInt)->update(['transporteur_id'=>$transporteur_id]);
+
+        Alert::success(__('messages.updated', ['model' => __('models/clients.singular')]));
 
         return redirect(route('chauffeurs.index'));
     }
