@@ -45,6 +45,7 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
+        dd(tabScoringCard());
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
             Session::forget('success');

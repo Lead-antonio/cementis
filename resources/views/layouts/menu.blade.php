@@ -14,20 +14,20 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-@can('generator_builder.index') 
- @php
-// {{-- @can('generator_builder.index')
+{{-- @can('generator_builder.index') 
+ @php --}}
+{{-- @can('generator_builder.index')
 
 // @php
-$isUserActive = Request::is($urlAdmin.'*generator_builder*');
-@endphp
-<li class="nav-item">
-    <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
-        <i class="nav-icon fas fa-coins"></i>
-        <p>@lang('menu.generator_builder.title')</p>
-    </a>
-</li>
-@endcan  
+// $isUserActive = Request::is($urlAdmin.'*generator_builder*');
+// @endphp
+// <li class="nav-item">
+//     <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
+//         <i class="nav-icon fas fa-coins"></i>
+//         <p>@lang('menu.generator_builder.title')</p>
+//     </a>
+// </li>
+// @endcan  
 
 
 {{--@can('attendances.index')

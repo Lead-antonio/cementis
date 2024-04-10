@@ -23,6 +23,30 @@ if (!function_exists('fast_trans')) {
 }
 
 
+if (!function_exists('tabScoringCard')) {
+
+    function tabScoringCard()
+    {
+        $result = DB::table('Penalite_chauffeur as pc')
+            ->join('Chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+            ->join('Penalite as p', 'pc.id_penalite', '=', 'p.id')
+            ->select(
+                'ch.nom as Driver','ch.id as id_driver',
+                DB::raw('SUM(p.point_penalite) as Total_Penalty_Points'),
+                DB::raw('SUM(pc.distance) as Total_Distance'),
+                DB::raw('(SUM(p.point_penalite) * 100) / SUM(pc.distance) as Score_Card')
+            )
+            ->groupBy('ch.nom', 'ch.id')
+            ->orderBy('ch.nom')
+            ->orderBy('ch.id')
+            ->get();
+
+        return $result;
+    }
+
+}
+
+
 if (!function_exists('driverTop')){
     function driverTop()
     {
@@ -270,7 +294,6 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
     function getDistanceWithImeiAndPeriod($rfid_chauffeur, $imei_vehicule, $start_date, $end_date){
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
-        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
@@ -340,27 +363,6 @@ if (!function_exists('getEventFromApi')) {
     }    
 }
 
-
-    // function Update_importExcel($id_importcalendar){
-    //     // $import_calendar->id
-    //     //Recuperation de la date debut et fin du fichier inserer
-    //     $date_debut = ImportExcel::where('import_calendar_id', $id_importcalendar)->first('date_debut');
-
-    //     $max_id_import_excel = ImportExcel::where('import_calendar_id',  $id_importcalendar)->max('id');
-    //     $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
-
-    //     if($date_finals->date_fin == null){
-    //         $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
-    //         $date_finals = $date_fin_fichier->date_debut;
-    //     }else{
-    //         $date_finals = $date_finals->date_fin;
-    //     }
-
-    //     $import_calendar->update([
-    //         'date_debut' => $date_debut->date_debut,
-    //         'date_fin' => $date_finals
-    //     ]);
-    // }
 
 if (!function_exists('calculerDureeTotale')) {
     function calculerDureeTotale($immatriculation)
