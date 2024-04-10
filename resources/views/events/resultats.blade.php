@@ -47,7 +47,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4"> 
-                                    <p><strong>Chauffeur :</strong> {{ $livraisonAvecEvenements['livraison']->rfid_chauffeur }}</p>
+                                    {{-- <p><strong>Chauffeur :</strong> {{ $livraisonAvecEvenements['livraison']->rfid_chauffeur }}</p> --}}
                                     <p><strong>Camion :</strong> {{ $livraisonAvecEvenements['livraison']->camion }}</p>
                                     <p><strong>Date de début :</strong> {{ $livraisonAvecEvenements['livraison']->date_debut }}</p>
                                     <p><strong>Date de fin :</strong> {{ $livraisonAvecEvenements['livraison']->date_fin }}</p>
@@ -57,7 +57,7 @@
                                     @foreach($livraisonAvecEvenements['evenements'] as $evenement)
                                         <ul class="list-group" style="margin: 0% 0% 1% 0%;">
                                             <li class="list-group-item">
-                                                Type : {{ $evenement->type }}, Description : {{ $evenement->description }}, Date : {{ $evenement->date }}, Point de pénalité : {{ $livraisonAvecEvenements['penalites'][$evenement->id] }}
+                                                Chauffeur : {{getNameByRFID($evenement->chauffeur)}}, Type : {{ $evenement->type }}, Description : {{ $evenement->description }}, Date : {{ $evenement->date }}, Point de pénalité : {{ $livraisonAvecEvenements['penalites'][$evenement->id] }}
                                             </li>
                                         </ul>
                                     @endforeach

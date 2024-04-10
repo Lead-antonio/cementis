@@ -37,6 +37,7 @@ class PenaliteChauffeur extends Model
         'id_chauffeur',
         'id_event',
         'id_penalite',
+        'distance',
         'date',
     ];
 
@@ -47,10 +48,11 @@ class PenaliteChauffeur extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'id_chauffeur' => 'integer',
         'id_calendar' => 'integer',
         'id_penalite' => 'integer',
         'id_event' => 'integer',
-        'id_penalite' => 'integer',
+        'distance' => 'float',
         'date' => 'datetime',
     ];
 

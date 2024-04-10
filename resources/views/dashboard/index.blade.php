@@ -70,9 +70,9 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            {{-- @if(isset($dashboardInfo['scoring']->first()->nom))
+                            @if(isset($dashboardInfo['scoring']->first()->nom))
                                 {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif --}}
+                            @endif
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -118,7 +118,7 @@
                     </div>
                     <!-- /.card-header -->
 
-                    {{-- <div class="card-body">
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover m-b-0 without-header" id="ticketsTable">
                                 <tbody>
@@ -155,7 +155,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div> --}}
+                    </div>
                    
                 </div>
                 <!-- /.card -->
@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
@@ -249,7 +249,7 @@
             </div>
             <!-- /.card -->
         </div>
-    </div>
+    </div> --}}
         <!-- /.row -->
     </div>
     <!--/. container-fluid -->

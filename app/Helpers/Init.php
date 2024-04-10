@@ -59,15 +59,15 @@ if (!function_exists('scoringCard')) {
 
     function scoringCard()
     {
-        $data = null;
-        // $data = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
-        //     DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(import_excel.distance), 0), 0) AS scoring_card'))
-        //     ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
-        //     ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
-        //     ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
-        //     ->groupBy('chauffeur.id', 'chauffeur.nom')
-        //     ->orderBy('scoring_card', 'asc')
-        //     ->get();
+        // $data = null;
+        $data = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
+            DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(penalite_chauffeur.distance), 0), 0) AS scoring_card'))
+            ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
+            ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
+            ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
+            ->groupBy('chauffeur.id', 'chauffeur.nom')
+            ->orderBy('scoring_card', 'asc')
+            ->get();
         
         return $data;
     }
@@ -155,6 +155,32 @@ if (!function_exists('getDriverByName')) {
     }
 }
 
+if (!function_exists('getNameByRFID')) {
+    function getNameByRFID($rfid)
+    {
+            $chauffeur = Chauffeur::where('rfid', $rfid)->first();
+
+            if ($chauffeur) {
+                return $chauffeur->nom;
+            } else {
+                return null;
+            }
+    }
+}
+
+if (!function_exists('getIdByRFID')) {
+    function getIdByRFID($rfid)
+    {
+            $chauffeur = Chauffeur::where('rfid', $rfid)->first();
+
+            if ($chauffeur) {
+                return $chauffeur->id;
+            } else {
+                return null;
+            }
+    }
+}
+
 //Récupération du somme totale d'un point de pénalité d'un chauffeur par mois
 if (!function_exists('getPointPenaliteTotalMonthly')) {
 
@@ -224,27 +250,26 @@ if (!function_exists('getUserVehicule')) {
 
 }
 
+if (!function_exists('insertPenaliteDrive')) {
+    function insertPenaliteDrive($event, $calendar, $penalite, $distance){
+            PenaliteChauffeur::updateOrCreate([
+                'id_chauffeur' => getIdByRFID($event->chauffeur),
+                'id_calendar' => $calendar->id,
+                'id_event' => $event->id,
+                'id_penalite' => $penalite->id,
+                'distance' => $distance,
+                'date' => $event->date,
+            ], [
+                'distance' => $distance,
+            ]);
+    }
+}
+
 if (!function_exists('getDistanceWithImeiAndPeriod')) {
 
-    // function getDistanceWithImeiAndPeriod($imei,$startDate, $endDate){
-    //     // Formatage des dates au format YYYYMMDD
-
-    //     $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,".$imei.",".$startDate.",".$endDate.",20";
-        
-    //     $ch = curl_init($url);
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    //     curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-    //     $response = curl_exec($ch);
-    //     curl_close($ch);
-    //     $data = json_decode($response, true);
-
-    //     return $data;
-    // }
-
-    function getDistanceWithImeiAndPeriod(){
+    function getDistanceWithImeiAndPeriod($rfid_chauffeur, $imei_vehicule, $start_date, $end_date){
         // Formatage des dates au format YYYYMMDD
-        // $rfid,$imei,$startDate, $endDate
-        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,865135060228283,20240408110000,202404081200000,20";
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
         
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -255,11 +280,10 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
 
         $firstOdo = null;
         $lastOdo = null;
-        $targetRfid = "3B00F93385"; // Remplacez ceci par le RFID que vous souhaitez filtrer
 
         foreach ($data["route"] as $record) {
             // Vérifiez si la clé "odo" est présente dans le sous-tableau et si le RFID correspond
-            if (isset($record[6]['odo']) && isset($record[6]['rfid']) && $record[6]['rfid'] === $targetRfid) {
+            if (isset($record[6]['odo']) && isset($record[6]['rfid']) && $record[6]['rfid'] === $rfid_chauffeur) {
                 $odo = (float) $record[6]['odo']; // Convertir en flottant pour manipulation
                 // Si c'est le premier enregistrement trouvé, définissez $firstOdo
                 if ($firstOdo === null) {
@@ -271,7 +295,7 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
         }
 
         $distance = $lastOdo - $firstOdo;
-        dd($distance, $targetRfid);
+        return $distance;
     }
 }
 

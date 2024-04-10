@@ -21,6 +21,7 @@ class CreatePenaliteChauffeurTable extends Migration
             $table->integer('id_calendar')->unsigned()->nullable();
             $table->integer('id_event')->unsigned()->nullable();
             $table->integer('id_penalite')->unsigned()->nullable();
+            $table->decimal('distance', 10, 2)->default(0);
             $table->dateTime('date')->nullable();
             $table->timestamps();
             $table->softDeletes();
