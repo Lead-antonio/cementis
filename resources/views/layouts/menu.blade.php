@@ -111,6 +111,15 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li> --}}
 
 <li class="nav-item">
+    <a href="{{ route('events.table.scoring') }}"
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-bullseye"></i>
+        <p>@lang('models/events.fields.tab_scoring')</p>
+    </a>
+</li>
+
+
+<li class="nav-item">
     <a href="{{ route('chauffeurs.index') }}"
        class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}">
        <i class="nav-icon fas fa-user-circle"></i> 

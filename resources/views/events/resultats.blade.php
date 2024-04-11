@@ -27,7 +27,7 @@
 @endif
 
 
-@if($results[0]['evenements']->isNotEmpty())
+{{-- @if($results[0]['evenements']->isNotEmpty()) --}}
     @foreach($results as $livraisonAvecEvenements)
         @if(count($livraisonAvecEvenements['evenements']) > 0)
             <div class="row mb-3">
@@ -70,7 +70,7 @@
             </div>
         @endif
     @endforeach
-@else
+{{-- @else
     <div class="row mb-3">
         <div class="col-md-12">
             <div class="alert alert-info" role="alert">
@@ -78,7 +78,7 @@
             </div>
         </div>
     </div>
-@endif
+@endif --}}
 
 <style>
     hr{

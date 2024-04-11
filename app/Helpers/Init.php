@@ -23,18 +23,18 @@ if (!function_exists('fast_trans')) {
 }
 
 
-if (!function_exists('tabScoringCard')) {
+if (!function_exists('totalScoringCard')) {
 
-    function tabScoringCard()
+    function totalScoringCard()
     {
         $result = DB::table('Penalite_chauffeur as pc')
             ->join('Chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
             ->join('Penalite as p', 'pc.id_penalite', '=', 'p.id')
             ->select(
-                'ch.nom as Driver','ch.id as id_driver',
-                DB::raw('SUM(p.point_penalite) as Total_Penalty_Points'),
-                DB::raw('SUM(pc.distance) as Total_Distance'),
-                DB::raw('(SUM(p.point_penalite) * 100) / SUM(pc.distance) as Score_Card')
+                'ch.nom as driver','ch.id as id_driver',
+                DB::raw('SUM(p.point_penalite) as total_penalty_point'),
+                DB::raw('SUM(pc.distance) as total_distance'),
+                DB::raw('(SUM(p.point_penalite) * 100) / SUM(pc.distance) as score_card')
             )
             ->groupBy('ch.nom', 'ch.id')
             ->orderBy('ch.nom')
@@ -42,6 +42,35 @@ if (!function_exists('tabScoringCard')) {
             ->get();
 
         return $result;
+    }
+
+}
+
+
+
+if (!function_exists('tabScoringCard')) {
+
+    function tabScoringCard()
+    {
+        $results = DB::table('Penalite_chauffeur as pc')
+            ->join('Chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+            ->join('Penalite as p', 'pc.id_penalite', '=', 'p.id')
+            ->join('Event as e', 'pc.id_event', '=', 'e.id')
+            ->select(
+                'ch.nom as driver',
+                DB::raw("DATE_FORMAT(pc.date, '%Y-%m') as Month"),
+                DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s') as date_event"),
+                'e.type as event',
+                'p.point_penalite as penalty_point',
+                'pc.distance as distance',
+                DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
+            )
+            ->groupBy('ch.nom', DB::raw("DATE_FORMAT(pc.date, '%Y-%m')"), DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"), 'e.type', 'p.point_penalite', 'pc.distance')
+            ->orderBy('ch.nom')
+            ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
+            ->get();
+
+        return $results;
     }
 
 }
@@ -117,21 +146,36 @@ if (!function_exists('topDriver')) {
 if (!function_exists('driverChart')) {
     function driverChart()
     {
-        // Récupérez les données sur les pénalités
-        $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
-        ->groupBy('id_chauffeur')
-        ->get();
+        // // Récupérez les données sur les pénalités
+        // $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
+        // ->groupBy('id_chauffeur')
+        // ->get();
 
-        // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
-        $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
+        // // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
+        // $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
 
-        // Préparez les données pour le graphique
-        $labels = [];
-        $data = [];
+        // // Préparez les données pour le graphique
+        // $labels = [];
+        // $data = [];
 
-        foreach ($penalitesData as $penalite) {
-            $labels[] = $chauffeursNames[$penalite->id_chauffeur];
-            $data[] = $penalite->penalite_count;
+        // foreach ($penalitesData as $penalite) {
+        //     $labels[] = $chauffeursNames[$penalite->id_chauffeur];
+        //     $data[] = $penalite->penalite_count;
+        // }
+
+        $chartScoring = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
+            DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(penalite_chauffeur.distance), 0), 0) AS scoring_card'))
+            ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
+            ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
+            ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
+            ->groupBy('chauffeur.id', 'chauffeur.nom')
+            ->orderBy('scoring_card', 'asc')
+            ->get();
+
+        // dd($chartScoring);
+        foreach ($chartScoring as $chart) {
+            $labels[] = $chart->nom;
+            $data[] = $chart->scoring_card;
         }
 
         return [
@@ -337,7 +381,6 @@ if (!function_exists('getEventFromApi')) {
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response, true);
-        // dd($data);
         
         if (!empty($data)) {
             foreach ($data as $item) {

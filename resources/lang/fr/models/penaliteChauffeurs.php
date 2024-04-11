@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Pénalité Chauffeur',
-  'plural' => 'Pénalité Chauffeurs',
+  'singular' => 'Pénalité de Chauffeur',
+  'plural' => 'Pénalité des chauffeurs',
   'fields' => 
   array (
     'id' => 'Id',

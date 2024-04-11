@@ -89,7 +89,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.worst')</span>
                         <span class="info-box-number" >
-                            {{-- @if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif --}}
+                            @if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -165,7 +165,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">@lang('common.top_driver')  </h5>
+                        <h5 class="card-title">@lang('common.number_driver_stat')  </h5>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -178,7 +178,7 @@
                     </div>
         
 
-                    <div class="card-body">
+                    {{-- <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover m-b-0 without-header" id="ticketsTable">
                                 <tbody>
@@ -215,6 +215,10 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div> --}}
+
+                    <div class="card-body">
+                        <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas>
                     </div>
                     
                 </div>
