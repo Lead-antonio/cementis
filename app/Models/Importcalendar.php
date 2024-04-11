@@ -21,7 +21,7 @@ class Importcalendar extends Model
     use SoftDeletes;
 
 
-    public $table = 'Import_calendar';
+    public $table = 'import_calendar';
     
 
     protected $dates = ['deleted_at'];

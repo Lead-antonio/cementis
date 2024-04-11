@@ -28,7 +28,7 @@ class ImportExcel extends Model
     use SoftDeletes;
 
 
-    public $table = 'Import_excel';
+    public $table = 'import_excel';
     
 
     protected $dates = ['deleted_at'];

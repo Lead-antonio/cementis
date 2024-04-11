@@ -41,7 +41,9 @@
                         </thead>
                         <tbody>
                             @if ($scoring->isEmpty())
-                                <tr>Pas d'élément à afficher</tr>
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Pas d'élément à afficher</td>
+                                </tr>
                             @else
                                 @foreach ($scoring as $result)
                                     <tr>
@@ -74,6 +76,7 @@
                         <thead>
                             <tr>
                                 <th>Chauffeur</th>
+                                <th>Transporteur</th>
                                 <th>Point de pénalité totale</th>
                                 <th>Distance parcourue totale</th>
                                 <th>Score Card</th>
@@ -81,12 +84,14 @@
                         </thead>
                         <tbody>
                             @if ($total->isEmpty())
-                                <tr>Pas d'élément à afficher</tr>
+                                <tr>
+                                    <td colspan="5" style="text-align: center;">Pas d'élément à afficher</td>
+                                </tr>
                             @else
                                 @foreach ($total as $result)
                                     <tr>
                                         <td>{{ $result->driver }}</td>
-
+                                        <td>{{ $result->transporteur }}</td>
                                         <td>{{ $result->total_penalty_point }}</td>
                                         <td>{{ $result->total_distance }} km</td>
                                         <td>{{ $result->score_card }}</td>

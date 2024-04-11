@@ -33,7 +33,7 @@ return [
             'rollback'=>'Rollback2'
         ]
     ],
-    'number_driver_stat' => 'Number of penalties per driver',
+    'number_driver_stat' => 'Graphical representation of driver scoring',
     'top_driver' => 'Top drivers by penalty points',
     'scoring' => 'Scoring Card for Drivers This Month',
 
