@@ -10,7 +10,11 @@ use App\Repositories\TransporteurRepository;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Controllers\AppBaseController;
 use App\Models\Chauffeur;
+use App\Models\Transporteur;
 use Response;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Http\Request;
+
 
 class TransporteurController extends AppBaseController
 {
@@ -56,7 +60,9 @@ class TransporteurController extends AppBaseController
         $input = $request->all();
         $transporteur = $this->transporteurRepository->create($input);
 
-        Alert::success(__('messages.saved', ['model' => __('models/transporteurs.singular')]));
+        Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+        // Flash::success(__('messages.saved', ['model' => __('models/transporteurs.singular')]));
+
 
         return redirect(route('transporteurs.index'));
     }
@@ -72,6 +78,7 @@ class TransporteurController extends AppBaseController
     {
         $transporteur = $this->transporteurRepository->find($id);
         $chauffeur = Chauffeur::all();
+        $transporteur_all = Transporteur::all();
 
         if (empty($transporteur)) {
             Alert::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
@@ -80,9 +87,36 @@ class TransporteurController extends AppBaseController
 
         return view('transporteurs.show')
         ->with('transporteur', $transporteur)
+        ->with('transporteur_all', $transporteur_all)
         ->with('chauffeur', $chauffeur);
     }
+    
 
+
+    /**
+     * Display the specified Transporteur.
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function filterChauffeurs(Request $request) {
+
+        $transporteurId = $request->input('transporteur_id');
+
+        $chauffeurs = Chauffeur::with('transporteur')->get();
+
+        if($transporteurId == "vide"){
+            $chauffeurs = Chauffeur::whereNull('transporteur_id')->get();
+        }
+    
+        // if($request->transporteur_filtre == "tous"){
+        //     $chauffeurs = Chauffeur::all();
+        // }
+    
+        return response()->json($chauffeurs);
+    }
+    
     /**
      * Show the form for editing the specified Transporteur.
      *
