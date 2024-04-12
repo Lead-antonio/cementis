@@ -78,8 +78,9 @@ class PenaliteChauffeurDataTable extends DataTable
                 'title' => __('models/penaliteChauffeurs.fields.date'), 
                 'data' => 'date',
                 'render' =>'function() {
-                    var dataCreated = full.date;
-                    var created_at = moment(dataCreated).format("DD-MM-YYYY HH:mm:ss");
+                    var dateCreated = new Date(full.date);
+                    dateCreated.setHours(dateCreated.getHours() - 1);
+                    var created_at = moment(dateCreated).format("DD-MM-YYYY HH:mm:ss");
                     return created_at;
                 }',
             ]),

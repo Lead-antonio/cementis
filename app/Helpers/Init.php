@@ -261,7 +261,7 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
         $result = DB::table('penalite_chauffeur as pc')
             ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
             ->join('event as e', 'pc.id_event', '=', 'e.id')
-            ->join('Import_excel as c', 'pc.id_calendar', '=', 'c.id')
+            ->join('import_excel as c', 'pc.id_calendar', '=', 'c.id')
             ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
             ->select('pc.id_chauffeur', 'ch.nom', DB::raw('SUM(p.point_penalite) AS total_point_penalite'))
             ->where('pc.id_chauffeur', $id_chauffeur)

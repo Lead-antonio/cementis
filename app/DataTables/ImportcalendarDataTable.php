@@ -70,8 +70,7 @@ class ImportcalendarDataTable extends DataTable
             'render' => 'function() {
                 var date = new Date(full.date_debut);
                 date.setHours(date.getHours() - 1);
-                var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
-                var date_heure = date.toLocaleString("fr-FR", options);
+                var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
 
                 return date_heure;
             }']),
@@ -80,8 +79,7 @@ class ImportcalendarDataTable extends DataTable
             'render' => 'function() {
                 var date = new Date(full.date_fin);
                 date.setHours(date.getHours() - 1);
-                var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
-                var date_heure = date.toLocaleString("fr-FR", options);
+                var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
 
                 return date_heure;
             }'

@@ -42,7 +42,7 @@
                         <tbody>
                             @if ($scoring->isEmpty())
                                 <tr>
-                                    <td colspan="5" style="text-align: center;">Pas d'élément à afficher</td>
+                                    <td colspan="6" style="text-align: center;">Pas d'élément à afficher</td>
                                 </tr>
                             @else
                                 @php
@@ -55,7 +55,7 @@
                                     @if ($currentDriver !== $result->driver)
                                         @if ($currentDriver !== null)
                                             <tr class="total-row">
-                                                <td colspan="3"><strong>Total :</strong></td>
+                                                <td colspan="3" style="text-align: center;"><strong>Total :</strong></td>
                                                 <td class="point-row"><strong>{{ $totalPenalty }}</strong></td>
                                                 <td class="distance-row"><strong>{{ $totalDistance }} Km</strong></td>
                                                 <td class="scoring-row"><strong>{{ number_format($totalDistance != 0 ? ($totalPenalty / $totalDistance) * 100 : 0, 2) }}
@@ -71,7 +71,7 @@
                                     <tr>
                                         <td>{{ $result->driver }}</td>
                                         <td>{{ $result->event }}</td>
-                                        <td>{{ $result->date_event }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($result->date_event)->format('d-m-Y H:i:s') }}</td>
                                         <td>{{ $result->penalty_point }}</td>
                                         <td>{{ $result->distance }} Km</td>
                                     </tr>
@@ -81,7 +81,7 @@
                                     @endphp
                                 @endforeach
                                 <tr>
-                                    <td colspan="3"><strong>Total :</strong></td>
+                                    <td colspan="3" style="text-align: center;"><strong>Total :</strong></td>
                                     <td class="point-row"><strong>{{ $totalPenalty }}</strong></td>
                                     <td class="distance-row"><strong>{{ $totalDistance }} Km</strong></td>
                                     <td class="scoring-row"><strong>{{ number_format($totalDistance != 0 ? ($totalPenalty / $totalDistance) * 100 : 0, 2) }}
@@ -90,14 +90,6 @@
                             @endif
                         </tbody>
                     </table>
-                    
-                    
-
-                <div class="card-footer clearfix float-right">
-                    <div class="float-right">
-                        
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -134,12 +126,6 @@
                             @endif
                         </tbody>
                     </table>
-
-                <div class="card-footer clearfix float-right">
-                    <div class="float-right">
-                        
-                    </div>
-                </div>
             </div>
         </div> --}}
     </div>

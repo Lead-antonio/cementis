@@ -70,7 +70,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.top')</span>
                         <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom))
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
                                 {{$dashboardInfo['scoring']->first()->nom}}
                             @endif
                         </span>
@@ -89,7 +89,9 @@
                     <div class="info-box-content">
                         <span class="info-box-text">@lang('common.worst')</span>
                         <span class="info-box-number" >
-                            @if(isset($dashboardInfo['scoring']->last()->nom)){{$dashboardInfo['scoring']->last()->nom}}@endif
+                            @if(isset($dashboardInfo['scoring']->last()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                            {{$dashboardInfo['scoring']->last()->nom}}
+                            @endif
                         </span>
                     </div>
                     <!-- /.info-box-content -->
@@ -122,7 +124,7 @@
                         <div class="table-responsive">
                             <table class="table table-hover m-b-0 without-header" id="ticketsTable">
                                 <tbody>
-                                    @if($dashboardInfo['scoring']->isNotEmpty())
+                                    @if($dashboardInfo['scoring']->isNotEmpty() && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
                                         @foreach ($dashboardInfo['scoring'] as $key => $item)
                                             <tr> 
                                                 <td>
