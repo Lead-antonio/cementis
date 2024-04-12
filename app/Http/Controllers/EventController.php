@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use App\Models\Penalite;
 use App\Models\ImportExcel;
+use Dompdf\Dompdf;
 use App\Models\Chauffeur;
 use GuzzleHttp\Client;
 use Response;
@@ -51,6 +52,17 @@ class EventController extends AppBaseController
         $total = totalScoringCard();
         
         return view('events.table_scoring', compact('scoring', 'total'));
+    }
+
+    public function TableauScoringPdf(){
+        $scoring = tabScoringCard();
+        $total = totalScoringCard();
+    
+        $pdf = new Dompdf();
+        $pdf->loadHtml(view('events.table_scoring', compact('scoring', 'total'))->render());
+        $pdf->setPaper('A4', 'landscape');
+        $pdf->render();
+        return $pdf->stream('tableau_scoring.pdf');
     }
 
     /**

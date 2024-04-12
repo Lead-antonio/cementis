@@ -25,10 +25,13 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Scoring Information</h3>
+                <h3 class="card-title mb-0">Scoring Information</h3>
+                <div class="card-tools">
+                    <button onclick="exportToPDF()" class="btn btn-outline-secondary">Exporter en PDF</button>
+                </div>
             </div>
             <div class="card-body p-0">
-                    <table class="table table-striped table-bordered" width="100%">
+                    <table id="tableau-score" class="table table-striped table-bordered" width="100%">
                         <thead>
                             <tr>
                                 <th>Chauffeur</th>
@@ -91,6 +94,9 @@
                         </tbody>
                     </table>
             </div>
+            {{-- <div class="card-footer">
+                <button onclick="exportToPDF()" class="btn btn-primary">Exporter en PDF</button>
+            </div> --}}
         </div>
 
         {{-- <div class="card">
@@ -129,6 +135,15 @@
             </div>
         </div> --}}
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+
+    <script>
+        function exportToPDF() {
+            const element = document.getElementById('tableau-score');
+            html2pdf().from(element).save('tableau.pdf');
+        }
+    </script>
 
     <style>
         .scoring-row {

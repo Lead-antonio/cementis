@@ -82,6 +82,8 @@ Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->n
 
 Route::get('/events/table/scoring', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
 
+Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
+
 
 Route::resource('events', App\Http\Controllers\EventController::class);
 
