@@ -377,7 +377,7 @@ if (!function_exists('getEventFromApi')) {
 
     function getEventFromApi(){
 
-        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_LAST_EVENTS';
+        $url = 'www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_LAST_EVENTS_7D';
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -385,7 +385,7 @@ if (!function_exists('getEventFromApi')) {
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response, true);
-        
+        dd($data);
         if (!empty($data)) {
             foreach ($data as $item) {
                 // Vérifiez si une entrée identique existe déjà dans la table Rotation

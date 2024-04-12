@@ -43,6 +43,7 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
+        getEventFromApi();
         return $eventDataTable->render('events.index');
     }
 
