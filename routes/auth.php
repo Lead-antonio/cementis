@@ -67,6 +67,7 @@ Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
 Route::post('chauffeur/updatetransporteur', 'App\Http\Controllers\ChauffeurController@update_tranporteur_id')->name('chauffeur.updatetransporteur');
 
+Route::post('chauffeur/filtre', 'App\Http\Controllers\TransporteurController@filterChauffeurs')->name('chauffeur.filtre');
 
 
 Route::resource('penaliteChauffeurs', App\Http\Controllers\PenaliteChauffeurController::class);

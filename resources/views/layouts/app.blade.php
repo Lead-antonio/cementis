@@ -8,9 +8,6 @@
 
     <!-- Remplacez le chemin avec le vôtre -->
     <link rel="icon" type="image/png" href="{{ asset('images/alpha_ciment.jpg') }}">
-
-
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
 
@@ -18,6 +15,7 @@
 
     <!-- AdminLTE -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.0.5/css/adminlte.min.css" integrity="sha512-rVZC4rf0Piwtw/LsgwXxKXzWq3L0P6atiQKBNuXYRbg2FoRbSTIY0k2DxuJcs7dk4e/ShtMzglHKBOJxW8EQyQ==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
 
     <!-- iCheck -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/icheck-bootstrap/3.0.1/icheck-bootstrap.min.css" integrity="sha512-8vq2g5nHE062j3xor4XxPeZiPjmRDh6wlufQlfC6pdQ/9urJkU07NM0tEREeymP++NczacJ/Q59ul+/K2eYvcg==" crossorigin="anonymous" />
@@ -34,22 +32,7 @@
             margin: 20px;
         },
 
-        .loaders {
-            display: none;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            margin-top: -25px; /* La moitié de la hauteur du loader */
-            margin-left: -25px; /* La moitié de la largeur du loader */
-            z-index: 9999;
-            animation: spin 1s linear infinite;
-        },
-
+        
         #overlay {
             display: none;
             position: fixed;
@@ -101,14 +84,35 @@
 
         .nav-child{
             padding-left: 8px;
+        },
+
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
         }
+
+        .loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+            z-index: 9999;
+            animation: spin 1.2s linear infinite; /* Utilisez l'animation 'spin' pour faire tourner le loader */
+        }
+
     </style>
     @stack('page_css')
 
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
-
     
     <div class="wrapper">
         <!-- Main Header -->
@@ -163,8 +167,10 @@
         </nav>
 
         <!-- Left side column. contains the logo and sidebar -->
-        {{-- @include('sweetalert::alert') --}}
+        @include('sweetalert::alert')
         @include('layouts.sidebar')
+
+        
 
 
         <!-- Content Wrapper. Contains page content -->
@@ -180,6 +186,9 @@
 
             {{-- <div id="lds-default" ></div> --}}
             
+            <div class="loader" id="load_test"></div>
+
+
             <section class="content">
                 <div class="lds-default" id="lds-default">
                     <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
@@ -199,8 +208,6 @@
             <strong>Droits d'auteur &copy; 2023 <a> M-Tec</a>.</strong> Tous droits réservés.
         </footer>
     </div>
-
-    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
 
@@ -222,6 +229,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js" integrity="sha512-J+763o/bd3r9iW+gFEqTaeyi+uAphmzkE/zU8FxY6iAvD3nQKXa+ZAWkBI9QS9QkYEKddQoiy0I5GDxKf/ORBA==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
     <!--
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js" integrity="sha512-P3/SDm/poyPMRBbZ4chns8St8nky2t8aeG09fRjunEaKMNEDKjK3BuAstmLKqM7f6L1j0JBYcIRL4h2G6K6Lew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
@@ -235,11 +244,13 @@
         $(document).ready(function() {
             // Masquer le loader et l'overlay lorsque la page est chargée
             $('#overlay').hide();
-            $('#lds-default').hide();
+            $('#load_test').hide();
         });
+
         function submitForm() {
             // Afficher le loader
             $('#overlay').show();
+            $('#load_test').show();
             // $('#lds-default').show();
             return true; // Permettre la soumission du formulaire
         }
@@ -287,6 +298,7 @@
         });
 
 
+        // Fonction pour modifier ou ajouter le transporteur_id selectionné dans la table transporteur
         function update_transporteurid(id){
 
             var selectedValues = [];
@@ -296,7 +308,16 @@
             });
 
             if(selectedValues.length === 0){
-                alert('Veuillez selectionner un ou plusieurs chauffeurs! ');
+
+                Swal.fire({
+                    title: 'Message',
+                    text:  'Veuillez selectionner un ou plusieurs chauffeurs!',
+                    icon: 'info',
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+
             }else{
 
                 submitForm();
@@ -320,15 +341,15 @@
 
                         Swal.fire({
                             title: 'Succès!',
-                            text:  'effectué avec succès.',
+                            text:  'Validation efféctuée',
                             icon: 'success',
                             showCancelButton: false,
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 2000
                         });
 
-                        // $('#lds-default').hide();
                         $('#overlay').hide();
+                        $('#load_test').hide();
 
                     },
                     error: function (xhr, status, error) {
@@ -338,8 +359,60 @@
                 });
 
             }
-            
+
         }
+
+        
+        var filterElement = document.getElementById('filter');
+
+        if (filterElement) {
+            filterElement.addEventListener('change', function () {
+                var transporteurId = this.value;
+                console.log("value",transporteurId);
+
+                // Faites appel à la fonction de filtrage AJAX
+                filterChauffeurs(transporteurId);
+            });
+        }
+
+        
+        function filterChauffeurs(transporteurId) {
+            fetch('/admin/chauffeur/filtre', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ transporteur_id: transporteurId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mettez à jour la table avec les données filtrées
+                updateTable(data);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        }
+
+
+        function updateTable(data) {
+            // Mettez à jour le contenu de la table avec les données filtrées
+            var tbody = document.querySelector('.table tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(function (chauffeur) {
+                var row = `<tr>
+                    <td><input type="checkbox" class="select-checkbox" name="selected_chauffeurs[]" value="${chauffeur.id}"></td>
+                    <td>${chauffeur.rfid}</td>
+                    <td>${chauffeur.nom}</td>
+                    <td>${chauffeur.transporteur ? chauffeur.transporteur.nom : ''}</td>
+                </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        
 
     </script>
 
