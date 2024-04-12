@@ -20,7 +20,7 @@
             <div class="card-body">
               <h5 class="card-title">{!! Form::label('chauffeur', 'Choisir un chauffeur :') !!}</h5>
               <p class="card-text">{!! Form::select('chauffeur', ['' => 'Sélectionnez un chauffeur'] + array_combine($drivers, $drivers), null, ['class' => 'form-control','id' => 'chauffeurSelect']) !!}</p>
-              {!! Form::button('Voir', ['class' => 'btn btn-primary custom-class', 'id' => 'voirButton', 'onsubmit' => 'return submitForm();']) !!}
+              {!! Form::button('Voir', ['class' => 'btn btn-primary custom-class', 'id' => 'voirButton']) !!}
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     @lang('models/transporteurs.singular')
+                     <h1>@lang('models/transporteurs.singular')</h1>
                 </div>
             </div>
         </div>
@@ -17,7 +17,7 @@
 
         <div class="card">
 
-            {!! Form::open(['route' => 'transporteurs.store']) !!}
+            {!! Form::open(['route' => 'transporteurs.store', 'onsubmit' => 'return submitForm();']) !!}
 
             <div class="card-body">
                 <div class="row">

@@ -18,7 +18,7 @@
         <div class="card">
 
             {{-- {!! Form::open(['route' => 'chauffeurs.store']) !!} --}}
-            {!! Form::open(['route' => 'import.driver.excel', 'method' => 'post', 'enctype' => 'multipart/form-data']) !!}
+            {!! Form::open(['route' => 'import.driver.excel', 'method' => 'post', 'enctype' => 'multipart/form-data', 'onsubmit' => 'return submitForm();']) !!}
             @csrf
 
             <div class="card-body">

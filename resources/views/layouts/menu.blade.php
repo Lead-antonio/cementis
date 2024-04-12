@@ -7,7 +7,7 @@ $urlAdmin=config('fast.admin_prefix');
 $isDashboardActive = Request::is($urlAdmin);
 @endphp
 <li class="nav-item">
-    <a href="{{ route('dashboard') }}" class="nav-link {{ $isDashboardActive ? 'active' : '' }}">
+    <a href="{{ route('dashboard') }}" class="nav-link {{ $isDashboardActive ? 'active' : '' }}" onclick="submitForm()">
         <i class="nav-icon fas fa-tachometer-alt"></i>
         <p>@lang('menu.dashboard')</p>
     </a>
@@ -112,7 +112,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('events.table.scoring') }}"
-       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-bullseye"></i>
         <p>@lang('models/events.fields.tab_scoring')</p>
     </a>
@@ -121,7 +121,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('chauffeurs.index') }}"
-       class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-user-circle"></i> 
         <p>@lang('models/chauffeurs.plural')</p>
     </a>
@@ -138,13 +138,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
     <ul class="nav nav-treeview" style="padding-left:8px">
         <li class="nav-item">
-            <a href="{{ route('importcalendars.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+            <a href="{{ route('importcalendars.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}" onclick="submitForm()">
                 <i class="nav-icon fas fa-list"></i>
                 <p>@lang('models/importExcels.fields.import_list')</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{ route('importExcels.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+            <a href="{{ route('importExcels.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}" onclick="submitForm()">
                 <i class="nav-icon fas fa-file"></i>
                 <p>@lang('models/importExcels.fields.import_detail')</p>
             </a>
@@ -155,7 +155,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('events.index') }}"
-       class="nav-link {{ Request::is('events*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('events*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-calendar"></i>
         <p>@lang('models/events.plural')</p>
     </a>
@@ -163,7 +163,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('penaliteChauffeurs.index') }}"
-       class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-car-crash"></i> 
         <p>@lang('models/penaliteChauffeurs.plural')</p>
     </a>
@@ -171,7 +171,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('events.scoring') }}"
-       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-bullseye"></i>
         <p>@lang('models/events.fields.detail_penalite')</p>
     </a>
@@ -247,7 +247,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
     <ul class="nav nav-treeview" style="padding-left:8px">
         <li class="nav-item">
-            <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
+            <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}" onclick="submitForm()">
                 <i class="nav-icon fas fa-exclamation-triangle"></i>
                 <p>@lang('models/penalites.plural')</p>
             </a>
@@ -255,7 +255,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
         <li class="nav-item">
             <a href="{{ route('transporteurs.index') }}"
-               class="nav-link {{ Request::is('transporteurs*') ? 'active' : '' }}">
+               class="nav-link {{ Request::is('transporteurs*') ? 'active' : '' }}" onclick="submitForm()">
                <i class="nav-icon fas fa-truck"></i>
                 <p>@lang('models/transporteurs.plural')</p>
             </a>

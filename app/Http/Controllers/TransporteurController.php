@@ -12,7 +12,6 @@ use App\Http\Controllers\AppBaseController;
 use App\Models\Chauffeur;
 use App\Models\Transporteur;
 use Response;
-use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 
 

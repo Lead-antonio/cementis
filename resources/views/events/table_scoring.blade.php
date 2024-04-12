@@ -36,7 +36,7 @@
                                 <th>Date de l'évènement</th>
                                 <th>Point de pénalité</th>
                                 <th>Distance parcourue</th>
-                                {{-- <th>Score Card</th> --}}
+                                <th>Scoring Card</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,19 +45,53 @@
                                     <td colspan="5" style="text-align: center;">Pas d'élément à afficher</td>
                                 </tr>
                             @else
+                                @php
+                                    $currentDriver = null;
+                                    $totalPenalty = 0;
+                                    $totalDistance = 0;
+                                    $scoringCard = 0;
+                                @endphp
                                 @foreach ($scoring as $result)
+                                    @if ($currentDriver !== $result->driver)
+                                        @if ($currentDriver !== null)
+                                            <tr class="total-row">
+                                                <td colspan="3"><strong>Total :</strong></td>
+                                                <td class="point-row"><strong>{{ $totalPenalty }}</strong></td>
+                                                <td class="distance-row"><strong>{{ $totalDistance }} Km</strong></td>
+                                                <td class="scoring-row"><strong>{{ number_format($totalDistance != 0 ? ($totalPenalty / $totalDistance) * 100 : 0, 2) }}
+                                                </strong></td>
+                                            </tr>
+                                        @endif
+                                        @php
+                                            $currentDriver = $result->driver;
+                                            $totalPenalty = 0;
+                                            $totalDistance = 0;
+                                        @endphp
+                                    @endif
                                     <tr>
                                         <td>{{ $result->driver }}</td>
                                         <td>{{ $result->event }}</td>
                                         <td>{{ $result->date_event }}</td>
                                         <td>{{ $result->penalty_point }}</td>
                                         <td>{{ $result->distance }} Km</td>
-                                        {{-- <td>{{ $result->score_card }}</td> --}}
                                     </tr>
+                                    @php
+                                        $totalPenalty += $result->penalty_point;
+                                        $totalDistance += $result->distance;
+                                    @endphp
                                 @endforeach
+                                <tr>
+                                    <td colspan="3"><strong>Total :</strong></td>
+                                    <td class="point-row"><strong>{{ $totalPenalty }}</strong></td>
+                                    <td class="distance-row"><strong>{{ $totalDistance }} Km</strong></td>
+                                    <td class="scoring-row"><strong>{{ number_format($totalDistance != 0 ? ($totalPenalty / $totalDistance) * 100 : 0, 2) }}
+                                    </strong></td>
+                                </tr>
                             @endif
                         </tbody>
                     </table>
+                    
+                    
 
                 <div class="card-footer clearfix float-right">
                     <div class="float-right">
@@ -67,7 +101,7 @@
             </div>
         </div>
 
-        <div class="card">
+        {{-- <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Scoring Card de chaque chauffeur</h3>
             </div>
@@ -107,7 +141,22 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
+
+    <style>
+        .scoring-row {
+            background-color: #2b9ed3; /* Couleur de fond différente */
+            color: #000000; /* Couleur de texte */
+        }
+        .point-row {
+            background-color: #b4d32b; /* Couleur de fond différente */
+            color: #000000; /* Couleur de texte */
+        }
+        .distance-row {
+            background-color: #d38a2b; /* Couleur de fond différente */
+            color: #000000; /* Couleur de texte */
+        }
+    </style>
 
 @endsection
