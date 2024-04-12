@@ -15,6 +15,7 @@ return array (
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
     'detail_penalite' => 'Details of penalty',
-    'route' => 'Distance'
+    'route' => 'Distance',
+    'tab_scoring' => 'Table Scoring Card'
   ),
 );

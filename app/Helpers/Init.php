@@ -23,6 +23,60 @@ if (!function_exists('fast_trans')) {
 }
 
 
+if (!function_exists('totalScoringCard')) {
+
+    function totalScoringCard()
+    {
+        $result = DB::table('penalite_chauffeur as pc')
+            ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+            ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
+            ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+            ->select(
+                'ch.nom as driver','ch.id as id_driver','t.nom as transporteur',
+                DB::raw('SUM(p.point_penalite) as total_penalty_point'),
+                DB::raw('SUM(pc.distance) as total_distance'),
+                DB::raw('(SUM(p.point_penalite) * 100) / SUM(pc.distance) as score_card')
+            )
+            ->groupBy('ch.nom', 'ch.id','t.nom')
+            ->orderBy('ch.nom')
+            ->orderBy('ch.id')
+            ->get();
+
+        return $result;
+    }
+
+}
+
+
+
+if (!function_exists('tabScoringCard')) {
+
+    function tabScoringCard()
+    {
+        $results = DB::table('penalite_chauffeur as pc')
+            ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+            ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
+            ->join('event as e', 'pc.id_event', '=', 'e.id')
+            ->select(
+                'ch.nom as driver',
+                DB::raw("DATE_FORMAT(pc.date, '%Y-%m') as Month"),
+                DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s') as date_event"),
+                'e.type as event',
+                'p.point_penalite as penalty_point',
+                'pc.distance as distance',
+                DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
+            )
+            ->groupBy('ch.nom', DB::raw("DATE_FORMAT(pc.date, '%Y-%m')"), DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"), 'e.type', 'p.point_penalite', 'pc.distance')
+            ->orderBy('ch.nom')
+            ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
+            ->get();
+
+        return $results;
+    }
+
+}
+
+
 if (!function_exists('driverTop')){
     function driverTop()
     {
@@ -93,21 +147,39 @@ if (!function_exists('topDriver')) {
 if (!function_exists('driverChart')) {
     function driverChart()
     {
-        // Récupérez les données sur les pénalités
-        $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
-        ->groupBy('id_chauffeur')
-        ->get();
+        // // Récupérez les données sur les pénalités
+        // $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
+        // ->groupBy('id_chauffeur')
+        // ->get();
 
-        // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
-        $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
+        // // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
+        // $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
 
-        // Préparez les données pour le graphique
+        // // Préparez les données pour le graphique
+        // $labels = [];
+        // $data = [];
+
+        // foreach ($penalitesData as $penalite) {
+        //     $labels[] = $chauffeursNames[$penalite->id_chauffeur];
+        //     $data[] = $penalite->penalite_count;
+        // }
+
         $labels = [];
         $data = [];
 
-        foreach ($penalitesData as $penalite) {
-            $labels[] = $chauffeursNames[$penalite->id_chauffeur];
-            $data[] = $penalite->penalite_count;
+        $chartScoring = Chauffeur::select('chauffeur.id AS id_chauffeur', 'chauffeur.nom',
+            DB::raw('COALESCE((SUM(penalite.point_penalite) * 100) / NULLIF(SUM(penalite_chauffeur.distance), 0), 0) AS scoring_card'))
+            ->leftJoin('penalite_chauffeur', 'chauffeur.id', '=', 'penalite_chauffeur.id_chauffeur')
+            ->leftJoin('penalite', 'penalite.id', '=', 'penalite_chauffeur.id_penalite')
+            ->leftJoin('import_excel', 'penalite_chauffeur.id_calendar', '=', 'import_excel.id')
+            ->groupBy('chauffeur.id', 'chauffeur.nom')
+            ->orderBy('scoring_card', 'asc')
+            ->get();
+
+        // dd($chartScoring);
+        foreach ($chartScoring as $chart) {
+            $labels[] = $chart->nom;
+            $data[] = $chart->scoring_card;
         }
 
         return [
@@ -270,7 +342,6 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
     function getDistanceWithImeiAndPeriod($rfid_chauffeur, $imei_vehicule, $start_date, $end_date){
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=0AFEAB2328492FB8118E37ECCAF5E79F&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
-        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
@@ -314,7 +385,6 @@ if (!function_exists('getEventFromApi')) {
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response, true);
-        // dd($data);
         
         if (!empty($data)) {
             foreach ($data as $item) {
@@ -340,27 +410,6 @@ if (!function_exists('getEventFromApi')) {
     }    
 }
 
-
-    // function Update_importExcel($id_importcalendar){
-    //     // $import_calendar->id
-    //     //Recuperation de la date debut et fin du fichier inserer
-    //     $date_debut = ImportExcel::where('import_calendar_id', $id_importcalendar)->first('date_debut');
-
-    //     $max_id_import_excel = ImportExcel::where('import_calendar_id',  $id_importcalendar)->max('id');
-    //     $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
-
-    //     if($date_finals->date_fin == null){
-    //         $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
-    //         $date_finals = $date_fin_fichier->date_debut;
-    //     }else{
-    //         $date_finals = $date_finals->date_fin;
-    //     }
-
-    //     $import_calendar->update([
-    //         'date_debut' => $date_debut->date_debut,
-    //         'date_fin' => $date_finals
-    //     ]);
-    // }
 
 if (!function_exists('calculerDureeTotale')) {
     function calculerDureeTotale($immatriculation)

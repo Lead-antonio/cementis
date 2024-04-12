@@ -44,14 +44,6 @@ class PenaliteChauffeurController extends AppBaseController
                 $dateDebut = Carbon::parse($importRow->date_debut);
                 $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin) : null;
                 // Récupérer les événements déclenchés pendant cette livraison
-                // $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin) {
-                //     $eventDate = Carbon::parse($event->date);
-                //     if ($dateFin === null) {
-                //         return  $eventDate->eq($dateDebut);
-                //     } else {
-                //         return  $eventDate->between($dateDebut, $dateFin);
-                //     }
-                // });
 
                 $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $importRow) {
                     $eventDate = Carbon::parse($event->date);

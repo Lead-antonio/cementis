@@ -79,11 +79,12 @@ class ImportExcelDataTable extends DataTable
                 'title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut',
                 'render' => 'function() {
                     var date = new Date(full.date_debut);
+                    date.setHours(date.getHours() - 1);
+
                     var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
                     var date_heure = date.toLocaleString("fr-FR", options);
 
-                    return date_heure;
-                }',
+                    return date_heure;}',
             ]),
             'date_fin' => new Column(['title' => __('models/importExcels.fields.date_fin'), 'data' => 'date_fin',
             'render' => 'function() {
@@ -91,11 +92,11 @@ class ImportExcelDataTable extends DataTable
 
                 if(full.date_fin!=null){
                     var date = new Date(full.date_fin);
+                    date.setHours(date.getHours() - 1);
                     var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
                     date_heure = date.toLocaleString("fr-FR", options);
                 }
-                return date_heure;
-             }'
+                return date_heure;}'
         
         ]),
             'delais_route' => new Column(['title' => __('models/importExcels.fields.delais_route'), 'data' => 'delais_route']),

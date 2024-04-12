@@ -69,20 +69,22 @@ class ImportcalendarDataTable extends DataTable
             'date_debut' => new Column(['title' => __('models/importcalendars.fields.date_debut'), 'data' => 'date_debut',
             'render' => 'function() {
                 var date = new Date(full.date_debut);
+                date.setHours(date.getHours() - 1);
                 var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
                 var date_heure = date.toLocaleString("fr-FR", options);
 
                 return date_heure;
-             }']),
+            }']),
 
             'date_fin' => new Column(['title' => __('models/importcalendars.fields.date_fin'), 'data' => 'date_fin',
             'render' => 'function() {
                 var date = new Date(full.date_fin);
+                date.setHours(date.getHours() - 1);
                 var options = { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
                 var date_heure = date.toLocaleString("fr-FR", options);
 
                 return date_heure;
-             }'
+            }'
 
         ]),
             'observation' => new Column(['title' => __('models/importcalendars.fields.observation'), 'data' => 'observation'])

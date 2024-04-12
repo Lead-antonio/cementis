@@ -35,7 +35,7 @@ return [
             'rollback' => 'Reculer2'
         ]
     ],
-    'number_driver_stat' => 'Nombre de pénalités par chauffeur',
+    'number_driver_stat' => 'Représentation graphique scoring chauffeur',
     'top_driver' => 'Top chauffeurs par points de pénalité',
     'top' => 'Meilleur chauffeur',
     'worst' => 'Pire chauffeur',

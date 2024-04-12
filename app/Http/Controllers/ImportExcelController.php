@@ -45,6 +45,7 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
+        // dd(tabScoringCard());
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
             Session::forget('success');
@@ -71,11 +72,9 @@ class ImportExcelController extends AppBaseController
 
     public function associateEventWithCalendar(Request $request){
         $chauffeur = $request->input('chauffeur');
-        
         $drive = getDriverByName($chauffeur);
         $events = getEventMonthly($drive->rfid);
         $livraisons = getCalendarOfDriverMonthly();
-
         $results = [];
         $penalites = [];
         
@@ -84,23 +83,15 @@ class ImportExcelController extends AppBaseController
         foreach ($livraisons as $livraison) {
             $dateDebut = Carbon::parse($livraison->date_debut);
             $dateFin = $livraison->date_fin ? Carbon::parse($livraison->date_fin) : null;
+            $calendarImei = $livraison->imei;
+            $calendarTruck = $livraison->camion;
 
-            // $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin) {
-            //     $eventDate = Carbon::parse($event->date);
-    
-            //     if ($dateFin === null) {
-            //         return  $eventDate->eq($dateDebut);
-            //     } else {
-            //         return  $eventDate->between($dateDebut, $dateFin);
-            //     }
-            // });
-
-            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $livraison) {
+            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $calendarImei, $calendarTruck) {
                 $eventDate = Carbon::parse($event->date);
                 // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
                 $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
                 // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
-                $isMatchingIMEIAndCamion = $livraison->imei === $event->imei && $livraison->camion === $event->vehicule;
+                $isMatchingIMEIAndCamion = $calendarImei === $event->imei && $calendarTruck=== $event->vehicule;
                 // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
                 return $isEventInDeliveryPeriod && $isMatchingIMEIAndCamion;
             });
@@ -122,8 +113,7 @@ class ImportExcelController extends AppBaseController
 
 
         }
-
-        // dd($results[0]['evenements']);
+        // dd($results);
         $point_total = getPointPenaliteTotalMonthly($drive->id);
         
         return view('events.resultats', compact('results', 'point_total'));

@@ -46,8 +46,11 @@ class EventController extends AppBaseController
     }
 
 
-    public function getRoutes(){
-        dd(getDistanceWithImeiAndPeriod('865135060228283','20240404080000', '20240404170000'));
+    public function TableauScoring(){
+        $scoring = tabScoringCard();
+        $total = totalScoringCard();
+        
+        return view('events.table_scoring', compact('scoring', 'total'));
     }
 
     /**

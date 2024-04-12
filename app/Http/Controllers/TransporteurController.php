@@ -7,7 +7,7 @@ use App\Http\Requests;
 use App\Http\Requests\CreateTransporteurRequest;
 use App\Http\Requests\UpdateTransporteurRequest;
 use App\Repositories\TransporteurRepository;
-use Flash;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Http\Controllers\AppBaseController;
 use App\Models\Chauffeur;
 use App\Models\Transporteur;
@@ -63,6 +63,7 @@ class TransporteurController extends AppBaseController
         Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
         // Flash::success(__('messages.saved', ['model' => __('models/transporteurs.singular')]));
 
+
         return redirect(route('transporteurs.index'));
     }
 
@@ -80,7 +81,7 @@ class TransporteurController extends AppBaseController
         $transporteur_all = Transporteur::all();
 
         if (empty($transporteur)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
             return redirect(route('transporteurs.index'));
         }
 
@@ -128,7 +129,7 @@ class TransporteurController extends AppBaseController
         $transporteur = $this->transporteurRepository->find($id);
 
         if (empty($transporteur)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
 
             return redirect(route('transporteurs.index'));
         }
@@ -149,14 +150,14 @@ class TransporteurController extends AppBaseController
         $transporteur = $this->transporteurRepository->find($id);
 
         if (empty($transporteur)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
 
             return redirect(route('transporteurs.index'));
         }
 
         $transporteur = $this->transporteurRepository->update($request->all(), $id);
 
-        Flash::success(__('messages.updated', ['model' => __('models/transporteurs.singular')]));
+        Alert::success(__('messages.updated', ['model' => __('models/transporteurs.singular')]));
 
         return redirect(route('transporteurs.index'));
     }
@@ -173,14 +174,14 @@ class TransporteurController extends AppBaseController
         $transporteur = $this->transporteurRepository->find($id);
 
         if (empty($transporteur)) {
-            Flash::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
+            Alert::error(__('messages.not_found', ['model' => __('models/transporteurs.singular')]));
 
             return redirect(route('transporteurs.index'));
         }
 
         $this->transporteurRepository->delete($id);
 
-        Flash::success(__('messages.deleted', ['model' => __('models/transporteurs.singular')]));
+        Alert::success(__('messages.deleted', ['model' => __('models/transporteurs.singular')]));
 
         return redirect(route('transporteurs.index'));
     }

@@ -80,6 +80,7 @@ Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
 
+Route::get('/events/table/scoring', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
 
 
 Route::resource('events', App\Http\Controllers\EventController::class);

@@ -27,7 +27,7 @@
 @endif
 
 
-@if($results[0]['evenements']->isNotEmpty())
+{{-- @if($results[0]['evenements']->isNotEmpty()) --}}
     @foreach($results as $livraisonAvecEvenements)
         @if(count($livraisonAvecEvenements['evenements']) > 0)
             <div class="row mb-3">
@@ -47,7 +47,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4"> 
-                                    {{-- <p><strong>Chauffeur :</strong> {{ $livraisonAvecEvenements['livraison']->rfid_chauffeur }}</p> --}}
+                                    <p><strong>Chauffeur :</strong> {{ $livraisonAvecEvenements['livraison']->adresse_livraison }}</p>
                                     <p><strong>Camion :</strong> {{ $livraisonAvecEvenements['livraison']->camion }}</p>
                                     <p><strong>Date de début :</strong> {{ $livraisonAvecEvenements['livraison']->date_debut }}</p>
                                     <p><strong>Date de fin :</strong> {{ $livraisonAvecEvenements['livraison']->date_fin }}</p>
@@ -70,7 +70,7 @@
             </div>
         @endif
     @endforeach
-@else
+{{-- @else
     <div class="row mb-3">
         <div class="col-md-12">
             <div class="alert alert-info" role="alert">
@@ -78,7 +78,7 @@
             </div>
         </div>
     </div>
-@endif
+@endif --}}
 
 <style>
     hr{

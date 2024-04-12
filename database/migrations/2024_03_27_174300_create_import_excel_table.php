@@ -27,7 +27,7 @@ class CreateImportExcelTable extends Migration
             $table->string('adresse_livraison')->nullable();
             $table->unsignedInteger('import_calendar_id');
             $table->string('imei')->nullable();
-            $table->foreign('import_calendar_id')->references('id')->on('Import_calendar')->onDelete('cascade');
+            $table->foreign('import_calendar_id')->references('id')->on('import_calendar')->onDelete('cascade');
             $table->softDeletes();
         });
     }
