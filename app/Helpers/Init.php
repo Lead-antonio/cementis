@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use App\Models\Chauffeur;
+use App\Models\Penalite;
 use App\Models\PenaliteChauffeur;
 
 
@@ -147,23 +148,6 @@ if (!function_exists('topDriver')) {
 if (!function_exists('driverChart')) {
     function driverChart()
     {
-        // // Récupérez les données sur les pénalités
-        // $penalitesData = PenaliteChauffeur::select('id_chauffeur', DB::raw('COUNT(*) as penalite_count'))
-        // ->groupBy('id_chauffeur')
-        // ->get();
-
-        // // Récupérez les noms de chauffeur correspondant à chaque identifiant de chauffeur
-        // $chauffeursNames = Chauffeur::whereIn('id', $penalitesData->pluck('id_chauffeur'))->pluck('nom', 'id')->toArray();
-
-        // // Préparez les données pour le graphique
-        // $labels = [];
-        // $data = [];
-
-        // foreach ($penalitesData as $penalite) {
-        //     $labels[] = $chauffeursNames[$penalite->id_chauffeur];
-        //     $data[] = $penalite->penalite_count;
-        // }
-
         $labels = [];
         $data = [];
 
@@ -385,21 +369,24 @@ if (!function_exists('getEventFromApi')) {
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response, true);
-        dd($data);
+        
         if (!empty($data)) {
             foreach ($data as $item) {
+
                 // Vérifiez si une entrée identique existe déjà dans la table Rotation
                 $existingEvent = Event::where('imei', $item[2])
                 ->where('date', $item[4])
                 ->first();
+
+                $penaltyEvent = Penalite::where('event', $item[1])->first();
                 // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
-                if (!$existingEvent) {
-                    if(isset($item[10]['rfid'])){
+                if (!$existingEvent && $penaltyEvent) {
+                    if(isset($item[10]['rfid']) && $item[10]['rfid'] != "0000000000"){
                         Event::create([
                             'imei' => $item[2],
                             'chauffeur' => $item[10]['rfid'],
                             'vehicule' => $item[3],
-                            'type' => $item[0],
+                            'type' => $item[1],
                             'date' => $item[4],
                             'description' => $item[1],
                         ]);

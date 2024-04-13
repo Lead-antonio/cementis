@@ -45,7 +45,6 @@ class ImportExcelController extends AppBaseController
      */
     public function index(ImportExcelDataTable $importExcelDataTable, $id = null)
     {
-        // dd(tabScoringCard());
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/importExcels.singular')]));
             Session::forget('success');
@@ -85,6 +84,20 @@ class ImportExcelController extends AppBaseController
             $dateFin = $livraison->date_fin ? Carbon::parse($livraison->date_fin) : null;
             $calendarImei = $livraison->imei;
             $calendarTruck = $livraison->camion;
+
+            if ($dateFin === null) {
+                // Convertir la durée en heures
+                $dureeEnHeures = floatval($livraison->delais_route);
+                // Calculer la date de fin en fonction de la durée
+                if ($dureeEnHeures <= 1) {
+                    // Durée inférieure à une journée
+                    $dateFin = $dateDebut->copy()->endOfDay();
+                } else {
+                    $dureeEnJours = ceil($dureeEnHeures / 24);
+                    // Durée d'une journée ou plus
+                    $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
+                }
+            }
 
             $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $calendarImei, $calendarTruck) {
                 $eventDate = Carbon::parse($event->date);

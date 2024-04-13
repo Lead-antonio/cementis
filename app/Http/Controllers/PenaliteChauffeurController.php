@@ -43,8 +43,21 @@ class PenaliteChauffeurController extends AppBaseController
         foreach ($importExcelRows as $importRow) {
                 $dateDebut = Carbon::parse($importRow->date_debut);
                 $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin) : null;
-                // Récupérer les événements déclenchés pendant cette livraison
 
+                if ($dateFin === null) {
+                    // Convertir la durée en heures
+                    $dureeEnHeures = floatval($livraison->delais_route);
+                    // Calculer la date de fin en fonction de la durée
+                    if ($dureeEnHeures <= 1) {
+                        // Durée inférieure à une journée
+                        $dateFin = $dateDebut->copy()->endOfDay();
+                    } else {
+                        $dureeEnJours = ceil($dureeEnHeures / 24);
+                        // Durée d'une journée ou plus
+                        $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
+                    }
+                }
+                // Récupérer les événements déclenchés pendant cette livraison
                 $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $importRow) {
                     $eventDate = Carbon::parse($event->date);
                     // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
