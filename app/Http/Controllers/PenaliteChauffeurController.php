@@ -36,57 +36,7 @@ class PenaliteChauffeurController extends AppBaseController
      */
     public function index(PenaliteChauffeurDataTable $penaliteChauffeurDataTable)
     {
-        $importExcelRows = ImportExcel::all();
-        $events = Event::all();
-        $distance = 0;
-
-        foreach ($importExcelRows as $importRow) {
-                $dateDebut = Carbon::parse($importRow->date_debut);
-                $dateFin = $importRow->date_fin ? Carbon::parse($importRow->date_fin) : null;
-
-                if ($dateFin === null) {
-                    // Convertir la durée en heures
-                    $dureeEnHeures = floatval($livraison->delais_route);
-                    // Calculer la date de fin en fonction de la durée
-                    if ($dureeEnHeures <= 1) {
-                        // Durée inférieure à une journée
-                        $dateFin = $dateDebut->copy()->endOfDay();
-                    } else {
-                        $dureeEnJours = ceil($dureeEnHeures / 24);
-                        // Durée d'une journée ou plus
-                        $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
-                    }
-                }
-                // Récupérer les événements déclenchés pendant cette livraison
-                $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $importRow) {
-                    $eventDate = Carbon::parse($event->date);
-                    // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
-                    $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
-                    // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
-                    $isMatchingIMEIAndCamion = $importRow->imei === $event->imei && $importRow->camion === $event->vehicule;
-                    // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
-                    return $isEventInDeliveryPeriod && $isMatchingIMEIAndCamion;
-                });
-        
-                foreach ($eventsDuringDelivery as $event){
-                    $typeEvent = $event->type;
-                    $distance = getDistanceWithImeiAndPeriod($event->chauffeur, $event->imei, $importRow->date_debut, $importRow->date_fin);
-                    $penalite = Penalite::where('event', $typeEvent)->first();
-
-                    $existingPenalty = PenaliteChauffeur::where([
-                        'id_chauffeur' => getIdByRFID($event->chauffeur),
-                        'id_calendar' => $importRow->id,
-                        'id_event' => $event->id,
-                        'id_penalite' => $penalite->id,
-                        'date' => $event->date
-                    ])->first();
-
-                    // Enregistrer dans la table Penalité chauffeur
-                    if(!$existingPenalty && $importRow->imei === $event->imei && $importRow->camion === $event->vehicule) {
-                        insertPenaliteDrive($event, $importRow, $penalite, $distance);
-                    }  
-                }
-        }        
+        RapportPenaliteChauffeurMonthly();        
         return $penaliteChauffeurDataTable->render('penalite_chauffeurs.index');
     }
 
