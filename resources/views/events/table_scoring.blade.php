@@ -48,15 +48,15 @@
                 <table id="tableau-score" class="table table-bordered" width="100%">
                     <thead>
                         <tr>
-                            <th>Chauffeur</th>
-                            <th>Transporteur</th>
-                            <th>Événements</th>
-                            <th>Date de l'évènement</th>
-                            <th>Coordonnées gps</th>
-                            <th>Durée</th>
-                            <th>Point de pénalité</th>
-                            <th>Distance parcourue</th>
-                            <th>Scoring Card</th>
+                            <th style="text-align: center;">Chauffeur</th>
+                            <th style="text-align: center;">Transporteur</th>
+                            <th style="text-align: center;">Événements</th>
+                            <th style="text-align: center;">Date de l'évènement</th>
+                            <th style="text-align: center;">Coordonnées gps</th>
+                            <th style="text-align: center;">Durée</th>
+                            <th style="text-align: center;">Point de pénalité</th>
+                            <th style="text-align: center;">Distance parcourue</th>
+                            <th style="text-align: center;">Scoring Card</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,18 +87,18 @@
                                 @endphp
                             @endif
                             <tr>
-                                <td>{{ $result->driver }}</td>
-                                <td>{{$result->transporteur_nom}}</td>
-                                <td>{{ trim($result->event) }}</td>
-                                <td>{{ \Carbon\Carbon::parse($result->date_event)->format('d-m-Y H:i:s') }}</td>
-                                <td>
+                                <td style="text-align: center">{{ $result->driver }}</td>
+                                <td style="text-align: center">{{$result->transporteur_nom}}</td>
+                                <td style="text-align: center">{{ trim($result->event) }}</td>
+                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_event)->format('d-m-Y H:i:s') }}</td>
+                                <td style="text-align: center">
                                     <a href="#" onclick="showMapModal('{{ $result->latitude }}', '{{ $result->longitude }}', '{{ $result->event }}')">
                                         {{ $result->latitude }}, {{ $result->longitude }}
                                     </a>
                                 </td>
-                                <td>{{ $result->duree }} s</td>
-                                <td>{{ $result->penalty_point }}</td>
-                                <td>{{ $result->distance }} Km</td>
+                                <td style="text-align: center">{{ $result->duree }} s</td>
+                                <td style="text-align: center">{{ $result->penalty_point }}</td>
+                                <td style="text-align: center">{{ $result->distance }} Km</td>
                             </tr>
                             @php
                                 $totalPenalty += $result->penalty_point;
@@ -112,9 +112,9 @@
                         @if ($currentDriver !== null)
                             <tr class="total-row">
                                 <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
-                                <td class="point-row">{{ $totalPenalty }}</td>
-                                <td class="distance-row">{{ $totalDistance. " Km" }}</td>
-                                <td class="scoring-row">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
+                                <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
+                                <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
+                                <td class="scoring-row" style="text-align: center">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
                             </tr>
                         @endif
                     </tbody>
