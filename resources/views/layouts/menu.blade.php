@@ -15,19 +15,31 @@ $isDashboardActive = Request::is($urlAdmin);
 @endcan
 
 {{-- @can('generator_builder.index') 
- @php --}}
-{{-- @can('generator_builder.index')
+ @php
+ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
+ @endphp
+ <li class="nav-item">
+     <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
+         <i class="nav-icon fas fa-coins"></i>
+         <p>@lang('menu.generator_builder.title')</p>
+     </a>
+ </li>
+ @endcan   --}}
 
-// @php
-// $isUserActive = Request::is($urlAdmin.'*generator_builder*');
-// @endphp
-// <li class="nav-item">
-//     <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
-//         <i class="nav-icon fas fa-coins"></i>
-//         <p>@lang('menu.generator_builder.title')</p>
-//     </a>
-// </li>
-// @endcan  
+{{-- @can('generator_builder.index') 
+ @php --}}
+{{-- @can('generator_builder.index')--}}
+{{-- @can('generator_builder.index') 
+ @php
+ $isUserActive = Request::is($urlAdmin.'*generator_builder*');
+ @endphp
+ <li class="nav-item">
+     <a href="{{ route('generator_builder.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
+         <i class="nav-icon fas fa-coins"></i>
+         <p>@lang('menu.generator_builder.title')</p>
+     </a>
+ </li>
+ @endcan   --}}
 
 
 {{--@can('attendances.index')
@@ -287,4 +299,11 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li> --}}
 
+
+{{-- <li class="nav-item">
+    <a href="{{ route('groupeEvents.index') }}"
+       class="nav-link {{ Request::is('groupeEvents*') ? 'active' : '' }}">
+        <p>@lang('models/groupeEvents.plural')</p>
+    </a>
+</li> --}}
 

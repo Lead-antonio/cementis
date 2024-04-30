@@ -36,7 +36,6 @@ class PenaliteChauffeurController extends AppBaseController
      */
     public function index(PenaliteChauffeurDataTable $penaliteChauffeurDataTable)
     {
-        RapportPenaliteChauffeurMonthly();        
         return $penaliteChauffeurDataTable->render('penalite_chauffeurs.index');
     }
 

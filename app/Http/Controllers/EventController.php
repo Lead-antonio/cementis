@@ -11,6 +11,7 @@ use App\Http\Controllers\AppBaseController;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Session;
 use App\Models\Event;
+use Illuminate\Http\Request;
 use App\Models\Penalite;
 use App\Models\ImportExcel;
 use Dompdf\Dompdf;
@@ -46,6 +47,11 @@ class EventController extends AppBaseController
         return $eventDataTable->render('events.index');
     }
 
+
+    public function showMap($latitude, $longitude)
+    {
+        return view('events.map')->with(compact('latitude', 'longitude'));
+    }
 
     public function TableauScoring(){
         $scoring = tabScoringCard();

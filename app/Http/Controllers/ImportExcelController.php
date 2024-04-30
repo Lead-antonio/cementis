@@ -99,14 +99,14 @@ class ImportExcelController extends AppBaseController
                 }
             }
 
-            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $calendarImei, $calendarTruck) {
+            $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $livraison) {
                 $eventDate = Carbon::parse($event->date);
                 // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
                 $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
                 // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
-                $isMatchingIMEIAndCamion = $calendarImei === $event->imei && $calendarTruck=== $event->vehicule;
+                $isMatchingCamion =  strpos($event->vehicule, $livraison->camion) !== false;
                 // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
-                return $isEventInDeliveryPeriod && $isMatchingIMEIAndCamion;
+                return $isEventInDeliveryPeriod && $isMatchingCamion;
             });
 
             foreach ($eventsDuringDelivery as $event){

@@ -37,3 +37,4 @@ Route::get('/get/data/api', 'App\Http\Controllers\RotationController@getDataFrom
 
 Route::get('/get-rotations/{vehicle}', 'App\Http\Controllers\RotationController@getRotationDurations')->name('rotations.by.vehicle');
 
+Route::get('/show/map/{latitude}/{longitude}', 'App\Http\Controllers\EventController@showMap')->name('show.map');

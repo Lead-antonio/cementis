@@ -30,6 +30,7 @@ class Penalite extends Model
     public $fillable = [
         'id',
         'event',
+        'duree',
         'point_penalite'
     ];
 
@@ -41,6 +42,7 @@ class Penalite extends Model
     protected $casts = [
         'id' => 'integer',
         'event' => 'string',
+        'duree' => 'integer',
         'point_penalite' => 'integer'
     ];
 

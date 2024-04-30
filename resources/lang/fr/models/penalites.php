@@ -7,6 +7,7 @@ return array (
   array (
     'id' => 'Id',
     'event' => 'Evénement',
+    'duree' => 'Durée',
     'point_penalite' => 'Point de pénalités',
   ),
 );

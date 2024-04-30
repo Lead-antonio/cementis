@@ -25,7 +25,7 @@ class ExcelImportClass implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $date_fin = $row['fin'];
-        $excel_date = $row['date_debut'];
+        $excel_date = $row['debut'];
         $unix_timestamp = Date::excelToTimestamp($excel_date);
         $date_debut = Carbon::createFromTimestamp($unix_timestamp);
         // Vérifier si la valeur de date_fin est vide
@@ -38,8 +38,7 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             $date_fin = Carbon::createFromTimestamp($unix_timestamp_datefin);
         }
 
-        $userObject = \getUserVehicule();
-        $imei = \getImeiOfCalendarTruck($userObject ,$row['camion']);
+        
         
 
         return new ImportExcel([
@@ -47,12 +46,12 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'camion' => $row['camion'],
             'date_debut' => $date_debut->subHours(2),
             'date_fin' => $date_fin ? $date_fin->subHours(2) : null,
-            'delais_route' => $row['delais_de_route'],
-            'sigdep_reel' => $row['sigdep_reel'],
-            'marche' => $row['marche'],
-            'adresse_livraison' => $row['adresse_de_livraison'],
-            'import_calendar_id' => $this->import_calendar_id,
-            'imei' => $imei
+            'delais_route' => floatval($row['delais_de_route']),
+            'sigdep_reel' => $row['site_de_depart'],
+            // 'marche' => $row['marche'],
+            'adresse_livraison' => $row['marcheadresse_de_livraison'],
+            'import_calendar_id' => $this->import_calendar_id
+            // 'imei' => $imei
         ]);
     }
 }

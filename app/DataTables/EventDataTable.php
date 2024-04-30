@@ -57,6 +57,7 @@ class EventDataTable extends DataTable
             ]);
     }
 
+
     /**
      * Get columns.
      *
@@ -69,7 +70,18 @@ class EventDataTable extends DataTable
             'chauffeur' => new Column(['title' => __('models/events.fields.chauffeur'), 'data' => 'chauffeur']),
             'vehicule' => new Column(['title' => __('models/events.fields.vehicule'), 'data' => 'vehicule']),
             'type' => new Column(['title' => __('models/events.fields.type'), 'data' => 'type']),
-            'description' => new Column(['title' => __('models/events.fields.description'), 'data' => 'description']),
+            'duree' => new Column([
+                'title' => __('models/events.fields.duree'), 'data' => 'duree',
+                'render' => 'function() {
+                    return full.duree + " s";
+                }',
+            ]),
+            'gps' => new Column([
+                'title' => __('models/events.fields.gps'), 'data' => 'latitude',
+                'render' => 'function() {
+                    return "<a href=\"#\" onclick=\"showMapModal(" + full.latitude + ", " + full.longitude + ", \'" + full.type + "\')\">" + full.latitude + ", " + full.longitude + "</a>";
+                }',
+            ]),
             'date' => new Column([
                 'title' => __('models/events.fields.date'), 'data' => 'date',
                 'render' => 'function() {

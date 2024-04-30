@@ -11,6 +11,8 @@ return array (
     'vehicule' => 'Véhicule',
     'type' => 'Type',
     'description' => 'Description',
+    'duree' => 'Durée',
+    'gps' => 'Coordonnés gps',
     'date' => 'Date',
     'created_at' => 'Crée le',
     'updated_at' => 'Modifiée le',

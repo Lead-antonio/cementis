@@ -37,6 +37,8 @@ class PenaliteChauffeur extends Model
         'id_chauffeur',
         'id_event',
         'id_penalite',
+        'duree',
+        'drive_duration',
         'distance',
         'date',
     ];
@@ -52,6 +54,8 @@ class PenaliteChauffeur extends Model
         'id_calendar' => 'integer',
         'id_penalite' => 'integer',
         'id_event' => 'integer',
+        'duree' => 'integer',
+        'drive_duration' => 'integer',
         'distance' => 'float',
         'date' => 'datetime',
     ];

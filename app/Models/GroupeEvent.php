@@ -4,27 +4,28 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Event;
-use App\Models\Penalite;
-use App\Models\Chauffeur;
 
 
 /**
- * Class Event
+ * Class GroupeEvent
  * @package App\Models
- * @version March 27, 2024, 5:27 pm +07
+ * @version April 24, 2024, 2:25 pm CEST
  *
+ * @property string $key
+ * @property string $imei
  * @property string $chauffeur
+ * @property string $vehicule
  * @property string $type
- * @property string $description
- * @property string $date
+ * @property number $latitude
+ * @property number $longitude
+ * @property integer $duree
  */
-class Event extends Model
+class GroupeEvent extends Model
 {
     use SoftDeletes;
 
 
-    public $table = 'event';
+    public $table = 'groupe_event';
     
 
     protected $dates = ['deleted_at'];
@@ -32,15 +33,14 @@ class Event extends Model
 
 
     public $fillable = [
+        'key',
         'imei',
         'chauffeur',
         'vehicule',
         'type',
-        'description',
         'latitude',
         'longitude',
-        'duree',
-        'date'
+        'duree'
     ];
 
     /**
@@ -50,11 +50,12 @@ class Event extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'key' => 'string',
         'imei' => 'string',
         'chauffeur' => 'string',
         'vehicule' => 'string',
         'type' => 'string',
-        'date' => 'datetime'
+        'duree' => 'integer'
     ];
 
     /**
@@ -65,5 +66,6 @@ class Event extends Model
     public static $rules = [
         
     ];
+
     
 }
