@@ -169,11 +169,11 @@
             color: #ffffff; /* Couleur de texte */
         }
         .point-row {
-            background-color: #2bc3d3; /* Couleur de fond différente */
+            background-color: #808080; /* Couleur de fond différente */
             color: #000000; /* Couleur de texte */
         }
         .distance-row {
-            background-color: #2b9ed3;  /* Couleur de fond différente */
+            background-color: #808080;  /* Couleur de fond différente */
             color: #000000; /* Couleur de texte */
         }
     </style>
