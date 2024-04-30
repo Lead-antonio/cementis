@@ -47,9 +47,9 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'date_debut' => $date_debut->subHours(2),
             'date_fin' => $date_fin ? $date_fin->subHours(2) : null,
             'delais_route' => floatval($row['delais_de_route']),
-            'sigdep_reel' => $row['site_de_depart'],
-            // 'marche' => $row['marche'],
-            'adresse_livraison' => $row['marcheadresse_de_livraison'],
+            'sigdep_reel' => $row['sigdep_reel'],
+            'marche' => $row['marche'],
+            'adresse_livraison' => $row['adresse_de_livraison'],
             'import_calendar_id' => $this->import_calendar_id
             // 'imei' => $imei
         ]);

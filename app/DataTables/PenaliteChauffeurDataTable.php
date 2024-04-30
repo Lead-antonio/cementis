@@ -73,7 +73,16 @@ class PenaliteChauffeurDataTable extends DataTable
                     return full.related_calendar.name_importation;
                 }',
             ]),
-            'id_chauffeur' => new Column(['title' => __('models/penaliteChauffeurs.fields.chauffeur'), 'data' => 'related_driver.nom', 'searchable' => true,]),
+            'id_chauffeur' => new Column([
+                'title' => __('models/penaliteChauffeurs.fields.chauffeur'), 'data' => 'full.id_chauffeur', 'searchable' => true,
+                'render' =>'function() {
+                    if(full.id_chauffeur){
+                        return full.related_driver.nom;
+                    }else{
+                        return "Aucun chauffeur";
+                    }
+                }',
+                ]),
             'matricule' => new Column(['title' => __('models/penaliteChauffeurs.fields.matricule'), 'data' => 'related_calendar.camion']),
             'id_event' => new Column(['title' => __('models/penaliteChauffeurs.fields.event'), 'data' => 'related_event.type']),
             'distance' => new Column([

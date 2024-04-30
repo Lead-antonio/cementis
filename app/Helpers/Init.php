@@ -701,7 +701,7 @@ if (!function_exists('RapportPenaliteChauffeurMonthly')){
                     ])->first();
 
                     // Enregistrer dans la table Penalité chauffeur
-                    if(!$existingPenalty &&  strpos($event->vehicule, $importRow->camion) !== false) {
+                    if(!$existingPenalty &&  strpos($event->vehicule, $importRow->camion) !== false && $event->chauffeur) {
                         insertPenaliteDrive($event, $importRow, $penalite);
                     }  
                 }
