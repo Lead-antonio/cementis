@@ -52,5 +52,10 @@ class Transporteur extends Model
         'nom' => 'required',
     ];
 
+    public function chauffeurs()
+    {
+        return $this->hasMany(Chauffeur::class);
+    }
+
     
 }

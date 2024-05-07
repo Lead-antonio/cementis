@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\EventDataTable;
+use App\Exports\ScoringExport;
 use App\Http\Requests;
 use App\Http\Requests\CreateEventRequest;
 use App\Http\Requests\UpdateEventRequest;
@@ -17,6 +18,7 @@ use App\Models\ImportExcel;
 use Dompdf\Dompdf;
 use App\Models\Chauffeur;
 use GuzzleHttp\Client;
+use Maatwebsite\Excel\Facades\Excel;
 use Response;
 
 class EventController extends AppBaseController
@@ -70,6 +72,22 @@ class EventController extends AppBaseController
         $pdf->render();
         return $pdf->stream('tableau_scoring.pdf');
     }
+
+
+    public function exportScoring()
+    {
+        try {
+            //code...
+            
+            $scoring = tabScoringCard();
+            return Excel::download(new ScoringExport($scoring ), 'scoring.xlsx');
+        } catch (\Throwable $th) {
+
+            dd($th->getMessage());
+            //throw $th;
+        }
+    }
+
 
     /**
      * Show the form for creating a new Event.
