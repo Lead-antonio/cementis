@@ -11,6 +11,8 @@ return array (
     'vehicule' => 'Véhicule',
     'type' => 'Type',
     'description' => 'Description',
+    'vitesse' => 'Vitesse',
+    'odometer' => 'odometer',
     'duree' => 'Durée',
     'gps' => 'Coordonnés gps',
     'date' => 'Date',

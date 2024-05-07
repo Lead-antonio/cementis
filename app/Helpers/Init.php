@@ -9,6 +9,7 @@ use App\Models\Chauffeur;
 use App\Models\Penalite;
 use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
+use App\Models\Infraction;
 
 
 if (!function_exists('fast_trans')) {
@@ -75,13 +76,15 @@ if (!function_exists('tabScoringCard')) {
                 DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
             )
             ->groupBy('t.nom','ch.nom', 'e.duree', 'e.latitude', 'e.longitude', 'pc.date', 'e.type', 'p.point_penalite', 'pc.distance')
-            ->orderBy('t.nom')
+            // ->orderByDesc('pc.date')
+            
             ->orderBy('ch.nom')
-            ->orderBy('e.duree')
-            ->orderBy('e.latitude')
-            ->orderBy('e.longitude')
+            ->orderBy('t.nom')
+            ->orderBy('e.date')
+            // ->orderBy('e.duree')
+            // ->orderBy('e.latitude')
+            // ->orderBy('e.longitude')
             // ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
-            ->orderByDesc('pc.date')
             ->get();
 
             // DB::raw("DATE_FORMAT(pc.date, '%Y-%m')")
@@ -302,7 +305,6 @@ if (!function_exists('getImeiOfCalendarTruck')) {
 }
 
 if (!function_exists('getUserVehicule')) {
-
     function getUserVehicule(){
         // Formatage des dates au format YYYYMMDD
 
@@ -331,10 +333,6 @@ if (!function_exists('insertPenaliteDrive')) {
                 'duree' => $event->duree,
                 'date' => $event->date,
             ]);
-
-            // , [
-            //     'distance' => $distance,
-            // ]);
     }
 }
 
@@ -377,12 +375,7 @@ if(!function_exists('ApiToFileJson')){
     }
 
 }
-// $file_path = public_path('Data/Api.json');
-// // Lire le contenu du fichier JSON
-// // $jsonData = Storage::get($file_path);
-// $jsonData = file_get_contents($file_path);
-// // Décoder le JSON en tant que tableau PHP
-// $data = json_decode($jsonData, true);
+
 
 if (!function_exists('getDistanceWithImeiAndPeriod')) {
 
@@ -414,18 +407,6 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
     }
 }
 
-// foreach ($data["route"] as $record) {
-        //     // Vérifiez si la clé "odo" est présente dans le sous-tableau et si le RFID correspond
-        //     if (isset($record[6]['odo']) && isset($record[6]['rfid']) && $record[6]['rfid'] === $rfid_chauffeur) {
-        //         $odo = (float) $record[6]['odo']; // Convertir en flottant pour manipulation
-        //         // Si c'est le premier enregistrement trouvé, définissez $firstOdo
-        //         if ($firstOdo === null) {
-        //             $firstOdo = $odo;
-        //         }
-        //         // Toujours mettre à jour $lastOdo pour obtenir le dernier enregistrement trouvé
-        //         $lastOdo = $odo;
-        //     }
-        // }  
 
 if (!function_exists('updateLatAndLongExistingEvent')) {
     function updateLatAndLongExistingEvent($event){
@@ -448,6 +429,29 @@ if (!function_exists('updateLatAndLongExistingEvent')) {
             ->update([
                 'latitude' => $latitude,
                 'longitude' => $longitude
+            ]);
+    }
+}
+
+
+if (!function_exists('updateOdometer')) {
+    function updateOdometer($event){
+        $formattedDate = $event->date->format('YmdHis');
+        
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_EVENTS,{$event->imei},{$formattedDate},{$formattedDate}";
+        $response = Http::timeout(600)->get($url);
+        $data = $response->json();
+        $odo = (float) $data[0][10]['odo'];
+        
+
+        
+        // Mettre à jour les enregistrements correspondants dans la base de données
+        DB::table('event')
+            ->where('imei', $event->imei)
+            ->where('date', $event->date)
+            ->whereNull('odometer')
+            ->update([
+                'odometer' => $odo
             ]);
     }
 }
@@ -524,6 +528,7 @@ if(!function_exists('processEvents')) {
                 $imei = $group['events'][0][2];
                 $chauffeur = $group['events'][0][10]['rfid'];
                 $vehicule = $group['events'][0][3];
+                $odo = $group['events'][0][10]['odo'];
                 $latitude = $group['events'][0][5];
                 $longitude = $group['events'][0][6];
                 $description = $group['events'][0][1];
@@ -537,6 +542,7 @@ if(!function_exists('processEvents')) {
                     'vehicule' => $vehicule,
                     'type' => $type,
                     'date' => $group['events'][0][4], // Utiliser la date du premier événement
+                    'odometer' => $odo,
                     'latitude' => $latitude,
                     'longitude' => $longitude,
                     'duree' => $duration,
@@ -549,6 +555,7 @@ if(!function_exists('processEvents')) {
                     'chauffeur' => $group['events'][0][10]['rfid'],
                     'vehicule' => $group['events'][0][3],
                     'type' => $group['events'][0][1],
+                    'odometer' => $group['events'][0][10]['odo'],
                     'date' => $group['events'][0][4],
                     'latitude' => $group['events'][0][5],
                     'longitude' => $group['events'][0][6],
@@ -587,57 +594,66 @@ if (!function_exists('getEventFromApi')) {
                 $filteredData[] = $event;
             }
         }
-        $eventsInsert = processEvents($filteredData, $allowedTypes);
-        if (!empty($eventsInsert)) {
-            foreach ($eventsInsert as $item) {
+        // $eventsInsert = processEvents($filteredData, $allowedTypes);
+        if (!empty($filteredData)) {
+            foreach ($filteredData as $item) {
                 // Vérifiez si une entrée identique existe déjà dans la table Rotation
-                // $existingEvent = Event::where('imei', trim($item[2]))
-                // ->where('date', $item['4'])
-                // ->first();
-
-                // // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
-                // if (!$existingEvent) {
-                
-                //     if(isset($item[10]['rfid']) && $item[10]['rfid'] != "0000000000"){
-                //         Event::create([
-                //             'imei' => $item[2],
-                //             'chauffeur' => $item[10]['rfid'],
-                //             'vehicule' => $item[3],
-                //             'type' => trim($item[1]),
-                //             'date' => $item[4],
-                //             'latitude' => $item[5],
-                //             'longitude' => $item[6],
-                //             'duree' => $allowedTypes[$item[1]],
-                //             'description' => trim($item[1]),
-                //         ]);
-                //     }
-                // }
-                $existingEvent = Event::where('imei', trim($item['imei']))
-                ->where('date', $item['date'])
+                $existingEvent = Event::where('imei', trim($item[2]))
+                ->where('date', $item['4'])
                 ->first();
 
                 // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
                 if (!$existingEvent) {
                 
-                    if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
+                    if(isset($item[10]['rfid']) && $item[10]['rfid'] != "0000000000"){
                         Event::create([
-                            'imei' => $item['imei'],
-                            'chauffeur' => $item['chauffeur'],
-                            'vehicule' => $item['vehicule'],
-                            'type' => trim($item['type']),
-                            'date' => $item['date'],
-                            'latitude' => $item['latitude'],
-                            'longitude' => $item['longitude'],
-                            'duree' => $allowedTypes[$item['type']],
-                            'description' => trim($item['description']),
+                            'imei' => $item[2],
+                            'chauffeur' => $item[10]['rfid'],
+                            'vehicule' => $item[3],
+                            'type' => trim($item[1]),
+                            'date' => $item[4],
+                            'odometer' => $item[10]['odo'],
+                            'vitesse' => $item[9],
+                            'latitude' => $item[5],
+                            'longitude' => $item[6],
+                            'duree' => $allowedTypes[$item[1]],
+                            'description' => trim($item[1]),
                         ]);
                     }
-                } else {
+                }
+                else {
                     Event::where('id', $existingEvent->id)
                     ->update([
                         'duree' => $allowedTypes[$existingEvent->type],
                     ]);
                 }
+                // $existingEvent = Event::where('imei', trim($item['imei']))
+                // ->where('date', $item['date'])
+                // ->first();
+
+                // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
+                // if (!$existingEvent) {
+                
+                //     if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
+                //         Event::create([
+                //             'imei' => $item['imei'],
+                //             'chauffeur' => $item['chauffeur'],
+                //             'vehicule' => $item['vehicule'],
+                //             'type' => trim($item['type']),
+                //             'date' => $item['date'],
+                //             'odometer' => $item['odometer'],
+                //             'latitude' => $item['latitude'],
+                //             'longitude' => $item['longitude'],
+                //             'duree' => $allowedTypes[$item['type']],
+                //             'description' => trim($item['description']),
+                //         ]);
+                //     }
+                // } else {
+                //     Event::where('id', $existingEvent->id)
+                //     ->update([
+                //         'duree' => $allowedTypes[$existingEvent->type],
+                //     ]);
+                // }
             }
         }
     }    
@@ -679,12 +695,12 @@ if (!function_exists('RapportPenaliteChauffeurMonthly')){
                 $eventsDuringDelivery = $events->filter(function ($event) use ($dateDebut, $dateFin, $importRow) {
                     $eventDate = Carbon::parse($event->date);
                     // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
-                    $isEventInDeliveryPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
+                    $isInfractionInCalendarPeriod = ($dateFin === null) ? $eventDate->eq($dateDebut) : $eventDate->between($dateDebut, $dateFin);
                     
                     // Vérifier si l'IMEI et le camion correspondent à ceux de la ligne d'importation
                     $isMatchingCamion =  strpos($event->vehicule, $importRow->camion) !== false;
                     // Retourner vrai si l'événement est dans la période de livraison et correspond aux IMEI et camion
-                    return $isEventInDeliveryPeriod && $isMatchingCamion;
+                    return $isInfractionInCalendarPeriod && $isMatchingCamion;
                 });
         
                 foreach ($eventsDuringDelivery as $event){
@@ -705,6 +721,65 @@ if (!function_exists('RapportPenaliteChauffeurMonthly')){
                         insertPenaliteDrive($event, $importRow, $penalite);
                     }  
                 }
+        }
+    }
+}
+
+if(!function_exists('checkCalendar')){
+    function checkCalendar(){
+        // $calendars = ImportExcel::where(function ($query) {
+        //     $query->whereBetween('date_debut', [now()->startOfMonth(), now()->endOfMonth()])
+        //           ->whereNull('date_fin');
+        // })
+        // ->orWhere(function ($query) {
+        //     $query->whereBetween('date_debut', [now()->startOfMonth(), now()->endOfMonth()])
+        //           ->whereNotNull('date_fin')
+        //           ->whereBetween('date_fin', [now()->startOfMonth(), now()->endOfMonth()]);
+        // })
+        // ->get();
+        $calendars = ImportExcel::all();
+        $infractions = Infraction::whereMonth('date_debut', 4)->whereMonth('date_fin', 4)->get();
+
+        $calendarsInInfractions = [];
+
+        foreach ($calendars as $calendar) {
+            $dateDebut = Carbon::parse($calendar->date_debut);
+            $dateFin = $calendar->date_fin ? Carbon::parse($calendar->date_fin) : null;
+
+            if ($dateFin === null) {
+                // Convertir la durée en heures
+                $dureeEnHeures = floatval($calendar->delais_route);
+                // Calculer la date de fin en fonction de la durée
+                if ($dureeEnHeures <= 1) {
+                    // Durée inférieure à une journée
+                    $dateFin = $dateDebut->copy()->endOfDay();
+                } else {
+                    $dureeEnJours = ceil($dureeEnHeures / 24);
+                    // Durée d'une journée ou plus
+                    $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
+                }
+            }
+            $infractionsDuringCalendar = $infractions->filter(function ($infraction) use ($dateDebut, $dateFin, $calendar) {
+                $infractionDateDebut = Carbon::parse($infraction->date_debut ." ". $infraction->heure_debut);
+                $infractionDateFin = Carbon::parse($infraction->date_fin ." ". $infraction->heure_fin);
+
+                // Vérifier si l'événement se trouve dans la plage de dates du début et de fin de livraison
+                $isInfractionInCalendarPeriod = ($dateFin === null) ? $infractionDateDebut->eq($dateDebut) : 
+                    ($infractionDateDebut->between($dateDebut, $dateFin) || $infractionDateFin->between($dateDebut, $dateFin));
+                
+                // Vérifier si l'IMEI et le véhicule correspondent à ceux de la ligne d'importation
+                $isMatchingVehicule = strpos($infraction->vehicule, $calendar->camion) !== false;
+            
+                // Retourner vrai si l'événement est dans la période de livraison et correspond au véhicule
+                return $isInfractionInCalendarPeriod && $isMatchingVehicule;
+            });
+
+            // $calendarsInInfractions[] = $infractionsDuringCalendar;
+            foreach ($infractionsDuringCalendar as $infraction) {
+                $infraction->update([
+                    'calendar_id' => $calendar->id,
+                ]);
+            }
         }
     }
 }
@@ -752,8 +827,8 @@ if(!function_exists('checkDistance')){
     }
 }
 
-if(!function_exists('checkTempsReposMinJourTravail')){
-    function checkTempsReposMinJourTravail(){
+if(!function_exists('checkTempsConduiteMinJourTravail')){
+    function checkTempsConduiteMinJourTravail(){
         // Récupérer toutes les pénalités
         $penalites = PenaliteChauffeur::all();
         $limite = 0;
@@ -847,6 +922,192 @@ if(!function_exists('checkTempsReposMinJourTravail')){
             PenaliteChauffeur::insert($dataToInsert);
         }
     
+    }
+}
+
+if(!function_exists('v_infraction')){
+    function v_infraction($imei, $chauffeur, $type){
+        $results = DB::table('event')
+        ->select('imei', 'chauffeur', 'vehicule', 'type', 'odometer', 'latitude', 'longitude', DB::raw("LEFT(date,10) as simple_date"), DB::raw("RIGHT(date,8) as heure"), 'date as date_heure')
+        ->where('imei', '=', $imei)
+        ->where('chauffeur', '=', $chauffeur)
+        ->where('type', '=', $type)
+        ->orderBy('heure', 'ASC')
+        ->get();
+        
+        return $results;
+    }
+}
+
+if (!function_exists('checkInfraction')) {
+    function checkInfraction()
+    {
+        $records = DB::table('event')
+        ->select('imei', 'chauffeur', 'vehicule', 'type', 'odometer','vitesse', 'latitude', 'longitude', DB::raw("LEFT(date,10) as simple_date"), DB::raw("RIGHT(date,8) as heure"), 'date as date_heure')
+        ->orderBy('simple_date', 'ASC')
+        ->orderBy('heure', 'ASC')->get();
+        
+        $results = [];
+        $prevRecord = null;
+        $firstValidRecord = null;
+        $lastValidRecord = null;
+        $maxSpeed = 0;
+
+        foreach ($records as $record) {
+            if(trim($record->type) === "Accélération brusque" || trim($record->type) === "Freinage brusque"){
+                $results[] = [
+                    'imei' => $record->imei,
+                    'chauffeur' => $record->chauffeur,
+                    'vehicule' => $record->vehicule,
+                    'type' => $record->type,
+                    'distance' => 0,
+                    'vitesse' => $record->vitesse,
+                    'odometer' => $record->odometer,
+                    'duree_infraction' => 1, 
+                    'duree_initial' => 1, 
+                    'date_debut' => $record->simple_date,
+                    'date_fin' => $record->simple_date,
+                    'heure_debut' => $record->heure,
+                    'heure_fin' => $record->heure,
+                    'date_heure_debut' => $record->date_heure,
+                    'date_heure_fin' => $record->date_heure,
+                    'gps_debut' => $record->latitude . ',' . $record->longitude,
+                    'gps_fin' => $record->latitude . ',' . $record->longitude,
+                    'point' => 1,
+                    'insuffisance' => 0
+                ];
+            }else{
+            
+                if ($firstValidRecord === null) {
+                    $firstValidRecord = $record;
+                    $maxSpeed = $record->vitesse;
+                }
+
+                // Vérifier s'il y a un enregistrement précédent
+                if ($prevRecord !== null) {
+                    // Comparer les attributs chauffeur, véhicule et date sans tenir compte de l'heure
+                    if ($record->chauffeur === $prevRecord->chauffeur &&
+                        $record->vehicule === $prevRecord->vehicule &&
+                        $record->simple_date === $prevRecord->simple_date && trim($record->type) === trim($prevRecord->type)) {
+                        // Convertir les dates en objets DateTime pour faciliter la comparaison
+                        $prevDate = new DateTime($prevRecord->date_heure);
+                        $currentDate = new DateTime($record->date_heure);
+                        $tolerence = Penalite::where('event','=', $record->type)->first();
+                        // Calculer la différence en secondes
+                        $differenceSeconds = $currentDate->getTimestamp() - $prevDate->getTimestamp();
+
+                        if ($differenceSeconds === $tolerence->param) {
+                            // Si l'intervalle est de 60 secondes, continuer à traiter les enregistrements
+                            // Mettre à jour le dernier enregistrement valide
+                            if ($record->vitesse > $maxSpeed) {
+                                $maxSpeed = $record->vitesse; // Mettre à jour la vitesse maximale si la vitesse actuelle est plus grande
+                            }
+                            $lastValidRecord = $record;
+                        } else {
+                            // Si l'intervalle n'est pas de 60 secondes, réinitialiser les enregistrements valides
+                            if ($firstValidRecord !== null && $lastValidRecord !== null) {
+                                $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+                            }
+                            $firstValidRecord = $record;
+                            $lastValidRecord = null;
+                            $maxSpeed = $record->vitesse; 
+                        }
+                    } else {
+                        // Si les attributs chauffeur, véhicule ou date sont différents, réinitialiser les enregistrements valides
+                        if ($firstValidRecord !== null && $lastValidRecord !== null) {
+                            $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+                        }
+                        $firstValidRecord = $record;
+                        $lastValidRecord = null;
+                        $maxSpeed = $record->vitesse;
+                    }
+                }
+                // Mettre à jour l'enregistrement précédent
+                $prevRecord = $record;
+            }
+        }
+        // Ajouter le dernier groupe d'infractions
+        if ($firstValidRecord !== null && $lastValidRecord !== null) {
+            $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+        }
+
+        return $results;
+    }
+}
+
+if(!function_exists('saveInfraction')){
+    function saveInfraction(){
+        $infractions = checkInfraction();
+        // dd($infractions);
+        foreach($infractions as $item){
+            $existingInfraction = Infraction::where('imei', $item['imei'])
+                    ->where('rfid', $item['chauffeur'])
+                    ->where('event', $item['type'])
+                    ->where('date_debut', $item['date_debut'])
+                    ->where('date_fin', $item['date_fin'])
+                    ->where('heure_debut', $item['heure_debut'])
+                    ->where('heure_fin', $item['heure_fin'])
+                    ->first();
+    
+            if (!$existingInfraction) {
+            
+                if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
+                    Infraction::create([
+                        'imei' => $item['imei'],
+                        'rfid' => $item['chauffeur'],
+                        'vehicule' => $item['vehicule'],
+                        'event' => trim($item['type']),
+                        'distance' => $item['distance'],
+                        'odometer' => $item['odometer'],
+                        'duree_infraction' => $item['duree_infraction'],
+                        'duree_initial' => $item['duree_initial'],
+                        'vitesse' => $item['vitesse'],
+                        'date_debut' => $item['date_debut'],
+                        'date_fin' => $item['date_fin'],
+                        'heure_debut' => $item['heure_debut'],
+                        'heure_fin' => $item['heure_fin'],
+                        'gps_debut' => $item['gps_debut'],
+                        'gps_fin' => $item['gps_fin'],
+                        'point' => $item['point'],
+                        'insuffisance' => $item['insuffisance']
+                    ]);
+                }
+            }
+        }
+    }
+}
+
+
+if(!function_exists('groupedInfraction')){
+    function groupedInfraction($firstRecord, $lastRecord, $maxvitesse){
+        $firstDate = new DateTime($firstRecord->date_heure);
+        $lastDate = new DateTime($lastRecord->date_heure);
+        $differenceSeconds = $lastDate->getTimestamp() - $firstDate->getTimestamp();
+        $distance = $lastRecord->odometer - $firstRecord->odometer;
+        $tolerence = Penalite::where('event','=',$firstRecord->type)->first();
+        
+
+        return [
+            'imei' => $firstRecord->imei,
+            'chauffeur' => $firstRecord->chauffeur,
+            'vehicule' => $firstRecord->vehicule,
+            'type' => $firstRecord->type,
+            'distance' => $distance,
+            'odometer' => $lastRecord->odometer,
+            'vitesse' => $maxvitesse,
+            'duree_infraction' => ($differenceSeconds + $tolerence->default_value), 
+            'duree_initial' => $tolerence->default_value, 
+            'date_debut' => $firstRecord->simple_date,
+            'date_fin' => $lastRecord->simple_date,
+            'heure_debut' => $firstRecord->heure,
+            'heure_fin' => $lastRecord->heure,
+            'date_heure_debut' => $firstRecord->date_heure,
+            'date_heure_fin' => $lastRecord->date_heure,
+            'gps_debut' => $firstRecord->latitude . ',' . $firstRecord->longitude,
+            'gps_fin' => $lastRecord->latitude . ',' . $lastRecord->longitude,
+            'point' => (($differenceSeconds + $tolerence->default_value) * $tolerence->point_penalite) / $tolerence->default_value,
+            'insuffisance' => 0
+        ];
     }
 }
 
