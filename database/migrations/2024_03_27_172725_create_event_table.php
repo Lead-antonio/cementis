@@ -20,6 +20,10 @@ class CreateEventTable extends Migration
             $table->string('chauffeur')->nullable();
             $table->string('vehicule')->nullable();
             $table->string('type')->nullable();
+            $table->integer('vitesse')->default(0);
+            $table->decimal('latitude', 10, 2)->default(null);
+            $table->decimal('longitude', 10, 2)->default(null);
+            $table->decimal('odometer', 10, 2)->default(null);
             $table->longText('description')->nullable();
             $table->dateTime('date')->nullable();
             $table->timestamps();

@@ -93,3 +93,6 @@ Route::resource('transporteurs', App\Http\Controllers\TransporteurController::cl
 
 
 Route::resource('groupeEvents', App\Http\Controllers\GroupeEventController::class);
+
+
+Route::resource('infractions', App\Http\Controllers\InfractionController::class);

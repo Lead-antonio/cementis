@@ -74,11 +74,25 @@
                         @foreach ($scoring as $result)
                             @if ($currentDriver !== $result->driver)
                                 @if ($currentDriver !== null)
+                                @php
+                                    // Calcul de la classe en fonction de la valeur de la scoring card
+                                    $scoringClass = '';
+                                    $scoring = ($totalPenalty / $totalDistance) * 100;
+                                    if ($scoring >= 0 && $scoring <= 2) {
+                                        $scoringClass = 'scoring-green';
+                                    } elseif ($scoring > 2 && $scoring <= 5) {
+                                        $scoringClass = 'scoring-yellow';
+                                    } elseif ($scoring > 5 && $scoring <= 10) {
+                                        $scoringClass = 'scoring-orange';
+                                    } else {
+                                        $scoringClass = 'scoring-red';
+                                    }
+                                @endphp
                                     <tr class="total-row">
                                         <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
-                                        <td class="point-row">{{ $totalPenalty }}</td>
-                                        <td class="distance-row">{{ $totalDistance. " Km" }}</td>
-                                        <td class="scoring-row">{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}</td>
+                                        <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
+                                        <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td>
+                                        <td class="{{ $scoringClass }}" style="text-align: center;">{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}</td>
                                     </tr>
                                 @endif
                                 @php
@@ -90,7 +104,7 @@
                                     $uniqueDistances = [];
                                 @endphp
                             @endif
-                            <tr>
+                            <tr class="driver-row">
                                 <td style="text-align: center">{{ $result->driver }}</td>
                                 <td style="text-align: center">{{$result->transporteur_nom}}</td>
                                 <td style="text-align: center">{{ trim($result->event) }}</td>
@@ -118,7 +132,7 @@
                                 <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
                                 <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
                                 <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
-                                <td class="scoring-row" style="text-align: center">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
+                                <td class="{{ $scoringClass }}" style="text-align: center">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
                             </tr>
                         @endif
                     </tbody>
@@ -138,20 +152,53 @@
 
 
     <style>
-        .scoring-row {
-            background-color: #2b9ed3; /* Couleur de fond différente */
+        /* .scoring-row {
+            background-color: #6dac10; 
+            color: #000000;
+        } */
+        .scoring-green {
+            background-color: #6dac10; /* Vert */
             color: #000000; /* Couleur de texte */
         }
+        .scoring-yellow {
+            background-color: #f7d117; /* Jaune */
+            color: #000000; /* Couleur de texte */
+        }
+        .scoring-orange {
+            background-color: #f58720; /* Orange */
+            color: #000000; /* Couleur de texte */
+        }
+        .scoring-red {
+            background-color: #f44336; /* Rouge */
+            color: #ffffff; /* Couleur de texte */
+        }
         .point-row {
-            background-color: #b4d32b; /* Couleur de fond différente */
+            background-color: #808080; /* Couleur de fond différente */
             color: #000000; /* Couleur de texte */
         }
         .distance-row {
-            background-color: #d38a2b; /* Couleur de fond différente */
+            background-color: #808080;  /* Couleur de fond différente */
             color: #000000; /* Couleur de texte */
         }
     </style>
     <script>
+
+        $(document).ready(function() {
+            $(".driver-row").each(function() {
+                $(this).click(function() {
+                    // Basculer l'affichage des détails du chauffeur
+                    $(this).next(".driver-details").slideToggle();
+                    
+                    // Basculer l'icône entre "+" et "-"
+                    var icon = $(this).find(".expand-icon");
+                    if (icon.hasClass("fa-plus-circle")) {
+                        icon.removeClass("fa-plus-circle").addClass("fa-minus-circle");
+                    } else {
+                        icon.removeClass("fa-minus-circle").addClass("fa-plus-circle");
+                    }
+                });
+            });
+        });
 
         let map;
 
