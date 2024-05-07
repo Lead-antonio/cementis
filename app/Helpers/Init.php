@@ -9,8 +9,8 @@ use App\Models\Chauffeur;
 use App\Models\Penalite;
 use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
+use App\Models\Transporteur;
 use App\Models\Infraction;
-
 
 if (!function_exists('fast_trans')) {
 
@@ -160,6 +160,75 @@ if (!function_exists('topDriver')) {
         return $topChauffeur;
     }
 
+}
+
+if(!function_exists('TotalScoringbyDriver')){
+    
+    function TotalScoringbyDriver()
+    {
+        $results = DB::table('penalite_chauffeur as pc')
+        ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+        ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.nom as driver',
+            't.nom as transporteur_nom',
+            DB::raw('SUM(p.point_penalite) as total_penalty_point'),
+            DB::raw('SUM(DISTINCT pc.distance) as total_distance'), // Totalité de la distance
+            DB::raw('ROUND((SUM(p.point_penalite) * 100) / SUM(DISTINCT pc.distance), 2) as score_card')// Utilisation de SUM(DISTINCT) pour obtenir la somme des distances uniques
+        )
+        ->groupBy('ch.nom', 't.nom') // Grouper par chauffeur et transporteur
+        ->orderBy('t.nom')
+        ->orderBy('ch.nom')
+        ->get();
+
+        return $results;
+
+    }
+
+}
+
+
+
+if(!function_exists('topAndWorstChauffeur')){
+    
+    function topAndWorstChauffeur()
+    {
+
+        $results = TotalScoringbyDriver();
+
+        // $results = tabScoringCard(); // Appel de votre fonction pour obtenir les résultats de la requête
+
+        $topAndWorstDrivers = [];
+
+
+        // Groupement des résultats par transporteur
+        $resultsByTransporteur = $results->groupBy('transporteur_nom');
+
+        // Pour chaque transporteur
+        foreach ($resultsByTransporteur as $transporteur => $resultats) {
+            // Trier les résultats par score_card (du plus petit au plus grand)
+            $sortedResults = $resultats->sortBy('score_card');
+
+            // Obtenir les 3 meilleurs chauffeurs
+            $topChauffeurs = $sortedResults->take(3);
+
+            // Obtenir les 3 pires chauffeurs
+            $worstChauffeurs = $sortedResults->reverse()->take(3);
+
+            // Collecter les résultats dans un tableau
+            $topAndWorstDrivers[] = [
+                'transporteur' => $transporteur,
+                'top_chauffeurs' => $topChauffeurs,
+                'worst_chauffeurs' => $worstChauffeurs,
+            ];
+        }
+
+        return $topAndWorstDrivers;
+    }
+
+   
+  
 }
 
 if (!function_exists('driverChart')) {

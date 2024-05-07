@@ -38,9 +38,6 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             $date_fin = Carbon::createFromTimestamp($unix_timestamp_datefin);
         }
 
-        
-        
-
         return new ImportExcel([
             'name_importation' => $this->name_file_excel,
             'camion' => $row['camion'],

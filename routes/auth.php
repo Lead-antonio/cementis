@@ -79,6 +79,8 @@ Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')
 
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
+Route::get('/event/exportscoring', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
+
 
 Route::get('/events/table/scoring', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
 

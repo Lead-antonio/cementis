@@ -55,6 +55,13 @@ class Chauffeur extends Model
         return $this->belongsTo(Transporteur::class);
     }
 
+    public function penalties()
+    {
+        return $this->hasMany(PenaliteChauffeur::class,'id_chauffeur');
+    }
+
+
+
     /**
      * Validation rules
      *

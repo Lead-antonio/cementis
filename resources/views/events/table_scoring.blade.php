@@ -41,7 +41,11 @@
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
                     </button>
+                    
                     <button onclick="exportToPDF()" class="btn btn-outline-secondary">Exporter en PDF</button>
+
+                    <a class="btn btn-success" href="{{ route('event.exportscoring') }}"> Exporter en Excel</a>
+
                 </div>
             </div>
             <div class="card-body p-0">
