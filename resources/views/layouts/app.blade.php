@@ -121,6 +121,33 @@
             animation: spin 1.2s linear infinite; /* Utilisez l'animation 'spin' pour faire tourner le loader */
         }
 
+
+        .card-list{
+            padding:8px
+        }
+
+        .number-circle {
+            width: 30px;
+            height: 30px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .rounded-card{
+            border-radius: 36px !important;
+        }
+        
+        .title-scoring{
+            padding-left: 12px;
+            padding-bottom: 12px;
+        }
+
     </style>
     @stack('page_css')
 

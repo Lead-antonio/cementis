@@ -63,7 +63,6 @@
             <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-success elevation-1">
-                        {{-- <i class="fas fa-shield-alt"></i> --}}
                         <i class="fas fa-star"></i>
                     </span>
 
@@ -107,24 +106,102 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        {{-- <h1 class="card-title ">@lang('common.scoring') </h1> --}}
-                        <h1 class="card-title ">Transporteur </h1>
+                        <h1 class="card-title" style="padding-left: 31px;">Meilleur Scoring </h1>
 
-                        <div class="card-tools">
+                        {{-- <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <button type="button" class="btn btn-tool" data-card-widget="remove">
                                 <i class="fas fa-times"></i>
                             </button>
+                        </div> --}}
+                    </div>
+
+                    <div class="card-body">
+                        <div class="card-body">
+                            {{-- <h3 class="title-scoring">Meilleur Scoring</h3> --}}
+                            @foreach ($best_scoring as $key => $item)
+                                <div class="card rounded-card">
+                                    <div class="card-body card-list ">
+                                        <div class="number-circle">{{ $key + 1 }}</div>
+                                        <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+
+                    {{-- <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover m-b-0 without-header" id="ticketsTable">
+                                <tbody>
+                                    @if($dashboardInfo['scoring']->isNotEmpty() && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                        @foreach ($dashboardInfo['scoring'] as $key => $item)
+                                            <tr> 
+                                                <td>
+                                                    <div class="d-inline-block align-middle">
+                                                        <img src="{{ asset('images/avatardash.png') }}" alt="user image" class="img-radius img-40 align-top m-r-15" width="10%">
+                                                        <div class="d-inline-block" style="margin-top: 10px;margin-left: 16px;">
+                                                            <h6>
+                                                                {{$item->nom}} 
+                                                                @if($key === 0)
+                                                                    <span class="text-warning">&#9733;</span>
+                                                                @endif
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-right">
+                                                    <h6 class="f-w-700">
+                                                        {{number_format($item->scoring_card, 2)}}
+                                                    </h6>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr> 
+                                            <td class="text-center" colspan="2">
+                                                Aucun élément trouvé
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> --}}
+                </div>
+                <!-- /.card -->
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        {{-- <h1 class="card-title ">@lang('common.scoring') </h1> --}}
+                        <h1 class="card-title" style="padding-left: 31px;">Moins Bon Scoring </h1>
+
+                        <div class="card-tools">
+                            {{-- <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button> --}}
                         </div>
                     </div>
 
                     <div class="card-body">
                         <div class="card-body">
-                            <div id="jstree">
-
-                            </div>
+                            {{-- <h3 class="title-scoring">Moins Bon Scoring</h3> --}}
+                            @foreach ($bad_scoring as $key => $item)
+                                <div class="card rounded-card">
+                                    <div class="card-body card-list ">
+                                        <div class="number-circle">{{ $key + 1 }}</div>
+                                        <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -173,10 +250,11 @@
             </div>
 
 
-            <div class="col-md-6">
+
+            {{-- <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">@lang('common.number_driver_stat')  </h5>
+                        <h5 class="card-title">Meilleur Transporteur   </h5>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -187,56 +265,44 @@
                             </button>
                         </div>
                     </div>
-        
-
-                    {{-- <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover m-b-0 without-header" id="ticketsTable">
-                                <tbody>
-                                    @if($dashboardInfo['topDriver']->isNotEmpty())
-                                        @foreach ($dashboardInfo['topDriver'] as $key => $item)
-                                            <tr> 
-                                                <td>
-                                                    <div class="d-inline-block align-middle">
-                                                        <img src="{{ asset('images/avatardash.png') }}" alt="user image" class="img-radius img-40 align-top m-r-15" width="10%">
-                                                        <div class="d-inline-block" style="margin-top: 10px;margin-left: 16px;">
-                                                            <h6>
-                                                                {{$item->nom}} 
-                                                                @if($key === 0)
-                                                                    <span class="text-warning">&#9733;</span>
-                                                                @endif
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-right">
-                                                    <h6 class="f-w-700">
-                                                        {{$item->total_penalite}}
-                                                    </h6>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr> 
-                                            <td class="text-center" colspan="2">
-                                                Aucun élément trouvé
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
 
                     <div class="card-body">
-                        <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="fill-icon">
+                                            <i class="fas fa-trophy fa-lg" style="color: green"></i>
+                                        </div>
+                                        <h6 class="mb-0">Meilleur Scoring </h6>
+                                       
+                                    </div>
+                                    <div class="card-body" style="text-align: center;">
+                                        <p>Transporteur</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="fill-icon">
+                                            <i class="fas fa-exclamation-triangle" style="color: red"></i>
+                                        </div>
+                                        <h6 class="mb-0">Moins Bon Scoring</h6>
+                                    </div>
+
+                                    <div class="card-body" style="text-align: center;">
+                                        <p>Transporteur</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas> --}}
                     </div>
-                    
                 </div>
-                <!-- /.card -->
             </div>
-            <!-- /.col -->
-        </div>
+        </div> --}}
 
         {{-- <div class="row">
 

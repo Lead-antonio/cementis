@@ -80,9 +80,10 @@ class EventController extends AppBaseController
     public function exportScoring()
     {
         try {
-            //code...
             
-            $scoring = tabScoringCard();
+            // $scoring = tabScoringCard();
+            $scoring = tabScoringCard_new();
+
             return Excel::download(new ScoringExport($scoring ), 'scoring.xlsx');
         } catch (\Throwable $th) {
 

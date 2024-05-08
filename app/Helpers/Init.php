@@ -47,13 +47,11 @@ if (!function_exists('totalScoringCard')) {
 
         return $result;
     }
-
 }
 
 
 
 if (!function_exists('tabScoringCard')) {
-
     function tabScoringCard()
     {
         // $results = DB::table('penalite_chauffeur as pc')
@@ -117,6 +115,39 @@ if (!function_exists('tabScoringCard')) {
 }
 
 
+if (!function_exists('tabScoringCard_new')) {
+    function tabScoringCard_new()
+    {
+        $results = DB::table('infraction as i')
+        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.nom as driver',
+            't.nom as transporteur_nom',
+            'i.duree_infraction as duree',
+            DB::raw("CONCAT(i.date_debut, ' ', i.heure_debut) as date_event"),
+            'i.gps_debut as latitude',
+            'i.gps_fin as longitude',
+            'i.heure_fin',
+            'i.event as infraction',
+            'i.distance',
+            'i.point as penalty_point',
+            DB::raw("(i.point * 100) / i.distance as score_card")
+            )
+        ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance')
+        ->orderBy('ch.nom')
+        ->orderBy('t.nom')
+        ->get();
+
+            // DB::raw("DATE_FORMAT(pc.date, '%Y-%m')")
+        
+        return $results;
+    }
+
+}
+
+
 if (!function_exists('driverTop')){
     function driverTop()
     {
@@ -168,8 +199,8 @@ if (!function_exists('scoringCard')) {
 
 }
 
-if (!function_exists('topDriver')) {
 
+if (!function_exists('topDriver')) {
     function topDriver()
     {
         $topChauffeur = PenaliteChauffeur::select('chauffeur.nom', 'penalite_chauffeur.id_chauffeur', DB::raw('SUM(penalite.point_penalite) as total_penalite'))
@@ -199,7 +230,7 @@ if(!function_exists('TotalScoringbyDriver')){
             DB::raw('SUM(DISTINCT pc.distance) as total_distance'), // Totalité de la distance
             DB::raw('ROUND((SUM(p.point_penalite) * 100) / SUM(DISTINCT pc.distance), 2) as score_card')// Utilisation de SUM(DISTINCT) pour obtenir la somme des distances uniques
         )
-        ->groupBy('ch.nom', 't.nom') // Grouper par chauffeur et transporteur
+        ->groupBy('ch.nom', 't.nom')
         ->orderBy('t.nom')
         ->orderBy('ch.nom')
         ->get();
@@ -208,6 +239,69 @@ if(!function_exists('TotalScoringbyDriver')){
 
     }
 
+}
+
+
+if(!function_exists('getAllGoodScoring')){
+    function getAllGoodScoring(){
+
+    // $results = DB::table('infraction as i')
+    //     ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+    //     ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+    //     ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+    //     ->select(
+    //         'ch.nom as driver',
+    //         't.nom as transporteur_nom',
+    //         'i.event as infraction',
+    //         'i.date_debut',
+    //         'i.heure_debut',
+    //         'i.date_fin',
+    //         'i.heure_fin',
+    //         'i.duree_infraction',
+    //         'i.duree_initial',
+    //         'i.odometer',
+    //         'i.distance',
+    //         'i.point'
+    //     )
+    //     ->get();
+
+    $results = DB::table('infraction as i')
+    ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+    ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+    ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+    ->select(
+        'ch.nom as driver',
+        't.nom as transporteur_nom',
+        DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance), 2) as scoring_card')
+    )
+    ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','asc')
+    ->take(10)
+    ->get();
+
+    return $results;
+
+    }
+}
+
+
+if(!function_exists('getAllBadScoring')){
+    function getAllBadScoring(){
+
+        $results = DB::table('infraction as i')
+        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.nom as driver',
+            't.nom as transporteur_nom',
+            DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance), 2) as scoring_card')
+        )
+        ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','DESC')
+        ->take(10)
+        ->get();
+        return $results;
+
+    }
 }
 
 
@@ -369,6 +463,8 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
     } 
 
 }
+
+
 
 //Récuperation des calendriers d'un chauffeur par mois
 if (!function_exists('getCalendarOfDriverMonthly')) {

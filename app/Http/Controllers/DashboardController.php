@@ -32,6 +32,9 @@ class DashboardController extends Controller
     {
         $data = $this->dashboardRepository->GetData();
 
+        $data['best_scoring'] = getAllGoodScoring();
+        $data['bad_scoring'] = getAllBadScoring();
+
        $topworst = topAndWorstChauffeur();
 
         // Structurer les données pour inclure les clés "text" et "children"
@@ -41,12 +44,12 @@ class DashboardController extends Controller
                 'text' => $item['transporteur'],
                 'children' => [
                     [
-                        'text' => 'Top',
+                        'text' => 'Meilleur Scoring',
                         'type' => 'top', // Définissez le type comme "top"
                         'children' => [],
                     ],
                     [
-                        'text' => 'Pire',
+                        'text' => 'Moins Bon Scoring',
                         'type' => 'worst', // Définissez le type comme "worst"
                         'children' => [],
                     ],
