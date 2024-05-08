@@ -41,7 +41,7 @@ class updateEventCommande extends Command
         $events = Event::all();
         foreach($events as $event){
             // updateLatAndLongExistingEvent($event);
-            updateOdometer($event);
+            updateVitesse($event);
         }
     }
 }

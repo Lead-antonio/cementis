@@ -64,6 +64,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        
                         @php
                             $currentDriver = null;
                             $totalPenalty = 0;
@@ -77,7 +78,13 @@
                                 @php
                                     // Calcul de la classe en fonction de la valeur de la scoring card
                                     $scoringClass = '';
-                                    $scoring = ($totalPenalty / $totalDistance) * 100;
+                                    
+                                    if ($totalDistance != 0) {
+                                        $scoring = ($totalPenalty / $totalDistance) * 100;
+                                    }else{
+                                        $scoring = $totalPenalty / 100;
+                                    }
+
                                     if ($scoring >= 0 && $scoring <= 2) {
                                         $scoringClass = 'scoring-green';
                                     } elseif ($scoring > 2 && $scoring <= 5) {
@@ -92,12 +99,19 @@
                                         <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
                                         <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
                                         <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td>
-                                        <td class="{{ $scoringClass }}" style="text-align: center;">{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}</td>
+                                        <td class="{{ $scoringClass }}" style="text-align: center;">
+                                            <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
+                                            @if ($totalDistance != 0)
+                                                {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                            @else
+                                                {{number_format($totalPenalty / 100, 2)}}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endif
                                 @php
                                     $currentDriver = $result->driver;
-                                    $duree = $result->duree;
+                                    $duree = $result->duree_infraction;
                                     $previousDistance = null; 
                                     $totalPenalty = 0;
                                     $totalDistance = 0;
@@ -107,24 +121,23 @@
                             <tr class="driver-row">
                                 <td style="text-align: center">{{ $result->driver }}</td>
                                 <td style="text-align: center">{{$result->transporteur_nom}}</td>
-                                <td style="text-align: center">{{ trim($result->event) }}</td>
-                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_event)->format('d-m-Y H:i:s') }}</td>
+                                <td style="text-align: center">{{ trim($result->infraction) }}</td>
+                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
                                 <td style="text-align: center">
-                                    <a href="#" onclick="showMapModal('{{ $result->latitude }}', '{{ $result->longitude }}', '{{ $result->event }}')">
-                                        {{ $result->latitude }}, {{ $result->longitude }}
+                                    <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->gps_debut }}', '{{ $result->infraction }}')">
+                                        {{ $result->gps_debut }}
                                     </a>
                                 </td>
-                                <td style="text-align: center">{{ $result->duree }} s</td>
-                                <td style="text-align: center">{{ $result->penalty_point }}</td>
+                                <td style="text-align: center">{{ $result->duree_infraction }} s</td>
+                                <td style="text-align: center">{{ $result->point }}</td>
                                 <td style="text-align: center">{{ $result->distance }} Km</td>
                             </tr>
                             @php
-                                $totalPenalty += $result->penalty_point;
+                                $totalPenalty += $result->point;
                                 if (!in_array($result->distance, $uniqueDistances)){
                                     $uniqueDistances[] = $result->distance; 
                                     $totalDistance += $result->distance;
                                 }
-                                
                             @endphp
                         @endforeach
                         @if ($currentDriver !== null)
@@ -132,9 +145,17 @@
                                 <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
                                 <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
                                 <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
-                                <td class="{{ $scoringClass }}" style="text-align: center">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
+                                <td class="{{ $scoringClass }}" style="text-align: center">
+                                    <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
+                                     @if ($totalDistance != 0)
+                                            {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                    @else
+                                            {{number_format($totalPenalty / 100, 2)}}
+                                    @endif
+                                </td>
                             </tr>
                         @endif
+                        
                     </tbody>
                 </table>
                 
@@ -227,6 +248,6 @@
             html2pdf().from(element).save('tableau.pdf');
         }
 
-        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 5, 7], vertical_align:'middle'});
+        $("#tableau-score").rowspanizer({columns: [0, 1, 2], vertical_align:'middle'});
     </script>
 @endsection

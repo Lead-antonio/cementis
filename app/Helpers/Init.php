@@ -56,38 +56,60 @@ if (!function_exists('tabScoringCard')) {
 
     function tabScoringCard()
     {
-        $results = DB::table('penalite_chauffeur as pc')
-            ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
-            ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
-            ->join('event as e', 'pc.id_event', '=', 'e.id')
-            ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-            ->select(
-                'ch.nom as driver',
-                't.nom as transporteur_nom',
-                'e.duree as duree',
-                'e.latitude as latitude',
-                'e.longitude as longitude',
-                // DB::raw("DATE_FORMAT(pc.date, '%Y-%m') as Month"),
-                // DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s') as date_event"),
-                'pc.date as date_event',
-                'e.type as event',
-                'p.point_penalite as penalty_point',
-                'pc.distance as distance',
-                DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
-            )
-            ->groupBy('t.nom','ch.nom', 'e.duree', 'e.latitude', 'e.longitude', 'pc.date', 'e.type', 'p.point_penalite', 'pc.distance')
-            // ->orderByDesc('pc.date')
+        // $results = DB::table('penalite_chauffeur as pc')
+        //     ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
+        //     ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
+        //     ->join('event as e', 'pc.id_event', '=', 'e.id')
+        //     ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        //     ->select(
+        //         'ch.nom as driver',
+        //         't.nom as transporteur_nom',
+        //         'e.duree as duree',
+        //         'e.latitude as latitude',
+        //         'e.longitude as longitude',
+        //         // DB::raw("DATE_FORMAT(pc.date, '%Y-%m') as Month"),
+        //         // DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s') as date_event"),
+        //         'pc.date as date_event',
+        //         'e.type as event',
+        //         'p.point_penalite as penalty_point',
+        //         'pc.distance as distance',
+        //         DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
+        //     )
+        //     ->groupBy('t.nom','ch.nom', 'e.duree', 'e.latitude', 'e.longitude', 'pc.date', 'e.type', 'p.point_penalite', 'pc.distance')
+        //     // ->orderByDesc('pc.date')
             
-            ->orderBy('ch.nom')
-            ->orderBy('t.nom')
-            ->orderBy('e.date')
-            // ->orderBy('e.duree')
-            // ->orderBy('e.latitude')
-            // ->orderBy('e.longitude')
-            // ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
-            ->get();
+        //     ->orderBy('ch.nom')
+        //     ->orderBy('t.nom')
+        //     ->orderBy('e.date')
+        //     // ->orderBy('e.duree')
+        //     // ->orderBy('e.latitude')
+        //     // ->orderBy('e.longitude')
+        //     // ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
+        //     ->get();
 
-            // DB::raw("DATE_FORMAT(pc.date, '%Y-%m')")
+        //     // DB::raw("DATE_FORMAT(pc.date, '%Y-%m')")
+        $results = DB::table('infraction as i')
+        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.nom as driver',
+            't.nom as transporteur_nom',
+            'i.event as infraction',
+            'i.date_debut',
+            'i.heure_debut',
+            'i.date_fin',
+            'i.heure_fin',
+            'i.duree_infraction',
+            'i.duree_initial',
+            'i.odometer',
+            'i.gps_debut',
+            'i.distance',
+            'i.point'
+        )
+        ->orderBy('ch.nom')
+        ->get();
+
         
         return $results;
     }
@@ -525,6 +547,28 @@ if (!function_exists('updateOdometer')) {
     }
 }
 
+if (!function_exists('updateVitesse')) {
+    function updateVitesse($event){
+        $formattedDate = $event->date->format('YmdHis');
+        
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_EVENTS,{$event->imei},{$formattedDate},{$formattedDate}";
+        $response = Http::timeout(600)->get($url);
+        $data = $response->json();
+        $vitesse =  $data[0][9];
+        
+
+        
+        // Mettre à jour les enregistrements correspondants dans la base de données
+        DB::table('event')
+            ->where('imei', $event->imei)
+            ->where('date', $event->date)
+            ->where('vitesse','=', 0)
+            ->update([
+                'vitesse' => $vitesse
+            ]);
+    }
+}
+
 if(!function_exists('insertGroupedEventsDetails')){
     function insertGroupedEventsDetails($key, $groupedEvents, $duration)
     {
@@ -843,7 +887,6 @@ if(!function_exists('checkCalendar')){
                 return $isInfractionInCalendarPeriod && $isMatchingVehicule;
             });
 
-            // $calendarsInInfractions[] = $infractionsDuringCalendar;
             foreach ($infractionsDuringCalendar as $infraction) {
                 $infraction->update([
                     'calendar_id' => $calendar->id,
@@ -1107,7 +1150,6 @@ if (!function_exists('checkInfraction')) {
 if(!function_exists('saveInfraction')){
     function saveInfraction(){
         $infractions = checkInfraction();
-        // dd($infractions);
         foreach($infractions as $item){
             $existingInfraction = Infraction::where('imei', $item['imei'])
                     ->where('rfid', $item['chauffeur'])
@@ -1219,237 +1261,3 @@ if (!function_exists('calculerDureeTotale')) {
 
 
 
-// $data = [
-        //     [
-        //         0 => 'overspeed',
-        //         1 => 'Excès de vitesse en agglomération',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 13:52:00',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'overspeed',
-        //         1 => 'Excès de vitesse en agglomération',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 13:53:00',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'overspeed',
-        //         1 => 'Survitesse excessive',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 19:20:57',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'overspeed',
-        //         1 => 'Excès de vitesse hors agglomération',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 15:52:57',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'overspeed',
-        //         1 => 'Temps de pause minimum après conduite continue  jour',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 15:53:57',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'stopped',
-        //         1 => 'Temps de pause minimum après conduite continue  jour',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 15:54:57',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'stopped',
-        //         1 => 'Temps de pause minimum après conduite continue  jour',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 15:54:58',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        //     [
-        //         0 => 'stopped',
-        //         1 => 'Temps de pause minimum après conduite continue  jour',
-        //         2 => '865135060354170',
-        //         3 => '0435TBU - BAD GIRL',
-        //         4 => '2024-04-15 17:00:57',
-        //         5 => '-20.055898',
-        //         6 => '46.999813',
-        //         7 => '0',
-        //         8 => '231',
-        //         9 => '0',
-        //         10 => [
-        //             'acc' => '1',
-        //             'alarm' => '0',
-        //             'batl' => '6',
-        //             'bats' => '1',
-        //             'cellid' => '11381',
-        //             'defense' => '0',
-        //             'gpslev' => '6',
-        //             'gsmlev' => '4',
-        //             'lac' => '1000',
-        //             'mcc' => '646',
-        //             'mnc' => '2',
-        //             'odo' => '296919.872',
-        //             'pump' => '1',
-        //             'rfid' => '3B00FA4CDB',
-        //             'track' => '0'
-        //         ]
-        //     ],
-        // ];
