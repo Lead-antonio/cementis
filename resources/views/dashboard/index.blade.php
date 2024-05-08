@@ -60,14 +60,36 @@
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
+            
             <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-success elevation-1">
                         <i class="fas fa-star"></i>
                     </span>
 
+
+            <div class="col-12 col-sm-13 col-md-13">
+                <div class="info-box mb-3">
                     <div class="info-box-content">
-                        <span class="info-box-text">@lang('common.top')</span>
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/entreprise.png') }}" alt="Chauffeur" width="200"/>
+                        </span>
+                        <br>
+                        <span class="info-box-text">Transporteurs:{{$totalTransporteurs}}</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
+                    </div>
+                    
+                    <div class="info-box-content">
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/livraison-rapide.png') }}" alt="Chauffeur" style="width:120%;"/>
+                        </span>
+                        <br>
+            
+                        <span class="info-box-text">Véhicules:{{ $totalVehicules }}</span>
                         <span class="info-box-number">
                             @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
                                 {{$dashboardInfo['scoring']->first()->nom}}
@@ -75,10 +97,25 @@
                         </span>
                     </div>
                     <!-- /.info-box-content -->
+                    <!-- /.info-box-content -->
+                    <div class="info-box-content">
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/chauffeur.png') }}" alt="Chauffeur" width="400" height="80" />
+                        </span>
+                        <br>
+                        <span class="info-box-text">Chauffeurs:{{ $totalChauffeurs }}</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
+                    </div>
                 </div>
                 <!-- /.info-box -->
             </div>
+            
             <!-- /.col -->
+            
             <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-danger elevation-1">
@@ -98,9 +135,106 @@
                 <!-- /.info-box -->
             </div>
             <!-- /.col -->
+            <div class="col-12 col-sm-6 col-md-6">
+                <div class="info-box mb-3">
+                    <span class="info-box-icon bg-success elevation-1">
+                        {{-- <i class="fas fa-shield-alt"></i> --}}
+                        <i class="fas fa-star"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">@lang('common.top')</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </div>
         </div>
         <!-- /.row -->
-
+        <div class="row mt-5">
+            <div class="col-12 col-sm-6 col-md-6">
+              <div class="card">
+                <br>
+                <h4 class="text-center">
+                  Nombre total de chauffeurs par transporteur
+                </h4>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Transporteur</th>
+                          <th scope="col">Nombre de Chauffeur</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>ZAKATIANA</td>
+                          <td class="text-center">65</td>
+                        </tr>
+                        <tr>
+                          <td>TRANS RAWILSON</td>
+                          <td class="text-center">48</td>
+                        </tr>
+                        <tr>
+                          <td>TRANS TOKY</td>
+                          <td class="text-center">43</td>
+                        </tr>
+                        <td>HIRIDJEE</td>
+                        <td class="text-center">23</td>
+                      </tr>
+                        <!-- Ajoute d'autres lignes ici si nécessaire -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-6">
+                <div class="card">
+                  <br>
+                  <h4 class="text-center">
+                    Nombre total de véhicules par transporteur
+                  </h4>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Transporteur</th>
+                            <th scope="col">Nombre de vehicules</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>ZAKATIANA</td>
+                            <td class="text-center">35</td>
+                          </tr>
+                          <tr>
+                            <td>TRANS RAWILSON</td>
+                            <td class="text-center">78</td>
+                          </tr>
+                          <tr>
+                            <td>TRANS TOKY</td>
+                            <td class="text-center">53</td>
+                          </tr>
+                          <tr>
+                            <td>HIRIDJEE</td>
+                            <td class="text-center">43</td>
+                          </tr>
+                          <!-- Ajoute d'autres lignes ici si nécessaire -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
     
         <div class="row">
             <div class="col-md-6">

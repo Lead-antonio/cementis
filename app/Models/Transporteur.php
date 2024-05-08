@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Vehicule;
 
 /**
  * Class Transporteur
@@ -31,6 +31,10 @@ class Transporteur extends Model
         'nom',
         'Adresse'
     ];
+    public function vehicule()
+    {
+        return $this->hasMany(Vehicule::class, 'id_transporteur');
+    }
 
     /**
      * The attributes that should be casted to native types.

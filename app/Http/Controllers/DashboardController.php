@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Transporteur;
 use Illuminate\Http\Request;
-
+use App\Models\Vehicule;
+use App\Models\Chauffeur;
 use App\Repositories\DashboardRepository;
 
 class DashboardController extends Controller
@@ -30,7 +31,16 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $transporteurs = Transporteur::withCount('vehicule')->get();
+        $totalVehicules = Vehicule::count();
+        $totalTransporteurs = Transporteur::count();
+        $totalChauffeurs = Chauffeur::count();
         $data = $this->dashboardRepository->GetData();
+        $data['totalVehicules'] = $totalVehicules;
+        $data['totalTransporteurs'] = $totalTransporteurs;
+        $data['totalChauffeurs'] = $totalChauffeurs;
+        $data['transporteurs '] = $transporteurs ;
+        
 
         $data['best_scoring'] = getAllGoodScoring();
         $data['bad_scoring'] = getAllBadScoring();

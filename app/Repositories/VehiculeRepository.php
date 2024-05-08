@@ -2,29 +2,25 @@
 
 namespace App\Repositories;
 
-use App\Models\Transporteur;
+use App\Models\Vehicule;
 use App\Repositories\BaseRepository;
 
 /**
- * Class TransporteurRepository
+ * Class VehiculeRepository
  * @package App\Repositories
- * @version April 9, 2024, 10:58 am CEST
+ * @version May 7, 2024, 10:10 am CEST
 */
 
-class TransporteurRepository extends BaseRepository
+class VehiculeRepository extends BaseRepository
 {
     /**
      * @var array
      */
     protected $fieldSearchable = [
-        'nom',
-        'Adresse'
+        'id',
+        'nom'
     ];
-    
-    public function vehicules()
-    {
-        return $this->hasMany(Vehicule::class, 'id_transporteur', 'id');
-    }
+
     /**
      * Return searchable fields
      *
@@ -40,6 +36,6 @@ class TransporteurRepository extends BaseRepository
      **/
     public function model()
     {
-        return Transporteur::class;
+        return Vehicule::class;
     }
 }

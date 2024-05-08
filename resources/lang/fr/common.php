@@ -38,7 +38,7 @@ return [
     'number_driver_stat' => 'Représentation graphique scoring chauffeur',
     'top_driver' => 'Top chauffeurs par points de pénalité',
     'top' => 'Meilleur chauffeur',
-    'worst' => 'Pire chauffeur',
+    'worst' => 'Moins bons',
     'scoring' => 'Scoring Card pour les chauffeurs ce mois-ci'
 
 ];
