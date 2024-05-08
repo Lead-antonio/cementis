@@ -103,14 +103,13 @@ if (!function_exists('tabScoringCard_new')) {
         ->select(
             'ch.nom as driver',
             't.nom as transporteur_nom',
-            'i.duree_infraction as duree',
-            DB::raw("CONCAT(i.date_debut, ' ', i.heure_debut) as date_event"),
             'i.gps_debut as latitude',
             'i.gps_fin as longitude',
-            'i.heure_fin',
-            'i.event as infraction',
-            'i.distance',
+            'i.duree_infraction as duree',
+            DB::raw("CONCAT(i.date_debut, ' ', i.heure_debut) as date_event"),
+            'i.event as event',
             'i.point as penalty_point',
+            'i.distance',
             DB::raw("(i.point * 100) / i.distance as score_card")
             )
         ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance')

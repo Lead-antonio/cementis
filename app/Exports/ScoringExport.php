@@ -62,7 +62,6 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     public function map($row): array
     {
 
-        dd($row);
         // Calculate and update totals
         $driver = $row->driver;
 
