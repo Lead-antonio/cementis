@@ -4,37 +4,32 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Vehicule;
+
 
 /**
- * Class Transporteur
+ * Class Vehicule
  * @package App\Models
- * @version April 9, 2024, 10:58 am CEST
+ * @version May 7, 2024, 10:10 am CEST
  *
+ * @property integer $id
  * @property string $nom
- * @property string $Adresse
  */
-class Transporteur extends Model
+class Vehicule extends Model
 {
     use SoftDeletes;
 
 
-    public $table = 'transporteur';
+    public $table = 'vehicule';
     
-    public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 
 
 
     public $fillable = [
-        'nom',
-        'Adresse'
+        'id',
+        'nom'
     ];
-    public function vehicule()
-    {
-        return $this->hasMany(Vehicule::class, 'id_transporteur');
-    }
 
     /**
      * The attributes that should be casted to native types.
@@ -43,8 +38,7 @@ class Transporteur extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'nom' => 'string',
-        'Adresse' => 'string'
+        'nom' => 'string'
     ];
 
     /**
@@ -53,7 +47,7 @@ class Transporteur extends Model
      * @var array
      */
     public static $rules = [
-        'nom' => 'required',
+        
     ];
 
     
