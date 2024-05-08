@@ -68,7 +68,11 @@ class InfractionDataTable extends DataTable
             'calendar_id' => new Column([
                 'title' => __('models/penaliteChauffeurs.fields.id_calendar'), 'data' => 'calendar_id',
                 'render' =>'function() {
-                    return full.related_calendar.name_importation;
+                    if(full.calendar_id){
+                        return full.related_calendar.name_importation;
+                    }else{
+                        return "Aucun calendrier";
+                    }
                 }',
             ]),
             'rfid' => new Column(['title' => __('models/infractions.fields.rfid'), 'data' => 'rfid']),
