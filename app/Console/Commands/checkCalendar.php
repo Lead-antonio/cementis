@@ -37,6 +37,7 @@ class checkCalendar extends Command
      */
     public function handle()
     {
-        RapportPenaliteChauffeurMonthly();
+        // RapportPenaliteChauffeurMonthly();
+        checkCalendar();
     }
 }

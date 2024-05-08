@@ -103,12 +103,12 @@ if (!function_exists('tabScoringCard')) {
             'i.odometer',
             'i.gps_debut',
             'i.distance',
+            'i.distance_calendar',
             'i.point'
         )
         ->orderBy('ch.nom')
         ->get();
 
-        
         return $results;
     }
 
@@ -584,12 +584,37 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
         $hour = $drive_duration / 3600;
 
         $distance = $lastOdo - $firstOdo;
-        $result =  [
-            'distance' => $distance,
-            'drive_duration' => (int) $hour
-        ];
+        // $result =  [
+        //     'distance' => $distance,
+        //     'drive_duration' => (int) $hour
+        // ];
         
-        return $result;
+        return $distance;
+    }
+}
+
+if(!function_exists('distance_calendar')) {
+    function distance_calendar(){
+        $infractions = Infraction::with('related_calendar')->whereNotNull('calendar_id')->get();
+        foreach($infractions as $item){
+            $calendar_start_date = Carbon::parse($item->related_calendar->date_debut);
+            $calendar_end_date = $item->related_calendar->date_fin ? Carbon::parse($item->related_calendar->date_fin) : null;
+
+            if ($calendar_end_date === null) {
+                $dureeEnHeures = floatval($item->related_calendar->delais_route);
+                if ($dureeEnHeures <= 1) {
+                    $calendar_end_date = $calendar_start_date->copy()->endOfDay();
+                } else {
+                    $dureeEnJours = ceil($dureeEnHeures / 24);
+                    $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
+                }
+            }
+            
+            $distance = getDistanceWithImeiAndPeriod($item->rfid, $item->imei, $calendar_start_date, $calendar_end_date);
+
+            $item->distance_calendar = $distance;
+            $item->save();
+        }
     }
 }
 

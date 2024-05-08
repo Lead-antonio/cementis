@@ -48,7 +48,8 @@ class EventController extends AppBaseController
     {
         // getEventFromApi();
         // $res = saveInfraction();
-        checkCalendar();
+        // checkCalendar();
+        distance_calendar();
         return $eventDataTable->render('events.index');
     }
 
