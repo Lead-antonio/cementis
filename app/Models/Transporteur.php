@@ -31,10 +31,7 @@ class Transporteur extends Model
         'nom',
         'Adresse'
     ];
-    public function vehicule()
-    {
-        return $this->hasMany(Vehicule::class, 'id_transporteur');
-    }
+    
 
     /**
      * The attributes that should be casted to native types.
@@ -58,7 +55,12 @@ class Transporteur extends Model
 
     public function chauffeurs()
     {
-        return $this->hasMany(Chauffeur::class);
+        return $this->hasMany(Chauffeur::class, 'transporteur_id');
+    }
+
+    public function vehicule()
+    {
+        return $this->hasMany(Vehicule::class, 'id_transporteur');
     }
 
     

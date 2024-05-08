@@ -31,7 +31,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $transporteurs = Transporteur::withCount('vehicule')->get();
         $totalVehicules = Vehicule::count();
         $totalTransporteurs = Transporteur::count();
         $totalChauffeurs = Chauffeur::count();
@@ -39,7 +38,6 @@ class DashboardController extends Controller
         $data['totalVehicules'] = $totalVehicules;
         $data['totalTransporteurs'] = $totalTransporteurs;
         $data['totalChauffeurs'] = $totalChauffeurs;
-        $data['transporteurs '] = $transporteurs ;
         
 
         $data['best_scoring'] = getAllGoodScoring();

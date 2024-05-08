@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Attendance;
+use App\Models\Transporteur;
 use Carbon\Carbon;
 
 /**
@@ -45,6 +46,9 @@ class DashboardRepository
         $dashboardInfo['driverTop'] = driverTop();
         $dashboardInfo['driverWorst'] = driverWorst();
         $dashboardInfo['scoring'] = scoringCard();
+        $dashboardInfo['count_vehicule_transporteur'] = Transporteur::withCount('vehicule')->get();
+        $dashboardInfo['count_driver_transporteur'] = Transporteur::withCount('chauffeurs')->get();
+        // dd($dashboardInfo['count_driver_transporteur']);
 
         return $dashboardInfo;
     }

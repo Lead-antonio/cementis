@@ -22,101 +22,19 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
-        <!-- Info boxes -->
+
         <div class="row">
-            {{-- <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-info elevation-1">
-                        <i class="fas fa-users"></i></span>
-
-                    <div class="info-box-content">
-                        <span class="info-box-text">Users</span>
-                        <span class="info-box-number">
-                            {{$dashboardInfo['user_count']}}
-                        </span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-            </div>
-            <!-- /.col -->
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box mb-3">
-                    <span class="info-box-icon bg-danger elevation-1">
-                        <i class="fas fa-user-shield"></i>
-                    </span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Roles</span>
-                        <span class="info-box-number">
-                            {{$dashboardInfo['user_count']}}
-                        </span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-            </div> --}}
-            <!-- /.col -->
-
-            <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
             
-            <div class="col-12 col-sm-6 col-md-6">
+            {{-- <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-success elevation-1">
                         <i class="fas fa-star"></i>
                     </span>
-
-
-            <div class="col-12 col-sm-13 col-md-13">
-                <div class="info-box mb-3">
-                    <div class="info-box-content">
-                        <span class="info-box-icon bg-light elevation-1">
-                            <img src="{{ url('images/entreprise.png') }}" alt="Chauffeur" width="200"/>
-                        </span>
-                        <br>
-                        <span class="info-box-text">Transporteurs:{{$totalTransporteurs}}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
-                    </div>
-                    
-                    <div class="info-box-content">
-                        <span class="info-box-icon bg-light elevation-1">
-                            <img src="{{ url('images/livraison-rapide.png') }}" alt="Chauffeur" style="width:120%;"/>
-                        </span>
-                        <br>
-            
-                        <span class="info-box-text">Véhicules:{{ $totalVehicules }}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
-                    </div>
-                    <!-- /.info-box-content -->
-                    <!-- /.info-box-content -->
-                    <div class="info-box-content">
-                        <span class="info-box-icon bg-light elevation-1">
-                            <img src="{{ url('images/chauffeur.png') }}" alt="Chauffeur" width="400" height="80" />
-                        </span>
-                        <br>
-                        <span class="info-box-text">Chauffeurs:{{ $totalChauffeurs }}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
-                    </div>
                 </div>
-                <!-- /.info-box -->
-            </div>
-            
-            <!-- /.col -->
-            
-            <div class="col-12 col-sm-6 col-md-6">
+            </div> --}}
+            {{-- <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-danger elevation-1">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -138,7 +56,6 @@
             <div class="col-12 col-sm-6 col-md-6">
                 <div class="info-box mb-3">
                     <span class="info-box-icon bg-success elevation-1">
-                        {{-- <i class="fas fa-shield-alt"></i> --}}
                         <i class="fas fa-star"></i>
                     </span>
 
@@ -153,103 +70,66 @@
                     <!-- /.info-box-content -->
                 </div>
                 <!-- /.info-box -->
-            </div>
-        </div>
-        <!-- /.row -->
-        <div class="row mt-5">
-            <div class="col-12 col-sm-6 col-md-6">
-              <div class="card">
-                <br>
-                <h4 class="text-center">
-                  Nombre total de chauffeurs par transporteur
-                </h4>
-                <div class="card-body">
-                  <div class="table-responsive">
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Transporteur</th>
-                          <th scope="col">Nombre de Chauffeur</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>ZAKATIANA</td>
-                          <td class="text-center">65</td>
-                        </tr>
-                        <tr>
-                          <td>TRANS RAWILSON</td>
-                          <td class="text-center">48</td>
-                        </tr>
-                        <tr>
-                          <td>TRANS TOKY</td>
-                          <td class="text-center">43</td>
-                        </tr>
-                        <td>HIRIDJEE</td>
-                        <td class="text-center">23</td>
-                      </tr>
-                        <!-- Ajoute d'autres lignes ici si nécessaire -->
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-6">
-                <div class="card">
-                  <br>
-                  <h4 class="text-center">
-                    Nombre total de véhicules par transporteur
-                  </h4>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th scope="col">Transporteur</th>
-                            <th scope="col">Nombre de vehicules</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>ZAKATIANA</td>
-                            <td class="text-center">35</td>
-                          </tr>
-                          <tr>
-                            <td>TRANS RAWILSON</td>
-                            <td class="text-center">78</td>
-                          </tr>
-                          <tr>
-                            <td>TRANS TOKY</td>
-                            <td class="text-center">53</td>
-                          </tr>
-                          <tr>
-                            <td>HIRIDJEE</td>
-                            <td class="text-center">43</td>
-                          </tr>
-                          <!-- Ajoute d'autres lignes ici si nécessaire -->
-                        </tbody>
-                      </table>
+            </div> --}}
+
+            <div class="col-12 col-sm-13 col-md-13">
+                <div class="info-box mb-3">
+                    <div class="info-box-content">
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/entreprise.png') }}" alt="Chauffeur" width="200"/>
+                        </span>
+                        <br>
+                        <span class="info-box-text">Transporteurs:{{$totalTransporteurs}}</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
                     </div>
-                  </div>
+                    
+                    <div class="info-box-content" style="align-items: center;">
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/livraison-rapide.png') }}" alt="Chauffeur" style="width:120%;"/>
+                        </span>
+                        <br>
+            
+                        <span class="info-box-text">Véhicules:{{ $totalVehicules }}</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
+                    </div>
+                    <div class="info-box-content" style="align-items: end;">
+                        <span class="info-box-icon bg-light elevation-1">
+                            <img src="{{ url('images/chauffeur.png') }}" alt="Chauffeur" width="400" height="80" />
+                        </span>
+                        <br>
+                        <span class="info-box-text">Chauffeurs:{{ $totalChauffeurs }}</span>
+                        <span class="info-box-number">
+                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
+                                {{$dashboardInfo['scoring']->first()->nom}}
+                            @endif
+                        </span>
+                    </div>
                 </div>
-              </div>
-          </div>
-    
+            </div>
+            
+        </div>
+
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h1 class="card-title" style="padding-left: 31px;">Meilleur Scoring </h1>
-
-                        {{-- <div class="card-tools">
+                        <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <button type="button" class="btn btn-tool" data-card-widget="remove">
                                 <i class="fas fa-times"></i>
                             </button>
-                        </div> --}}
+                        </div>
                     </div>
 
                     <div class="card-body">
@@ -266,45 +146,6 @@
                         </div>
                     </div>
                     <!-- /.card-header -->
-
-                    {{-- <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover m-b-0 without-header" id="ticketsTable">
-                                <tbody>
-                                    @if($dashboardInfo['scoring']->isNotEmpty() && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                        @foreach ($dashboardInfo['scoring'] as $key => $item)
-                                            <tr> 
-                                                <td>
-                                                    <div class="d-inline-block align-middle">
-                                                        <img src="{{ asset('images/avatardash.png') }}" alt="user image" class="img-radius img-40 align-top m-r-15" width="10%">
-                                                        <div class="d-inline-block" style="margin-top: 10px;margin-left: 16px;">
-                                                            <h6>
-                                                                {{$item->nom}} 
-                                                                @if($key === 0)
-                                                                    <span class="text-warning">&#9733;</span>
-                                                                @endif
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-right">
-                                                    <h6 class="f-w-700">
-                                                        {{number_format($item->scoring_card, 2)}}
-                                                    </h6>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr> 
-                                            <td class="text-center" colspan="2">
-                                                Aucun élément trouvé
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
                 </div>
                 <!-- /.card -->
             </div>
@@ -312,16 +153,15 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        {{-- <h1 class="card-title ">@lang('common.scoring') </h1> --}}
                         <h1 class="card-title" style="padding-left: 31px;">Moins Bon Scoring </h1>
 
                         <div class="card-tools">
-                            {{-- <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
                             </button>
                             <button type="button" class="btn btn-tool" data-card-widget="remove">
                                 <i class="fas fa-times"></i>
-                            </button> --}}
+                            </button>
                         </div>
                     </div>
 
@@ -339,46 +179,6 @@
                         </div>
                     </div>
                     <!-- /.card-header -->
-
-                    {{-- <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover m-b-0 without-header" id="ticketsTable">
-                                <tbody>
-                                    @if($dashboardInfo['scoring']->isNotEmpty() && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                        @foreach ($dashboardInfo['scoring'] as $key => $item)
-                                            <tr> 
-                                                <td>
-                                                    <div class="d-inline-block align-middle">
-                                                        <img src="{{ asset('images/avatardash.png') }}" alt="user image" class="img-radius img-40 align-top m-r-15" width="10%">
-                                                        <div class="d-inline-block" style="margin-top: 10px;margin-left: 16px;">
-                                                            <h6>
-                                                                {{$item->nom}} 
-                                                                @if($key === 0)
-                                                                    <span class="text-warning">&#9733;</span>
-                                                                @endif
-                                                            </h6>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-right">
-                                                    <h6 class="f-w-700">
-                                                        {{number_format($item->scoring_card, 2)}}
-                                                    </h6>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @else
-                                        <tr> 
-                                            <td class="text-center" colspan="2">
-                                                Aucun élément trouvé
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> --}}
-                   
                 </div>
                 <!-- /.card -->
             </div>
@@ -432,11 +232,89 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas> --}}
+                         <canvas id="driverStat" height="315" style="height: 180px; display: block; width: 462px;"  class="chartjs-render-monitor"></canvas>
                     </div>
                 </div>
+            </div>--}}
+        </div> 
+
+
+        <!-- /.row -->
+        <div class="row mt-5">
+            <div class="col-12 col-sm-6 col-md-6">
+              <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title" style="padding-left: 31px;">Nombre total de chauffeurs par transporteur</h1>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Transporteur</th>
+                          <th scope="col" class="text-center">Nombre de Chauffeur</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @foreach ($dashboardInfo['count_driver_transporteur'] as $item)
+                                <tr>
+                                    <td>{{$item->nom}}</td>
+                                    <td class="text-center">{{$item->chauffeurs_count}}</td>
+                                </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div> --}}
+            <div class="col-12 col-sm-6 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title" style="padding-left: 31px;">Nombre total de véhicules par transporteur</h1>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Transporteur</th>
+                            <th scope="col" class="text-center">Nombre de vehicules</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($dashboardInfo['count_vehicule_transporteur'] as $item)
+                                <tr>
+                                    <td>{{$item->nom}}</td>
+                                    <td class="text-center">{{$item->vehicule_count}}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+    
 
         {{-- <div class="row">
 
