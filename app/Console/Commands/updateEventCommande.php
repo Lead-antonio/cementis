@@ -38,9 +38,11 @@ class updateEventCommande extends Command
      */
     public function handle()
     {
-        $events = Event::all();
-        foreach($events as $event){
-            updateLatAndLongExistingEvent($event);
-        }
+        // $events = Event::all();
+        // foreach($events as $event){
+        //     // updateLatAndLongExistingEvent($event);
+        //     updateVitesse($event);
+        // }
+        saveInfraction();
     }
 }

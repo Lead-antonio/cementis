@@ -166,6 +166,14 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li>
 
 <li class="nav-item">
+    <a href="{{ route('infractions.index') }}"
+       class="nav-link {{ Request::is('infractions*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-virus"></i>
+        <p>@lang('models/infractions.plural')</p>
+    </a>
+</li>
+
+<li class="nav-item">
     <a href="{{ route('events.index') }}"
        class="nav-link {{ Request::is('events*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-calendar"></i>
@@ -181,13 +189,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li>
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('events.scoring') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-bullseye"></i>
         <p>@lang('models/events.fields.detail_penalite')</p>
     </a>
-</li>
+</li> --}}
 
 {{-- <li class="nav-item">
     <a href="{{ route('event.routes') }}"
@@ -316,4 +324,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 {{--  
 
 --}}
+
+
 

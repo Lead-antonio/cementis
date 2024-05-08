@@ -37,6 +37,8 @@ class Event extends Model
         'vehicule',
         'type',
         'description',
+        'vitesse',
+        'odometer',
         'latitude',
         'longitude',
         'duree',
@@ -51,6 +53,7 @@ class Event extends Model
     protected $casts = [
         'id' => 'integer',
         'imei' => 'string',
+        'vitesse' => 'integer',
         'chauffeur' => 'string',
         'vehicule' => 'string',
         'type' => 'string',

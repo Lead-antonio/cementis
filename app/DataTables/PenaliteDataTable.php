@@ -69,6 +69,10 @@ class PenaliteDataTable extends DataTable
         return [
             'id' => new Column(['title' => __('models/penalites.fields.id'), 'data' => 'id']),
             'event' => new Column(['title' => __('models/penalites.fields.event'), 'data' => 'event']),
+            'param' => new Column(['title' => __('models/penalites.fields.param'), 'data' => 'param']),
+            'duree_heure' => new Column(['title' => __('models/penalites.fields.duree_heure'), 'data' => 'duree_heure']),
+            'duree_minute' => new Column(['title' => __('models/penalites.fields.duree_minute'), 'data' => 'duree_minute']),
+            'duree_seconde' => new Column(['title' => __('models/penalites.fields.duree_seconde'), 'data' => 'duree_seconde']),
             'point_penalite' => new Column(['title' => __('models/penalites.fields.point_penalite'), 'data' => 'point_penalite'])
         ];
     }

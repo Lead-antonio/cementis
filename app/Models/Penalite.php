@@ -31,6 +31,11 @@ class Penalite extends Model
         'id',
         'event',
         'duree',
+        'duree_heure',
+        'duree_minute',
+        'duree_seconde',
+        'default_value',
+        'param',
         'point_penalite'
     ];
 
@@ -43,6 +48,9 @@ class Penalite extends Model
         'id' => 'integer',
         'event' => 'string',
         'duree' => 'integer',
+        'duree_heure' => 'integer',
+        'duree_minute' => 'integer',
+        'duree_seconde' => 'integer',
         'point_penalite' => 'integer'
     ];
 

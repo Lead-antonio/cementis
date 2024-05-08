@@ -30,7 +30,6 @@ class PenaliteChauffeur extends Model
     protected $dates = ['deleted_at'];
 
 
-
     public $fillable = [
         'id',
         'id_calendar',
@@ -42,6 +41,7 @@ class PenaliteChauffeur extends Model
         'distance',
         'date',
     ];
+
 
     /**
      * The attributes that should be casted to native types.

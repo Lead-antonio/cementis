@@ -19,7 +19,8 @@ class PenaliteChauffeurDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'penalite_chauffeurs.datatables_actions');
+        return $dataTable;
+        // ->addColumn('action', 'penalite_chauffeurs.datatables_actions')
     }
 
     /**
@@ -43,7 +44,7 @@ class PenaliteChauffeurDataTable extends DataTable
         return $this->builder()
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->addAction(['width' => '120px', 'printable' => false, 'title' => __('crud.action')])
+            // ->addAction(['width' => '120px', 'printable' => false, 'title' => __('crud.action')])
             ->parameters([
                 'dom'       => 'Bfrtip',
                 'stateSave' => true,

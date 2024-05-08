@@ -41,7 +41,11 @@
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
                     </button>
+                    
                     <button onclick="exportToPDF()" class="btn btn-outline-secondary">Exporter en PDF</button>
+
+                    <a class="btn btn-success" href="{{ route('event.exportscoring') }}"> Exporter en Excel</a>
+
                 </div>
             </div>
             <div class="card-body p-0">
@@ -54,12 +58,14 @@
                             <th style="text-align: center;">Date de l'évènement</th>
                             <th style="text-align: center;">Coordonnées gps</th>
                             <th style="text-align: center;">Durée</th>
+                            <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
+                            <th style="text-align: center;">Distance totale</th>
                             <th style="text-align: center;">Point de pénalité</th>
-                            <th style="text-align: center;">Distance parcourue</th>
                             <th style="text-align: center;">Scoring Card</th>
                         </tr>
                     </thead>
                     <tbody>
+                        
                         @php
                             $currentDriver = null;
                             $totalPenalty = 0;
@@ -73,64 +79,87 @@
                                 @php
                                     // Calcul de la classe en fonction de la valeur de la scoring card
                                     $scoringClass = '';
-                                    $scoring = ($totalPenalty / $totalDistance) * 100;
-                                    if ($scoring >= 0 && $scoring <= 3) {
+                                    
+                                    if ($totalDistance != 0) {
+                                        $scoring = ($totalPenalty / $totalDistance) * 100;
+                                    }else{
+                                        $scoring = $totalPenalty / 100;
+                                    }
+
+                                    if ($scoring >= 0 && $scoring <= 2) {
                                         $scoringClass = 'scoring-green';
-                                    } elseif ($scoring > 3 && $scoring <= 5) {
+                                    } elseif ($scoring > 2 && $scoring <= 5) {
                                         $scoringClass = 'scoring-yellow';
-                                    } elseif ($scoring > 5 && $scoring <= 8) {
+                                    } elseif ($scoring > 5 && $scoring <= 10) {
                                         $scoringClass = 'scoring-orange';
                                     } else {
                                         $scoringClass = 'scoring-red';
                                     }
                                 @endphp
                                     <tr class="total-row">
-                                        <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
-                                        <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
+                                        <td colspan="7" style="text-align: center;"><strong>Total :</strong></td>
+                                        {{-- <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td> --}}
                                         <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td>
-                                        <td class="{{ $scoringClass }}" style="text-align: center;">{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}</td>
+                                        <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
+                                        <td class="{{ $scoringClass }}" style="text-align: center;">
+                                            <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
+                                            @if ($totalDistance != 0)
+                                                {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                            @else
+                                                {{number_format($totalPenalty / 100, 2)}}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endif
                                 @php
                                     $currentDriver = $result->driver;
-                                    $duree = $result->duree;
+                                    $duree = $result->duree_infraction;
                                     $previousDistance = null; 
                                     $totalPenalty = 0;
                                     $totalDistance = 0;
                                     $uniqueDistances = [];
                                 @endphp
                             @endif
-                            <tr>
+                            <tr class="driver-row">
                                 <td style="text-align: center">{{ $result->driver }}</td>
                                 <td style="text-align: center">{{$result->transporteur_nom}}</td>
-                                <td style="text-align: center">{{ trim($result->event) }}</td>
-                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_event)->format('d-m-Y H:i:s') }}</td>
+                                <td style="text-align: center">{{ trim($result->infraction) }}</td>
+                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
                                 <td style="text-align: center">
-                                    <a href="#" onclick="showMapModal('{{ $result->latitude }}', '{{ $result->longitude }}', '{{ $result->event }}')">
-                                        {{ $result->latitude }}, {{ $result->longitude }}
+                                    <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->gps_debut }}', '{{ $result->infraction }}')">
+                                        {{ $result->gps_debut }}
                                     </a>
                                 </td>
-                                <td style="text-align: center">{{ $result->duree }} s</td>
-                                <td style="text-align: center">{{ $result->penalty_point }}</td>
+                                <td style="text-align: center">{{ $result->duree_infraction }} s</td>
                                 <td style="text-align: center">{{ $result->distance }} Km</td>
+                                <td style="text-align: center">{{ $result->distance_calendar }} Km</td>
+                                <td style="text-align: center">{{ $result->point }}</td>
                             </tr>
                             @php
-                                $totalPenalty += $result->penalty_point;
-                                if (!in_array($result->distance, $uniqueDistances)){
-                                    $uniqueDistances[] = $result->distance; 
-                                    $totalDistance += $result->distance;
+                                $totalPenalty += $result->point;
+                                if (!in_array($result->distance_calendar, $uniqueDistances)){
+                                    $uniqueDistances[] = $result->distance_calendar; 
+                                    $totalDistance += $result->distance_calendar;
                                 }
-                                
                             @endphp
                         @endforeach
                         @if ($currentDriver !== null)
                             <tr class="total-row">
-                                <td colspan="6" style="text-align: center;"><strong>Total :</strong></td>
-                                <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
+                                <td colspan="7" style="text-align: center;"><strong>Total :</strong></td>
+                                {{-- <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td> --}}
                                 <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
-                                <td class="{{ $scoringClass }}" style="text-align: center">{{ number_format(($totalPenalty / $totalDistance) * 100, 2)}}</td>
+                                <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
+                                <td class="{{ $scoringClass }}" style="text-align: center">
+                                    <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
+                                    @if ($totalDistance != 0)
+                                    {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                    @else
+                                    {{number_format($totalPenalty / 100, 2)}}
+                                    @endif
+                                </td>
                             </tr>
                         @endif
+                        
                     </tbody>
                 </table>
                 
@@ -179,6 +208,23 @@
     </style>
     <script>
 
+        $(document).ready(function() {
+            $(".driver-row").each(function() {
+                $(this).click(function() {
+                    // Basculer l'affichage des détails du chauffeur
+                    $(this).next(".driver-details").slideToggle();
+                    
+                    // Basculer l'icône entre "+" et "-"
+                    var icon = $(this).find(".expand-icon");
+                    if (icon.hasClass("fa-plus-circle")) {
+                        icon.removeClass("fa-plus-circle").addClass("fa-minus-circle");
+                    } else {
+                        icon.removeClass("fa-minus-circle").addClass("fa-plus-circle");
+                    }
+                });
+            });
+        });
+
         let map;
 
         async function initMap(latitude, longitude, type) {
@@ -206,6 +252,6 @@
             html2pdf().from(element).save('tableau.pdf');
         }
 
-        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 5, 7], vertical_align:'middle'});
+        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 7], vertical_align:'middle'});
     </script>
 @endsection
