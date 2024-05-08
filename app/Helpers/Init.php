@@ -132,9 +132,10 @@ if (!function_exists('tabScoringCard_new')) {
             'i.event as event',
             'i.point as penalty_point',
             'i.distance',
-            DB::raw("(i.point * 100) / i.distance as score_card")
+            'i.distance_calendar',
+            DB::raw("(i.point * 100) / i.distance_calendar as score_card")
             )
-        ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance')
+        ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance','i.distance_calendar')
         ->orderBy('ch.nom')
         ->orderBy('t.nom')
         ->get();
@@ -271,7 +272,7 @@ if(!function_exists('getAllGoodScoring')){
     ->select(
         'ch.nom as driver',
         't.nom as transporteur_nom',
-        DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance), 2) as scoring_card')
+        DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance_calendar), 2) as scoring_card')
     )
     ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','asc')
     ->take(10)
@@ -293,7 +294,7 @@ if(!function_exists('getAllBadScoring')){
         ->select(
             'ch.nom as driver',
             't.nom as transporteur_nom',
-            DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance), 2) as scoring_card')
+            DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance_calendar), 2) as scoring_card')
         )
         ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','DESC')
         ->take(10)
