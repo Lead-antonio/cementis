@@ -129,7 +129,20 @@
         .number-circle {
             width: 30px;
             height: 30px;
-            background-color: #007bff;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .number-circle-worst {
+            width: 30px;
+            height: 30px;
+            background-color: #dc3545;
             color: #fff;
             border-radius: 50%;
             display: inline-flex;

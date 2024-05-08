@@ -197,7 +197,7 @@
                             @foreach ($bad_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
-                                        <div class="number-circle">{{ $key + 1 }}</div>
+                                        <div class="number-circle-worst">{{ $key + 1 }}</div>
                                         <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
                                     </div>
                                 </div>
