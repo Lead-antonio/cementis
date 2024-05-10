@@ -79,12 +79,7 @@
                             <img src="{{ url('images/entreprise.png') }}" alt="Chauffeur" width="200"/>
                         </span>
                         <br>
-                        <span class="info-box-text">Transporteurs:{{$totalTransporteurs}}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
+                        <span class="info-box-text" style="font-family: cursive;">Transporteurs : {{$totalTransporteurs}}</span>
                     </div>
                     
                     <div class="info-box-content" style="align-items: center;">
@@ -93,24 +88,14 @@
                         </span>
                         <br>
             
-                        <span class="info-box-text">Véhicules:{{ $totalVehicules }}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
+                        <span class="info-box-text" style="font-family: cursive;">Véhicules : {{ $totalVehicules }}</span>
                     </div>
                     <div class="info-box-content" style="align-items: end;">
                         <span class="info-box-icon bg-light elevation-1">
                             <img src="{{ url('images/chauffeur.png') }}" alt="Chauffeur" width="400" height="80" />
                         </span>
                         <br>
-                        <span class="info-box-text">Chauffeurs:{{ $totalChauffeurs }}</span>
-                        <span class="info-box-number">
-                            @if(isset($dashboardInfo['scoring']->first()->nom) && $dashboardInfo['scoring']->first()->scoring_card != 0 && $dashboardInfo['scoring']->last()->scoring_card != 0)
-                                {{$dashboardInfo['scoring']->first()->nom}}
-                            @endif
-                        </span>
+                        <span class="info-box-text" style="font-family: cursive;">Chauffeurs : {{ $totalChauffeurs }}</span>
                     </div>
                 </div>
             </div>
@@ -121,7 +106,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title" style="padding-left: 31px;">Meilleur Scoring </h1>
+                        <h1 class="card-title" style="padding-left: 31px;font-family: cursive;"><i class="fas fa-medal"></i> Meilleur Scoring </h1>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -134,7 +119,6 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            {{-- <h3 class="title-scoring">Meilleur Scoring</h3> --}}
                             @foreach ($best_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
@@ -153,7 +137,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title" style="padding-left: 31px;">Moins Bon Scoring </h1>
+                        <h1 class="card-title" style="padding-left: 31px;font-family: cursive;"><i class="fas fa-exclamation-triangle"></i> Moins Bon Scoring </h1>
 
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -167,7 +151,6 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            {{-- <h3 class="title-scoring">Moins Bon Scoring</h3> --}}
                             @foreach ($bad_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
@@ -244,7 +227,7 @@
             <div class="col-12 col-sm-6 col-md-6">
               <div class="card">
                 <div class="card-header">
-                    <h1 class="card-title" style="padding-left: 31px;">Nombre total de chauffeurs par transporteur</h1>
+                    <h1 class="card-title" style="padding-left: 31px;font-family: cursive;">Nombre total de chauffeurs par transporteur</h1>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -258,7 +241,7 @@
                 <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
-                      <thead>
+                      <thead class="table-dark">
                         <tr>
                           <th scope="col">Transporteur</th>
                           <th scope="col" class="text-center">Nombre de Chauffeur</th>
@@ -280,7 +263,7 @@
             <div class="col-12 col-sm-6 col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title" style="padding-left: 31px;">Nombre total de véhicules par transporteur</h1>
+                        <h1 class="card-title" style="padding-left: 31px;font-family: cursive;">Nombre total de véhicules par transporteur</h1>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>
@@ -294,7 +277,7 @@
                   <div class="card-body">
                     <div class="table-responsive">
                       <table class="table">
-                        <thead>
+                        <thead class="table-dark">
                           <tr>
                             <th scope="col">Transporteur</th>
                             <th scope="col" class="text-center">Nombre de vehicules</th>
