@@ -54,38 +54,6 @@ if (!function_exists('totalScoringCard')) {
 if (!function_exists('tabScoringCard')) {
     function tabScoringCard()
     {
-        // $results = DB::table('penalite_chauffeur as pc')
-        //     ->join('chauffeur as ch', 'pc.id_chauffeur', '=', 'ch.id')
-        //     ->join('penalite as p', 'pc.id_penalite', '=', 'p.id')
-        //     ->join('event as e', 'pc.id_event', '=', 'e.id')
-        //     ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        //     ->select(
-        //         'ch.nom as driver',
-        //         't.nom as transporteur_nom',
-        //         'e.duree as duree',
-        //         'e.latitude as latitude',
-        //         'e.longitude as longitude',
-        //         // DB::raw("DATE_FORMAT(pc.date, '%Y-%m') as Month"),
-        //         // DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s') as date_event"),
-        //         'pc.date as date_event',
-        //         'e.type as event',
-        //         'p.point_penalite as penalty_point',
-        //         'pc.distance as distance',
-        //         DB::raw("(p.point_penalite * 100) / pc.distance as score_card")
-        //     )
-        //     ->groupBy('t.nom','ch.nom', 'e.duree', 'e.latitude', 'e.longitude', 'pc.date', 'e.type', 'p.point_penalite', 'pc.distance')
-        //     // ->orderByDesc('pc.date')
-            
-        //     ->orderBy('ch.nom')
-        //     ->orderBy('t.nom')
-        //     ->orderBy('e.date')
-        //     // ->orderBy('e.duree')
-        //     // ->orderBy('e.latitude')
-        //     // ->orderBy('e.longitude')
-        //     // ->orderBy(DB::raw("DATE_FORMAT(pc.date, '%Y-%m-%d %H:%i:%s')"))
-        //     ->get();
-
-        //     // DB::raw("DATE_FORMAT(pc.date, '%Y-%m')")
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
         ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
@@ -802,8 +770,6 @@ if(!function_exists('processEvents')) {
     }
 }
 
-
-
 // Récupération des derniers évènements dans l'API M-TEC Tracking et enregistrer dans la table Event
 if (!function_exists('getEventFromApi')) {
 
@@ -1060,101 +1026,409 @@ if(!function_exists('checkDistance')){
     }
 }
 
-if(!function_exists('checkTempsConduiteMinJourTravail')){
-    function checkTempsConduiteMinJourTravail(){
-        // Récupérer toutes les pénalités
-        $penalites = PenaliteChauffeur::all();
-        $limite = 0;
-        $infraction = null;
-        $id_penalite = null;
+if (!function_exists('getDriveDuration')) {
 
-        // Tableau pour stocker les heures de conduite pour chaque chauffeur
-        $dataToInsert = [];
+    function getDriveDuration($imei_vehicule, $start_date, $end_date){
+        // Formatage des dates au format YYYYMMDD
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
+        $response = Http::timeout(3000)->get($url);
+        $data = $response->json();
 
-        // Parcourir chaque pénalité
-        foreach ($penalites as $penalite) {
-            $idChauffeur = $penalite->id_chauffeur;
-            $dateDebut = Carbon::parse($penalite->related_calendar->date_debut);
-            $dateFin = $penalite->related_calendar->date_fin ? Carbon::parse($penalite->related_calendar->date_fin) : null;
-            $delaisRoute = $penalite->related_calendar->delais_route;
-          
-            if (is_null($dateFin)) {
-                if ($delaisRoute <= 1) {
+
+        $drive_duration_second = $data['drives_duration_time'];
+        $drive_duration_hour = $drive_duration_second / 3600;
+        
+        return $drive_duration_hour;
+    }
+}
+
+if (!function_exists('getDriveDurationCached')) {
+    function getDriveDurationCached($imei, $dateDebut, $dateFin) {
+        $cacheKey = "drive_duration_{$imei}_{$dateDebut}_{$dateFin}";
+        $cacheDuration = now()->addMinutes(60); // Durée de mise en cache, par exemple 60 minutes
+    
+        return Cache::remember($cacheKey, $cacheDuration, function () use ($imei, $dateDebut, $dateFin) {
+            return getDriveDuration($imei, $dateDebut, $dateFin);
+        });
+    }
+}
+
+if (!function_exists('getStopDuration')) {
+
+    function getStopDuration($imei_vehicule, $start_date, $end_date){
+        // Formatage des dates au format YYYYMMDD
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
+        $response = Http::timeout(3000)->get($url);
+        $data = $response->json();
+        $stop_duration_second = $data['stops_duration_time'];
+        
+        return $stop_duration_second;
+    }
+}
+
+
+if (!function_exists('getStopDurationCached')) {
+    function getStopDurationCached($imei, $dateDebut, $dateFin) {
+        $cacheKey = "stop_duration_{$imei}_{$dateDebut}_{$dateFin}";
+        $cacheDuration = now()->addMinutes(60); // Durée de mise en cache, par exemple 60 minutes
+    
+        return Cache::remember($cacheKey, $cacheDuration, function () use ($imei, $dateDebut, $dateFin) {
+            return getStopDuration($imei, $dateDebut, $dateFin);
+        });
+    }
+}
+
+
+
+// Temps de repos minimum apès une journée de travail (8h -> jour, 10 -> nuit, Si chevauchement, prendre nuit)
+if(!function_exists('checkTempsReposMinApresJourneeTravail')){
+    function checkTempsReposMinApresJourneeTravail(){
+        //Get Infraction by chauffeur
+        $infractions = Infraction::whereNotNull('calendar_id')
+                                   ->where('event', '!=' , 'Temps de repos hebdomadaire')
+                                   ->where('event', '!=' , 'Temps de repos minimum après une journée de travail')
+                                   ->orderBy('date_debut')
+                                   ->orderBy('heure_debut')
+                                   ->get();
+        $condition = 0;
+        $dataInfraction = [];
+        foreach($infractions as $infraction){
+            
+            $calendar_date_debut = Carbon::parse($infraction->related_calendar->date_debut);
+            $calendar_date_fin = $infraction->related_calendar->date_fin ? Carbon::parse($infraction->related_calendar->date_fin) : null;
+            $calendar_delais_route = $infraction->related_calendar->delais_route;
+
+            $endingJourney = $calendar_date_debut->copy()->addDay();
+            $debutSecondJourney = $calendar_date_debut->copy()->addDays(2);
+            $stop_duration_second = getStopDurationCached($infraction->imei, $endingJourney, $debutSecondJourney);
+
+            if (is_null($calendar_date_fin)) {
+                if ($calendar_delais_route <= 1) {
                     // Si la date de début est pendant la journée, ajouter le délai de route à 22h, sinon ajouter à 4h pour la nuit
-                    $heureDebut = $dateDebut->hour;
+                    $heureDebut = $calendar_date_debut->hour;
                     if ($heureDebut >= 4 && $heureDebut < 22) {
-                        $dateFin = $dateDebut->copy()->setHour(22)->startOfHour(); // Fin de la journée à 22h
+                        $calendar_date_fin = $calendar_date_debut->copy()->setHour(22)->startOfHour(); // Fin de la journée à 22h
                     } else {
-                        $dateFin = $dateDebut->copy()->addDay()->setHour(4)->startOfHour(); // Début de la journée suivante à 4h
+                        $calendar_date_fin = $calendar_date_debut->copy()->addDay()->setHour(4)->startOfHour(); // Début de la journée suivante à 4h
                     }
                 } else {
-                    $dateFin = $dateDebut->copy()->addHours($delaisRoute)->startOfHour(); // Ajouter le délai de route à la date de début
+                    $calendar_date_fin = $calendar_date_debut->copy()->addHours($calendar_delais_route)->startOfHour(); // Ajouter le délai de route à la date de début
                 }
             }
 
-            $heureDebut = $dateDebut->format('H:i:s');
-            $heureFin = $dateFin->format('H:i:s');
-            // $dureeTrajet = Carbon::parse($heureDebut)->diffInMinutes(Carbon::parse($heureFin));
-            // $heureTrajet = $dureeTrajet / 60;
-            // $dureeTrajet = getDistanceWithImeiAndPeriod($penalite->related_driver->rfid, $penalite->related_event->imei, $dateDebut, $dateFin);
-            // $heureTrajet = $dureeTrajet['drive_duration'] / 3600;
-            $heureTrajet = $penalite->drive_duration / 3600;
+
+            $calendar_heure_debut = $calendar_date_debut->format('H:i:s');
+            $calendar_heure_fin = $calendar_date_fin->format('H:i:s');
+
+            if (($calendar_heure_debut >= '04:00:00' && $calendar_heure_fin <= '22:00:00')) {
+                // Règle de jour
+                $condition = 8 * 3600;
+            } elseif ($calendar_heure_debut >= '22:00:00' || $calendar_heure_fin <= '04:00:00') {
+                // Règle de nuit
+                $condition = 10 * 3600;
+            } elseif (($calendar_heure_debut < '04:00:00' && $calendar_heure_fin > '22:00:00') || ($calendar_heure_debut < '04:00:00' && $calendar_heure_fin < '22:00:00')) {
+                // Le trajet chevauche la journée et la nuit
+                $condition = 10 * 3600;
+            } 
+
+            if(intval($stop_duration_second) < $condition){
+                $entryExists = false;
+                foreach ($dataInfraction as $entry) {
+                    if ($entry['calendar_id'] == $infraction->calendar_id &&
+                        $entry['imei'] == $infraction->imei &&
+                        $entry['rfid'] == $infraction->rfid &&
+                        $entry['date_debut'] == $infraction->date_debut &&
+                        $entry['date_fin'] == $infraction->date_fin) {
+                        // Une entrée similaire existe déjà, marquez l'existence de l'entrée
+                        $entryExists = true;
+                        break;
+                    }
+                }
+                if (!$entryExists) {
+                    $dataInfraction[] = [
+                        'calendar_id' => $infraction->calendar_id,
+                        'imei' => $infraction->imei,
+                        'rfid' => $infraction->rfid,
+                        'vehicule' => $infraction->vehicule,
+                        'event' => 'Temps de repos minimum après une journée de travail',
+                        'distance' => $infraction->distance,
+                        'distance_calendar' => $infraction->distance_calendar,
+                        'odometer' => $infraction->odometer,
+                        'duree_initial' => $condition,
+                        'duree_infraction' => intval($stop_duration_second),
+                        'date_debut' => $endingJourney->toDateString(),
+                        'date_fin' => $debutSecondJourney->toDateString(),
+                        'heure_debut' => $endingJourney->toTimeString(),
+                        'heure_fin' => $debutSecondJourney->toTimeString(),
+                        'gps_debut' => $infraction->gps_debut,
+                        'gps_fin' => $infraction->gps_fin,
+                        'point' => (($condition) - (intval($stop_duration_second))) / 600,
+                        'insuffisance' => (($condition) - (intval($stop_duration_second))) 
+                    ];
+                }
+            }
+        }
         
-            if (($heureDebut >= '04:00:00' && $heureFin <= '22:00:00')) {
+        return $dataInfraction;
+
+    }
+}
+
+// Enregistrer l'infraction
+if(!function_exists('saveReposMinimumApesJournéeTtravail')){
+    function saveReposMinimumApesJournéeTtravail(){
+        $infractions = checkTempsReposMinApresJourneeTravail();
+        foreach($infractions as $item){
+            $existingInfraction = Infraction::where('imei', $item['imei'])
+                    ->where('rfid', $item['rfid'])
+                    ->where('event', $item['event'])
+                    ->where('date_debut', $item['date_debut'])
+                    ->where('date_fin', $item['date_fin'])
+                    ->where('heure_debut', $item['heure_debut'])
+                    ->where('heure_fin', $item['heure_fin'])
+                    ->first();
+    
+            if (!$existingInfraction) {
+            
+                if(isset($item['rfid']) && $item['rfid'] != "0000000000"){
+                    Infraction::create([
+                        'calendar_id' => $item['calendar_id'],
+                        'imei' => $item['imei'],
+                        'rfid' => $item['rfid'],
+                        'vehicule' => $item['vehicule'],
+                        'event' => trim($item['event']),
+                        'distance' => $item['distance'],
+                        'distance_calendar' => $item['distance_calendar'],
+                        'odometer' => $item['odometer'],
+                        'duree_infraction' => $item['duree_infraction'],
+                        'duree_initial' => $item['duree_initial'],
+                        'date_debut' => $item['date_debut'],
+                        'date_fin' => $item['date_fin'],
+                        'heure_debut' => $item['heure_debut'],
+                        'heure_fin' => $item['heure_fin'],
+                        'gps_debut' => $item['gps_debut'],
+                        'gps_fin' => $item['gps_fin'],
+                        'point' => $item['point'],
+                        'insuffisance' => $item['insuffisance']
+                    ]);
+                }
+            }
+        }
+    }
+}
+
+// Temps de repos hebdomadaire (24h -> jour et nuit)
+if(!function_exists('checkTempsReposHebdomadaire')){
+    function checkTempsReposHebdomadaire(){
+        //Get Infraction by chauffeur
+        $infractions = Infraction::whereNotNull('calendar_id')
+                                   ->where('event', '!=' , 'Temps de repos hebdomadaire')
+                                   ->where('event', '!=' , 'Temps de repos minimum après une journée de travail')
+                                   ->orderBy('date_debut')
+                                   ->orderBy('heure_debut')
+                                   ->get();
+        $condition = 24;
+        $conditionSecond = 24 * 3600;
+        $dataInfraction = [];
+        foreach($infractions as $infraction){
+            $calendar_date_debut = Carbon::parse($infraction->related_calendar->date_debut);
+            $calendar_date_fin = $infraction->related_calendar->date_fin ? Carbon::parse($infraction->related_calendar->date_fin) : null;
+            $calendar_delais_route = $infraction->related_calendar->delais_route;
+
+            $j6_calendar_debut = $calendar_date_debut->copy()->addDays(6);
+            $j7_calendar_debut = $calendar_date_debut->copy()->addDays(7);
+            $stop_duration_seconde = getStopDurationCached($infraction->imei, $j6_calendar_debut, $j7_calendar_debut);
+            
+
+            if (is_null($calendar_date_fin)) {
+                if ($calendar_delais_route <= 1) {
+                    // Si la date de début est pendant la journée, ajouter le délai de route à 22h, sinon ajouter à 4h pour la nuit
+                    $heureDebut = $calendar_date_debut->hour;
+                    if ($heureDebut >= 4 && $heureDebut < 22) {
+                        $calendar_date_fin = $calendar_date_debut->copy()->setHour(22)->startOfHour(); // Fin de la journée à 22h
+                    } else {
+                        $calendar_date_fin = $calendar_date_debut->copy()->addDay()->setHour(4)->startOfHour(); // Début de la journée suivante à 4h
+                    }
+                } else {
+                    $calendar_date_fin = $calendar_date_debut->copy()->addHours($calendar_delais_route)->startOfHour(); // Ajouter le délai de route à la date de début
+                }
+            }
+
+            $calendar_heure_debut = $calendar_date_debut->format('H:i:s');
+            $calendar_heure_fin = $calendar_date_fin->format('H:i:s');
+
+            if(intval($stop_duration_seconde) < $conditionSecond){
+                $entryExists = false;
+                foreach ($dataInfraction as $entry) {
+                    if ($entry['calendar_id'] == $infraction->calendar_id &&
+                        $entry['imei'] == $infraction->imei &&
+                        $entry['rfid'] == $infraction->rfid &&
+                        $entry['date_debut'] == $infraction->date_debut &&
+                        $entry['date_fin'] == $infraction->date_fin) {
+                        // Une entrée similaire existe déjà, marquez l'existence de l'entrée
+                        $entryExists = true;
+                        break;
+                    }
+                }
+                if (!$entryExists) {
+                    $dataInfraction[] = [
+                        'calendar_id' => $infraction->calendar_id,
+                        'imei' => $infraction->imei,
+                        'rfid' => $infraction->rfid,
+                        'vehicule' => $infraction->vehicule,
+                        'event' => 'Temps de repos hebdomadaire',
+                        'distance' => $infraction->distance,
+                        'distance_calendar' => $infraction->distance_calendar,
+                        'odometer' => $infraction->odometer,
+                        'duree_initial' => $conditionSecond,
+                        'duree_infraction' => intval($stop_duration_seconde),
+                        'date_debut' => $infraction->date_debut,
+                        'date_fin' => $infraction->date_fin,
+                        'heure_debut' => $infraction->heure_debut,
+                        'heure_fin' => $infraction->heure_fin,
+                        'gps_debut' => $infraction->gps_debut,
+                        'gps_fin' => $infraction->gps_fin,
+                        'point' => (($conditionSecond) - (intval($stop_duration_seconde))) / 600,
+                        'insuffisance' => (($conditionSecond) - (intval($stop_duration_seconde))) 
+                    ];
+                }
+            }
+        }
+        return $dataInfraction;
+    }
+}
+
+if(!function_exists('SaveTempsReposHebdomadaire')){
+    function SaveTempsReposHebdomadaire(){
+        $infractions = checkTempsReposHebdomadaire();
+        foreach($infractions as $item){
+            $existingInfraction = Infraction::where('imei', $item['imei'])
+                    ->where('rfid', $item['rfid'])
+                    ->where('event', $item['event'])
+                    ->where('date_debut', $item['date_debut'])
+                    ->where('date_fin', $item['date_fin'])
+                    ->where('heure_debut', $item['heure_debut'])
+                    ->where('heure_fin', $item['heure_fin'])
+                    ->first();
+    
+            if (!$existingInfraction) {
+            
+                if(isset($item['rfid']) && $item['rfid'] != "0000000000"){
+                    Infraction::create([
+                        'calendar_id' => $item['calendar_id'],
+                        'imei' => $item['imei'],
+                        'rfid' => $item['rfid'],
+                        'vehicule' => $item['vehicule'],
+                        'event' => trim($item['event']),
+                        'distance' => $item['distance'],
+                        'distance_calendar' => $item['distance_calendar'],
+                        'odometer' => $item['odometer'],
+                        'duree_infraction' => $item['duree_infraction'],
+                        'duree_initial' => $item['duree_initial'],
+                        'date_debut' => $item['date_debut'],
+                        'date_fin' => $item['date_fin'],
+                        'heure_debut' => $item['heure_debut'],
+                        'heure_fin' => $item['heure_fin'],
+                        'gps_debut' => $item['gps_debut'],
+                        'gps_fin' => $item['gps_fin'],
+                        'point' => $item['point'],
+                        'insuffisance' => $item['insuffisance']
+                    ]);
+                }
+            }
+        }
+    }
+}
+
+if(!function_exists('checkTempsConduiteMaxJourTravail')){
+    function checkTempsConduiteMaxJourTravail(){
+        // Récupérer toutes les pénalités
+        $infractions = Infraction::whereNotNull('calendar_id')
+                                   ->orderBy('date_debut')
+                                   ->orderBy('heure_debut')
+                                   ->get();
+        $limite = 0;
+        // Tableau pour stocker les heures de conduite pour chaque chauffeur
+        $dataInfraction = [];
+
+        // Parcourir chaque pénalité
+        foreach ($infractions as $infraction) {
+            $calendar_date_debut = Carbon::parse($infraction->related_calendar->date_debut);
+            $calendar_date_fin = $infraction->related_calendar->date_fin ? Carbon::parse($infraction->related_calendar->date_fin) : null;
+            $calendar_delais_route = $infraction->related_calendar->delais_route;
+
+
+            $drive_duration = getDriveDurationCached($infraction->imei, $calendar_date_debut, $calendar_date_fin);
+
+            if (is_null($calendar_date_fin)) {
+                if ($calendar_delais_route <= 1) {
+                    // Si la date de début est pendant la journée, ajouter le délai de route à 22h, sinon ajouter à 4h pour la nuit
+                    $heureDebut = $calendar_date_debut->hour;
+                    if ($heureDebut >= 4 && $heureDebut < 22) {
+                        $calendar_date_fin = $calendar_date_debut->copy()->setHour(22)->startOfHour(); // Fin de la journée à 22h
+                    } else {
+                        $calendar_date_fin = $calendar_date_debut->copy()->addDay()->setHour(4)->startOfHour(); // Début de la journée suivante à 4h
+                    }
+                } else {
+                    $calendar_date_fin = $calendar_date_debut->copy()->addHours($calendar_delais_route)->startOfHour(); // Ajouter le délai de route à la date de début
+                }
+            }
+
+            $calendar_heure_debut = $calendar_date_debut->format('H:i:s');
+            $calendar_heure_fin = $calendar_date_fin->format('H:i:s');
+            
+            $heureTrajet = $infraction->drive_duration / 3600;
+        
+            if (($calendar_heure_debut >= '04:00:00' && $calendar_heure_fin <= '22:00:00')) {
                 // Règle de jour
                 $limite = 13;
-            } elseif ($heureDebut >= '22:00:00' || $heureFin <= '04:00:00') {
+            } elseif ($calendar_heure_debut >= '22:00:00' || $calendar_heure_fin <= '04:00:00') {
                 // Règle de nuit
                 $limite = 12;
-            } elseif (($heureDebut < '04:00:00' && $heureFin > '22:00:00') || ($heureDebut < '04:00:00' && $heureFin < '22:00:00')) {
+            } elseif (($calendar_heure_debut < '04:00:00' && $calendar_heure_fin > '22:00:00') || ($calendar_heure_debut < '04:00:00' && $calendar_heure_fin < '22:00:00')) {
                 // Le trajet chevauche la journée et la nuit
                 $limite = 12;
             } 
 
-            if($heureTrajet > $limite){
-                $infraction = Penalite::where('event', 'Temps de conduite maximum dans une journée de travail')->first();
-                //Enregistrer dans la table Event 
-                $event = Event::updateOrCreate([
-                    'imei' => $penalite->related_event->imei,
-                    'chauffeur' => $penalite->related_event->rfid,
-                    'vehicule' => $penalite->related_event->vehicule,
-                    'type' => 'Temps de conduite maximum dans une journée de travail',
-                    'description' => 'Temps de conduite maximum dans une journée de travail',
-                    'latitude' => $penalite->related_event->latitude,
-                    'longitude' => $penalite->related_event->longitude,
-                    'duree' => $dureeTrajet['drive_duration'],
-                    'date' => $penalite->date,
-                ]);
-
-                // $existingItem = Model::where('column', $item['value'])->first();
-                $existingPenalty = PenaliteChauffeur::where([
-                    'id_chauffeur' => $penalite->id_chauffeur,
-                    'id_calendar' => $penalite->id_calendar,
-                    'id_event' => $event->id,
-                    'id_penalite' => $infraction->id,
-                    'date' => $event->date,
-                    'distance' => $penalite->distance,
-                    'duree' => $dureeTrajet['drive_duration']
-                ])->first();
-
-                if (!$existingPenalty) {
-                    $dataToInsert[] = [
-                        'id_chauffeur' => $penalite->id_chauffeur,
-                        'id_calendar' => $penalite->id_calendar,
-                        'id_event' => $event->id,
-                        'id_penalite' => $infraction->id,
-                        'date' => $event->date,
-                        'distance' => $penalite->distance,
-                        'duree' => $dureeTrajet['drive_duration']
+            if(intval($drive_duration) > $limite){
+                $entryExists = false;
+                foreach ($dataInfraction as $entry) {
+                    if ($entry['calendar_id'] == $infraction->calendar_id &&
+                        $entry['imei'] == $infraction->imei &&
+                        $entry['rfid'] == $infraction->rfid &&
+                        $entry['date_debut'] == $infraction->date_debut &&
+                        $entry['date_fin'] == $infraction->date_fin) {
+                        // Une entrée similaire existe déjà, marquez l'existence de l'entrée
+                        $entryExists = true;
+                        break;
+                    }
+                }
+                if (!$entryExists) {
+                    $dataInfraction[] = [
+                        'calendar_id' => $infraction->calendar_id,
+                        'imei' => $infraction->imei,
+                        'rfid' => $infraction->rfid,
+                        'vehicule' => $infraction->vehicule,
+                        'event' => 'Temps de conduite maximum dans une journée de travail',
+                        'distance' => $infraction->distance,
+                        'distance_calendar' => $infraction->distance_calendar,
+                        'odometer' => $infraction->odometer,
+                        'duree_initial' => $condition *3600,
+                        'duree_infraction' => intval($stop_duration) *3600,
+                        'date_debut' => $infraction->date_debut,
+                        'date_fin' => $infraction->date_fin,
+                        'heure_debut' => $infraction->heure_debut,
+                        'heure_fin' => $infraction->heure_fin,
+                        'gps_debut' => $infraction->gps_debut,
+                        'gps_fin' => $infraction->gps_fin,
+                        'point' => ((intval($drive_duration) * 3600) - ($condition* 3600)) / 600,
+                        'insuffisance' => ((intval($drive_duration) * 3600) - ($condition* 3600)) 
                     ];
                 }
             }
-            
         }
-        if(count($dataToInsert) > 0){
-            PenaliteChauffeur::insert($dataToInsert);
-        }
-    
+
+        return $dataInfraction;
     }
 }
 
@@ -1342,6 +1616,8 @@ if(!function_exists('groupedInfraction')){
         ];
     }
 }
+
+
 
 
 if (!function_exists('calculerDureeTotale')) {

@@ -126,7 +126,7 @@
                                 <td style="text-align: center">{{ trim($result->infraction) }}</td>
                                 <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
                                 <td style="text-align: center">
-                                    <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->gps_debut }}', '{{ $result->infraction }}')">
+                                    <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->infraction }}')">
                                         {{ $result->gps_debut }}
                                     </a>
                                 </td>
@@ -241,8 +241,9 @@
         }
 
 
-        function showMapModal(latitude, longitude, type) {
-            initMap(latitude, longitude, type);
+        function showMapModal(gps, type) {
+            var tab = gps.split(',');
+            initMap(tab[0], tab[1], type);
             $('#mapModal').modal('show');
         }
     </script>
