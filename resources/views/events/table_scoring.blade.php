@@ -49,7 +49,7 @@
                 </div>
             </div>
             <div class="card-body p-0">
-                <table id="tableau-score" class="table table-bordered" width="100%">
+                <table id="tableau-score" class="table table-bordered table-responsive" width="100%">
                     <thead>
                         <tr>
                             <th style="text-align: center;">Chauffeur</th>
@@ -57,7 +57,7 @@
                             <th style="text-align: center;">Infraction</th>
                             <th style="text-align: center;">Date de l'infraction</th>
                             <th style="text-align: center;">Coordonnées gps</th>
-                            <th style="text-align: center;">Durée de l'infraction</th>
+                            <th style="text-align: center;">Durée infraction / durée effectuée</th>
                             <th style="text-align: center;">Insuffisance</th>
                             <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
                             <th style="text-align: center;">Distance totale dans le calendrier</th>
@@ -128,8 +128,8 @@
                                         {{ $result->gps_debut }}
                                     </a>
                                 </td>
-                                <td style="text-align: center">{{ $result->duree_infraction }} s</td>
-                                <td style="text-align: center">{{ $result->insuffisance ? $result->insuffisance : 0 }} s</td>
+                                <td style="text-align: center">{{ convertMinuteHeure($result->duree_infraction) }}</td>
+                                <td style="text-align: center">{{ $result->insuffisance ? convertMinuteHeure($result->insuffisance) : "" }}</td>
                                 <td style="text-align: center">{{ $result->distance }} Km</td>
                                 <td style="text-align: center">{{ $result->distance_calendar }} Km</td>
                                 <td style="text-align: center">{{ $result->point }}</td>

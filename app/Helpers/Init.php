@@ -51,6 +51,25 @@ if (!function_exists('totalScoringCard')) {
 
 
 
+if (!function_exists('convertMinuteHeure')) {
+    function convertMinuteHeure($seconds) {
+        if ($seconds < 60) {
+            return number_format($seconds, 2) . " s";
+        } elseif ($seconds < 3600) {
+            $wholeMinutes = floor($seconds / 60);
+            $remainingSeconds = $seconds % 60;
+            return sprintf("%d min %02d s", $wholeMinutes, round($remainingSeconds));
+        } else {
+            $hours = floor($seconds / 3600);
+            $remaining_seconds = $seconds % 3600;
+            $minutes = $remaining_seconds / 60;
+            return sprintf("%d h %02d min", $hours, round($minutes));
+        }
+    }
+}
+
+
+
 if (!function_exists('tabScoringCard')) {
     function tabScoringCard()
     {
