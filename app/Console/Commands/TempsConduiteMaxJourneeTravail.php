@@ -4,14 +4,14 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class CheckDuringMaxTimeDriving extends Command
+class TempsConduiteMaxJourneeTravail extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'check:maxdrive';
+    protected $signature = 'max:drive';
 
     /**
      * The console command description.
@@ -37,6 +37,6 @@ class CheckDuringMaxTimeDriving extends Command
      */
     public function handle()
     {
-        checkTempsReposMinJourTravail();
+        SaveTempsConduiteMaxJourTravail();
     }
 }

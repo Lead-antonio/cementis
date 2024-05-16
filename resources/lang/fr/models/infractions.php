@@ -20,7 +20,7 @@ return array (
     'gps_debut' => 'Gps début',
     'gps_fin' => 'Gps fin',
     'point' => 'Point',
-    'duree_initial' => 'Durée initial',
-    'insufficance' => 'Insufficance',
+    'duree_initial' => 'Durée initiale',
+    'insuffisance' => 'Insuffisance',
   ),
 );

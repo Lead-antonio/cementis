@@ -66,6 +66,7 @@ if (!function_exists('tabScoringCard')) {
             'i.heure_debut',
             'i.date_fin',
             'i.heure_fin',
+            'i.insuffisance',
             'i.duree_infraction',
             'i.duree_initial',
             'i.odometer',
@@ -1036,9 +1037,8 @@ if (!function_exists('getDriveDuration')) {
 
 
         $drive_duration_second = $data['drives_duration_time'];
-        $drive_duration_hour = $drive_duration_second / 3600;
         
-        return $drive_duration_hour;
+        return $drive_duration_second;
     }
 }
 
@@ -1086,6 +1086,7 @@ if(!function_exists('checkTempsReposMinApresJourneeTravail')){
         //Get Infraction by chauffeur
         $infractions = Infraction::whereNotNull('calendar_id')
                                    ->where('event', '!=' , 'Temps de repos hebdomadaire')
+                                   ->where('event', '!=' , 'Temps de conduite maximum dans une journée de travail')
                                    ->where('event', '!=' , 'Temps de repos minimum après une journée de travail')
                                    ->orderBy('date_debut')
                                    ->orderBy('heure_debut')
@@ -1223,6 +1224,7 @@ if(!function_exists('checkTempsReposHebdomadaire')){
         //Get Infraction by chauffeur
         $infractions = Infraction::whereNotNull('calendar_id')
                                    ->where('event', '!=' , 'Temps de repos hebdomadaire')
+                                   ->where('event', '!=' , 'Temps de conduite maximum dans une journée de travail')
                                    ->where('event', '!=' , 'Temps de repos minimum après une journée de travail')
                                    ->orderBy('date_debut')
                                    ->orderBy('heure_debut')
@@ -1344,6 +1346,9 @@ if(!function_exists('checkTempsConduiteMaxJourTravail')){
     function checkTempsConduiteMaxJourTravail(){
         // Récupérer toutes les pénalités
         $infractions = Infraction::whereNotNull('calendar_id')
+                                   ->where('event', '!=' , 'Temps de repos hebdomadaire')
+                                   ->where('event', '!=' , 'Temps de conduite maximum dans une journée de travail')
+                                   ->where('event', '!=' , 'Temps de repos minimum après une journée de travail')
                                    ->orderBy('date_debut')
                                    ->orderBy('heure_debut')
                                    ->get();
@@ -1358,7 +1363,7 @@ if(!function_exists('checkTempsConduiteMaxJourTravail')){
             $calendar_delais_route = $infraction->related_calendar->delais_route;
 
 
-            $drive_duration = getDriveDurationCached($infraction->imei, $calendar_date_debut, $calendar_date_fin);
+            $drive_duration_second = getDriveDurationCached($infraction->imei, $calendar_date_debut, $calendar_date_fin);
 
             if (is_null($calendar_date_fin)) {
                 if ($calendar_delais_route <= 1) {
@@ -1377,20 +1382,19 @@ if(!function_exists('checkTempsConduiteMaxJourTravail')){
             $calendar_heure_debut = $calendar_date_debut->format('H:i:s');
             $calendar_heure_fin = $calendar_date_fin->format('H:i:s');
             
-            $heureTrajet = $infraction->drive_duration / 3600;
         
             if (($calendar_heure_debut >= '04:00:00' && $calendar_heure_fin <= '22:00:00')) {
                 // Règle de jour
-                $limite = 13;
+                $limite = 13 * 3600;
             } elseif ($calendar_heure_debut >= '22:00:00' || $calendar_heure_fin <= '04:00:00') {
                 // Règle de nuit
-                $limite = 12;
+                $limite = 12 * 3600;
             } elseif (($calendar_heure_debut < '04:00:00' && $calendar_heure_fin > '22:00:00') || ($calendar_heure_debut < '04:00:00' && $calendar_heure_fin < '22:00:00')) {
                 // Le trajet chevauche la journée et la nuit
-                $limite = 12;
+                $limite = 12 * 3600;
             } 
 
-            if(intval($drive_duration) > $limite){
+            if(intval($drive_duration_second) > $limite){
                 $entryExists = false;
                 foreach ($dataInfraction as $entry) {
                     if ($entry['calendar_id'] == $infraction->calendar_id &&
@@ -1413,22 +1417,63 @@ if(!function_exists('checkTempsConduiteMaxJourTravail')){
                         'distance' => $infraction->distance,
                         'distance_calendar' => $infraction->distance_calendar,
                         'odometer' => $infraction->odometer,
-                        'duree_initial' => $condition *3600,
-                        'duree_infraction' => intval($stop_duration) *3600,
-                        'date_debut' => $infraction->date_debut,
-                        'date_fin' => $infraction->date_fin,
-                        'heure_debut' => $infraction->heure_debut,
-                        'heure_fin' => $infraction->heure_fin,
+                        'duree_initial' => $limite,
+                        'duree_infraction' => intval($drive_duration_second),
+                        'date_debut' => $calendar_date_debut->toDateString(),
+                        'date_fin' => $calendar_date_fin->toDateString(),
+                        'heure_debut' => $calendar_date_debut->toTimeString(),
+                        'heure_fin' => $calendar_date_fin->toTimeString(),
                         'gps_debut' => $infraction->gps_debut,
                         'gps_fin' => $infraction->gps_fin,
-                        'point' => ((intval($drive_duration) * 3600) - ($condition* 3600)) / 600,
-                        'insuffisance' => ((intval($drive_duration) * 3600) - ($condition* 3600)) 
+                        'point' => ($drive_duration_second -$limite) / 600,
+                        'insuffisance' => ($drive_duration_second  - $limite) 
                     ];
                 }
             }
         }
-
         return $dataInfraction;
+    }
+}
+
+if(!function_exists('SaveTempsConduiteMaxJourTravail')){
+    function SaveTempsConduiteMaxJourTravail(){
+        $infractions = checkTempsConduiteMaxJourTravail();
+        foreach($infractions as $item){
+            $existingInfraction = Infraction::where('imei', $item['imei'])
+                    ->where('rfid', $item['rfid'])
+                    ->where('event', $item['event'])
+                    ->where('date_debut', $item['date_debut'])
+                    ->where('date_fin', $item['date_fin'])
+                    ->where('heure_debut', $item['heure_debut'])
+                    ->where('heure_fin', $item['heure_fin'])
+                    ->first();
+    
+            if (!$existingInfraction) {
+            
+                if(isset($item['rfid']) && $item['rfid'] != "0000000000"){
+                    Infraction::create([
+                        'calendar_id' => $item['calendar_id'],
+                        'imei' => $item['imei'],
+                        'rfid' => $item['rfid'],
+                        'vehicule' => $item['vehicule'],
+                        'event' => trim($item['event']),
+                        'distance' => $item['distance'],
+                        'distance_calendar' => $item['distance_calendar'],
+                        'odometer' => $item['odometer'],
+                        'duree_infraction' => $item['duree_infraction'],
+                        'duree_initial' => $item['duree_initial'],
+                        'date_debut' => $item['date_debut'],
+                        'date_fin' => $item['date_fin'],
+                        'heure_debut' => $item['heure_debut'],
+                        'heure_fin' => $item['heure_fin'],
+                        'gps_debut' => $item['gps_debut'],
+                        'gps_fin' => $item['gps_fin'],
+                        'point' => $item['point'],
+                        'insuffisance' => $item['insuffisance']
+                    ]);
+                }
+            }
+        }
     }
 }
 

@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $gps_fin
  * @property number $point
  * @property integer $duree_initial
- * @property integer $insufficance
+ * @property integer $insuffisance
  */
 class Infraction extends Model
 {
@@ -57,7 +57,7 @@ class Infraction extends Model
         'gps_fin',
         'point',
         'duree_initial',
-        'insufficance'
+        'insuffisance'
     ];
 
     /**
@@ -84,7 +84,7 @@ class Infraction extends Model
         'gps_fin' => 'string',
         'point' => 'decimal:2',
         'duree_initial' => 'integer',
-        'insufficance' => 'integer'
+        'insuffisance' => 'integer'
     ];
 
     /**

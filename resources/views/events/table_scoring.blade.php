@@ -54,12 +54,13 @@
                         <tr>
                             <th style="text-align: center;">Chauffeur</th>
                             <th style="text-align: center;">Transporteur</th>
-                            <th style="text-align: center;">Événements</th>
-                            <th style="text-align: center;">Date de l'évènement</th>
+                            <th style="text-align: center;">Infraction</th>
+                            <th style="text-align: center;">Date de l'infraction</th>
                             <th style="text-align: center;">Coordonnées gps</th>
-                            <th style="text-align: center;">Durée</th>
+                            <th style="text-align: center;">Durée de l'infraction</th>
+                            <th style="text-align: center;">Insuffisance</th>
                             <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
-                            <th style="text-align: center;">Distance totale</th>
+                            <th style="text-align: center;">Distance totale dans le calendrier</th>
                             <th style="text-align: center;">Point de pénalité</th>
                             <th style="text-align: center;">Scoring Card</th>
                         </tr>
@@ -71,15 +72,13 @@
                             $totalPenalty = 0;
                             $totalDistance = 0;
                             $uniqueDistances = [];
+                            $scoringClass = '';
                             $duree = 0;
                         @endphp
                         @foreach ($scoring as $result)
                             @if ($currentDriver !== $result->driver)
                                 @if ($currentDriver !== null)
                                 @php
-                                    // Calcul de la classe en fonction de la valeur de la scoring card
-                                    $scoringClass = '';
-                                    
                                     if ($totalDistance != 0) {
                                         $scoring = ($totalPenalty / $totalDistance) * 100;
                                     }else{
@@ -97,12 +96,10 @@
                                     }
                                 @endphp
                                     <tr class="total-row">
-                                        <td colspan="7" style="text-align: center;"><strong>Total :</strong></td>
-                                        {{-- <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td> --}}
+                                        <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
                                         <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td>
                                         <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
                                         <td class="{{ $scoringClass }}" style="text-align: center;">
-                                            <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
                                             @if ($totalDistance != 0)
                                                 {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
                                             @else
@@ -117,6 +114,7 @@
                                     $previousDistance = null; 
                                     $totalPenalty = 0;
                                     $totalDistance = 0;
+                                    $scoringClass = '';
                                     $uniqueDistances = [];
                                 @endphp
                             @endif
@@ -131,6 +129,7 @@
                                     </a>
                                 </td>
                                 <td style="text-align: center">{{ $result->duree_infraction }} s</td>
+                                <td style="text-align: center">{{ $result->insuffisance ? $result->insuffisance : 0 }} s</td>
                                 <td style="text-align: center">{{ $result->distance }} Km</td>
                                 <td style="text-align: center">{{ $result->distance_calendar }} Km</td>
                                 <td style="text-align: center">{{ $result->point }}</td>
@@ -141,20 +140,36 @@
                                     $uniqueDistances[] = $result->distance_calendar; 
                                     $totalDistance += $result->distance_calendar;
                                 }
+                                
                             @endphp
                         @endforeach
                         @if ($currentDriver !== null)
+                            @php
+                                if ($totalDistance != 0) {
+                                    $scoring = ($totalPenalty / $totalDistance) * 100;
+                                }else{
+                                    $scoring = $totalPenalty / 100;
+                                }
+
+                                if ($scoring >= 0 && $scoring <= 2) {
+                                    $scoringClass = 'scoring-green';
+                                } elseif ($scoring > 2 && $scoring <= 5) {
+                                    $scoringClass = 'scoring-yellow';
+                                } elseif ($scoring > 5 && $scoring <= 10) {
+                                    $scoringClass = 'scoring-orange';
+                                } else {
+                                    $scoringClass = 'scoring-red';
+                                }
+                            @endphp
                             <tr class="total-row">
-                                <td colspan="7" style="text-align: center;"><strong>Total :</strong></td>
-                                {{-- <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td> --}}
+                                <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
                                 <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
                                 <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
                                 <td class="{{ $scoringClass }}" style="text-align: center">
-                                    <!--{{--{{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}--}}-->
                                     @if ($totalDistance != 0)
-                                    {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                        {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
                                     @else
-                                    {{number_format($totalPenalty / 100, 2)}}
+                                        {{number_format($totalPenalty / 100, 2)}}
                                     @endif
                                 </td>
                             </tr>
@@ -177,10 +192,6 @@
 
 
     <style>
-        /* .scoring-row {
-            background-color: #6dac10; 
-            color: #000000;
-        } */
         .scoring-green {
             background-color: #6dac10; /* Vert */
             color: #000000; /* Couleur de texte */
@@ -253,6 +264,6 @@
             html2pdf().from(element).save('tableau.pdf');
         }
 
-        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 7], vertical_align:'middle'});
+        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 8], vertical_align:'middle'});
     </script>
 @endsection

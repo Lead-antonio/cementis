@@ -89,7 +89,7 @@ class InfractionDataTable extends DataTable
             'gps_debut' => new Column(['title' => __('models/infractions.fields.gps_debut'), 'data' => 'gps_debut']),
             'gps_fin' => new Column(['title' => __('models/infractions.fields.gps_fin'), 'data' => 'gps_fin']),
             'point' => new Column(['title' => __('models/infractions.fields.point'), 'data' => 'point']),
-            'insufficance' => new Column(['title' => __('models/infractions.fields.insufficance'), 'data' => 'insufficance'])
+            'insuffisance' => new Column(['title' => __('models/infractions.fields.insuffisance'), 'data' => 'insuffisance'])
         ];
     }
 
