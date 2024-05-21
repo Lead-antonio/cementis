@@ -58,7 +58,7 @@ class Transporteur extends Model
         return $this->hasMany(Chauffeur::class, 'transporteur_id');
     }
 
-    public function vehicule()
+    public function vehicules()
     {
         return $this->hasMany(Vehicule::class, 'id_transporteur');
     }

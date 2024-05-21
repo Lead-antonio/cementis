@@ -40,8 +40,8 @@ class DashboardController extends Controller
         $data['totalChauffeurs'] = $totalChauffeurs;
         
 
-        $data['best_scoring'] = getAllGoodScoring();
-        $data['bad_scoring'] = getAllBadScoring();
+        // $data['best_scoring'] = getAllGoodScoring();
+        // $data['bad_scoring'] = getAllBadScoring();
 
        $topworst = topAndWorstChauffeur();
 

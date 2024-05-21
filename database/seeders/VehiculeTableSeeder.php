@@ -22,6 +22,7 @@ class VehiculeTableSeeder extends Seeder
             '3519TAV', '8029TBJ'
         ];
         $transporteurs = \App\Models\Transporteur::pluck('id')->toArray();
+        // dd($transporteurs);
         foreach ($noms_vehicules as $nom) {
             Vehicule::create([
                 'nom' => $nom,

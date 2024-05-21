@@ -26,8 +26,13 @@ class TransporteurSeeder extends Seeder
             ['nom' => 'HIRIDJEE']
         ];
 
-        foreach ($transporteurs as $transporteur) {
-            Transporteur::create($transporteur);
+        foreach ($transporteurs as $nom) {
+            // Vérifier si le transporteur existe déjà
+            if (!Transporteur::where('nom', $nom)->exists()) {
+                // Si le transporteur n'existe pas, alors le créer
+                Transporteur::create(['nom' => $nom]);
+            }
         }
     }
-}
+    }
+

@@ -119,14 +119,14 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            @foreach ($best_scoring as $key => $item)
+                            {{-- @foreach ($best_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
                                         <div class="number-circle">{{ $key + 1 }}</div>
                                         <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
                                     </div>
                                 </div>
-                            @endforeach
+                            @endforeach --}}
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -151,14 +151,14 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            @foreach ($bad_scoring as $key => $item)
+                            {{-- @foreach ($bad_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
                                         <div class="number-circle-worst">{{ $key + 1 }}</div>
                                         <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
                                     </div>
                                 </div>
-                            @endforeach
+                            @endforeach --}}
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -238,7 +238,7 @@
                     </div>
                 </div>
 
-                <div class="card-body">
+                {{-- <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
                       <thead class="table-dark">
@@ -254,10 +254,14 @@
                                     <td class="text-center">{{$item->chauffeurs_count}}</td>
                                 </tr>
                         @endforeach
+                        <tr>
+                            <td><strong>Total</strong></td>
+                                <td class="text-center"><strong>{{$totalChauffeurs}}</strong></td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </div> --}}
               </div>
             </div>
             <div class="col-12 col-sm-6 col-md-6">
@@ -274,26 +278,34 @@
                         </div>
                     </div>
 
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead class="table-dark">
-                          <tr>
-                            <th scope="col">Transporteur</th>
-                            <th scope="col" class="text-center">Nombre de vehicules</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($dashboardInfo['count_vehicule_transporteur'] as $item)
+                    <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead class="table-dark">
+                              <tr>
+                                <th scope="col">Transporteur</th>
+                                <th scope="col" class="text-center">Nombre de Chauffeurs</th>
+                                <th scope="col" class="text-center">Nombre de Véhicules</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @foreach ($dashboardInfo['transporteurs'] as $item)
                                 <tr>
-                                    <td>{{$item->nom}}</td>
-                                    <td class="text-center">{{$item->vehicule_count}}</td>
+                                  <td>{{ $item->nom }}</td>
+                                  <td class="text-center">{{ $item->chauffeurs_count }}</td>
+                                  <td class="text-center">{{ $item->vehicule_count }}</td>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                              @endforeach
+                              <tr>
+                                <td><strong>Total</strong></td>
+                                <td class="text-center"><strong>{{ $totalChauffeurs }}</strong></td>
+                                <td class="text-center"><strong>{{ $totalVehicules }}</strong></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      
                 </div>
               </div>
           </div>
