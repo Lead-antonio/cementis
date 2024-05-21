@@ -5,8 +5,9 @@ return array (
   'plural' => 'Vehicules',
   'fields' => 
   array (
-    'id' => 'Id',
-    'nom' => 'Nom',
+    //'id' => 'Id',
+    'id_transporteur' => 'Transporteur',
+    'nom' => 'Immatriculation',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',
   ),

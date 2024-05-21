@@ -30,7 +30,7 @@ class VehiculeDataTable extends DataTable
      */
     public function query(Vehicule $model)
     {
-        return $model->newQuery();
+        return $model->newQuery()->with(['related_transporteur']);
     }
 
     /**
@@ -89,8 +89,9 @@ class VehiculeDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
-            'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom'])
+            // 'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
+            'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom']),
+            'id_transporteur' => new Column(['title' => __('models/vehicules.fields.id_transporteur'), 'data' => 'related_transporteur.nom']),
         ];
     }
 

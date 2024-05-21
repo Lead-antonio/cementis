@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Transporteur;
 
 
 /**
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property integer $id
  * @property string $nom
+ * @property integer $id_transporteur
  */
 class Vehicule extends Model
 {
@@ -28,7 +30,8 @@ class Vehicule extends Model
 
     public $fillable = [
         'id',
-        'nom'
+        'nom',
+        'id_transporteur'
     ];
 
     /**
@@ -38,7 +41,8 @@ class Vehicule extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'nom' => 'string'
+        'nom' => 'string',
+        'id_transporteur' => 'integer'
     ];
 
     /**
@@ -49,6 +53,11 @@ class Vehicule extends Model
     public static $rules = [
         
     ];
+
+    public function related_transporteur()
+    {
+        return $this->belongsTo(Transporteur::class, 'id_transporteur');
+    }
 
     
 }
