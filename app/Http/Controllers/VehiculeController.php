@@ -94,14 +94,15 @@ class VehiculeController extends AppBaseController
     public function edit($id)
     {
         $vehicule = $this->vehiculeRepository->find($id);
-
+        $transporteur = Transporteur::find($vehicule->id_transporteur);
+        $action = "edit";
         if (empty($vehicule)) {
             Flash::error(__('messages.not_found', ['model' => __('models/vehicules.singular')]));
 
             return redirect(route('vehicules.index'));
         }
 
-        return view('vehicules.edit')->with('vehicule', $vehicule);
+        return view('vehicules.edit' , compact('vehicule', 'transporteur','action'));
     }
 
     /**

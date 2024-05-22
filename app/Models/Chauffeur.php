@@ -50,9 +50,9 @@ class Chauffeur extends Model
         'transporteur_id' => 'integer',
     ];
 
-    public function transporteur()
+    public function related_transporteur()
     {
-        return $this->belongsTo(Transporteur::class);
+        return $this->belongsTo(Transporteur::class, 'transporteur_id');
     }
 
     public function penalties()
