@@ -6,6 +6,7 @@ use App\DataTables\ChauffeurDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateChauffeurRequest;
 use App\Http\Requests\UpdateChauffeurRequest;
+use App\Models\Transporteur;
 use App\Repositories\ChauffeurRepository;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\AppBaseController;
@@ -60,7 +61,9 @@ class ChauffeurController extends AppBaseController
      */
     public function create()
     {
-        return view('chauffeurs.create');
+        $transporteur = Transporteur::all();
+        $action = "create";
+        return view('chauffeurs.create', compact('transporteur', 'action'));
     }
 
     public function import_driver_excel(Request $request){
@@ -94,8 +97,8 @@ class ChauffeurController extends AppBaseController
 
         $chauffeur = $this->chauffeurRepository->create($input);
 
-        // Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
-        Session::put('success', 'success');
+        Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+        // Session::put('success', 'success');
 
         return redirect(route('chauffeurs.index'));
     }
@@ -130,14 +133,15 @@ class ChauffeurController extends AppBaseController
     public function edit($id)
     {
         $chauffeur = $this->chauffeurRepository->find($id);
-
+        $transporteur = Transporteur::find($chauffeur->transporteur_id);
+        $action = "edit";
         if (empty($chauffeur)) {
             Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
 
             return redirect(route('chauffeurs.index'));
         }
 
-        return view('chauffeurs.edit')->with('chauffeur', $chauffeur);
+        return view('chauffeurs.edit', compact('chauffeur', 'transporteur','action'));
     }
 
     /**

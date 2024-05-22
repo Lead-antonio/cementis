@@ -17,14 +17,14 @@
 
         <div class="card">
 
-            {{-- {!! Form::open(['route' => 'chauffeurs.store']) !!} --}}
-            {!! Form::open(['route' => 'import.driver.excel', 'method' => 'post', 'enctype' => 'multipart/form-data', 'onsubmit' => 'return submitForm();']) !!}
+            {!! Form::open(['route' => 'chauffeurs.store']) !!}
+            {{-- {!! Form::open(['route' => 'import.driver.excel', 'method' => 'post', 'enctype' => 'multipart/form-data', 'onsubmit' => 'return submitForm();']) !!} --}}
             @csrf
 
             <div class="card-body">
                 <div class="row">
-                    {{-- @include('chauffeurs.fields') --}}
-                    <div class="form-group col-sm-6">
+                    @include('chauffeurs.fields')
+                    {{-- <div class="form-group col-sm-6">
 
                         <div class="form-group ">
                             {!! Form::label('file_upload', __('models/fileUploads.fields.file_upload').':') !!}
@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
 

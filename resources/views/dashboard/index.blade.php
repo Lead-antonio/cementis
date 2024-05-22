@@ -119,14 +119,14 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            {{-- @foreach ($best_scoring as $key => $item)
+                            @foreach ($best_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
                                         <div class="number-circle">{{ $key + 1 }}</div>
                                         <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
                                     </div>
                                 </div>
-                            @endforeach --}}
+                            @endforeach
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -151,14 +151,14 @@
 
                     <div class="card-body">
                         <div class="card-body">
-                            {{-- @foreach ($bad_scoring as $key => $item)
+                            @foreach ($bad_scoring as $key => $item)
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
                                         <div class="number-circle-worst">{{ $key + 1 }}</div>
                                         <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
                                     </div>
                                 </div>
-                            @endforeach --}}
+                            @endforeach
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -224,7 +224,7 @@
 
         <!-- /.row -->
         <div class="row mt-5">
-            <div class="col-12 col-sm-6 col-md-6">
+            {{-- <div class="col-12 col-sm-6 col-md-6">
               <div class="card">
                 <div class="card-header">
                     <h1 class="card-title" style="padding-left: 31px;">Nombre total de chauffeurs par transporteur</h1>
@@ -238,7 +238,7 @@
                     </div>
                 </div>
 
-                {{-- <div class="card-body">
+                <div class="card-body">
                   <div class="table-responsive">
                     <table class="table">
                       <thead class="table-dark">
@@ -261,13 +261,13 @@
                       </tbody>
                     </table>
                   </div>
-                </div> --}}
+                </div>
               </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-6">
+            </div> --}}
+            <div class="col-12 col-sm-12 col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h1 class="card-title" style="padding-left: 31px;">Nombre total de véhicules par transporteur</h1>
+                        <h1 class="card-title" >Nombre total de chauffeurs et véhicules par transporteur</h1>
                         <div class="card-tools">
                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                 <i class="fas fa-minus"></i>

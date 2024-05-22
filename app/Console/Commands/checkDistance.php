@@ -37,6 +37,6 @@ class checkDistance extends Command
      */
     public function handle()
     {
-        checkDistance();
+        distance_calendar();
     }
 }

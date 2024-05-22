@@ -13,12 +13,13 @@
 <!-- Id Client Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('id_transporteur', __('models/vehicules.fields.id_transporteur').':', ['class' => 'required']) !!}
-    @if(isset($client))
+    @if(isset($transporteur))
         @if($action === "edit")
-            {!! Form::text('id_transporteur', $client->nom, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
+            {!! Form::text('id_transporteur', $transporteur->nom, ['class' => 'form-control', 'disabled' => 'disabled']) !!}
         @endif
         @if($action === "create")
             <select name="id_transporteur" id="" class="form-control" required>
+                <option value="">Choisissez un transporteur</option>
                 @foreach($transporteur as $transporteurs):
                     <option value="{{$transporteurs->id}}">{{$transporteurs->nom}}</option>
                 @endforeach

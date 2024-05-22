@@ -37,6 +37,6 @@ class CheckInfraction extends Command
      */
     public function handle()
     {
-        checkInfraction();
+        saveInfraction();
     }
 }

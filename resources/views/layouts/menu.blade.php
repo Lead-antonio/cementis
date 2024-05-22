@@ -152,13 +152,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     </a>
 </li>
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('penaliteChauffeurs.index') }}"
        class="nav-link {{ Request::is('penaliteChauffeurs*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-car-crash"></i> 
         <p>@lang('models/penaliteChauffeurs.plural')</p>
     </a>
-</li>
+</li> --}}
 
 {{-- <li class="nav-item">
     <a href="{{ route('events.scoring') }}"

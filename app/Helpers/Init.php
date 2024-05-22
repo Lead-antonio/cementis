@@ -582,32 +582,6 @@ if (!function_exists('getDistanceWithImeiAndPeriod')) {
     }
 }
 
-if(!function_exists('distance_calendar')) {
-    function distance_calendar(){
-        $infractions = Infraction::with('related_calendar')->whereNotNull('calendar_id')->get();
-        foreach($infractions as $item){
-            $calendar_start_date = Carbon::parse($item->related_calendar->date_debut);
-            $calendar_end_date = $item->related_calendar->date_fin ? Carbon::parse($item->related_calendar->date_fin) : null;
-
-            if ($calendar_end_date === null) {
-                $dureeEnHeures = floatval($item->related_calendar->delais_route);
-                if ($dureeEnHeures <= 1) {
-                    $calendar_end_date = $calendar_start_date->copy()->endOfDay();
-                } else {
-                    $dureeEnJours = ceil($dureeEnHeures / 24);
-                    $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
-                }
-            }
-            
-            $distance = getDistanceWithImeiAndPeriod($item->rfid, $item->imei, $calendar_start_date, $calendar_end_date);
-
-            $item->distance_calendar = $distance;
-            $item->save();
-        }
-    }
-}
-
-
 if (!function_exists('updateLatAndLongExistingEvent')) {
     function updateLatAndLongExistingEvent($event){
         $formattedDate = $event->date->format('YmdHis');
@@ -944,7 +918,49 @@ if (!function_exists('RapportPenaliteChauffeurMonthly')){
         }
     }
 }
+//Etape 1
+if(!function_exists('saveInfraction')){
+    function saveInfraction(){
+        $infractions = checkInfraction();
+        foreach($infractions as $item){
+            $existingInfraction = Infraction::where('imei', $item['imei'])
+                    ->where('rfid', $item['chauffeur'])
+                    ->where('event', $item['type'])
+                    ->where('date_debut', $item['date_debut'])
+                    ->where('date_fin', $item['date_fin'])
+                    ->where('heure_debut', $item['heure_debut'])
+                    ->where('heure_fin', $item['heure_fin'])
+                    ->first();
+    
+            if (!$existingInfraction) {
+            
+                if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
+                    Infraction::create([
+                        'imei' => $item['imei'],
+                        'rfid' => $item['chauffeur'],
+                        'vehicule' => $item['vehicule'],
+                        'event' => trim($item['type']),
+                        'distance' => $item['distance'],
+                        'odometer' => $item['odometer'],
+                        'duree_infraction' => $item['duree_infraction'],
+                        'duree_initial' => $item['duree_initial'],
+                        'vitesse' => $item['vitesse'],
+                        'date_debut' => $item['date_debut'],
+                        'date_fin' => $item['date_fin'],
+                        'heure_debut' => $item['heure_debut'],
+                        'heure_fin' => $item['heure_fin'],
+                        'gps_debut' => $item['gps_debut'],
+                        'gps_fin' => $item['gps_fin'],
+                        'point' => $item['point'],
+                        'insuffisance' => $item['insuffisance']
+                    ]);
+                }
+            }
+        }
+    }
+}
 
+//Etape 2
 if(!function_exists('checkCalendar')){
     function checkCalendar(){
         // $calendars = ImportExcel::where(function ($query) {
@@ -999,6 +1015,32 @@ if(!function_exists('checkCalendar')){
                     'calendar_id' => $calendar->id,
                 ]);
             }
+        }
+    }
+}
+
+//Etape 3
+if(!function_exists('distance_calendar')) {
+    function distance_calendar(){
+        $infractions = Infraction::with('related_calendar')->whereNotNull('calendar_id')->get();
+        foreach($infractions as $item){
+            $calendar_start_date = Carbon::parse($item->related_calendar->date_debut);
+            $calendar_end_date = $item->related_calendar->date_fin ? Carbon::parse($item->related_calendar->date_fin) : null;
+
+            if ($calendar_end_date === null) {
+                $dureeEnHeures = floatval($item->related_calendar->delais_route);
+                if ($dureeEnHeures <= 1) {
+                    $calendar_end_date = $calendar_start_date->copy()->endOfDay();
+                } else {
+                    $dureeEnJours = ceil($dureeEnHeures / 24);
+                    $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
+                }
+            }
+            
+            $distance = getDistanceWithImeiAndPeriod($item->rfid, $item->imei, $calendar_start_date, $calendar_end_date);
+
+            $item->distance_calendar = $distance;
+            $item->save();
         }
     }
 }
@@ -1606,47 +1648,6 @@ if (!function_exists('checkInfraction')) {
     }
 }
 
-if(!function_exists('saveInfraction')){
-    function saveInfraction(){
-        $infractions = checkInfraction();
-        foreach($infractions as $item){
-            $existingInfraction = Infraction::where('imei', $item['imei'])
-                    ->where('rfid', $item['chauffeur'])
-                    ->where('event', $item['type'])
-                    ->where('date_debut', $item['date_debut'])
-                    ->where('date_fin', $item['date_fin'])
-                    ->where('heure_debut', $item['heure_debut'])
-                    ->where('heure_fin', $item['heure_fin'])
-                    ->first();
-    
-            if (!$existingInfraction) {
-            
-                if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
-                    Infraction::create([
-                        'imei' => $item['imei'],
-                        'rfid' => $item['chauffeur'],
-                        'vehicule' => $item['vehicule'],
-                        'event' => trim($item['type']),
-                        'distance' => $item['distance'],
-                        'odometer' => $item['odometer'],
-                        'duree_infraction' => $item['duree_infraction'],
-                        'duree_initial' => $item['duree_initial'],
-                        'vitesse' => $item['vitesse'],
-                        'date_debut' => $item['date_debut'],
-                        'date_fin' => $item['date_fin'],
-                        'heure_debut' => $item['heure_debut'],
-                        'heure_fin' => $item['heure_fin'],
-                        'gps_debut' => $item['gps_debut'],
-                        'gps_fin' => $item['gps_fin'],
-                        'point' => $item['point'],
-                        'insuffisance' => $item['insuffisance']
-                    ]);
-                }
-            }
-        }
-    }
-}
-
 
 if(!function_exists('groupedInfraction')){
     function groupedInfraction($firstRecord, $lastRecord, $maxvitesse){
@@ -1683,42 +1684,6 @@ if(!function_exists('groupedInfraction')){
 
 
 
-
-if (!function_exists('calculerDureeTotale')) {
-    function calculerDureeTotale($immatriculation)
-    {
-        // Récupérer tous les trajets pour le véhicule spécifié
-        $trajets = Rotation::where('matricule', $immatriculation)->get();
-
-        // Initialiser la durée totale à zéro
-        $dureeTotale = 0;
-
-        // Initialiser les dates de départ et d'arrivée
-        $dateDepart = null;
-        $dateArrivee = null;
-
-        // Parcourir chaque trajet et calculer la durée totale
-        foreach ($trajets as $trajet) {
-            $dateHeur = Carbon::parse($trajet->date_heur);
-
-            // Si le trajet est "Départ - Ibity", mettez à jour la date de départ
-            if ($trajet->mouvement == 'Depart - Ibity' || $trajet->mouvement == 'Depart - Tamatave') {
-                $dateDepart = $dateHeur;
-            }
-
-            // Si le trajet est "Arrivée - Ibity", mettez à jour la date d'arrivée et calculez la durée
-            if ($trajet->mouvement == 'Arrivée - Ibity' || $trajet->mouvement == 'Arrivée - Tamatave') {
-                $dateArrivee = $dateHeur;
-                if ($dateDepart !== null) {
-                    $dureeTotale += $dateDepart->diffInHours($dateArrivee);
-                }
-            }
-        }
-
-        return $dureeTotale;
-    }
-
-}
 
 
 
