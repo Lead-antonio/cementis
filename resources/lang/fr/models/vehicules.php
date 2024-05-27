@@ -7,6 +7,7 @@ return array (
   array (
     //'id' => 'Id',
     'id_transporteur' => 'Transporteur',
+    'imei' => 'Imei',
     'nom' => 'Immatriculation',
     'created_at' => 'Created At',
     'updated_at' => 'Updated At',

@@ -30,6 +30,7 @@ class Vehicule extends Model
 
     public $fillable = [
         'id',
+        'imei',
         'nom',
         'id_transporteur'
     ];
@@ -41,6 +42,7 @@ class Vehicule extends Model
      */
     protected $casts = [
         'id' => 'integer',
+        'imei' => 'string',
         'nom' => 'string',
         'id_transporteur' => 'integer'
     ];

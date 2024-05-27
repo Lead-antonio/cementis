@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use App\Models\Chauffeur;
+use App\Models\Vehicule;
 use App\Models\Penalite;
 use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
@@ -232,26 +233,6 @@ if(!function_exists('TotalScoringbyDriver')){
 
 if(!function_exists('getAllGoodScoring')){
     function getAllGoodScoring(){
-
-    // $results = DB::table('infraction as i')
-    //     ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-    //     ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-    //     ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-    //     ->select(
-    //         'ch.nom as driver',
-    //         't.nom as transporteur_nom',
-    //         'i.event as infraction',
-    //         'i.date_debut',
-    //         'i.heure_debut',
-    //         'i.date_fin',
-    //         'i.heure_fin',
-    //         'i.duree_infraction',
-    //         'i.duree_initial',
-    //         'i.odometer',
-    //         'i.distance',
-    //         'i.point'
-    //     )
-    //     ->get();
 
     $results = DB::table('infraction as i')
     ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -1136,6 +1117,44 @@ if (!function_exists('getStopDurationCached')) {
         return Cache::remember($cacheKey, $cacheDuration, function () use ($imei, $dateDebut, $dateFin) {
             return getStopDuration($imei, $dateDebut, $dateFin);
         });
+    }
+}
+
+if (!function_exists('getImeiOfTruck')){
+    function getImeiOfTruck(){
+        $apiTrucks = getUserVehicule();
+        $trucks = Vehicule::all();
+        
+        foreach ($trucks as $truck) {
+            foreach ($apiTrucks as $apiTruck) {
+                if (trim($truck->nom) === trim($apiTruck['name'])) {
+                    $truck->imei = $apiTruck['imei'];
+                    $truck->save();
+                }
+            }
+        }
+    }
+}
+
+
+if (!function_exists('checkDriverInCalendar')){
+    function checkDriverInCalendar(){
+        $calendars = ImportExcel::all();
+        foreach($calendars as $item){
+            $calendar_start_date = Carbon::parse($item->date_debut);
+            $calendar_end_date = $item->date_fin ? Carbon::parse($item->date_fin) : null;
+
+            if ($calendar_end_date === null) {
+                $dureeEnHeures = floatval($item->delais_route);
+                if ($dureeEnHeures <= 1) {
+                    $calendar_end_date = $calendar_start_date->copy()->endOfDay();
+                } else {
+                    $dureeEnJours = ceil($dureeEnHeures / 24);
+                    $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
+                }
+            }
+            dd($calendar_start_date, $calendar_end_date);
+        }
     }
 }
 

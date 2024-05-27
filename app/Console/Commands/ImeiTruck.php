@@ -4,21 +4,21 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class ApiToFile extends Command
+class ImeiTruck extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'api:file';
+    protected $signature = 'imei:truck';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Save Get Route to json file';
+    protected $description = 'Get imei truck in API';
 
     /**
      * Create a new command instance.
@@ -37,6 +37,6 @@ class ApiToFile extends Command
      */
     public function handle()
     {
-        ApiToFileJson();
+        getImeiOfTruck();
     }
 }
