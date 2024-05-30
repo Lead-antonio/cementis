@@ -80,6 +80,7 @@ if (!function_exists('tabScoringCard')) {
         ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
         ->select(
             'ch.nom as driver',
+            'ch.rfid as rfid',
             't.nom as transporteur_nom',
             'i.event as infraction',
             'i.date_debut',
@@ -1119,7 +1120,7 @@ if (!function_exists('getStopDurationCached')) {
         });
     }
 }
-
+//-------------------------------------------------------------------------------------------
 if (!function_exists('getImeiOfTruck')){
     function getImeiOfTruck(){
         $apiTrucks = getUserVehicule();
@@ -1127,7 +1128,7 @@ if (!function_exists('getImeiOfTruck')){
         
         foreach ($trucks as $truck) {
             foreach ($apiTrucks as $apiTruck) {
-                if (trim($truck->nom) === trim($apiTruck['name'])) {
+                if (trim($truck->nom) === trim($apiTruck['plate_number'])) {
                     $truck->imei = $apiTruck['imei'];
                     $truck->save();
                 }
@@ -1137,15 +1138,53 @@ if (!function_exists('getImeiOfTruck')){
 }
 
 
+if (!function_exists('getRfidWithImeiAndPeriod')) {
+
+    function getRfidWithImeiAndPeriod($imei_vehicule, $start_date, $end_date){
+        $rfid = "";
+        $distance = 0;
+        // Formatage des dates au format YYYYMMDD
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
+        $response = Http::timeout(300)->get($url);
+        $data = $response->json();
+        foreach($data['route'] as $item){
+            if(isset($item[6]['rfid']) && $item[6]['rfid'] !== null){
+                $rfid = $item[6]['rfid'];
+                $distance = $data['route_length'];
+                break;
+            }
+        }
+        $result =  [
+                'rfid' =>$rfid,
+                'distance' => $distance
+            ];
+        return $result;
+    }
+}
+
+
+if(!function_exists('getDistanceTotalDriverInCalendar')){
+    function getDistanceTotalDriverInCalendar($nom){
+        $driver = Chauffeur::where('nom', $nom)->first();
+        $distance = ImportExcel::where('rfid_chauffeur', $driver->rfid)->sum('distance');
+        return $distance;
+    }
+}
+
 if (!function_exists('checkDriverInCalendar')){
     function checkDriverInCalendar(){
-        $calendars = ImportExcel::all();
-        foreach($calendars as $item){
-            $calendar_start_date = Carbon::parse($item->date_debut);
-            $calendar_end_date = $item->date_fin ? Carbon::parse($item->date_fin) : null;
+        $existingTrucks = Vehicule::all(['nom', 'imei']);
+        $truckData = $existingTrucks->pluck('imei', 'nom');
+        $calendars = ImportExcel::whereIn('camion', $truckData->keys())->get();
+        
+
+        $calendars->each(function ($calendar) use ($truckData) {
+            $calendar->imei = $truckData->get(trim($calendar->camion));
+            $calendar_start_date = Carbon::parse($calendar->date_debut);
+            $calendar_end_date = $calendar->date_fin ? Carbon::parse($calendar->date_fin) : null;
 
             if ($calendar_end_date === null) {
-                $dureeEnHeures = floatval($item->delais_route);
+                $dureeEnHeures = floatval($calendar->delais_route);
                 if ($dureeEnHeures <= 1) {
                     $calendar_end_date = $calendar_start_date->copy()->endOfDay();
                 } else {
@@ -1153,7 +1192,21 @@ if (!function_exists('checkDriverInCalendar')){
                     $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
                 }
             }
-            dd($calendar_start_date, $calendar_end_date);
+            $api = getRfidWithImeiAndPeriod($calendar->imei, $calendar_start_date , $calendar_end_date);
+            $calendar->rfid_chauffeur = $api['rfid'];
+            $calendar->distance = $api['distance'];
+        });
+
+        // $filteredCalendars = $calendars->filter(function ($calendar) {
+        //     return $calendar->imei !== null && $calendar->rfid_chauffeur !== "";
+        // });
+
+        foreach($calendars as $item){
+            ImportExcel::where('id', $item->id)->update([
+                'distance' => $item->distance,
+                'imei' => $item->imei,
+                'rfid_chauffeur' => $item->rfid_chauffeur,
+            ]);
         }
     }
 }
@@ -1298,6 +1351,34 @@ if(!function_exists('saveReposMinimumApesJournéeTtravail')){
     }
 }
 
+
+if (!function_exists('getMaxStopDurationTimeForPeriod')) {
+
+    function getMaxStopDurationTimeForPeriod($imei, $calendar_date_debut) {
+        // Créer une collection pour stocker les max stop_duration_time de chaque période de 24 heures
+        $dailyMaxStopDurations = collect();
+
+        // Itérer de J à J+7
+        for ($i = 0; $i <= 7; $i++) {
+            // Définir la date de début et de fin pour chaque période de 24 heures
+            $currentStartDate = $calendar_date_debut->copy()->addDays($i);
+            $currentEndDate = $currentStartDate->copy()->addHours(24);
+
+            // Appel à la fonction getStopDurationCached pour obtenir le stop_duration_time pour cette période
+            $stop_duration_time = getStopDurationCached($imei, $currentStartDate, $currentEndDate);
+
+            // Ajouter le stop_duration_time à la collection
+            if ($stop_duration_time !== null) {
+                $dailyMaxStopDurations->push($stop_duration_time);
+            }
+        }
+        // Trouver le maximum parmi les stop_duration_time des périodes de 24 heures
+        $maxStopDurationTime = $dailyMaxStopDurations->max();
+
+        return $maxStopDurationTime;
+    }
+}
+
 // Temps de repos hebdomadaire (24h -> jour et nuit)
 if(!function_exists('checkTempsReposHebdomadaire')){
     function checkTempsReposHebdomadaire(){
@@ -1319,7 +1400,7 @@ if(!function_exists('checkTempsReposHebdomadaire')){
 
             $j6_calendar_debut = $calendar_date_debut->copy()->addDays(6);
             $j7_calendar_debut = $calendar_date_debut->copy()->addDays(7);
-            $stop_duration_seconde = getStopDurationCached($infraction->imei, $j6_calendar_debut, $j7_calendar_debut);
+            $stop_duration_seconde = getMaxStopDurationTimeForPeriod($infraction->imei, $calendar_date_debut);
             
 
             if (is_null($calendar_date_fin)) {

@@ -18,6 +18,7 @@ class CreateImportExcelTable extends Migration
             $table->increments('id');
             $table->string('name_importation')->nullable();
             $table->string('rfid_chauffeur')->nullable();
+            $table->decimal('distance')->nullable();
             $table->string('camion')->nullable();
             $table->dateTime('date_debut');
             $table->dateTime('date_fin')->nullable();

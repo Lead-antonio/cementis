@@ -94,14 +94,15 @@
                                     } else {
                                         $scoringClass = 'scoring-red';
                                     }
+                                    
                                 @endphp
                                     <tr class="total-row">
                                         <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
-                                        <td class="distance-row" style="text-align: center;">{{ $totalDistance. " Km" }}</td>
+                                        <td class="distance-row" style="text-align: center;">{{  getDistanceTotalDriverInCalendar($currentDriver). " Km"  }}</td>
                                         <td class="point-row" style="text-align: center;">{{ $totalPenalty }}</td>
                                         <td class="{{ $scoringClass }}" style="text-align: center;">
                                             @if ($totalDistance != 0)
-                                                {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                                {{ number_format(($totalPenalty / getDistanceTotalDriverInCalendar($currentDriver)) * 100, 2) }}
                                             @else
                                                 {{number_format($totalPenalty / 100, 2)}}
                                             @endif
@@ -131,7 +132,7 @@
                                 <td style="text-align: center">{{ convertMinuteHeure($result->duree_infraction) }}</td>
                                 <td style="text-align: center">{{ $result->insuffisance ? convertMinuteHeure($result->insuffisance) : "" }}</td>
                                 <td style="text-align: center">{{ $result->distance }} Km</td>
-                                <td style="text-align: center">{{ $result->distance_calendar }} Km</td>
+                                <td style="text-align: center"></td>
                                 <td style="text-align: center">{{ $result->point }}</td>
                             </tr>
                             @php
@@ -163,11 +164,11 @@
                             @endphp
                             <tr class="total-row">
                                 <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
-                                <td class="distance-row" style="text-align: center">{{ $totalDistance. " Km" }}</td>
+                                <td class="distance-row" style="text-align: center">{{ getDistanceTotalDriverInCalendar($currentDriver). " Km" }}</td>
                                 <td class="point-row" style="text-align: center">{{ $totalPenalty }}</td>
                                 <td class="{{ $scoringClass }}" style="text-align: center">
                                     @if ($totalDistance != 0)
-                                        {{ number_format(($totalPenalty / $totalDistance) * 100, 2) }}
+                                        {{ number_format(($totalPenalty / getDistanceTotalDriverInCalendar($currentDriver)) * 100, 2) }}
                                     @else
                                         {{number_format($totalPenalty / 100, 2)}}
                                     @endif
@@ -264,6 +265,6 @@
             html2pdf().from(element).save('tableau.pdf');
         }
 
-        $("#tableau-score").rowspanizer({columns: [0, 1, 2, 8], vertical_align:'middle'});
+        $("#tableau-score").rowspanizer({columns: [0, 1, 2], vertical_align:'middle'});
     </script>
 @endsection

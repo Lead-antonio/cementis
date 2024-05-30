@@ -47,6 +47,7 @@ class ImportExcel extends Model
         'adresse_livraison',
         'import_calendar_id',
         'imei',
+        'distance',
     ];
 
     /**
@@ -67,6 +68,7 @@ class ImportExcel extends Model
         'adresse_livraison' => 'string',
         'import_calendar_id' => 'integer',
         'imei' => 'string',
+        'distance' => 'decimal:2'
     ];
 
     /**
