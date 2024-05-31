@@ -82,7 +82,10 @@ Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->n
 Route::get('/event/exportscoring', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
 
 
-Route::get('/events/table/scoring', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
+Route::get('/new/scoring', 'App\Http\Controllers\EventController@newscoring')->name('new.scoring');
+
+
+Route::get('/events/table/scoring/{chauffeur}', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
 

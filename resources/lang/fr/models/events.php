@@ -20,6 +20,7 @@ return array (
     'updated_at' => 'Modifiée le',
     'detail_penalite' => 'Détail pénalités',
     'route' => 'Distance',
-    'tab_scoring' => 'Tableau Scoring Card'
+    'tab_scoring' => 'Tableau Scoring Card',
+    'scoring' => 'Scoring'
   ),
 );

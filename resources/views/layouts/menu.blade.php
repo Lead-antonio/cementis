@@ -92,14 +92,22 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li>
 @endcan
  --}}
+ <li class="nav-item">
+    <a href="{{ route('new.scoring') }}"
+       class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">
+       <i class="nav-icon fas fa-bullseye"></i>
+        <p>@lang('models/events.fields.scoring')</p>
+    </a>
+</li>
 
-<li class="nav-item">
+
+{{-- <li class="nav-item">
     <a href="{{ route('events.table.scoring') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-bullseye"></i>
         <p>@lang('models/events.fields.tab_scoring')</p>
     </a>
-</li>
+</li> --}}
 
 
 <li class="nav-item">

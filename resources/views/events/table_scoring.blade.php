@@ -6,9 +6,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                   <h1>Rapport du score card</h1>
+                   <h1>Détail du score Card</h1>
                 </div>
                 <div class="col-sm-6">
+                    <a href="{{ route('new.scoring') }}" class="btn btn-primary float-right">
+                        Retour
+                    </a>
                 </div>
             </div>
         </div>
@@ -36,7 +39,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-0">Scoring Information</h3>
+                {{-- <h3 class="card-title mb-0">Scoring Information</h3> --}}
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>

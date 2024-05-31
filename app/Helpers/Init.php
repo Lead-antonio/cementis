@@ -69,10 +69,40 @@ if (!function_exists('convertMinuteHeure')) {
     }
 }
 
+if(!function_exists('scoring')){
+    function scoring(){
+        $results = DB::select("
+                        SELECT 
+                        c.nom AS driver,
+                        t.nom AS transporteur,
+                        i.event AS event, 
+                        COUNT(i.event) AS valeur, 
+                        SUM(i.point) AS point,
+                        SUM(i.duree_initial - i.duree_infraction) AS duree,
+                        (SELECT SUM(i2.point) 
+                        FROM infraction i2 
+                        WHERE i2.rfid = i.rfid 
+                        AND i2.calendar_id IS NOT NULL) AS total_point
+                    FROM 
+                        infraction i
+                    JOIN
+                        chauffeur c ON i.rfid = c.rfid
+                    JOIN
+                        transporteur t ON c.transporteur_id = t.id
+                    WHERE 
+                        i.calendar_id IS NOT NULL 
+                    GROUP BY 
+                        c.nom, i.event, i.rfid, t.nom;
+                    ");
+        
+        return $results;
+    }
+}
+
 
 
 if (!function_exists('tabScoringCard')) {
-    function tabScoringCard()
+    function tabScoringCard($driver)
     {
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -96,9 +126,9 @@ if (!function_exists('tabScoringCard')) {
             'i.distance_calendar',
             'i.point'
         )
-        ->orderBy('ch.nom')
+        ->where('ch.nom', $driver)
+        // ->orderBy('ch.nom')
         ->get();
-
         return $results;
     }
 
