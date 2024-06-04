@@ -28,7 +28,6 @@ class ExcelImportClass implements ToModel, WithHeadingRow
         $excel_date = $row['debut'];
         $unix_timestamp = Date::excelToTimestamp($excel_date);
         $date_debut = Carbon::createFromTimestamp($unix_timestamp);
-        // Vérifier si la valeur de date_fin est vide
         if (empty($date_fin)) {
 
         }else{
@@ -48,7 +47,6 @@ class ExcelImportClass implements ToModel, WithHeadingRow
             'marche' => $row['marche'],
             'adresse_livraison' => $row['adresse_de_livraison'],
             'import_calendar_id' => $this->import_calendar_id
-            // 'imei' => $imei
         ]);
     }
 }

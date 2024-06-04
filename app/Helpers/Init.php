@@ -70,30 +70,42 @@ if (!function_exists('convertMinuteHeure')) {
 }
 
 if(!function_exists('scoring')){
-    function scoring(){
-        $results = DB::select("
+    function scoring($id_planning){
+        $results = "";
+        if($id_planning !== "" && $id_planning !== null){
+            $results = DB::select("
                         SELECT 
                         c.nom AS driver,
                         t.nom AS transporteur,
                         i.event AS event, 
                         COUNT(i.event) AS valeur, 
                         SUM(i.point) AS point,
-                        SUM(i.duree_initial - i.duree_infraction) AS duree,
+                        SUM(
+                            CASE 
+                                WHEN i.duree_initial < i.duree_infraction THEN i.duree_infraction - i.duree_initial
+                                ELSE i.duree_initial - i.duree_infraction
+                            END
+                        ) AS duree,
                         (SELECT SUM(i2.point) 
                         FROM infraction i2 
+                        JOIN 
+                    	import_excel ie2 ON i2.calendar_id = ie2.id
                         WHERE i2.rfid = i.rfid 
-                        AND i2.calendar_id IS NOT NULL) AS total_point
+                        AND i2.calendar_id IS NOT NULL AND ie2.import_calendar_id = $id_planning) AS total_point
                     FROM 
                         infraction i
                     JOIN
                         chauffeur c ON i.rfid = c.rfid
                     JOIN
                         transporteur t ON c.transporteur_id = t.id
+                    JOIN 
+                    	import_excel ie ON i.calendar_id = ie.id
                     WHERE 
-                        i.calendar_id IS NOT NULL 
+                        i.calendar_id IS NOT NULL AND ie.import_calendar_id = $id_planning
                     GROUP BY 
-                        c.nom, i.event, i.rfid, t.nom;
+                        c.nom, i.event, i.rfid, t.nom
                     ");
+        }
         
         return $results;
     }
@@ -102,7 +114,7 @@ if(!function_exists('scoring')){
 
 
 if (!function_exists('tabScoringCard')) {
-    function tabScoringCard($driver)
+    function tabScoringCard($driver, $id_planning)
     {
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -127,7 +139,7 @@ if (!function_exists('tabScoringCard')) {
             'i.point'
         )
         ->where('ch.nom', $driver)
-        // ->orderBy('ch.nom')
+        ->where('ie.import_calendar_id', $id_planning)
         ->get();
         return $results;
     }
@@ -975,19 +987,23 @@ if(!function_exists('saveInfraction')){
 //Etape 2
 if(!function_exists('checkCalendar')){
     function checkCalendar(){
-        // $calendars = ImportExcel::where(function ($query) {
-        //     $query->whereBetween('date_debut', [now()->startOfMonth(), now()->endOfMonth()])
-        //           ->whereNull('date_fin');
-        // })
-        // ->orWhere(function ($query) {
-        //     $query->whereBetween('date_debut', [now()->startOfMonth(), now()->endOfMonth()])
-        //           ->whereNotNull('date_fin')
-        //           ->whereBetween('date_fin', [now()->startOfMonth(), now()->endOfMonth()]);
-        // })
-        // ->get();
-        $calendars = ImportExcel::all();
-        $infractions = Infraction::whereMonth('date_debut', 4)->whereMonth('date_fin', 4)->get();
+        
+        $startDate = Carbon::now()->subMonths(2)->endOfMonth();
+        $endDate = Carbon::now()->startOfMonth();
 
+        $calendars = ImportExcel::where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('date_debut', [$startDate, $endDate])
+                  ->whereNull('date_fin');
+        })
+        ->orWhere(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('date_debut', [$startDate, $endDate])
+                  ->whereNotNull('date_fin')
+                  ->whereBetween('date_fin', [$startDate, $endDate]);
+        })
+        ->get();
+        
+        $infractions = Infraction::whereBetween('date_debut', [$startDate, $endDate])->whereBetween('date_fin', [$startDate, $endDate])->get();
+        
         $calendarsInInfractions = [];
 
         foreach ($calendars as $calendar) {
@@ -1108,9 +1124,12 @@ if (!function_exists('getDriveDuration')) {
         $response = Http::timeout(3000)->get($url);
         $data = $response->json();
 
+        $drive_duration_second = 0;
+      
+        if (isset($data['drives_duration_time'])) {
+            $drive_duration_second = $data['drives_duration_time'];
+        }
 
-        $drive_duration_second = $data['drives_duration_time'];
-        
         return $drive_duration_second;
     }
 }
@@ -1133,8 +1152,15 @@ if (!function_exists('getStopDuration')) {
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
         $response = Http::timeout(3000)->get($url);
         $data = $response->json();
-        $stop_duration_second = $data['stops_duration_time'];
         
+        $stop_duration_second = 0;
+        
+
+        if (isset($data['stops_duration_time'])) {
+            $stop_duration_second =  $data['stops_duration_time'];
+        }
+
+
         return $stop_duration_second;
     }
 }
@@ -1194,9 +1220,9 @@ if (!function_exists('getRfidWithImeiAndPeriod')) {
 
 
 if(!function_exists('getDistanceTotalDriverInCalendar')){
-    function getDistanceTotalDriverInCalendar($nom){
+    function getDistanceTotalDriverInCalendar($nom, $id_calendar){
         $driver = Chauffeur::where('nom', $nom)->first();
-        $distance = ImportExcel::where('rfid_chauffeur', $driver->rfid)->sum('distance');
+        $distance = ImportExcel::where('rfid_chauffeur', $driver->rfid)->where('import_calendar_id', $id_calendar)->sum('distance');
         return $distance;
     }
 }
@@ -1396,7 +1422,7 @@ if (!function_exists('getMaxStopDurationTimeForPeriod')) {
 
             // Appel à la fonction getStopDurationCached pour obtenir le stop_duration_time pour cette période
             $stop_duration_time = getStopDurationCached($imei, $currentStartDate, $currentEndDate);
-
+        
             // Ajouter le stop_duration_time à la collection
             if ($stop_duration_time !== null) {
                 $dailyMaxStopDurations->push($stop_duration_time);
@@ -1491,10 +1517,28 @@ if(!function_exists('checkTempsReposHebdomadaire')){
     }
 }
 
+if(!function_exists('unique_array')){
+    function unique_array($data){
+        $unique_data = [];
+
+        foreach ($data as $key => $value) {
+            $unique_key = $value['imei'] . '|' . $value['rfid'] . '|' . $value['duree_initial'] . '|' . $value['duree_infraction'] . '|' . $value['point'];
+            if (!isset($unique_data[$unique_key])) {
+                $unique_data[$unique_key] = $value;
+            }
+        }
+
+        $unique_data = array_values($unique_data);
+        return $unique_data;
+    }
+}
+
 if(!function_exists('SaveTempsReposHebdomadaire')){
     function SaveTempsReposHebdomadaire(){
         $infractions = checkTempsReposHebdomadaire();
-        foreach($infractions as $item){
+        $unique_infraction = unique_array($infractions);
+        
+        foreach($unique_infraction as $item){
             $existingInfraction = Infraction::where('imei', $item['imei'])
                     ->where('rfid', $item['rfid'])
                     ->where('event', $item['event'])
@@ -1685,11 +1729,16 @@ if(!function_exists('v_infraction')){
 if (!function_exists('checkInfraction')) {
     function checkInfraction()
     {
+        $startDate = Carbon::now()->subMonths(2)->endOfMonth();
+        $endDate = Carbon::now()->startOfMonth();
+
         $records = DB::table('event')
         ->select('imei', 'chauffeur', 'vehicule', 'type', 'odometer','vitesse', 'latitude', 'longitude', DB::raw("LEFT(date,10) as simple_date"), DB::raw("RIGHT(date,8) as heure"), 'date as date_heure')
+        ->whereBetween('date', [$startDate, $endDate])
         ->orderBy('simple_date', 'ASC')
         ->orderBy('heure', 'ASC')->get();
         
+
         $results = [];
         $prevRecord = null;
         $firstValidRecord = null;

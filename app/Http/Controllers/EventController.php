@@ -49,36 +49,76 @@ class EventController extends AppBaseController
         return $eventDataTable->render('events.index');
     }
 
-    public function newscoring(){
-        $results = scoring();
+    public function newscoring(Request $request){
         
         $data = [];
-        foreach ($results as $result) {
-            $driver = $result->driver;
-            $event = $result->event;
-            $transporteur = $result->transporteur;
-            $total_point = $result->total_point;
-
-            if (!isset($data[$driver])) {
-                $data[$driver] = [
-                    'transporteur' => $transporteur,
-                    'total_point' => $total_point,
-                    'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                    'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                ];
-            }
-
-            $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
-        }
+        // $results = scoring($selectedPlanning);
+        // if($results){
+        //     foreach ($results as $result) {
+        //         $driver = $result->driver;
+        //         $event = $result->event;
+        //         $transporteur = $result->transporteur;
+        //         $total_point = $result->total_point;
+    
+        //         if (!isset($data[$driver])) {
+        //             $data[$driver] = [
+        //                 'transporteur' => $transporteur,
+        //                 'total_point' => $total_point,
+        //                 'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //             ];
+        //         }
+    
+        //         $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
+        //     }
+        // }
+        
         return view('events.scoring', compact('data'));
     }
+
+    public function ajaxHandle(Request $request){
+        $selectedPlanning = $request->input('planning');
+        
+        $data = [];
+        $results = scoring($selectedPlanning);
+        if($results){
+            foreach ($results as $result) {
+                $driver = $result->driver;
+                $event = $result->event;
+                $transporteur = $result->transporteur;
+                $total_point = $result->total_point;
+    
+                if (!isset($data[$driver])) {
+                    $data[$driver] = [
+                        'transporteur' => $transporteur,
+                        'total_point' => $total_point,
+                        'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                    ];
+                }
+    
+                $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
+            }
+        }
+
+        return view('events.scoring_filtre', compact('data', 'selectedPlanning'));
+    }
+
+
 
 
     public function showMap($latitude, $longitude)
@@ -86,10 +126,10 @@ class EventController extends AppBaseController
         return view('events.map')->with(compact('latitude', 'longitude'));
     }
 
-    public function TableauScoring($chauffeur){
-        $scoring = tabScoringCard($chauffeur);
+    public function TableauScoring($chauffeur, $id_planning){
+        $scoring = tabScoringCard($chauffeur, $id_planning);
         
-        return view('events.table_scoring', compact('scoring'));
+        return view('events.table_scoring', compact('scoring', 'id_planning'));
     }
 
     public function TableauScoringPdf(){

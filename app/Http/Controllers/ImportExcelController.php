@@ -316,20 +316,21 @@ class ImportExcelController extends AppBaseController
         Excel::import($import, $file);
 
         //Recuperation de la date debut et fin du fichier inserer
-        $date_debut = ImportExcel::where('import_calendar_id', $import_calendar->id)->first('date_debut');
+        $date_debut = ImportExcel::where('import_calendar_id', $import_calendar->id)->min('date_debut');
 
-        $max_id_import_excel = ImportExcel::where('import_calendar_id',  $import_calendar->id)->max('id');
-        $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
+        // $max_id_import_excel = ImportExcel::where('import_calendar_id',  $import_calendar->id)->max('id');
+        // $date_finals = ImportExcel::where('id',$max_id_import_excel)->first('date_fin');
+        $date_finals = ImportExcel::where('import_calendar_id', $import_calendar->id)->max('date_fin');
 
-        if($date_finals->date_fin == null){
-            $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
-            $date_finals = $date_fin_fichier->date_debut;
-        }else{
-            $date_finals = $date_finals->date_fin;
-        }
+        // if($date_finals === null){
+        //     $date_fin_fichier = ImportExcel::where('id',$max_id_import_excel)->first('date_debut');
+        //     $date_finals = $date_fin_fichier->date_debut;
+        // }else{
+        //     $date_finals = $date_finals->date_fin;
+        // }
 
         $import_calendar->update([
-            'date_debut' => $date_debut->date_debut,
+            'date_debut' => $date_debut,
             'date_fin' => $date_finals
         ]);
 
