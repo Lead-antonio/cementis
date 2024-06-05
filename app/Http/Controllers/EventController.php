@@ -10,11 +10,13 @@ use App\Http\Requests\UpdateEventRequest;
 use App\Repositories\EventRepository;
 use App\Http\Controllers\AppBaseController;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Models\Penalite;
 use App\Models\ImportExcel;
+use App\Models\Importcalendar;
 use Dompdf\Dompdf;
 use App\Models\Chauffeur;
 use GuzzleHttp\Client;
@@ -52,35 +54,38 @@ class EventController extends AppBaseController
     public function newscoring(Request $request){
         
         $data = [];
-        // $results = scoring($selectedPlanning);
-        // if($results){
-        //     foreach ($results as $result) {
-        //         $driver = $result->driver;
-        //         $event = $result->event;
-        //         $transporteur = $result->transporteur;
-        //         $total_point = $result->total_point;
+        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
+        $import_calendar = Importcalendar::all();
+
+        $results = scoring($selectedPlanning);
+        if($results){
+            foreach ($results as $result) {
+                $driver = $result->driver;
+                $event = $result->event;
+                $transporteur = $result->transporteur;
+                $total_point = $result->total_point;
     
-        //         if (!isset($data[$driver])) {
-        //             $data[$driver] = [
-        //                 'transporteur' => $transporteur,
-        //                 'total_point' => $total_point,
-        //                 'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //                 'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-        //             ];
-        //         }
+                if (!isset($data[$driver])) {
+                    $data[$driver] = [
+                        'transporteur' => $transporteur,
+                        'total_point' => $total_point,
+                        'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                        'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+                    ];
+                }
     
-        //         $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
-        //     }
-        // }
+                $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
+            }
+        }
         
-        return view('events.scoring', compact('data'));
+        return view('events.scoring', compact('data','import_calendar', 'selectedPlanning'));
     }
 
     public function ajaxHandle(Request $request){

@@ -10,8 +10,9 @@
                 <div class="col-sm-6">
                     <select class="form form-control" name="planning" id="planning" >
                         <option value="">Veuillez-choisir le planning</option>
-                        <option value="1">Planning Avril 2024</option>    
-                        <option value="6">Planning Mai 2024</option>    
+                        @foreach($import_calendar as $calendar)
+                            <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>{{$calendar->name}}</option>    
+                        @endforeach
                     </select>
                 </div>
             </div>

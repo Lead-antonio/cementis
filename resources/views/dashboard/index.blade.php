@@ -123,7 +123,7 @@
                                 <div class="card rounded-card">
                                     <div class="card-body card-list ">
                                         <div class="number-circle">{{ $key + 1 }}</div>
-                                        <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring_card }} </span>
+                                        <strong> {{ $item->transporteur_nom }}</strong> - <span> {{ $item->driver }} : {{ $item->scoring }} </span>
                                     </div>
                                 </div>
                             @endforeach

@@ -276,43 +276,60 @@ if(!function_exists('TotalScoringbyDriver')){
 
 if(!function_exists('getAllGoodScoring')){
     function getAllGoodScoring(){
-
-    $results = DB::table('infraction as i')
-    ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-    ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-    ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-    ->select(
-        'ch.nom as driver',
-        't.nom as transporteur_nom',
-        DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance_calendar), 2) as scoring_card')
-    )
-    ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','asc')
-    ->take(10)
-    ->get();
-
-    return $results;
-
+        $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
+        
+        $results = DB::table('infraction as i')
+        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.rfid as rfid',
+            'ch.nom as driver',
+            't.nom as transporteur_nom',
+            DB::raw('SUM(i.point) as point')
+        )
+        ->where('ie.import_calendar_id', '=', $lastmonth)
+        ->groupBy('ch.nom', 't.nom', 'ch.rfid')
+        ->orderBy('point', 'asc')
+        ->limit(10)
+        ->get();
+        
+        foreach($results as $item){
+            $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
+            $item->scoring = round(($item->point / $item->distance) * 100, 2);
+        }
+        return $results;
     }
 }
 
 
 if(!function_exists('getAllBadScoring')){
     function getAllBadScoring(){
-
+        $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
+        
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
         ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
         ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
         ->select(
+            'ch.rfid as rfid',
             'ch.nom as driver',
             't.nom as transporteur_nom',
-            DB::raw('ROUND((SUM(i.point) * 100) / SUM(DISTINCT i.distance_calendar), 2) as scoring_card')
+            DB::raw('SUM(i.point) as point')
         )
-        ->groupBy('ch.nom', 't.nom')->orderBy('scoring_card','DESC')
-        ->take(10)
+        ->where('ie.import_calendar_id', '=', $lastmonth)
+        ->groupBy('ch.nom', 't.nom', 'ch.rfid')
+        ->orderBy('point', 'asc')
+        ->limit(10)
         ->get();
-        return $results;
-
+        
+        foreach($results as $item){
+            $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
+            $item->scoring = round(($item->point / $item->distance) * 100, 2);
+        }
+        $sortedResults = $results->sortByDesc('scoring');
+        
+        return $sortedResults;
     }
 }
 

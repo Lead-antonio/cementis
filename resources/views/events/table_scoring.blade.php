@@ -61,7 +61,7 @@
                             <th style="text-align: center;">Date de l'infraction</th>
                             <th style="text-align: center;">Coordonnées gps</th>
                             <th style="text-align: center;">Durée infraction / durée effectuée</th>
-                            <th style="text-align: center;">Insuffisance</th>
+                            <th style="text-align: center;">Insuffisance / Excès</th>
                             <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
                             <th style="text-align: center;">Distance totale dans le calendrier</th>
                             <th style="text-align: center;">Point de pénalité</th>
