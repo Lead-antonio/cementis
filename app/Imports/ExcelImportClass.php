@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-class ExcelImportClass implements ToModel, WithHeadingRow
+class ExcelImportClass implements ToCollection
 {
     protected $name_file_excel;
     protected $import_calendar_id;
@@ -22,31 +22,43 @@ class ExcelImportClass implements ToModel, WithHeadingRow
         $this->import_calendar_id = $import_calendar_id;
     }
 
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        $date_fin = $row['fin'];
-        $excel_date = $row['debut'];
-        $unix_timestamp = Date::excelToTimestamp($excel_date);
-        $date_debut = Carbon::createFromTimestamp($unix_timestamp);
-        if (empty($date_fin)) {
+        $headers = $rows->shift()->toArray();
+        foreach ($rows as $row) {
+            $data = [];
 
-        }else{
+            foreach ($row as $index => $value) {
+                $header = $headers[$index] ?? null;
+                if ($header !== null) {
+                    $data[$header] = $value;
+                }
+            }
 
-            $excel_date_fin = $row['fin'];
-            $unix_timestamp_datefin = Date::excelToTimestamp($excel_date_fin);
-            $date_fin = Carbon::createFromTimestamp($unix_timestamp_datefin);
+
+            ImportExcel::create([
+                'name_importation' => $this->name_file_excel,
+                'camion' => array_values($data)[0], 
+                'date_debut' => $this->convertExcelDateToCarbon(array_values($data)[1]), 
+                'date_fin' => $this->convertExcelDateToCarbon(array_values($data)[2]), 
+                'delais_route' => floatval(array_values($data)[3]), 
+                'sigdep_reel' => array_values($data)[4], 
+                'marche' => array_values($data)[5], 
+                'adresse_livraison' => array_values($data)[6], 
+                'import_calendar_id' => $this->import_calendar_id
+            ]);
+            
+        }
+    }
+
+
+    private function convertExcelDateToCarbon($excelDate)
+    {
+        if (!$excelDate) {
+            return null;
         }
 
-        return new ImportExcel([
-            'name_importation' => $this->name_file_excel,
-            'camion' => $row['camion'],
-            'date_debut' => $date_debut->subHours(2),
-            'date_fin' => $date_fin ? $date_fin->subHours(2) : null,
-            'delais_route' => floatval($row['delais_de_route']),
-            'sigdep_reel' => $row['sigdep_reel'],
-            'marche' => $row['marche'],
-            'adresse_livraison' => $row['adresse_de_livraison'],
-            'import_calendar_id' => $this->import_calendar_id
-        ]);
+        $unix_timestamp = Date::excelToTimestamp($excelDate);
+        return Carbon::createFromTimestamp($unix_timestamp);
     }
 }

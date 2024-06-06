@@ -298,7 +298,9 @@ if(!function_exists('getAllGoodScoring')){
             $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
             $item->scoring = round(($item->point / $item->distance) * 100, 2);
         }
-        return $results;
+        $sortedResults = $results->sortBy('scoring');
+        
+        return $sortedResults;
     }
 }
 
@@ -1004,20 +1006,11 @@ if(!function_exists('saveInfraction')){
 //Etape 2
 if(!function_exists('checkCalendar')){
     function checkCalendar(){
-        
+        $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
         $startDate = Carbon::now()->subMonths(2)->endOfMonth();
         $endDate = Carbon::now()->startOfMonth();
 
-        $calendars = ImportExcel::where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('date_debut', [$startDate, $endDate])
-                  ->whereNull('date_fin');
-        })
-        ->orWhere(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('date_debut', [$startDate, $endDate])
-                  ->whereNotNull('date_fin')
-                  ->whereBetween('date_fin', [$startDate, $endDate]);
-        })
-        ->get();
+        $calendars = ImportExcel::where('import_calendar_id', $lastmonth)->get();
         
         $infractions = Infraction::whereBetween('date_debut', [$startDate, $endDate])->whereBetween('date_fin', [$startDate, $endDate])->get();
         
@@ -1246,9 +1239,10 @@ if(!function_exists('getDistanceTotalDriverInCalendar')){
 
 if (!function_exists('checkDriverInCalendar')){
     function checkDriverInCalendar(){
+        $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
         $existingTrucks = Vehicule::all(['nom', 'imei']);
         $truckData = $existingTrucks->pluck('imei', 'nom');
-        $calendars = ImportExcel::whereIn('camion', $truckData->keys())->get();
+        $calendars = ImportExcel::whereIn('camion', $truckData->keys())->where('import_calendar_id', $lastmonth)->get();
         
 
         $calendars->each(function ($calendar) use ($truckData) {
@@ -1269,10 +1263,6 @@ if (!function_exists('checkDriverInCalendar')){
             $calendar->rfid_chauffeur = $api['rfid'];
             $calendar->distance = $api['distance'];
         });
-
-        // $filteredCalendars = $calendars->filter(function ($calendar) {
-        //     return $calendar->imei !== null && $calendar->rfid_chauffeur !== "";
-        // });
 
         foreach($calendars as $item){
             ImportExcel::where('id', $item->id)->update([
