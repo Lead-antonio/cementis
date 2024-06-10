@@ -75,48 +75,55 @@
                             $scoringClass = "";
                             $scoring_card = 0;
                         @endphp
-                        @foreach ($scoring as $result)
-                            <tr class="driver-row">
-                                <td style="text-align: center">{{ $result->driver }}</td>
-                                <td style="text-align: center">{{$result->transporteur_nom}}</td>
-                                <td style="text-align: center">{{ trim($result->infraction) }}</td>
-                                <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
-                                <td style="text-align: center">
-                                    <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->infraction }}')">
-                                        {{ $result->gps_debut }}
-                                    </a>
-                                </td>
-                                <td style="text-align: center">{{ convertMinuteHeure($result->duree_infraction) }}</td>
-                                <td style="text-align: center">{{ $result->insuffisance ? convertMinuteHeure($result->insuffisance) : "" }}</td>
-                                <td style="text-align: center">{{ $result->distance }} Km</td>
-                                <td style="text-align: center"></td>
-                                <td style="text-align: center">{{ $result->point }}</td>
-                            </tr>
+                        
+                        @if (!$scoring->isEmpty())
+                            @foreach ($scoring as $result)
+                                <tr class="driver-row">
+                                    <td style="text-align: center">{{ $result->driver }}</td>
+                                    <td style="text-align: center">{{$result->transporteur_nom}}</td>
+                                    <td style="text-align: center">{{ trim($result->infraction) }}</td>
+                                    <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
+                                    <td style="text-align: center">
+                                        <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->infraction }}')">
+                                            {{ $result->gps_debut }}
+                                        </a>
+                                    </td>
+                                    <td style="text-align: center">{{ convertMinuteHeure($result->duree_infraction) }}</td>
+                                    <td style="text-align: center">{{ $result->insuffisance ? convertMinuteHeure($result->insuffisance) : "" }}</td>
+                                    <td style="text-align: center">{{ $result->distance }} Km</td>
+                                    <td style="text-align: center"></td>
+                                    <td style="text-align: center">{{ $result->point }}</td>
+                                </tr>
+                                @php
+                                    $total_point += $result->point;
+                                    $driver = $result->driver;
+                                @endphp
+                            @endforeach
                             @php
-                                $total_point += $result->point;
-                                $driver = $result->driver;
+                                $scoring_card = number_format(($total_point / getDistanceTotalDriverInCalendar($driver, $id_planning)) * 100, 2);
+                                if ($scoring_card >= 0 && $scoring_card <= 2) {
+                                    $scoringClass = 'scoring-green';
+                                } elseif ($scoring_card > 2 && $scoring_card <= 5) {
+                                    $scoringClass = 'scoring-yellow';
+                                } elseif ($scoring_card > 5 && $scoring_card <= 10) {
+                                    $scoringClass = 'scoring-orange';
+                                } else {
+                                    $scoringClass = 'scoring-red';
+                                }
                             @endphp
-                        @endforeach
-                        @php
-                            $scoring_card = number_format(($total_point / getDistanceTotalDriverInCalendar($driver, $id_planning)) * 100, 2);
-                            if ($scoring_card >= 0 && $scoring_card <= 2) {
-                                $scoringClass = 'scoring-green';
-                            } elseif ($scoring_card > 2 && $scoring_card <= 5) {
-                                $scoringClass = 'scoring-yellow';
-                            } elseif ($scoring_card > 5 && $scoring_card <= 10) {
-                                $scoringClass = 'scoring-orange';
-                            } else {
-                                $scoringClass = 'scoring-red';
-                            }
-                        @endphp
-                        <tr class="total-row">
-                            <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
-                            <td class="distance-row" style="text-align: center;">{{  getDistanceTotalDriverInCalendar($driver, $id_planning). " Km"  }}</td>
-                            <td class="point-row" style="text-align: center;">{{ $total_point }}</td>
-                            <td class="{{ $scoringClass }}" style="text-align: center;">
-                                {{ $scoring_card }}
-                            </td>
-                        </tr>
+                            <tr class="total-row">
+                                <td colspan="8" style="text-align: center;"><strong>Total :</strong></td>
+                                <td class="distance-row" style="text-align: center;">{{  getDistanceTotalDriverInCalendar($driver, $id_planning). " Km"  }}</td>
+                                <td class="point-row" style="text-align: center;">{{ $total_point }}</td>
+                                <td class="{{ $scoringClass }}" style="text-align: center;">
+                                    {{ $scoring_card }}
+                                </td>
+                            </tr>
+                        @else
+                            <tr>
+                                <td colspan="11" style="text-align: center;">Aucun élément</td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
                 

@@ -1,5 +1,5 @@
 <div class="card">
-    <div id="tableau_score" class="card-body p-0">
+    {{-- <div  class="card-body p-0" style="display: none">
         <table class="table table-bordered table-responsive" width="100%">
             <thead>
                 <tr>
@@ -75,5 +75,46 @@
                 @endif
             </tbody>
         </table>
-    </div>
+    </div> --}}
+
+
+
+    <div id="dataTable" class="card-body p-0" >
+        <table class="table table-bordered" width="100%">
+            <thead>
+                <tr>
+                    <th style="text-align: center;background-color: darkgray;">Chauffeur</th>
+                    <th style="text-align: center;background-color: darkgray;">Transporteur</th>
+                    <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
+                    <th style="text-align: center;width: 10%;background-color: lightslategrey;">Mai</th>
+                    <th style="text-align: center;width: 20%;">Commentaire</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($scoring as $item)
+                    <tr>
+                        <td style="text-align: center;"><a href="{{ route('events.table.scoring', ['chauffeur' => $item['driver'], 'id_planning'  => $selectedPlanning]) }}">{{$item['driver']}}</a></td>
+                        <td style="text-align: center;">{{ $item['transporteur'] }}</td>
+                        <td style="text-align: center;">{{ isset($item['point']) && $item['point'] !== null && $item['point'] != 0 ? $item['camion'] : '' }}</td>
+                        <td style="text-align: center;" class="
+                            @php
+                                $score = round($item['point'], 2);
+                                if ($score > 0 && $score <= 2) {
+                                    echo 'scoring-green';
+                                } elseif ($score > 2 && $score <= 5) {
+                                    echo 'scoring-yellow';
+                                } elseif ($score > 5 && $score <= 10) {
+                                    echo 'scoring-orange';
+                                } elseif ($score > 10) {
+                                    echo 'scoring-red';
+                                }
+                            @endphp
+                        ">{{ round($item['point'], 2) }}</td>
+                        <td style="text-align: center;"><textarea class="form-control" name="" id="" cols="30" rows="2 "></textarea></td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        <div id="noResultsMessage" style="display: none;text-align: center">Aucun résultat trouvé.</div>
+    </div>        
 </div>

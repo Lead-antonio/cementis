@@ -69,42 +69,44 @@ if (!function_exists('convertMinuteHeure')) {
     }
 }
 
+
 if(!function_exists('scoring')){
     function scoring($id_planning){
         $results = "";
         if($id_planning !== "" && $id_planning !== null){
             $results = DB::select("
-                        SELECT 
-                        c.nom AS driver,
-                        t.nom AS transporteur,
-                        i.event AS event, 
-                        COUNT(i.event) AS valeur, 
-                        SUM(i.point) AS point,
-                        SUM(
-                            CASE 
-                                WHEN i.duree_initial < i.duree_infraction THEN i.duree_infraction - i.duree_initial
-                                ELSE i.duree_initial - i.duree_infraction
-                            END
-                        ) AS duree,
-                        (SELECT SUM(i2.point) 
-                        FROM infraction i2 
-                        JOIN 
-                    	import_excel ie2 ON i2.calendar_id = ie2.id
-                        WHERE i2.rfid = i.rfid 
-                        AND i2.calendar_id IS NOT NULL AND ie2.import_calendar_id = $id_planning) AS total_point
-                    FROM 
-                        infraction i
-                    JOIN
-                        chauffeur c ON i.rfid = c.rfid
-                    JOIN
-                        transporteur t ON c.transporteur_id = t.id
-                    JOIN 
-                    	import_excel ie ON i.calendar_id = ie.id
-                    WHERE 
-                        i.calendar_id IS NOT NULL AND ie.import_calendar_id = $id_planning
-                    GROUP BY 
-                        c.nom, i.event, i.rfid, t.nom
-                    ");
+                    SELECT 
+                    c.nom AS driver,
+                    c.id As driver_id,
+                    t.id As transporteur_id,
+                    t.nom AS transporteur,
+                    i.event AS event, 
+                    i.vehicule AS camion,
+                    COUNT(i.event) AS valeur, 
+                    SUM(i.point) AS point,
+                    SUM(
+                        CASE 
+                            WHEN i.duree_initial < i.duree_infraction THEN i.duree_infraction - i.duree_initial
+                            ELSE i.duree_initial - i.duree_infraction
+                        END
+                    ) AS duree,
+                    (SELECT SUM(i2.point) 
+                    FROM infraction i2 
+                    JOIN import_excel ie2 ON i2.calendar_id = ie2.id
+                    WHERE i2.rfid = c.rfid 
+                    AND i2.calendar_id IS NOT NULL 
+                    AND ie2.import_calendar_id = $id_planning) AS total_point
+                FROM 
+                    chauffeur c
+                LEFT JOIN
+                    infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
+                LEFT JOIN
+                    import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
+                LEFT JOIN
+                    transporteur t ON c.transporteur_id = t.id
+                GROUP BY 
+                    c.id, c.nom, i.event, c.rfid, t.nom, t.id, i.vehicule
+        ");
         }
         
         return $results;
@@ -299,7 +301,7 @@ if(!function_exists('getAllGoodScoring')){
             $item->scoring = round(($item->point / $item->distance) * 100, 2);
         }
         $sortedResults = $results->sortBy('scoring');
-        
+       
         return $sortedResults;
     }
 }

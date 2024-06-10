@@ -54,17 +54,20 @@ class EventController extends AppBaseController
     public function newscoring(Request $request){
         
         $data = [];
+        $scoring = [];
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $import_calendar = Importcalendar::all();
+        $query = $request->input('query');
 
         $results = scoring($selectedPlanning);
         if($results){
             foreach ($results as $result) {
                 $driver = $result->driver;
                 $event = $result->event;
+                $camion = $result->camion;
                 $transporteur = $result->transporteur;
                 $total_point = $result->total_point;
-    
+                
                 if (!isset($data[$driver])) {
                     $data[$driver] = [
                         'transporteur' => $transporteur,
@@ -79,24 +82,33 @@ class EventController extends AppBaseController
                         'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                         'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                     ];
+                    $scoring[] = [
+                        'driver' => $driver,
+                        'transporteur' => $transporteur,
+                        'camion' => $camion,
+                        'distance' => getDistanceTotalDriverInCalendar($driver, $selectedPlanning),
+                        'point' => (getDistanceTotalDriverInCalendar($driver, $selectedPlanning) != 0) ? ($total_point / getDistanceTotalDriverInCalendar($driver, $selectedPlanning)) * 100 : 0
+                    ];
                 }
     
                 $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
             }
         }
-        
-        return view('events.scoring', compact('data','import_calendar', 'selectedPlanning'));
+
+        return view('events.scoring', compact('data','import_calendar', 'selectedPlanning', 'scoring'));
     }
 
     public function ajaxHandle(Request $request){
         $selectedPlanning = $request->input('planning');
         
         $data = [];
+        $scoring = [];
         $results = scoring($selectedPlanning);
         if($results){
             foreach ($results as $result) {
                 $driver = $result->driver;
                 $event = $result->event;
+                $camion = $result->camion;
                 $transporteur = $result->transporteur;
                 $total_point = $result->total_point;
     
@@ -114,13 +126,20 @@ class EventController extends AppBaseController
                         'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                         'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                     ];
+                    $scoring[] = [
+                        'driver' => $driver,
+                        'transporteur' => $transporteur,
+                        'camion' => $camion,
+                        'distance' => getDistanceTotalDriverInCalendar($driver, $selectedPlanning),
+                        'point' => (getDistanceTotalDriverInCalendar($driver, $selectedPlanning) != 0) ? ($total_point / getDistanceTotalDriverInCalendar($driver, $selectedPlanning)) * 100 : 0
+                    ];
                 }
     
                 $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
             }
         }
 
-        return view('events.scoring_filtre', compact('data', 'selectedPlanning'));
+        return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
     }
 
 

@@ -30,138 +30,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" integrity="sha512-3JRrEUwaCkFUBLK1N8HehwQgu8e23jTH4np5NHOmQOobuC4ROQxFwFgBLTnhcnQRMs84muMh0PnnwXlPq5MGjg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     @stack('third_party_stylesheets')
-    <style>
-        .dataTables_wrapper {
-            margin: 20px;
-        },
-
-        
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(128, 128, 128, 0.7); /* Couleur semi-transparente gris */
-            z-index: 9998; /* Assure que l'overlay est au-dessus de tout autre contenu */
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .transporteur-icon {
-            color: rgb(61, 134, 203); /* Couleur bleue */
-        }
-
-        .top-icon {
-            color: #eded35; /* Couleur verte */
-        }
-
-        .worst-icon {
-            color: red; /* Couleur rouge */
-        }
-
-        .lds-dual-ring {
-        display: inline-block;
-        width: 64px;
-        height: 64px;
-        }
-        .lds-dual-ring:after {
-        content: " ";
-        display: block;
-        width: 46px;
-        height: 46px;
-        margin: 1px;
-        border-radius: 50%;
-        border: 5px solid #cef;
-        border-color: #cef transparent #cef transparent;
-        animation: lds-dual-ring 1.2s linear infinite;
-        }
-        @keyframes lds-dual-ring {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-        }
-
-
-        .required:after {
-            content: '(*)';
-            color: red;
-            padding-left: 5px;
-        },
-
-        .nav-child{
-            padding-left: 8px;
-        },
-
-        @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-        }
-
-        .loader {
-            display: none;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            margin-top: -25px;
-            margin-left: -25px;
-            z-index: 9999;
-            animation: spin 1.2s linear infinite; /* Utilisez l'animation 'spin' pour faire tourner le loader */
-        }
-
-
-        .card-list{
-            padding:8px
-        }
-
-        .number-circle {
-            width: 30px;
-            height: 30px;
-            background-color: #28a745;
-            color: #fff;
-            border-radius: 50%;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .number-circle-worst {
-            width: 30px;
-            height: 30px;
-            background-color: #dc3545;
-            color: #fff;
-            border-radius: 50%;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .rounded-card{
-            border-radius: 36px !important;
-        }
-        
-        .title-scoring{
-            padding-left: 12px;
-            padding-bottom: 12px;
-        }
-
-    </style>
     @stack('page_css')
 
 </head>
@@ -228,26 +96,11 @@
 
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
-            
-            {{-- <div id="loader" class="loader"></div> --}}
-            {{-- <div id="overlay"></div> --}}
-            {{-- <div class="overlay" id="overlay"></div> --}}
-
-            {{-- <div class="loader-wrapper" id="loader-wrapper"> --}}
-                
-            {{-- </div> --}}
-
-            {{-- <div id="lds-default" ></div> --}}
-            
-            <div class="loader" id="load_test"></div>
-
+    
 
             <section class="content">
-                <div class="lds-default" id="lds-default">
-                    <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-                </div>
+                <div id="loader"  class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
                 <div id="overlay"></div>
-                {{-- <div id="loader" class="loaders"></div> --}}
 
                 @yield('content')
             </section>
@@ -292,29 +145,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 
 
-
-
-    <!--
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.js" integrity="sha512-P3/SDm/poyPMRBbZ4chns8St8nky2t8aeG09fRjunEaKMNEDKjK3BuAstmLKqM7f6L1j0JBYcIRL4h2G6K6Lew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="text/javascript">
-        $(function() {
-            Turbolinks.start();
-        })
-    </script>
-    -->
-
     <script type="text/javascript">
         $(document).ready(function() {
             // Masquer le loader et l'overlay lorsque la page est chargée
             $('#overlay').hide();
-            $('#load_test').hide();
+            $('#loader').hide();
         });
 
         function submitForm() {
             // Afficher le loader
             $('#overlay').show();
-            $('#load_test').show();
-            // $('#lds-default').show();
+            $('#loader').show();
             return true; // Permettre la soumission du formulaire
         }
     </script>
@@ -480,128 +321,178 @@
     </script>
 
 <style>
-       
-    #lds-default {
-         display: none;
-         border: 8px solid #f3f3f3;
-         border-top: 8px solid #3498db;
-         border-radius: 50%;
-         width: 50px;
-         height: 50px;
-         position: fixed;
-         top: 50%;
-         left: 50%;
-         margin-top: -25px; 
-         margin-left: -25px; 
-         z-index: 9999;
-         animation: lds-default 1.2s linear infinite;
-     }
+        .dataTables_wrapper {
+            margin: 20px;
+        },
+
+        
+        .transporteur-icon {
+            color: rgb(61, 134, 203); 
+        }
+
+        .top-icon {
+            color: #eded35; 
+        }
+
+        .worst-icon {
+            color: red;
+        }
+
+        .required:after {
+            content: '(*)';
+            color: red;
+            padding-left: 5px;
+        },
+
+        .nav-child{
+            padding-left: 8px;
+        },
+
+        .card-list{
+            padding:8px
+        }
+
+        .number-circle {
+            width: 30px;
+            height: 30px;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .number-circle-worst {
+            width: 30px;
+            height: 30px;
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .rounded-card{
+            border-radius: 36px !important;
+        }
+        
+        .title-scoring{
+            padding-left: 12px;
+            padding-bottom: 12px;
+        } 
 
      #overlay {
-         display: none;
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background-color: rgba(128, 128, 128, 0.7); 
-         z-index: 9998;
-     }
-
-
-     @keyframes spin {
-         0% { transform: rotate(0deg); }
-         100% { transform: rotate(360deg); }
-     }
-
-     
-
-        /* .lds-default,
-        .lds-default div {
-        box-sizing: border-box;
-        }
-        .lds-default {
-        display: inline-block;
-        position: relative;
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(128, 128, 128, 0.7); /* Couleur semi-transparente gris */
+        z-index: 9998; /* Assure que l'overlay est au-dessus de tout autre contenu */
+    }
+  
+    .lds-roller {
+        display: none; /* Pour masquer le loader initialement */
+        position: fixed;
         width: 80px;
         height: 80px;
-        }
-        .lds-default div {
+        top: 50%;
+        left: 50%;
+        margin-top: -40px; /* La moitié de la hauteur du loader */
+        margin-left: -40px; /* La moitié de la largeur du loader */
+        z-index: 9999;
+        color: #ffffff; /* Couleur du loader */
+    }
+  
+    .lds-roller div {
+        animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        transform-origin: 40px 40px;
+    }
+    
+    .lds-roller div:after {
+        content: " ";
+        display: block;
         position: absolute;
-        width: 6.4px;
-        height: 6.4px;
-        background: currentColor;
+        width: 7.2px;
+        height: 7.2px;
         border-radius: 50%;
-        animation: lds-default 1.2s linear infinite;
+        background: currentColor; /* Utilise la couleur définie dans .lds-roller */
+        margin: -3.6px 0 0 -3.6px;
+    }
+  
+    .lds-roller div:nth-child(1) {
+        animation-delay: -0.036s;
+    }
+    .lds-roller div:nth-child(1):after {
+        top: 62.62742px;
+        left: 62.62742px;
+    }
+    .lds-roller div:nth-child(2) {
+        animation-delay: -0.072s;
+    }
+    .lds-roller div:nth-child(2):after {
+        top: 67.71281px;
+        left: 56px;
+    }
+    .lds-roller div:nth-child(3) {
+        animation-delay: -0.108s;
+    }
+    .lds-roller div:nth-child(3):after {
+        top: 70.90963px;
+        left: 48.28221px;
+    }
+    .lds-roller div:nth-child(4) {
+        animation-delay: -0.144s;
+    }
+    .lds-roller div:nth-child(4):after {
+        top: 72px;
+        left: 40px;
+    }
+    .lds-roller div:nth-child(5) {
+        animation-delay: -0.18s;
+    }
+    .lds-roller div:nth-child(5):after {
+        top: 70.90963px;
+        left: 31.71779px;
+    }
+    .lds-roller div:nth-child(6) {
+        animation-delay: -0.216s;
+    }
+    .lds-roller div:nth-child(6):after {
+        top: 67.71281px;
+        left: 24px;
+    }
+    .lds-roller div:nth-child(7) {
+        animation-delay: -0.252s;
+    }
+    .lds-roller div:nth-child(7):after {
+        top: 62.62742px;
+        left: 17.37258px;
+    }
+    .lds-roller div:nth-child(8) {
+        animation-delay: -0.288s;
+    }
+    .lds-roller div:nth-child(8):after {
+        top: 56px;
+        left: 12.28719px;
+    }
+    
+    @keyframes lds-roller {
+        0% {
+        transform: rotate(0deg);
         }
-        .lds-default div:nth-child(1) {
-        animation-delay: 0s;
-        top: 36.8px;
-        left: 66.24px;
+        100% {
+        transform: rotate(360deg);
         }
-        .lds-default div:nth-child(2) {
-        animation-delay: -0.1s;
-        top: 22.08px;
-        left: 62.29579px;
-        }
-        .lds-default div:nth-child(3) {
-        animation-delay: -0.2s;
-        top: 11.30421px;
-        left: 51.52px;
-        }
-        .lds-default div:nth-child(4) {
-        animation-delay: -0.3s;
-        top: 7.36px;
-        left: 36.8px;
-        }
-        .lds-default div:nth-child(5) {
-        animation-delay: -0.4s;
-        top: 11.30421px;
-        left: 22.08px;
-        }
-        .lds-default div:nth-child(6) {
-        animation-delay: -0.5s;
-        top: 22.08px;
-        left: 11.30421px;
-        }
-        .lds-default div:nth-child(7) {
-        animation-delay: -0.6s;
-        top: 36.8px;
-        left: 7.36px;
-        }
-        .lds-default div:nth-child(8) {
-        animation-delay: -0.7s;
-        top: 51.52px;
-        left: 11.30421px;
-        }
-        .lds-default div:nth-child(9) {
-        animation-delay: -0.8s;
-        top: 62.29579px;
-        left: 22.08px;
-        }
-        .lds-default div:nth-child(10) {
-        animation-delay: -0.9s;
-        top: 66.24px;
-        left: 36.8px;
-        }
-        .lds-default div:nth-child(11) {
-        animation-delay: -1s;
-        top: 62.29579px;
-        left: 51.52px;
-        }
-        .lds-default div:nth-child(12) {
-        animation-delay: -1.1s;
-        top: 51.52px;
-        left: 62.29579px;
-        }
-        @keyframes lds-default {
-        0%, 20%, 80%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.5);
-        }
-        } */
+    }
+    
  </style>
 
     @stack('third_party_scripts')
