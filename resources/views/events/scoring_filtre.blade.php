@@ -80,6 +80,8 @@
 
 
     <div id="dataTable" class="card-body p-0" >
+        <form method="POST" action="{{ route('save.comments') }}">
+            @csrf
         <table class="table table-bordered" width="100%">
             <thead>
                 <tr>
@@ -93,12 +95,12 @@
             <tbody>
                 @foreach ($scoring as $item)
                     <tr>
-                        <td style="text-align: center;"><a href="{{ route('events.table.scoring', ['chauffeur' => $item['driver'], 'id_planning'  => $selectedPlanning]) }}">{{$item['driver']}}</a></td>
-                        <td style="text-align: center;">{{ $item['transporteur'] }}</td>
-                        <td style="text-align: center;">{{ isset($item['point']) && $item['point'] !== null && $item['point'] != 0 ? $item['camion'] : '' }}</td>
+                        <td style="text-align: center;"><a href="{{ route('events.table.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">{{$item->driver->nom}}</a></td>
+                        <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
+                        <td style="text-align: center;">{{  $item->camion  }}</td>
                         <td style="text-align: center;" class="
                             @php
-                                $score = round($item['point'], 2);
+                                $score = round($item->point, 2);
                                 if ($score > 0 && $score <= 2) {
                                     echo 'scoring-green';
                                 } elseif ($score > 2 && $score <= 5) {
@@ -109,12 +111,16 @@
                                     echo 'scoring-red';
                                 }
                             @endphp
-                        ">{{ round($item['point'], 2) }}</td>
-                        <td style="text-align: center;"><textarea class="form-control" name="" id="" cols="30" rows="2 "></textarea></td>
+                        ">{{ round($item->point, 2) }}</td>
+                        <td style="text-align: center;"><textarea class="form-control" name="commentaire[{{ $item->id }}]" id="" cols="30" rows="2 ">{{ $item->comment }}</textarea></td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        <div class="d-flex justify-content-end" style="margin: 0% 2% 1% 0%;">
+            <button type="submit" class="btn btn-primary" onclick="submitForm()">Enregistrer les commentaires</button>
+        </div>
+        </form>
         <div id="noResultsMessage" style="display: none;text-align: center">Aucun résultat trouvé.</div>
     </div>        
 </div>

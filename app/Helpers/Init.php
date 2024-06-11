@@ -80,7 +80,7 @@ if(!function_exists('scoring')){
                     c.id As driver_id,
                     t.id As transporteur_id,
                     t.nom AS transporteur,
-                    i.event AS event, 
+                    i.event AS event,
                     i.vehicule AS camion,
                     COUNT(i.event) AS valeur, 
                     SUM(i.point) AS point,

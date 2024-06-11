@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Models\Penalite;
+use App\Models\Scoring;
 use App\Models\ImportExcel;
 use App\Models\Importcalendar;
 use Dompdf\Dompdf;
@@ -51,10 +52,49 @@ class EventController extends AppBaseController
         return $eventDataTable->render('events.index');
     }
 
+
+    public function saveScoring($data){
+        foreach($data as $item){
+            $existingScoring = Scoring::where('id_planning', $item['id_planning'])
+                    ->where('driver_id', $item['driver_id'])
+                    ->where('transporteur_id', $item['transporteur_id'])
+                    ->first();
+    
+            if (!$existingScoring) {
+                Scoring::create([
+                    'id_planning' => $item['id_planning'],
+                    'driver_id' => $item['driver_id'],
+                    'transporteur_id' => $item['transporteur_id'],
+                    'camion' => $item['camion'],
+                    'comment' => $item['comment'],
+                    'distance' => $item['distance'],
+                    'point' => $item['point'],
+                ]);
+            }
+        }
+    }
+
+    public function saveComments(Request $request)
+    {
+        $commentaires = $request->input('commentaire');
+        
+
+        foreach ($commentaires as $id => $commentaire) {
+            $scoring = Scoring::find($id);
+            if ($scoring) {
+                $scoring->comment = $commentaire;
+                $scoring->save();
+            }
+        }
+
+        Alert::success('Succès', 'Commentaires enregistrés avec succès');
+        return redirect()->back();
+    }
+
     public function newscoring(Request $request){
         
         $data = [];
-        $scoring = [];
+        $createScoring = [];
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $import_calendar = Importcalendar::all();
         $query = $request->input('query');
@@ -82,10 +122,14 @@ class EventController extends AppBaseController
                         'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                         'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                     ];
-                    $scoring[] = [
+                    $createScoring[] = [
+                        'id_planning' => $selectedPlanning,
+                        'driver_id' => $result->driver_id,
+                        'transporteur_id' => $result->transporteur_id,
                         'driver' => $driver,
                         'transporteur' => $transporteur,
                         'camion' => $camion,
+                        'comment' => '',
                         'distance' => getDistanceTotalDriverInCalendar($driver, $selectedPlanning),
                         'point' => (getDistanceTotalDriverInCalendar($driver, $selectedPlanning) != 0) ? ($total_point / getDistanceTotalDriverInCalendar($driver, $selectedPlanning)) * 100 : 0
                     ];
@@ -94,7 +138,8 @@ class EventController extends AppBaseController
                 $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
             }
         }
-
+        $this->saveScoring($createScoring);
+        $scoring = Scoring::where('id_planning', $selectedPlanning)->get();
         return view('events.scoring', compact('data','import_calendar', 'selectedPlanning', 'scoring'));
     }
 
@@ -102,7 +147,7 @@ class EventController extends AppBaseController
         $selectedPlanning = $request->input('planning');
         
         $data = [];
-        $scoring = [];
+        $createScoring = [];
         $results = scoring($selectedPlanning);
         if($results){
             foreach ($results as $result) {
@@ -126,10 +171,14 @@ class EventController extends AppBaseController
                         'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                         'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                     ];
-                    $scoring[] = [
+                    $createScoring[] = [
+                        'id_planning' => $selectedPlanning,
+                        'driver_id' => $result->driver_id,
+                        'transporteur_id' => $result->transporteur_id,
                         'driver' => $driver,
                         'transporteur' => $transporteur,
                         'camion' => $camion,
+                        'comment' => '',
                         'distance' => getDistanceTotalDriverInCalendar($driver, $selectedPlanning),
                         'point' => (getDistanceTotalDriverInCalendar($driver, $selectedPlanning) != 0) ? ($total_point / getDistanceTotalDriverInCalendar($driver, $selectedPlanning)) * 100 : 0
                     ];
@@ -138,7 +187,8 @@ class EventController extends AppBaseController
                 $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
             }
         }
-
+        $this->saveScoring($createScoring);
+        $scoring = Scoring::where('id_planning', $selectedPlanning)->get();
         return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
     }
 

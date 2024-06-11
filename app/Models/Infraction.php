@@ -57,7 +57,8 @@ class Infraction extends Model
         'gps_fin',
         'point',
         'duree_initial',
-        'insuffisance'
+        'insuffisance',
+        'commentaire'
     ];
 
     /**

@@ -81,6 +81,8 @@ Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->n
 
 Route::get('/event/exportscoring', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
 
+Route::post('/save-comments', [App\Http\Controllers\EventController::class, 'saveComments'])->name('save.comments');
+
 
 Route::get('/new/scoring', 'App\Http\Controllers\EventController@newscoring')->name('new.scoring');
 
@@ -102,3 +104,6 @@ Route::resource('groupeEvents', App\Http\Controllers\GroupeEventController::clas
 Route::resource('vehicules', App\Http\Controllers\VehiculeController::class);
 
 Route::resource('infractions', App\Http\Controllers\InfractionController::class);
+
+
+Route::resource('scorings', App\Http\Controllers\ScoringController::class);

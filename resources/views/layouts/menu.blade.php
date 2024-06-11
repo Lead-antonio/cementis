@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-    {{-- @can('generator_builder.index') 
+{{-- @can('generator_builder.index') 
     @php
     $isUserActive = Request::is($urlAdmin.'*generator_builder*');
     @endphp
@@ -24,7 +24,7 @@ $isDashboardActive = Request::is($urlAdmin);
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-    @endcan   --}}
+@endcan   --}}
 
 
 
@@ -146,7 +146,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 
 <li class="nav-item">
     <a href="{{ route('infractions.index') }}"
-       class="nav-link {{ Request::is('infractions*') ? 'active' : '' }}">
+       class="nav-link {{ Request::is('infractions*') ? 'active' : '' }}" onclick="submitForm()">
        <i class="nav-icon fas fa-virus"></i>
         <p>@lang('models/infractions.plural')</p>
     </a>
@@ -261,7 +261,7 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         </li>
         <li class="nav-item">
             <a href="{{ route('vehicules.index') }}"
-               class="nav-link {{ Request::is('vehicules*') ? 'active' : '' }}">
+               class="nav-link {{ Request::is('vehicules*') ? 'active' : '' }}" onclick="submitForm()">
                <i class="nav-icon fas fa-car"></i>
                 <p>@lang('models/vehicules.plural')</p>
             </a>
@@ -305,4 +305,11 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 --}}
 
 
+
+{{-- <li class="nav-item">
+    <a href="{{ route('scorings.index') }}"
+       class="nav-link {{ Request::is('scorings*') ? 'active' : '' }}">
+        <p>@lang('models/scorings.plural')</p>
+    </a>
+</li> --}}
 
