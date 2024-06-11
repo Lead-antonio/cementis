@@ -66,18 +66,18 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <!-- User image -->
-                        <li class="user-header bg-primary">
-                            <img src="{{url('images/cementis.jpg')}}" class="img-circle elevation-2" alt="User Image">
+                        <li class="user-header">
+                            <img src="{{url('images/alpha_ciment.jpg')}}" class="img-circle elevation-2" alt="User Image">
                             <p>
                                 {{ Auth::user()->name }}
-                                <small>Member since {{ Auth::user()->created_at->format('M. Y') }}</small>
+                                <small>Membre depuis {{ Auth::user()->created_at->format('M. Y') }}</small>
                             </p>
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <a href="{{route('users.profile')}}" class="btn btn-default btn-flat">Profile</a>
                             <a href="#" class="btn btn-default btn-flat float-right" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Sign out
+                                Déconnexion
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
