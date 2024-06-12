@@ -16,7 +16,7 @@
                             @endforeach
                         </select>
 
-                        <div class="form-row" style="margin: 0% 0% 0% 4%;width: 62%;">
+                        <div class="form-row" style="margin: 0% 0% 0% 1%;width: 62%;">
                             <div class="input-group">
                                 <input class="form-control" type="text" id="searchInput"  placeholder="Chauffeur, transporteur"  style="margin: 0% 1% 0% 0%">
                                 <div class="input-group-prepend">
@@ -53,92 +53,5 @@
       }
 
     </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function() {
-            $('#planning').change(function() {
-                $('#overlay').show();
-                $('#loader').show();
-                var selectedValue = $(this).val();
-                $.ajax({
-                    url: "{{ route('ajax.scoring') }}", // Route à laquelle la requête Ajax sera envoyée
-                    type: 'GET',
-                    data: { planning: selectedValue },
-                    success: function(response) {
-                        $('#dataTable').html('')
-                        $('#dataTable').html(response);
-                        $('#overlay').hide();
-                        $('#loader').hide();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
-            });
-        });
 
-
-        document.addEventListener("DOMContentLoaded", function() {
-            var searchInput = document.getElementById('searchInput');
-            var dataTable = document.getElementById('dataTable');
-            var noResultsMessage = document.getElementById('noResultsMessage');
-
-            if (dataTable) {
-                var rows = dataTable.getElementsByTagName('tr');
-                var headerRow = dataTable.querySelector('thead tr');
-                var headerCells = headerRow.getElementsByTagName('th');
-                var originalWidths = [];
-
-                for (var i = 0; i < headerCells.length; i++) {
-                    originalWidths.push(headerCells[i].offsetWidth);
-                }
-
-                searchInput.addEventListener('input', function() {
-                    var searchText = searchInput.value.toLowerCase();
-                    $('#overlay').show();
-                    $('#loader').show();
-
-                    setTimeout(function() {
-                        var hasResults = false;
-
-                        for (var i = 1; i < rows.length; i++) { // Commencer à l'indice 1 pour exclure les lignes d'en-tête
-                            var row = rows[i];
-                            var cells = row.getElementsByTagName('td');
-                            var found = false;
-
-                            for (var j = 0; j < cells.length; j++) {
-                                var cell = cells[j];
-                                var cellText = cell.textContent.toLowerCase();
-
-                                if (cellText.indexOf(searchText) > -1) {
-                                    found = true;
-                                    hasResults = true;
-                                    break;
-                                }
-                            }
-
-                            if (found) {
-                                row.style.display = '';
-                            } else {
-                                row.style.display = 'none';
-                            }
-                            if (!hasResults) {
-                                noResultsMessage.style.display = 'block';
-                            } else {
-                                noResultsMessage.style.display = 'none';
-                            }
-                        }
-                        for (var i = 0; i < headerCells.length; i++) {
-                            headerCells[i].style.width = originalWidths[i] + 'px';
-                        }
-                        $('#overlay').hide();
-                        $('#loader').hide();
-                    }, 500)
-                    
-                });
-            }
-        });
-
-
-    </script>
 @endsection

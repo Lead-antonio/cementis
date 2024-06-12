@@ -60,7 +60,16 @@ class EventController extends AppBaseController
                     ->where('transporteur_id', $item['transporteur_id'])
                     ->first();
     
-            if (!$existingScoring) {
+            if ($existingScoring) {
+                if (empty($existingScoring->camion)) {
+                    $existingScoring->camion = getPlateNumberByRfidAndTransporteur($existingScoring->driver_id, $existingScoring->transporteur_id);
+                    $existingScoring->save();
+                }
+            }else{
+                if (empty($item['camion'])) {
+                    $item['camion'] = getPlateNumberByRfidAndTransporteur($item['driver_id'], $item['transporteur_id']);
+                }
+
                 Scoring::create([
                     'id_planning' => $item['id_planning'],
                     'driver_id' => $item['driver_id'],

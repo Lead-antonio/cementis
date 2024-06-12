@@ -233,7 +233,6 @@ if (!function_exists('scoringCard')) {
 
 }
 
-
 if (!function_exists('topDriver')) {
     function topDriver()
     {
@@ -275,7 +274,6 @@ if(!function_exists('TotalScoringbyDriver')){
 
 }
 
-
 if(!function_exists('getAllGoodScoring')){
     function getAllGoodScoring(){
         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
@@ -301,11 +299,11 @@ if(!function_exists('getAllGoodScoring')){
             $item->scoring = round(($item->point / $item->distance) * 100, 2);
         }
         $sortedResults = $results->sortBy('scoring');
-       
+        $sortedResults = $sortedResults->values();
+        
         return $sortedResults;
     }
 }
-
 
 if(!function_exists('getAllBadScoring')){
     function getAllBadScoring(){
@@ -332,12 +330,11 @@ if(!function_exists('getAllBadScoring')){
             $item->scoring = round(($item->point / $item->distance) * 100, 2);
         }
         $sortedResults = $results->sortByDesc('scoring');
+        $sortedResults = $sortedResults->values();
         
         return $sortedResults;
     }
 }
-
-
 
 if(!function_exists('topAndWorstChauffeur')){
     
@@ -496,8 +493,6 @@ if (!function_exists('getPointPenaliteTotalMonthly')) {
     } 
 
 }
-
-
 
 //Récuperation des calendriers d'un chauffeur par mois
 if (!function_exists('getCalendarOfDriverMonthly')) {
@@ -1205,7 +1200,6 @@ if (!function_exists('getImeiOfTruck')){
     }
 }
 
-
 if (!function_exists('getRfidWithImeiAndPeriod')) {
 
     function getRfidWithImeiAndPeriod($imei_vehicule, $start_date, $end_date){
@@ -1275,8 +1269,6 @@ if (!function_exists('checkDriverInCalendar')){
         }
     }
 }
-
-
 
 // Temps de repos minimum apès une journée de travail (8h -> jour, 10 -> nuit, Si chevauchement, prendre nuit)
 if(!function_exists('checkTempsReposMinApresJourneeTravail')){
@@ -1870,6 +1862,26 @@ if(!function_exists('groupedInfraction')){
     }
 }
 
+use Illuminate\Support\Str;
+if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
+
+    function getPlateNumberByRfidAndTransporteur($driverId, $transporteurId){
+        $chauffeur = Chauffeur::where('id', $driverId)->first();
+        $transporteur = Transporteur::where('id', $transporteurId)->first();
+        // Formatage des dates au format YYYYMMDD
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
+        $response = Http::timeout(300)->get($url);
+        $data = $response->json();
+        $plate_number = "";
+        foreach($data as $item){
+            if ($item['params']['rfid'] === $chauffeur->rfid) {
+                $plate_number = $item['plate_number'];
+            }
+        }
+        
+        return $plate_number;
+    }
+}
 
 
 
