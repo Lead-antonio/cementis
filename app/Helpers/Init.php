@@ -1883,7 +1883,53 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
     }
 }
 
+if(!function_exists('checkTruckinCalendar')){
+    function checkTruckinCalendar($id_planning, $camion){
+        $exists = ImportExcel::where('import_calendar_id', $id_planning)
+                          ->where('camion', $camion)
+                          ->exists();
 
+
+        return $exists ? true : false;
+    }
+}
+
+if(!function_exists('getInfractionWithmaximumPoint')){
+    function getInfractionWithmaximumPoint($id_driver, $id_planning){
+        // Créer la sous-requête
+        $subquery = DB::table('infraction as i')
+        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        ->select(
+            'ch.nom as driver',
+            'ch.id as driver_id',
+            'ch.rfid as rfid',
+            't.nom as transporteur_nom',
+            'i.event as infraction',
+            DB::raw('SUM(i.point) as total_point')
+        )
+        ->where('ch.id', $id_driver)
+        ->where('ie.import_calendar_id', $id_planning)
+        ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+
+        // Utiliser selectSub pour la requête principale
+        $result = DB::table(DB::raw("({$subquery->toSql()}) as subquery"))
+        ->mergeBindings($subquery) // Merge bindings from the subquery
+        ->select('subquery.driver', 'subquery.rfid', 'subquery.transporteur_nom', 'subquery.infraction', 'subquery.total_point as point')
+        ->orderBy('subquery.total_point', 'desc')
+        ->limit(1)
+        ->first();
+
+        if ($result) {
+            // Traiter les résultats obtenus
+            return $result->infraction . " avec un total de " . $result->point;
+        } else {
+            // Aucun résultat trouvé, gérer le cas où il n'y a pas de données
+            return "";
+        }
+    }
+}
 
 
 

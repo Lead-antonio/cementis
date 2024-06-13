@@ -89,6 +89,7 @@
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
                         <th style="text-align: center;width: 10%;background-color: lightslategrey;" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
+                        <th style="text-align: center;width: 20%;">Infraction le plus fréquent</th>
                         <th style="text-align: center;width: 20%;">Commentaire</th>
                     </tr>
                 </thead>
@@ -101,7 +102,11 @@
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
-                                    if ($score > 0 && $score <= 2) {
+                                    $isTruckinCalendarChecked = checkTruckinCalendar($selectedPlanning, $item->camion);
+
+                                    if($score == 0 && $isTruckinCalendarChecked){
+                                        echo 'scoring-green';
+                                    } elseif ($score > 0 && $score <= 2) {
                                         echo 'scoring-green';
                                     } elseif ($score > 2 && $score <= 5) {
                                         echo 'scoring-yellow';
@@ -112,6 +117,7 @@
                                     }
                                 @endphp
                             ">{{ round($item->point, 2) }}</td>
+                            <td>{{ getInfractionWithmaximumPoint($item->driver->id, $selectedPlanning )}}</td>
                             <td style="text-align: center;"><textarea class="form-control" name="commentaire[{{ $item->id }}]" id="" cols="30" rows="2 ">{{ $item->comment }}</textarea></td>
                         </tr>
                     @endforeach

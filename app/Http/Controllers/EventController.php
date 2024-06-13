@@ -49,6 +49,7 @@ class EventController extends AppBaseController
      */
     public function index(EventDataTable $eventDataTable)
     {
+        // getInfractionWithmaximumPoint();
         return $eventDataTable->render('events.index');
     }
 
