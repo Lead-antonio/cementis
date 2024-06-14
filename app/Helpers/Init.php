@@ -1923,7 +1923,8 @@ if(!function_exists('getInfractionWithmaximumPoint')){
 
         if ($result) {
             // Traiter les résultats obtenus
-            return $result->infraction . " avec un total de " . $result->point;
+            // return $result->infraction . " avec un total de " . $result->point;
+            return $result->infraction;
         } else {
             // Aucun résultat trouvé, gérer le cas où il n'y a pas de données
             return "";

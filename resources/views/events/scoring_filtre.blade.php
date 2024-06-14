@@ -88,9 +88,9 @@
                         <th style="text-align: center;background-color: darkgray;">Chauffeur</th>
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
-                        <th style="text-align: center;width: 10%;background-color: lightslategrey;" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
-                        <th style="text-align: center;width: 20%;">Infraction le plus fréquent</th>
-                        <th style="text-align: center;width: 20%;">Commentaire</th>
+                        <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
+                        <th style="text-align: center;width: 20%;background-color: #101010;color: white">Infraction les plus fréquentes</th>
+                        <th style="text-align: center;width: 20%;background-color: darkgray">Commentaire</th>
                     </tr>
                 </thead>
                 <tbody>
