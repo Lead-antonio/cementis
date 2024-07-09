@@ -15,6 +15,7 @@ use App\Models\Transporteur;
  * @property integer $id
  * @property string $nom
  * @property integer $id_transporteur
+ * @property string $description
  */
 class Vehicule extends Model
 {
@@ -27,12 +28,12 @@ class Vehicule extends Model
     protected $dates = ['deleted_at'];
 
 
-
     public $fillable = [
         'id',
         'imei',
         'nom',
-        'id_transporteur'
+        'id_transporteur',
+        'description',
     ];
 
     /**
@@ -44,7 +45,8 @@ class Vehicule extends Model
         'id' => 'integer',
         'imei' => 'string',
         'nom' => 'string',
-        'id_transporteur' => 'integer'
+        'id_transporteur' => 'integer',
+        'description' => 'string'
     ];
 
     /**

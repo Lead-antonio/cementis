@@ -62,6 +62,13 @@ Route::get('import-excels/detail/{id}', 'App\Http\Controllers\ImportExcelControl
 
 Route::resource('importcalendars', App\Http\Controllers\ImportcalendarController::class);
 
+Route::get('/import-installation-affichage', 'App\Http\Controllers\ImportInstallationController@affichageImportation')->name('import.installation.affichage');
+
+Route::post('/import-installation', 'App\Http\Controllers\ImportInstallationController@import_data_installation')->name('import.installation.store');
+
+Route::get('import-excels/installation/{id}', 'App\Http\Controllers\ImportInstallationController@liste_importation')->name('import_excels.installation');
+
+
 
 Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
@@ -107,3 +114,18 @@ Route::resource('infractions', App\Http\Controllers\InfractionController::class)
 
 
 Route::resource('scorings', App\Http\Controllers\ScoringController::class);
+
+
+Route::resource('installateurs', App\Http\Controllers\InstallateurController::class);
+
+
+Route::resource('installations', App\Http\Controllers\InstallationController::class);
+
+
+Route::resource('importInstallations', App\Http\Controllers\ImportInstallationController::class);
+
+
+Route::resource('importNameInstallations', App\Http\Controllers\ImportNameInstallationController::class);
+
+
+Route::resource('importInstallationErrors', App\Http\Controllers\ImportInstallationErrorController::class);

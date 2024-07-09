@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-{{-- @can('generator_builder.index') 
+@can('generator_builder.index') 
     @php
     $isUserActive = Request::is($urlAdmin.'*generator_builder*');
     @endphp
@@ -24,9 +24,7 @@ $isDashboardActive = Request::is($urlAdmin);
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-@endcan   --}}
-
-
+@endcan  
 
 
 {{--@can('attendances.index')
@@ -310,6 +308,44 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
     <a href="{{ route('scorings.index') }}"
        class="nav-link {{ Request::is('scorings*') ? 'active' : '' }}">
         <p>@lang('models/scorings.plural')</p>
+    </a>
+</li> --}}
+
+<li class="nav-item">
+    <a href="{{ route('installateurs.index') }}"
+       class="nav-link {{ Request::is('installateurs*') ? 'active' : '' }}">
+       <i class="nav-icon fas fa-user"></i>
+        <p>@lang('models/installateurs.plural')</p>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a href="{{ route('installations.index') }}"
+       class="nav-link {{ Request::is('installations*') ? 'active' : '' }}">
+       <i class="nav-icon fa-brands fa-instalod"></i>
+        <p>@lang('models/installations.plural')</p>
+    </a>
+</li>
+
+{{-- <li class="nav-item">
+    <a href="{{ route('importInstallations.index') }}"
+       class="nav-link {{ Request::is('importInstallations*') ? 'active' : '' }}">
+        <p>Import Installation</p>
+    </a>
+</li> --}}
+
+<li class="nav-item">
+    <a href="{{ route('importNameInstallations.index') }}"
+       class="nav-link {{ Request::is('importNameInstallations*') ? 'active' : '' }}">
+       <i class="nav-icon fa fa-upload"></i>
+        <p>Import installation</p>
+    </a>
+</li>
+
+{{-- <li class="nav-item">
+    <a href="{{ route('importInstallationErrors.index') }}"
+       class="nav-link {{ Request::is('importInstallationErrors*') ? 'active' : '' }}">
+        <p>@lang('models/importInstallationErrors.plural')</p>
     </a>
 </li> --}}
 
