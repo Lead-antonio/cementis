@@ -94,6 +94,7 @@ class ChauffeurController extends AppBaseController
     public function store(CreateChauffeurRequest $request)
     {
         $input = $request->all();
+        dd($input);
 
         $chauffeur = $this->chauffeurRepository->create($input);
 

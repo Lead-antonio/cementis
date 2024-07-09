@@ -30,7 +30,6 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group col-sm-6">
-
                         <div class="form-group ">
                             {!! Form::label('file_upload', __('models/fileUploads.fields.file_upload').':') !!}
                             <div class="input-group">

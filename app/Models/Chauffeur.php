@@ -24,7 +24,6 @@ class Chauffeur extends Model
 
     public $table = 'chauffeur';
     
-
     protected $dates = ['deleted_at'];
 
 
@@ -68,6 +67,6 @@ class Chauffeur extends Model
      * @var array
      */
     public static $rules = [
-        
+        'rfid' => 'required|unique:chauffeur,rfid'
     ];
 }

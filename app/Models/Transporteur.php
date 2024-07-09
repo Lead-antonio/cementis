@@ -25,13 +25,11 @@ class Transporteur extends Model
 
     protected $dates = ['deleted_at'];
 
-
-
     public $fillable = [
         'nom',
-        'Adresse'
+        'adresse',
+        'tel'
     ];
-    
 
     /**
      * The attributes that should be casted to native types.
@@ -41,7 +39,8 @@ class Transporteur extends Model
     protected $casts = [
         'id' => 'integer',
         'nom' => 'string',
-        'Adresse' => 'string'
+        'adresse' => 'string',
+        'tel' => 'string'
     ];
 
     /**

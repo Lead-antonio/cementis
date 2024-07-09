@@ -1,3 +1,9 @@
+<div class="form-group col-sm-6">
+    {!! Form::label('nom', __('models/chauffeurs.fields.nom').':', ['class' => 'required']) !!}
+    {!! Form::text('nom', null, ['class' => 'form-control','placeholder'=>'Nom']) !!}
+</div>
+
+
 <!-- Id Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('transporteur_id', __('models/vehicules.fields.id_transporteur').':', ['class' => 'required']) !!}
@@ -21,14 +27,11 @@
 <!-- Rfid Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('rfid', __('models/chauffeurs.fields.rfid').':', ['class' => 'required']) !!}
-    {!! Form::text('rfid', null, ['class' => 'form-control']) !!}
+    {!! Form::text('rfid', null, ['class' => 'form-control','placeholder'=>'Rfid']) !!}
 </div>
 
 <!-- Nom Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('nom', __('models/chauffeurs.fields.nom').':', ['class' => 'required']) !!}
-    {!! Form::text('nom', null, ['class' => 'form-control']) !!}
-</div>
+
 
 <!-- Contact Field -->
 {{-- <div class="form-group col-sm-6">

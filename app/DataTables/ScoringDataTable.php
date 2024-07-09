@@ -18,7 +18,6 @@ class ScoringDataTable extends DataTable
     public function dataTable($query)
     {
         $dataTable = new EloquentDataTable($query);
-
         return $dataTable->addColumn('action', 'scorings.datatables_actions');
     }
 
