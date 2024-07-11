@@ -193,6 +193,12 @@
                 $('#loader').show();
                 var selectedValue = $(this).val();
                 console.log(selectedValue);
+                
+                // Mettre à jour le lien d'exportation avec l'ID du planning sélectionné
+                var exportLink = $('#export-link');
+                var baseUrl = "{{ route('event.exportscoringcard') }}";
+                exportLink.attr('href', baseUrl + '/' + selectedValue);
+                
                 $.ajax({
                     url: "{{ route('ajax.scoring') }}", // Route à laquelle la requête Ajax sera envoyée
                     type: 'GET',

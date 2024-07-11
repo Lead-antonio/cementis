@@ -44,6 +44,18 @@ class UserSeeder extends Seeder
             'guard_name' => 'api'
         ]);
 
+        $roleguest = $this->roleRepository->create([
+            'name' =>    Role::GUEST,
+            'title' => 'Guest',
+            'guard_name' => 'web'
+        ]);
+
+        $roletechnicien = $this->roleRepository->create([
+            'name' =>    Role::TECHNICIEN,
+            'title' => 'Technicien',
+            'guard_name' => 'web'
+        ]);
+
         $userSupperAdmin = $this->userRepository->create([
             'name' => 'Admin',
             'email' => 'admin@cementis.com',

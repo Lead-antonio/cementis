@@ -14,7 +14,7 @@ $isDashboardActive = Request::is($urlAdmin);
 </li>
 @endcan
 
-@can('generator_builder.index') 
+{{-- @can('generator_builder.index') 
     @php
     $isUserActive = Request::is($urlAdmin.'*generator_builder*');
     @endphp
@@ -24,21 +24,21 @@ $isDashboardActive = Request::is($urlAdmin);
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-@endcan  
+@endcan   --}}
 
 
-{{--@can('attendances.index')
+@can('attendances.index')
 @php
 $isUserActive = Request::is($urlAdmin.'*attendances*');
 @endphp
 
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a href="{{ route('attendances.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
         <i class="nav-icon fas fa-calendar-alt"></i>
 
         <p>@lang('menu.attendances.title')</p>
     </a>
-</li>
+</li> --}}
 @endcan
 
 @canany(['users.index','roles.index','permissions.index'])
@@ -47,49 +47,53 @@ $isUserActive = Request::is($urlAdmin.'*users*');
 $isRoleActive = Request::is($urlAdmin.'*roles*');
 $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 @endphp
-<li class="nav-item {{($isUserActive||$isRoleActive||$isPermissionActive)?'menu-open':''}} ">
-    <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-shield-virus"></i>
-        <p>
-            @lang('menu.user.title')
-            <i class="fas fa-angle-left right"></i>
-        </p>
-    </a>
-    <ul class="nav nav-treeview">
-        @can('users.index')
-        <li class="nav-item">
-            <a href="{{ route('users.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
-                <i class="nav-icon fas fa-users"></i>
-                <p>
-                    @lang('menu.user.users')
-                </p>
-            </a>
-        </li>
-        @endcan
-        @can('roles.index')
-        <li class="nav-item">
-            <a href="{{ route('roles.index') }}" class="nav-link {{ $isRoleActive ? 'active' : '' }}">
-                <i class="nav-icon fas fa-user-shield"></i>
-                <p>
-                    @lang('menu.user.roles')
-                </p>
-            </a>
-        </li>
-        @endcan
-        @can('permissions.index')
-        <li class="nav-item ">
-            <a href="{{ route('permissions.index') }}" class="nav-link {{ $isPermissionActive ? 'active' : '' }}">
-                <i class="nav-icon fas fa-shield-alt"></i>
-                <p>
-                    @lang('menu.user.permissions')
-                </p>
-            </a>
-        </li>
-        @endcan
-    </ul>
-</li>
+
+@if(Auth::user()->hasRole("supper-admin") )
+
+    <li class="nav-item {{($isUserActive||$isRoleActive||$isPermissionActive)?'menu-open':''}} ">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-shield-virus"></i>
+            <p>
+                @lang('menu.user.title')
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            @can('users.index')
+            <li class="nav-item">
+                <a href="{{ route('users.index') }}" class="nav-link {{ $isUserActive ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-users"></i>
+                    <p>
+                        @lang('menu.user.users')
+                    </p>
+                </a>
+            </li>
+            @endcan
+            @can('roles.index')
+            <li class="nav-item">
+                <a href="{{ route('roles.index') }}" class="nav-link {{ $isRoleActive ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-user-shield"></i>
+                    <p>
+                        @lang('menu.user.roles')
+                    </p>
+                </a>
+            </li>
+            @endcan
+            @can('permissions.index')
+            <li class="nav-item ">
+                <a href="{{ route('permissions.index') }}" class="nav-link {{ $isPermissionActive ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-shield-alt"></i>
+                    <p>
+                        @lang('menu.user.permissions')
+                    </p>
+                </a>
+            </li>
+            @endcan
+        </ul>
+    </li>
+@endif
 @endcan
- --}}
+
  <li class="nav-item">
     <a href="{{ route('new.scoring') }}"
        class="nav-link {{ Request::is('rotations*') ? 'active' : '' }}" onclick="submitForm()">

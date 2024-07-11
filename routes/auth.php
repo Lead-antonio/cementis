@@ -83,13 +83,13 @@ Route::get('/scoring/{chauffeur}', 'App\Http\Controllers\ImportExcelController@a
 
 Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')->name('events.scoring');
 
-
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
 Route::get('/event/exportscoring', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
 
-Route::post('/save-comments', [App\Http\Controllers\EventController::class, 'saveComments'])->name('save.comments');
+Route::get('/event/exportscoringcard/{planning?}', 'App\Http\Controllers\EventController@exportscoringcard')->name('event.exportscoringcard');
 
+Route::post('/save-comments', [App\Http\Controllers\EventController::class, 'saveComments'])->name('save.comments');
 
 Route::get('/new/scoring', 'App\Http\Controllers\EventController@newscoring')->name('new.scoring');
 
