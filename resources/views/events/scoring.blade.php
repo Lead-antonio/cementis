@@ -4,23 +4,34 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
+                <div class="col-sm-3">
                    <h1>Rapport du score card</h1>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-9">
                     <div class="form-row">
-                        <select class="form form-control" name="planning" id="planning" style="width: auto;">
-                            <option value="">Veuillez-choisir le planning</option>
-                            @foreach($import_calendar as $calendar)
-                                <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>{{$calendar->name}}</option>    
-                            @endforeach
-                        </select>
+                        {{-- <div class="col-sm-2">
+                            <a class="btn btn-success" href="{{ route('event.exportscoringcard') }}"> Exporter en Excel</a>
+                        </div> --}}
+                        <div class="col-sm-2">
+                            <a id="export-link" class="btn btn-success" href="{{ route('event.exportscoringcard', ['planning' => $selectedPlanning]) }}"><i class="fas fa-file-excel"></i> Excel</a>
+                        </div>
 
-                        <div class="form-row" style="margin: 0% 0% 0% 1%;width: 62%;">
-                            <div class="input-group">
-                                <input class="form-control" type="text" id="searchInput"  placeholder="Chauffeur, transporteur"  style="margin: 0% 1% 0% 0%">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <div class="col-sm-3">
+                            <select class="form form-control" name="planning" id="planning" style="width: auto;">
+                                <option value="">Veuillez-choisir le planning</option>
+                                @foreach($import_calendar as $calendar)
+                                    <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>{{$calendar->name}}</option>    
+                                @endforeach
+                            </select>
+                        </div>
+                        {{-- <div class="form-row" style="margin: 0% 0% 0% 1%;width: 62%;"> --}}
+                        <div class="col-sm-4">
+                            <div class="form-row" >
+                                <div class="input-group">
+                                    <input class="form-control" type="text" id="searchInput"  placeholder="Chauffeur, transporteur"  style="margin: 0% 1% 0% 0%">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

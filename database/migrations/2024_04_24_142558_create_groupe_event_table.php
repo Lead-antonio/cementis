@@ -14,19 +14,21 @@ class CreateGroupeEventTable extends Migration
      */
     public function up()
     {
-        Schema::create('groupe_event', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('key');
-            $table->string('imei');
-            $table->string('chauffeur');
-            $table->string('vehicule');
-            $table->string('type');
-            $table->decimal('latitude');
-            $table->decimal('longitude');
-            $table->integer('duree');
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        if (!Schema::hasTable('groupe_event')) {
+            Schema::create('groupe_event', function (Blueprint $table) {
+                $table->id();
+                $table->string('key');
+                $table->string('imei');
+                $table->string('chauffeur');
+                $table->string('vehicule');
+                $table->string('type');
+                $table->decimal('latitude', 8, 2);
+                $table->decimal('longitude', 8, 2);
+                $table->integer('duree');
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**
@@ -39,3 +41,5 @@ class CreateGroupeEventTable extends Migration
         Schema::drop('groupe_event');
     }
 }
+
+

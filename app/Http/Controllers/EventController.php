@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\EventDataTable;
+use App\Exports\ScoringCardExport;
 use App\Exports\ScoringExport;
 use App\Http\Requests;
 use App\Http\Requests\CreateEventRequest;
@@ -243,6 +244,14 @@ class EventController extends AppBaseController
         }
     }
 
+    /**
+     * Fonction pour exporter les données scoringcard en un fichier excel
+     * jonny
+     */
+    public function exportscoringcard($planning = null)
+    {
+        return Excel::download(new ScoringCardExport($planning), 'scoring_card.xlsx');
+    }
 
     /**
      * Show the form for creating a new Event.

@@ -23,12 +23,10 @@ class Scoring extends Model
 {
     use SoftDeletes;
 
-
     public $table = 'scoring';
     
 
     protected $dates = ['deleted_at'];
-
 
 
     public $fillable = [

@@ -12,6 +12,7 @@ use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
 use App\Models\Transporteur;
 use App\Models\Infraction;
+use App\Models\Scoring;
 
 if (!function_exists('fast_trans')) {
 
@@ -1874,14 +1875,14 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
         $data = $response->json();
         $plate_number = "";
         foreach($data as $item){
-            if ($item['params']['rfid'] === $chauffeur->rfid) {
+            if (isset($chauffeur->rfid) && isset($item['params']['rfid'])  && $item['params']['rfid'] === $chauffeur->rfid) {
                 $plate_number = $item['plate_number'];
             }
         }
-        
         return $plate_number;
     }
 }
+
 
 if(!function_exists('checkTruckinCalendar')){
     function checkTruckinCalendar($id_planning, $camion){
@@ -1933,4 +1934,12 @@ if(!function_exists('getInfractionWithmaximumPoint')){
 }
 
 
+
+if(!function_exists('getScoringcardExcel')){
+    function getScoringcardExcel(){
+        $result = Scoring::with(['driver','transporteur'])->get();
+        return $result;
+        
+    }
+}
 

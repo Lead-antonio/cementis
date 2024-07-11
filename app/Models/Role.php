@@ -21,6 +21,7 @@ class Role extends Model
     use SoftDeletes;
     public const SUPPER_ADMIN = "supper-admin";
     public const GUEST = "guest";
+    public const TECHNICIEN = "technicien";
 
     public $table = 'roles';
 
@@ -67,4 +68,4 @@ class Role extends Model
     {
         return $this->name == Role::SUPPER_ADMIN;
     }
-}
+}   

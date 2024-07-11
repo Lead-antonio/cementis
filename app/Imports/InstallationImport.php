@@ -39,12 +39,14 @@ class InstallationImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {   
         foreach  ($rows as $index => $row)  {
+
+            // dd($row);
             
              // Vérifier le RFID existant
             $existingChauffeur = Chauffeur::where('rfid', $row['rfid'])->first();
             if ($existingChauffeur) {
                     $numero_ligne = $index +1;
-                    $this->addError("Ligne N° {$numero_ligne}: le RFID N° [{$row['rfid']}] est déjà attribué au chauffeur {$existingChauffeur->nom}");
+                    $this->addError("Ligne N° {$numero_ligne}: le RFID N° [{$row['rfid']}] est déjà attribué au chauffeur {$existingChauffeur->nom} ");
                     $this->errorCount++;
                     continue; // Passer à la ligne suivante
             }
@@ -53,7 +55,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
             $existingVehicule = Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first();
             if ($existingVehicule) {
                 $numero_lignes = $index +1;
-                $this->addError("Ligne N° {$numero_lignes}: le véhicule est déjà présent dans la base");
+                $this->addError("Ligne N° {$numero_lignes}: le véhicule est déjà présent dans la base ");
                 $this->errorCount++;
                 continue; // Passer à la ligne suivante
             }
@@ -100,6 +102,8 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 'installateur_id' => $installateur->id,
             ]);
 
+            $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
+
             // Insérer les données dans la table ImportInstallation
             ImportInstallation::create([
                 'transporteur_nom' => $row['transporteur'],
@@ -112,7 +116,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 'vehicule_imei' => $row['imei'],
                 'vehicule_description' => $row['description'],
                 'installateur_matricule' => (string)  $row['matricule_tech'],
-                'dates' => Carbon::parse($row['date_installation']),
+                'dates' =>  $dateInstallation,
                 'import_name_id' => $this->import_name_id,
             ]);
 
@@ -125,7 +129,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
 
     protected function addError($error)
     {
-        $this->errors[] = $error;
+        $this->errors[] = $error . ".";
     }
 
     public function getErrors()
@@ -143,11 +147,11 @@ class InstallationImport implements ToCollection, WithHeadingRow
             ]);
             
             $importationinstall = ImportNameInstallation::find($this->import_name_id);
-            $formattedErrors = implode("<br>", array_map(function ($error) {
-                return nl2br("Ligne N° " . $error); // Ajoute "Ligne N°" à chaque ligne avec un saut de ligne HTML
-            }, $this->errors));
+            // $formattedErrors = implode("<br>", array_map(function ($error) {
+            //     return nl2br("Ligne N° " . $error); // Ajoute "Ligne N°" à chaque ligne avec un saut de ligne HTML
+            // }, $this->errors));
 
-            $importationinstall->update(['observation' => $formattedErrors]);
+            $importationinstall->update(['observation' => implode("", $this->errors)]);
 
         }
     }
@@ -160,6 +164,12 @@ class InstallationImport implements ToCollection, WithHeadingRow
     public function getErrorCount()
     {
         return $this->errorCount;
+    }
+
+    protected function excelDateToCarbon($excelDate) {
+        // Excel date starts on 1st January 1900
+        $carbonDate = Carbon::createFromDate(1900, 1, 1)->addDays($excelDate - 2); // Excel's day 1 is actually 0
+        return $carbonDate;
     }
 
     // public function generateErrorFile()

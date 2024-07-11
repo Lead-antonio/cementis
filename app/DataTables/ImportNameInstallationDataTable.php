@@ -65,9 +65,10 @@ class ImportNameInstallationDataTable extends DataTable
         return [
             'name' => new Column(['title' => __('models/importNameInstallations.fields.name'), 'data' => 'name']),
             'observation' => new Column(['title' => __('models/importNameInstallations.fields.observation'), 'data' => 'observation', 
-            'render' => 'function(){
-                return full.observation;
-            }'
+            'render' => "function(){
+                console.log(full.observation)
+                return full.observation.replace(/\./g, '.<br>');
+            }"
             ])
         ];
     }
