@@ -12,7 +12,6 @@ use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
 use App\Models\Transporteur;
 use App\Models\Infraction;
-use App\Models\Scoring;
 
 if (!function_exists('fast_trans')) {
 
@@ -1203,24 +1202,66 @@ if (!function_exists('getImeiOfTruck')){
 
 if (!function_exists('getRfidWithImeiAndPeriod')) {
 
-    function getRfidWithImeiAndPeriod($imei_vehicule, $start_date, $end_date){
+    // function getRfidWithImeiAndPeriod($imei_vehicule, $start_date, $end_date){
+    //     $rfid = "";
+    //     $distance = 0;
+    //     // Formatage des dates au format YYYYMMDD
+    //     $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
+    //     $response = Http::timeout(300)->get($url);
+    //     $data = $response->json();
+    //     foreach($data['route'] as $item){
+    //         if(isset($item[6]['rfid']) && $item[6]['rfid'] !== null){
+    //             $rfid = $item[6]['rfid'];
+    //             $distance = $data['route_length'];
+    //             break;
+    //         }
+    //     }
+    //     $result =  [
+    //             'rfid' =>$rfid,
+    //             'distance' => $distance
+    //         ];
+    //     return $result;
+    // }
+    function getRfidWithImeiAndPeriod($imei_vehicule, $start_date, $end_date) {
         $rfid = "";
         $distance = 0;
-        // Formatage des dates au format YYYYMMDD
-        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
-        $response = Http::timeout(300)->get($url);
-        $data = $response->json();
-        foreach($data['route'] as $item){
-            if(isset($item[6]['rfid']) && $item[6]['rfid'] !== null){
-                $rfid = $item[6]['rfid'];
-                $distance = $data['route_length'];
-                break;
+    
+        // Formatage des dates au format YYYYMMDDHHMMSS
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",20";
+    
+        try {
+            $response = Http::timeout(300)->get($url);
+            $data = $response->json();
+    
+            // Vérifier si $data est null ou ne contient pas la clé 'route'
+            if (!isset($data['route']) || !is_array($data['route'])) {
+                return [
+                    'rfid' => null,
+                    'distance' => null
+                ];
             }
-        }
-        $result =  [
-                'rfid' =>$rfid,
-                'distance' => $distance
+    
+            foreach ($data['route'] as $item) {
+                if (isset($item[6]['rfid']) && $item[6]['rfid'] !== null) {
+                    $rfid = $item[6]['rfid'];
+                    $distance = isset($data['route_length']) ? $data['route_length'] : 0;
+                    break;
+                }
+            }
+        } catch (\Exception $e) {
+            // Gérer les erreurs de requête HTTP
+            // Vous pouvez enregistrer le message d'erreur ou retourner des valeurs par défaut
+            return [
+                'rfid' => null,
+                'distance' => null
             ];
+        }
+    
+        $result = [
+            'rfid' => $rfid,
+            'distance' => $distance
+        ];
+    
         return $result;
     }
 }
@@ -1228,8 +1269,11 @@ if (!function_exists('getRfidWithImeiAndPeriod')) {
 
 if(!function_exists('getDistanceTotalDriverInCalendar')){
     function getDistanceTotalDriverInCalendar($nom, $id_calendar){
+        $distance = 0;
         $driver = Chauffeur::where('nom', $nom)->first();
-        $distance = ImportExcel::where('rfid_chauffeur', $driver->rfid)->where('import_calendar_id', $id_calendar)->sum('distance');
+        if(isset($driver->rfid)){
+            $distance = ImportExcel::where('rfid_chauffeur', $driver->rfid)->where('import_calendar_id', $id_calendar)->sum('distance');
+        }
         return $distance;
     }
 }
@@ -1879,10 +1923,10 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
                 $plate_number = $item['plate_number'];
             }
         }
+        
         return $plate_number;
     }
 }
-
 
 if(!function_exists('checkTruckinCalendar')){
     function checkTruckinCalendar($id_planning, $camion){
@@ -1934,12 +1978,4 @@ if(!function_exists('getInfractionWithmaximumPoint')){
 }
 
 
-
-if(!function_exists('getScoringcardExcel')){
-    function getScoringcardExcel(){
-        $result = Scoring::with(['driver','transporteur'])->get();
-        return $result;
-        
-    }
-}
 

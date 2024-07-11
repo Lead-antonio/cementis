@@ -33,6 +33,7 @@ class CreateInfractionTable extends Migration
             $table->string('gps_fin')->nullable();
             $table->decimal('point')->nullable();
             $table->integer('insuffisance')->nullable();
+            $table->decimal('distance_calendar')->default(0)->nullable();
             $table->timestamps();
             $table->softDeletes();
 

@@ -112,14 +112,6 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
 </li> --}}
 
 
-<li class="nav-item">
-    <a href="{{ route('chauffeurs.index') }}"
-       class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}" onclick="submitForm()">
-       <i class="nav-icon fas fa-user-circle"></i> 
-        <p>@lang('models/chauffeurs.plural')</p>
-    </a>
-</li>
-
 <li class="nav-item has-treeview">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-calendar"></i> 
@@ -247,6 +239,13 @@ $isPermissionActive = Request::is($urlAdmin.'*permissions*');
         </p>
     </a>
     <ul class="nav nav-treeview" style="padding-left:8px">
+        <li class="nav-item">
+            <a href="{{ route('chauffeurs.index') }}"
+               class="nav-link {{ Request::is('chauffeurs*') ? 'active' : '' }}" onclick="submitForm()">
+               <i class="nav-icon fas fa-user-circle"></i> 
+                <p>@lang('models/chauffeurs.plural')</p>
+            </a>
+        </li>
         <li class="nav-item">
             <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}" onclick="submitForm()">
                 <i class="nav-icon fas fa-exclamation-triangle"></i>

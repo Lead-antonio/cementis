@@ -25,6 +25,7 @@ class CreateEventTable extends Migration
             $table->decimal('longitude', 10, 2)->default(null);
             $table->decimal('odometer', 10, 2)->default(null);
             $table->longText('description')->nullable();
+            $table->integer('duree')->nullable();
             $table->dateTime('date')->nullable();
             $table->timestamps();
             $table->softDeletes();
