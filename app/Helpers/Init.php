@@ -1278,6 +1278,7 @@ if(!function_exists('getDistanceTotalDriverInCalendar')){
     }
 }
 
+//Function pour identifier le chauffeur, distance parcouru du calendrier et update la calendrier driver et distance et rfid
 if (!function_exists('checkDriverInCalendar')){
     function checkDriverInCalendar(){
         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
@@ -1411,8 +1412,8 @@ if(!function_exists('checkTempsReposMinApresJourneeTravail')){
 }
 
 // Enregistrer l'infraction
-if(!function_exists('saveReposMinimumApesJournéeTtravail')){
-    function saveReposMinimumApesJournéeTtravail(){
+if(!function_exists('saveReposMinimumApesJourneeTravail')){
+    function saveReposMinimumApresJourneeTravail(){
         $infractions = checkTempsReposMinApresJourneeTravail();
         foreach($infractions as $item){
             $existingInfraction = Infraction::where('imei', $item['imei'])

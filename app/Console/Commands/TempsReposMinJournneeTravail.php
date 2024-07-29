@@ -37,6 +37,6 @@ class TempsReposMinJournneeTravail extends Command
      */
     public function handle()
     {
-        saveReposMinimumApesJournéeTtravail();
+        saveReposMinimumApresJourneeTravail();
     }
 }
