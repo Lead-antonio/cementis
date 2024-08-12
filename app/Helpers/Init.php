@@ -1785,7 +1785,17 @@ if (!function_exists('checkInfraction')) {
         ->orderBy('simple_date', 'ASC')
         ->orderBy('heure', 'ASC')->get();
         
-
+        $eventTypes = [
+            'Accélération brusque', 
+            'Freinage brusque', 
+            'Excès de vitesse en agglomération', 
+            'Excès de vitesse hors agglomération', 
+            'Survitesse excessive',
+            'Survitesse sur la piste de Tritriva',
+            'Survitesse sur la piste d\'Ibity',
+            'TEMPS DE CONDUITE CONTINUE JOUR',
+            'TEMPS DE CONDUITE CONTINUE NUIT',
+        ];
         $results = [];
         $prevRecord = null;
         $firstValidRecord = null;
@@ -1793,7 +1803,8 @@ if (!function_exists('checkInfraction')) {
         $maxSpeed = 0;
 
         foreach ($records as $record) {
-            if(trim($record->type) === "Accélération brusque" || trim($record->type) === "Freinage brusque"){
+            // if(trim($record->type) === "Accélération brusque" || trim($record->type) === "Freinage brusque"){
+            if(in_array(trim($record->type), $eventTypes)){
                 $results[] = [
                     'imei' => $record->imei,
                     'chauffeur' => $record->chauffeur,
