@@ -210,17 +210,6 @@ class EventController extends AppBaseController
                         'distance' => $distance,
                         'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
                     ];
-                    // $createScoring[] = [
-                    //     'id_planning' => $selectedPlanning,
-                    //     'driver_id' => $result->driver_id,
-                    //     'transporteur_id' => $result->transporteur_id,
-                    //     'driver' => $driver,
-                    //     'transporteur' => $transporteur,
-                    //     'camion' => $camion,
-                    //     'comment' => '',
-                    //     'distance' => getDistanceTotalDriverInCalendar($driver, $selectedPlanning),
-                    //     'point' => (getDistanceTotalDriverInCalendar($driver, $selectedPlanning) != 0) ? ($total_point / getDistanceTotalDriverInCalendar($driver, $selectedPlanning)) * 100 : 0
-                    // ];
                 }
     
                 $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
