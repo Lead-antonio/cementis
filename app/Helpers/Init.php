@@ -804,6 +804,85 @@ if(!function_exists('processEvents')) {
     }
 }
 
+if(!function_exists('checkMissingEvent')) {
+    function checkMissingEvent(){
+        $trucks = Vehicule::all();
+        $startDate = Carbon::parse("2024-07-01 00:00:00");
+        $endDate = Carbon::parse("2024-08-12 23:59:00");
+        
+        foreach($trucks as $truck){
+            getMissingEventFromApi($truck->imei, $startDate, $endDate);
+        }
+    }
+}
+
+// Récupération des évènements absentes dans l'API M-TEC Tracking et enregistrer dans la table Event
+if (!function_exists('getMissingEventFromApi')) {
+
+    function getMissingEventFromApi($imei_truck, $start_date, $end_date){
+
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_EVENTS,".$imei_truck.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis')."";
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        $data = json_decode($response, true);
+        $allowedEventTypes = [
+            'Accélération brusque', 
+            'Freinage brusque', 
+            'Excès de vitesse en agglomération', 
+            'Excès de vitesse hors agglomération', 
+            'Survitesse excessive',
+            'Survitesse sur la piste de Tritriva',
+            'Survitesse sur la piste d\'Ibity',
+            'TEMPS DE CONDUITE CONTINUE JOUR',
+            'TEMPS DE CONDUITE CONTINUE NUIT',
+        ];
+
+        $filteredData = [];
+        // Parcourir les données de l'API
+        if(!empty($data)){
+            foreach ($data as $event) {
+                if (in_array($event[1], $allowedEventTypes) && isset($event[10]['rfid'])) {
+                    $filteredData[] = $event;
+                }
+            }
+        }
+        
+
+        if (!empty($filteredData)) {
+            foreach ($filteredData as $item) {
+                // Vérifiez si une entrée identique existe déjà dans la table Event
+                $existingEvent = Event::where('imei', trim($item[2]))
+                ->where('date', $item['4'])
+                ->where('type', trim($item['1']))
+                ->first();
+
+                // Si aucune entrée identique n'existe, insérez les données dans la table Event
+                if (!$existingEvent) {
+                
+                    if(isset($item[10]['rfid']) && $item[10]['rfid'] != "0000000000" && trim($item[10]['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0	")){
+                        Event::create([
+                            'imei' => $item[2],
+                            'chauffeur' => $item[10]['rfid'],
+                            'vehicule' => $item[3],
+                            'type' => trim($item[1]),
+                            'date' => $item[4],
+                            'odometer' => $item[10]['odo'] ?? 0,
+                            'vitesse' => $item[9] ?? 0,
+                            'latitude' => $item[5] ?? 0,
+                            'longitude' => $item[6] ?? 0,
+                            'duree' => 1,
+                            'description' => trim($item[1]) ?? 0,
+                        ]);
+                    }
+                }
+            }
+        }
+    }    
+}
+
 // Récupération des derniers évènements dans l'API M-TEC Tracking et enregistrer dans la table Event
 if (!function_exists('getEventFromApi')) {
 
@@ -861,33 +940,6 @@ if (!function_exists('getEventFromApi')) {
                         'duree' => $allowedTypes[$existingEvent->type],
                     ]);
                 }
-                // $existingEvent = Event::where('imei', trim($item['imei']))
-                // ->where('date', $item['date'])
-                // ->first();
-
-                // Si aucune entrée identique n'existe, insérez les données dans la table Rotation
-                // if (!$existingEvent) {
-                
-                //     if(isset($item['chauffeur']) && $item['chauffeur'] != "0000000000"){
-                //         Event::create([
-                //             'imei' => $item['imei'],
-                //             'chauffeur' => $item['chauffeur'],
-                //             'vehicule' => $item['vehicule'],
-                //             'type' => trim($item['type']),
-                //             'date' => $item['date'],
-                //             'odometer' => $item['odometer'],
-                //             'latitude' => $item['latitude'],
-                //             'longitude' => $item['longitude'],
-                //             'duree' => $allowedTypes[$item['type']],
-                //             'description' => trim($item['description']),
-                //         ]);
-                //     }
-                // } else {
-                //     Event::where('id', $existingEvent->id)
-                //     ->update([
-                //         'duree' => $allowedTypes[$existingEvent->type],
-                //     ]);
-                // }
             }
         }
     }    
@@ -1279,40 +1331,91 @@ if(!function_exists('getDistanceTotalDriverInCalendar')){
 }
 
 //Function pour identifier le chauffeur, distance parcouru du calendrier et update la calendrier driver et distance et rfid
-if (!function_exists('checkDriverInCalendar')){
-    function checkDriverInCalendar(){
+// if (!function_exists('checkDriverInCalendar')){
+//     function checkDriverInCalendar(){
+//         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
+//         $existingTrucks = Vehicule::all(['nom', 'imei']);
+//         $truckData = $existingTrucks->pluck('imei', 'nom');
+//         $calendars = ImportExcel::whereIn('camion', $truckData->keys())->where('import_calendar_id', $lastmonth)->get();
+        
+
+//         $calendars->each(function ($calendar) use ($truckData) {
+//             $calendar->imei = $truckData->get(trim($calendar->camion));
+//             $calendar_start_date = Carbon::parse($calendar->date_debut);
+//             $calendar_end_date = $calendar->date_fin ? Carbon::parse($calendar->date_fin) : null;
+
+//             if ($calendar_end_date === null) {
+//                 $dureeEnHeures = floatval($calendar->delais_route);
+//                 if ($dureeEnHeures <= 1) {
+//                     $calendar_end_date = $calendar_start_date->copy()->endOfDay();
+//                 } else {
+//                     $dureeEnJours = ceil($dureeEnHeures / 24);
+//                     $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
+//                 }
+//             }
+//             $api = getRfidWithImeiAndPeriod($calendar->imei, $calendar_start_date , $calendar_end_date);
+//             $calendar->rfid_chauffeur = $api['rfid'];
+//             $calendar->distance = $api['distance'];
+//         });
+
+//         foreach($calendars as $item){
+//             ImportExcel::where('id', $item->id)->update([
+//                 'distance' => $item->distance,
+//                 'imei' => $item->imei,
+//                 'rfid_chauffeur' => $item->rfid_chauffeur,
+//             ]);
+//         }
+//     }
+// }
+
+if (!function_exists('checkDriverInCalendar')) {
+    function checkDriverInCalendar()
+    {
         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
         $existingTrucks = Vehicule::all(['nom', 'imei']);
         $truckData = $existingTrucks->pluck('imei', 'nom');
-        $calendars = ImportExcel::whereIn('camion', $truckData->keys())->where('import_calendar_id', $lastmonth)->get();
-        
+        $truckNames = $truckData->keys();
 
-        $calendars->each(function ($calendar) use ($truckData) {
-            $calendar->imei = $truckData->get(trim($calendar->camion));
-            $calendar_start_date = Carbon::parse($calendar->date_debut);
-            $calendar_end_date = $calendar->date_fin ? Carbon::parse($calendar->date_fin) : null;
+        ImportExcel::whereIn('camion', $truckNames)
+            ->where('import_calendar_id', $lastmonth)
+            ->chunk(10, function ($calendars) use ($truckData) {
+                $calendars->each(function ($calendar) use ($truckData) {
+                    $calendar->imei = $truckData->get(trim($calendar->camion));
+                    $calendar_start_date = Carbon::parse($calendar->date_debut);
+                    $calendar_end_date = $calendar->date_fin ? Carbon::parse($calendar->date_fin) : null;
 
-            if ($calendar_end_date === null) {
-                $dureeEnHeures = floatval($calendar->delais_route);
-                if ($dureeEnHeures <= 1) {
-                    $calendar_end_date = $calendar_start_date->copy()->endOfDay();
-                } else {
-                    $dureeEnJours = ceil($dureeEnHeures / 24);
-                    $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
-                }
-            }
-            $api = getRfidWithImeiAndPeriod($calendar->imei, $calendar_start_date , $calendar_end_date);
-            $calendar->rfid_chauffeur = $api['rfid'];
-            $calendar->distance = $api['distance'];
-        });
+                    if ($calendar_end_date === null) {
+                        $dureeEnHeures = floatval($calendar->delais_route);
+                        if ($dureeEnHeures <= 1) {
+                            $calendar_end_date = $calendar_start_date->copy()->endOfDay();
+                        } else {
+                            $dureeEnJours = ceil($dureeEnHeures / 24);
+                            $calendar_end_date = $calendar_start_date->copy()->addDays($dureeEnJours);
+                        }
+                    }
+                    $api = getRfidWithImeiAndPeriod($calendar->imei, $calendar_start_date, $calendar_end_date);
+                    $calendar->rfid_chauffeur = $api['rfid'];
+                    $calendar->distance = $api['distance'];
+                });
 
-        foreach($calendars as $item){
-            ImportExcel::where('id', $item->id)->update([
-                'distance' => $item->distance,
-                'imei' => $item->imei,
-                'rfid_chauffeur' => $item->rfid_chauffeur,
-            ]);
-        }
+                // Mise à jour en batch dans la base de données
+                DB::transaction(function () use ($calendars) {
+                    foreach ($calendars as $item) {
+                        ImportExcel::where('id', $item->id)->update([
+                            'distance' => $item->distance,
+                            'imei' => $item->imei,
+                            'rfid_chauffeur' => $item->rfid_chauffeur,
+                        ]);
+                    }
+                });
+                // foreach ($calendars as $item) {
+                //     ImportExcel::where('id', $item->id)->update([
+                //         'distance' => $item->distance,
+                //         'imei' => $item->imei,
+                //         'rfid_chauffeur' => $item->rfid_chauffeur,
+                //     ]);
+                // }
+            });
     }
 }
 
@@ -1501,8 +1604,8 @@ if(!function_exists('checkTempsReposHebdomadaire')){
             $calendar_date_fin = $infraction->related_calendar->date_fin ? Carbon::parse($infraction->related_calendar->date_fin) : null;
             $calendar_delais_route = $infraction->related_calendar->delais_route;
 
-            $j6_calendar_debut = $calendar_date_debut->copy()->addDays(6);
-            $j7_calendar_debut = $calendar_date_debut->copy()->addDays(7);
+            // $j6_calendar_debut = $calendar_date_debut->copy()->addDays(6);
+            // $j7_calendar_debut = $calendar_date_debut->copy()->addDays(7);
             $stop_duration_seconde = getMaxStopDurationTimeForPeriod($infraction->imei, $calendar_date_debut);
             
 
@@ -1732,7 +1835,7 @@ if(!function_exists('SaveTempsConduiteMaxJourTravail')){
     
             if (!$existingInfraction) {
             
-                if(isset($item['rfid']) && $item['rfid'] != "0000000000"){
+                if(isset($item['rfid']) && $item['rfid'] != "0000000000" && trim($item['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0	")){
                     Infraction::create([
                         'calendar_id' => $item['calendar_id'],
                         'imei' => $item['imei'],
@@ -1923,16 +2026,28 @@ use Illuminate\Support\Str;
 if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
 
     function getPlateNumberByRfidAndTransporteur($driverId, $transporteurId){
+        set_time_limit(600);
         $chauffeur = Chauffeur::where('id', $driverId)->first();
         $transporteur = Transporteur::where('id', $transporteurId)->first();
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
-        $response = Http::timeout(300)->get($url);
+        // $response = Http::timeout(300)->get($url);
+        $response = Http::timeout(300)->retry(3, 100)->get($url);
         $data = $response->json();
         $plate_number = "";
-        foreach($data as $item){
-            if (isset($chauffeur->rfid) && isset($item['params']['rfid'])  && $item['params']['rfid'] === $chauffeur->rfid) {
-                $plate_number = $item['plate_number'];
+        // foreach($data as $item){
+        //     if (isset($chauffeur->rfid) && isset($item['params']['rfid'])  && $item['params']['rfid'] === $chauffeur->rfid) {
+        //         $plate_number = $item['plate_number'];
+        //     }
+        // }
+        $chunks = array_chunk($data, 10);
+        
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $item) {
+                if (isset($chauffeur->rfid) && isset($item['params']['rfid']) && $item['params']['rfid'] === $chauffeur->rfid) {
+                    $plate_number = $item['plate_number'];
+                    break 2; // Quitter les deux boucles dès qu'une correspondance est trouvée
+                }
             }
         }
         
