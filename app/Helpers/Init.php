@@ -143,6 +143,7 @@ if (!function_exists('tabScoringCard')) {
         ->where('ch.nom', $driver)
         ->where('ie.import_calendar_id', $id_planning)
         ->get();
+
         return $results;
     }
 
@@ -1408,13 +1409,6 @@ if (!function_exists('checkDriverInCalendar')) {
                         ]);
                     }
                 });
-                // foreach ($calendars as $item) {
-                //     ImportExcel::where('id', $item->id)->update([
-                //         'distance' => $item->distance,
-                //         'imei' => $item->imei,
-                //         'rfid_chauffeur' => $item->rfid_chauffeur,
-                //     ]);
-                // }
             });
     }
 }
@@ -1921,7 +1915,8 @@ if(!function_exists('checkTempsConduiteContinue')){
                     'id' => $infraction->id,
                     'duree_initial' => $limite,
                     'duree_infraction' => intval($drive_duration_second),
-                    'point' => ($drive_duration_second - $limite) / 600
+                    'point' => ($drive_duration_second - $limite) / 600,
+                    'insuffisance' => ($drive_duration_second  - $limite) 
                 ];
             }
         }
@@ -1932,6 +1927,7 @@ if(!function_exists('checkTempsConduiteContinue')){
                 'duree_initial' => $update['duree_initial'],
                 'duree_infraction' => $update['duree_infraction'],
                 'point' => $update['point'],
+                'insuffisance' => $update['insuffisance'],
             ]);
         }
     }
