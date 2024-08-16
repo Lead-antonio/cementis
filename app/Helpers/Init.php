@@ -1862,6 +1862,81 @@ if(!function_exists('SaveTempsConduiteMaxJourTravail')){
     }
 }
 
+if(!function_exists('checkTempsConduiteContinue')){
+    function checkTempsConduiteContinue(){
+        // Récupérer toutes les pénalités
+        $infractions = Infraction::whereNotNull('calendar_id')
+                                    ->where(function ($query) {
+                                        $query->where('event', 'TEMPS DE CONDUITE CONTINUE NUIT')
+                                            ->orWhere('event', 'TEMPS DE CONDUITE CONTINUE JOUR');
+                                    })      
+                                   ->orderBy('date_debut')
+                                   ->orderBy('heure_debut')
+                                   ->get();
+
+        $limite = 0;
+        // Tableau pour stocker les heures de conduite pour chaque chauffeur
+        $updates = [];
+
+        // Parcourir chaque pénalité
+        foreach ($infractions as $infraction) {
+            $calendar_date_debut = Carbon::parse($infraction->related_calendar->date_debut);
+            $calendar_date_fin = $infraction->related_calendar->date_fin ? Carbon::parse($infraction->related_calendar->date_fin) : null;
+            $calendar_delais_route = $infraction->related_calendar->delais_route;
+
+
+            $drive_duration_second = getDriveDurationCached($infraction->imei, $calendar_date_debut, $calendar_date_fin);
+
+            if (is_null($calendar_date_fin)) {
+                if ($calendar_delais_route <= 1) {
+                    // Si la date de début est pendant la journée, ajouter le délai de route à 22h, sinon ajouter à 4h pour la nuit
+                    $heureDebut = $calendar_date_debut->hour;
+                    if ($heureDebut >= 4 && $heureDebut < 22) {
+                        $calendar_date_fin = $calendar_date_debut->copy()->setHour(22)->startOfHour(); // Fin de la journée à 22h
+                    } else {
+                        $calendar_date_fin = $calendar_date_debut->copy()->addDay()->setHour(4)->startOfHour(); // Début de la journée suivante à 4h
+                    }
+                } else {
+                    $calendar_date_fin = $calendar_date_debut->copy()->addHours($calendar_delais_route)->startOfHour(); // Ajouter le délai de route à la date de début
+                }
+            }
+
+            $calendar_heure_debut = $calendar_date_debut->format('H:i:s');
+            $calendar_heure_fin = $calendar_date_fin->format('H:i:s');
+            
+        
+            if (($calendar_heure_debut >= '04:00:00' && $calendar_heure_fin <= '22:00:00')) {
+                // Règle de jour
+                $limite = 4 * 3600;
+            } elseif ($calendar_heure_debut >= '22:00:00' || $calendar_heure_fin <= '04:00:00') {
+                // Règle de nuit
+                $limite = 2 * 3600;
+            } elseif (($calendar_heure_debut < '04:00:00' && $calendar_heure_fin > '22:00:00') || ($calendar_heure_debut < '04:00:00' && $calendar_heure_fin < '22:00:00')) {
+                // Le trajet chevauche la journée et la nuit
+                $limite = 2 * 3600;
+            } 
+            $limite = $limite + 660;
+            if(intval($drive_duration_second) > $limite){
+                $updates[] = [
+                    'id' => $infraction->id,
+                    'duree_initial' => $limite,
+                    'duree_infraction' => intval($drive_duration_second),
+                    'point' => ($drive_duration_second - $limite) / 600
+                ];
+            }
+        }
+        
+        foreach($updates as $update){
+            Infraction::where('id', $update['id'])
+            ->update([
+                'duree_initial' => $update['duree_initial'],
+                'duree_infraction' => $update['duree_infraction'],
+                'point' => $update['point'],
+            ]);
+        }
+    }
+}
+
 if(!function_exists('v_infraction')){
     function v_infraction($imei, $chauffeur, $type){
         $results = DB::table('event')

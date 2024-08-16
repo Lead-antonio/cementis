@@ -83,7 +83,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
 
             // Insérer les données dans la table Véhicule
             $vehicule = Vehicule::create([
-                'imei' => $row['imei'],
+                'imei' => (string) $row['imei'],
                 'nom' => $row['immatriculation'],
                 'description' => $row['description'],
                 'id_transporteur' => $transporteur->id,
@@ -113,7 +113,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 'chauffeur_rfid' => $row['rfid'],
                 'chauffeur_contact' => (string)  $row['chauffeur_telephone'],
                 'vehicule_nom' => $row['immatriculation'],
-                'vehicule_imei' => $row['imei'],
+                'vehicule_imei' => (string) $row['imei'],
                 'vehicule_description' => $row['description'],
                 'installateur_matricule' => (string)  $row['matricule_tech'],
                 'dates' =>  $dateInstallation,
