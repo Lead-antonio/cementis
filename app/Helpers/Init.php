@@ -926,7 +926,7 @@ if (!function_exists('getEventFromApi')) {
                             'vehicule' => $item[3],
                             'type' => trim($item[1]),
                             'date' => $item[4],
-                            'odometer' => $item[10]['odo'],
+                            'odometer' => $item[10]['odo'] ?? 0,
                             'vitesse' => $item[9],
                             'latitude' => $item[5],
                             'longitude' => $item[6],
@@ -1947,6 +1947,18 @@ if(!function_exists('v_infraction')){
     }
 }
 
+if(!function_exists('getPointPenaliteByEventType')){
+    function getPointPenaliteByEventType($event){
+        $eventType = trim($event);
+        $result = DB::table('penalite')
+        ->select('point_penalite')
+        ->where('event', '=', $eventType)
+        ->first();
+
+        return $result->point_penalite;
+    }
+}
+
 if (!function_exists('checkInfraction')) {
     function checkInfraction()
     {
@@ -1967,8 +1979,8 @@ if (!function_exists('checkInfraction')) {
             'Survitesse excessive',
             'Survitesse sur la piste de Tritriva',
             'Survitesse sur la piste d\'Ibity',
-            'TEMPS DE CONDUITE CONTINUE JOUR',
-            'TEMPS DE CONDUITE CONTINUE NUIT',
+            // 'TEMPS DE CONDUITE CONTINUE JOUR',
+            // 'TEMPS DE CONDUITE CONTINUE NUIT',
         ];
         $results = [];
         $prevRecord = null;
@@ -1997,7 +2009,7 @@ if (!function_exists('checkInfraction')) {
                     'date_heure_fin' => $record->date_heure,
                     'gps_debut' => $record->latitude . ',' . $record->longitude,
                     'gps_fin' => $record->latitude . ',' . $record->longitude,
-                    'point' => 1,
+                    'point' => getPointPenaliteByEventType($record->type),
                     'insuffisance' => 0
                 ];
             }else{
