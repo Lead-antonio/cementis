@@ -1,8 +1,8 @@
 <!-- Id Field -->
-<div class="form-group col-sm-6">
+{{-- <div class="form-group col-sm-6">
     {!! Form::label('id', __('models/penalites.fields.id').':') !!}
     {!! Form::number('id', null, ['class' => 'form-control']) !!}
-</div>
+</div> --}}
 
 <!-- Event Field -->
 <div class="form-group col-sm-6">
@@ -13,5 +13,5 @@
 <!-- Point Penalite Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('point_penalite', __('models/penalites.fields.point_penalite').':') !!}
-    {!! Form::number('point_penalite', null, ['class' => 'form-control']) !!}
+    {!! Form::number('point_penalite', null, ['class' => 'form-control', 'step' => 'any', 'min' => '0']) !!}
 </div>

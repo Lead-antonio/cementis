@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property integer $id
  * @property string $event
- * @property integer $point_penalite
+ * @property float $point_penalite
  */
 class Penalite extends Model
 {
@@ -51,7 +51,7 @@ class Penalite extends Model
         'duree_heure' => 'integer',
         'duree_minute' => 'integer',
         'duree_seconde' => 'integer',
-        'point_penalite' => 'integer'
+        'point_penalite' => 'float'
     ];
 
     /**
