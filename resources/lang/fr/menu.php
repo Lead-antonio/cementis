@@ -31,4 +31,5 @@ return [
     'database' => [
         'title' => 'Données de base'
     ],
+    'import' => 'Importation générique',
 ];

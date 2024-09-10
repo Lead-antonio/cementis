@@ -7,6 +7,15 @@ Route::get('/', [
     App\Http\Controllers\DashboardController::class, 'index'
 ])->name('dashboard');
 
+/* Routes ajoutés */
+/* Route Parametre importation */
+Route::post('fileUploads/file-read', [App\Http\Controllers\FileUploadController::class, 'read'])->name('fileUploads.read');
+Route::get('fileUploads/parametre', [App\Http\Controllers\FileUploadController::class, 'parametre'])->name('fileUploads.parametre');
+Route::get('fileUploads/get-fillable-fields/{model}', [App\Http\Controllers\FileUploadController::class, 'getFillableFields'])->name('fileUploads.getFillableFields');
+Route::get('fileUploads/get-models/{model}', [App\Http\Controllers\FileUploadController::class, 'getModels'])->name('fileUploads.getModels');
+Route::get('fileUploads/get-associations/{modelId}', [App\Http\Controllers\FileUploadController::class, 'getAssociations'])->name('fileUploads.getAssociations');
+/* ----------------------------------------------------------------------------------------------------------------------------- */
+
 Route::resource('permissions', App\Http\Controllers\PermissionController::class);
 Route::post('permissions/loadFromRouter', [App\Http\Controllers\PermissionController::class, 'LoadPermission'])->name('permissions.load-router');
 
@@ -132,3 +141,5 @@ Route::resource('importInstallationErrors', App\Http\Controllers\ImportInstallat
 
 
 Route::resource('movements', App\Http\Controllers\MovementController::class);
+
+Route::resource('importModels', App\Http\Controllers\ImportModelController::class);

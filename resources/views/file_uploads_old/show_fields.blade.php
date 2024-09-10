@@ -1,8 +1,8 @@
 <!-- Id Field -->
-{{-- <div class="col-sm-12">
+<div class="col-sm-12">
     {!! Form::label('id', __('models/fileUploads.fields.id').':') !!}
     <p>{{ $fileUpload->id }}</p>
-</div> --}}
+</div>
 
 <!-- Name Field -->
 <div class="col-sm-12">
@@ -16,7 +16,7 @@
     <p>{{ $fileUpload->file_upload }}</p>
 </div>
 
-{{-- <!-- Created At Field -->
+<!-- Created At Field -->
 <div class="col-sm-12">
     {!! Form::label('created_at', __('models/fileUploads.fields.created_at').':') !!}
     <p>{{ $fileUpload->created_at }}</p>
@@ -26,5 +26,5 @@
 <div class="col-sm-12">
     {!! Form::label('updated_at', __('models/fileUploads.fields.updated_at').':') !!}
     <p>{{ $fileUpload->updated_at }}</p>
-</div> --}}
+</div>
 
