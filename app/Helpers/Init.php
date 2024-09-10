@@ -2012,60 +2012,61 @@ if (!function_exists('checkInfraction')) {
                     'point' => getPointPenaliteByEventType($record->type),
                     'insuffisance' => 0
                 ];
-            }else{
-            
-                if ($firstValidRecord === null) {
-                    $firstValidRecord = $record;
-                    $maxSpeed = $record->vitesse;
-                }
-
-                // Vérifier s'il y a un enregistrement précédent
-                if ($prevRecord !== null) {
-                    // Comparer les attributs chauffeur, véhicule et date sans tenir compte de l'heure
-                    if ($record->chauffeur === $prevRecord->chauffeur &&
-                        $record->vehicule === $prevRecord->vehicule &&
-                        $record->simple_date === $prevRecord->simple_date && trim($record->type) === trim($prevRecord->type)) {
-                        // Convertir les dates en objets DateTime pour faciliter la comparaison
-                        $prevDate = new DateTime($prevRecord->date_heure);
-                        $currentDate = new DateTime($record->date_heure);
-                        $tolerence = Penalite::where('event','=', $record->type)->first();
-                        // Calculer la différence en secondes
-                        $differenceSeconds = $currentDate->getTimestamp() - $prevDate->getTimestamp();
-
-                        if ($differenceSeconds === $tolerence->param) {
-                            // Si l'intervalle est de 60 secondes, continuer à traiter les enregistrements
-                            // Mettre à jour le dernier enregistrement valide
-                            if ($record->vitesse > $maxSpeed) {
-                                $maxSpeed = $record->vitesse; // Mettre à jour la vitesse maximale si la vitesse actuelle est plus grande
-                            }
-                            $lastValidRecord = $record;
-                        } else {
-                            // Si l'intervalle n'est pas de 60 secondes, réinitialiser les enregistrements valides
-                            if ($firstValidRecord !== null && $lastValidRecord !== null) {
-                                $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
-                            }
-                            $firstValidRecord = $record;
-                            $lastValidRecord = null;
-                            $maxSpeed = $record->vitesse; 
-                        }
-                    } else {
-                        // Si les attributs chauffeur, véhicule ou date sont différents, réinitialiser les enregistrements valides
-                        if ($firstValidRecord !== null && $lastValidRecord !== null) {
-                            $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
-                        }
-                        $firstValidRecord = $record;
-                        $lastValidRecord = null;
-                        $maxSpeed = $record->vitesse;
-                    }
-                }
-                // Mettre à jour l'enregistrement précédent
-                $prevRecord = $record;
             }
+            // else{
+            
+            //     if ($firstValidRecord === null) {
+            //         $firstValidRecord = $record;
+            //         $maxSpeed = $record->vitesse;
+            //     }
+
+            //     // Vérifier s'il y a un enregistrement précédent
+            //     if ($prevRecord !== null) {
+            //         // Comparer les attributs chauffeur, véhicule et date sans tenir compte de l'heure
+            //         if ($record->chauffeur === $prevRecord->chauffeur &&
+            //             $record->vehicule === $prevRecord->vehicule &&
+            //             $record->simple_date === $prevRecord->simple_date && trim($record->type) === trim($prevRecord->type)) {
+            //             // Convertir les dates en objets DateTime pour faciliter la comparaison
+            //             $prevDate = new DateTime($prevRecord->date_heure);
+            //             $currentDate = new DateTime($record->date_heure);
+            //             $tolerence = Penalite::where('event','=', $record->type)->first();
+            //             // Calculer la différence en secondes
+            //             $differenceSeconds = $currentDate->getTimestamp() - $prevDate->getTimestamp();
+
+            //             if ($differenceSeconds === $tolerence->param) {
+            //                 // Si l'intervalle est de 60 secondes, continuer à traiter les enregistrements
+            //                 // Mettre à jour le dernier enregistrement valide
+            //                 if ($record->vitesse > $maxSpeed) {
+            //                     $maxSpeed = $record->vitesse; // Mettre à jour la vitesse maximale si la vitesse actuelle est plus grande
+            //                 }
+            //                 $lastValidRecord = $record;
+            //             } else {
+            //                 // Si l'intervalle n'est pas de 60 secondes, réinitialiser les enregistrements valides
+            //                 if ($firstValidRecord !== null && $lastValidRecord !== null) {
+            //                     $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+            //                 }
+            //                 $firstValidRecord = $record;
+            //                 $lastValidRecord = null;
+            //                 $maxSpeed = $record->vitesse; 
+            //             }
+            //         } else {
+            //             // Si les attributs chauffeur, véhicule ou date sont différents, réinitialiser les enregistrements valides
+            //             if ($firstValidRecord !== null && $lastValidRecord !== null) {
+            //                 $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+            //             }
+            //             $firstValidRecord = $record;
+            //             $lastValidRecord = null;
+            //             $maxSpeed = $record->vitesse;
+            //         }
+            //     }
+            //     // Mettre à jour l'enregistrement précédent
+            //     $prevRecord = $record;
+            // }
         }
         // Ajouter le dernier groupe d'infractions
-        if ($firstValidRecord !== null && $lastValidRecord !== null) {
-            $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
-        }
+        // if ($firstValidRecord !== null && $lastValidRecord !== null) {
+        //     $results[] = groupedInfraction($firstValidRecord, $prevRecord, $maxSpeed);
+        // }
 
         return $results;
     }
