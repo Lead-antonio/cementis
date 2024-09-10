@@ -808,8 +808,8 @@ if(!function_exists('processEvents')) {
 if(!function_exists('checkMissingEvent')) {
     function checkMissingEvent(){
         $trucks = Vehicule::all();
-        $startDate = Carbon::parse("2024-07-01 00:00:00");
-        $endDate = Carbon::parse("2024-08-12 23:59:00");
+        $startDate = Carbon::parse("2024-08-01 00:00:00");
+        $endDate = Carbon::parse("2024-09-01 00:00:00");
         
         foreach($trucks as $truck){
             getMissingEventFromApi($truck->imei, $startDate, $endDate);
