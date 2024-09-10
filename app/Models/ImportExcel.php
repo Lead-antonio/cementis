@@ -90,5 +90,12 @@ class ImportExcel extends Model
         return self::groupBy('name_importation');
     }
 
+
+    public function movements()
+    {
+        return $this->hasMany(Movement::class);
+    }
+    
+
     
 }

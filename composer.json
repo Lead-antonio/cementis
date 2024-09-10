@@ -55,7 +55,8 @@
     },
     "autoload": {
         "files": [
-            "app/Helpers/Init.php"
+            "app/Helpers/Init.php",
+            "app/Helpers/Utils.php"
         ],
         "psr-4": {
             "App\\": "app/",

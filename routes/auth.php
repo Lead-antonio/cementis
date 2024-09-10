@@ -129,3 +129,6 @@ Route::resource('importNameInstallations', App\Http\Controllers\ImportNameInstal
 
 
 Route::resource('importInstallationErrors', App\Http\Controllers\ImportInstallationErrorController::class);
+
+
+Route::resource('movements', App\Http\Controllers\MovementController::class);

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Event;
+use App\Helpers\Utils;
 
 class updateEventCommande extends Command
 {
@@ -43,6 +44,6 @@ class updateEventCommande extends Command
         //     // updateLatAndLongExistingEvent($event);
         //     updateVitesse($event);
         // }
-        saveInfraction();
+        Utils::saveDriveAndStop();
     }
 }
