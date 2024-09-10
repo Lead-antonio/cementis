@@ -26,6 +26,11 @@ class ModelImportClass implements ToCollection
         $fillable = $model->getFillable(); // Get fillable fields
 
         foreach ($rows as $row) {
+            // Check if the row is empty (i.e., all columns are null or empty)
+            if ($this->isRowEmpty($row)) {
+                continue; // Skip empty rows
+            }
+
             $data = [];
 
             foreach ($this->indexMap as $field => $index) {
@@ -38,17 +43,19 @@ class ModelImportClass implements ToCollection
             // Create the model
             $createdModel = $model->create($fillableData);
 
-            // Specific logic for Personnel model
-            // if ($this->modelClass === "\App\Models\Personnel") {
-            //     // Create Professionnel and associate it with the newly created Personnel
-            //     \App\Models\Professionnel::create([
-            //         'personnel_id' => $createdModel->id,
-            //     ]);
-            // }
-
             // Increment row count
             $this->rowCount++;
         }
+    }
+
+    public function isRowEmpty($row)
+    {
+        foreach ($row as $cell) {
+            if (!is_null($cell) && $cell !== '') {
+                return false; // Row is not empty if any cell is not null or empty
+            }
+        }
+        return true; // Row is empty
     }
 
     public function getRowCount()
