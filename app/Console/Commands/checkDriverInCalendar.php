@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\DriverService;
 
 class checkDriverInCalendar extends Command
 {
@@ -37,6 +38,8 @@ class checkDriverInCalendar extends Command
      */
     public function handle()
     {
-        checkDriverInCalendar();
+        // checkDriverInCalendar();
+        $driverService = new DriverService();
+        $driverService->checkDistanceAndRfid();
     }
 }

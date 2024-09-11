@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\InfractionService;
 
 class CheckInfraction extends Command
 {
@@ -37,6 +38,8 @@ class CheckInfraction extends Command
      */
     public function handle()
     {
-        saveInfraction();
+        // saveInfraction();
+        $infractionService = new InfractionService();
+        $infractionService->saveInfraction();
     }
 }

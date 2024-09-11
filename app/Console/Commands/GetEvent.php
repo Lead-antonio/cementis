@@ -3,15 +3,16 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\EventService;
 
-class GetEventFromApiCommand extends Command
+class GetEvent extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'events:get';
+    protected $signature = 'get:event';
 
     /**
      * The console command description.
@@ -37,6 +38,8 @@ class GetEventFromApiCommand extends Command
      */
     public function handle()
     {
-        getEventFromApi();
+        // getEventFromApi();
+        $eventService = new EventService();
+        $eventService->proccessEventForPeriod();
     }
 }

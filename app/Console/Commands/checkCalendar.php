@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Services\CalendarService;
 
 class checkCalendar extends Command
 {
@@ -37,6 +38,8 @@ class checkCalendar extends Command
      */
     public function handle()
     {
-        checkCalendar();
+        // checkCalendar();
+        $calendarService = new CalendarService();
+        $calendarService->checkCalendar();
     }
 }
