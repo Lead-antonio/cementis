@@ -73,9 +73,9 @@ class Infraction extends Model
         'calendar_id' => 'integer',
         'vehicule' => 'string',
         'event' => 'string',
-        'odometer' => 'decimal:2',
-        'distance' => 'decimal:2',
-        'distance_calendar' => 'decimal:2',
+        'odometer' => 'decimal:4',
+        'distance' => 'decimal:4',
+        'distance_calendar' => 'decimal:4',
         'duree_infraction' => 'integer',
         'date_debut' => 'string',
         'date_fin' => 'string',
@@ -83,7 +83,7 @@ class Infraction extends Model
         'heure_fin' => 'string',
         'gps_debut' => 'string',
         'gps_fin' => 'string',
-        'point' => 'decimal:2',
+        'point' => 'decimal:4',
         'duree_initial' => 'integer',
         'insuffisance' => 'integer'
     ];
