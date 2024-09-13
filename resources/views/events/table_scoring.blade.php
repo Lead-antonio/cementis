@@ -100,7 +100,14 @@
                                 @endphp
                             @endforeach
                             @php
-                                $scoring_card = number_format(($total_point / getDistanceTotalDriverInCalendar($driver, $id_planning)) * 100, 2);
+                                // $scoring_card = number_format(($total_point / getDistanceTotalDriverInCalendar($driver, $id_planning)) * 100, 2);
+                                $distanceTotal = getDistanceTotalDriverInCalendar($driver, $id_planning);
+
+                                if ($distanceTotal > 0) {
+                                    $scoring_card = number_format(($total_point / $distanceTotal) * 100, 2);
+                                } else {
+                                    $scoring_card = 0; // Ou toute autre valeur par défaut
+                                }
                                 if ($scoring_card >= 0 && $scoring_card <= 2) {
                                     $scoringClass = 'scoring-green';
                                 } elseif ($scoring_card > 2 && $scoring_card <= 5) {

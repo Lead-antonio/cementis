@@ -296,8 +296,15 @@ if(!function_exists('getAllGoodScoring')){
         ->get();
         
         foreach($results as $item){
+            // $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
+            // $item->scoring = round(($item->point / $item->distance) * 100, 2);
             $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-            $item->scoring = round(($item->point / $item->distance) * 100, 2);
+
+            if ($item->distance > 0) {
+                $item->scoring = round(($item->point / $item->distance) * 100, 2);
+            } else {
+                $item->scoring = 0; 
+            }
         }
         $sortedResults = $results->sortBy('scoring');
         $sortedResults = $sortedResults->values();
@@ -327,8 +334,15 @@ if(!function_exists('getAllBadScoring')){
         ->get();
         
         foreach($results as $item){
+            // $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
+            // $item->scoring = round(($item->point / $item->distance) * 100, 2);
             $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-            $item->scoring = round(($item->point / $item->distance) * 100, 2);
+
+            if ($item->distance > 0) {
+                $item->scoring = round(($item->point / $item->distance) * 100, 2);
+            } else {
+                $item->scoring = 0; 
+            }
         }
         $sortedResults = $results->sortByDesc('scoring');
         $sortedResults = $sortedResults->values();
