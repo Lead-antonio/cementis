@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Events;
 
 use Illuminate\Console\Command;
+use App\Services\EventService;
 
-class ImeiTruck extends Command
+class GetEvent extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'imei:truck';
+    protected $signature = 'get:event';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get imei truck in API';
+    protected $description = 'Fetch events from API';
 
     /**
      * Create a new command instance.
@@ -37,6 +38,11 @@ class ImeiTruck extends Command
      */
     public function handle()
     {
-        getImeiOfTruck();
+        $this->info('Starting the process...');
+
+        $eventService = new EventService();
+        $eventService->proccessEventForPeriod($this);
+
+        $this->info('Process completed!');
     }
 }

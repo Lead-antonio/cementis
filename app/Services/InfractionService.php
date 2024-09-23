@@ -18,8 +18,8 @@ class InfractionService
         'Survitesse excessive',
         'Survitesse sur la piste de Tritriva',
         'Survitesse sur la piste d\'Ibity',
-        // 'TEMPS DE CONDUITE CONTINUE JOUR',
-        // 'TEMPS DE CONDUITE CONTINUE NUIT',
+        'TEMPS DE CONDUITE CONTINUE JOUR',
+        'TEMPS DE CONDUITE CONTINUE NUIT',
     ];
 
     /**
@@ -85,10 +85,11 @@ class InfractionService
      * Antonio
      * Enregistre les infractions détectées dans la base de données.
      */
-    public function saveInfraction(){
+    public function saveInfraction($console){
         $infractions = $this->checkInfraction();
 
-        foreach($infractions as $item){
+        $console->withProgressBar($infractions, function($item)  {
+        // foreach($infractions as $item){
             $existingInfraction = Infraction::where('imei', $item['imei'])
                     ->where('rfid', $item['chauffeur'])
                     ->where('event', $item['type'])
@@ -125,6 +126,6 @@ class InfractionService
                     ]);
                 }
             }
-        }
+        });
     }
 }

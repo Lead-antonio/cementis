@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\ConduiteContinue;
 
 use Illuminate\Console\Command;
-use App\Models\Event;
+use App\Services\ConduiteContinueService;
 
-class updateEventCommande extends Command
+class TempsConduiteContinueNotification extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:event';
+    protected $signature = 'driver:continuous';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update event latitude and longitude from API';
+    protected $description = 'Check Temps de conduite continue';
 
     /**
      * Create a new command instance.
@@ -38,11 +38,11 @@ class updateEventCommande extends Command
      */
     public function handle()
     {
-        // $events = Event::all();
-        // foreach($events as $event){
-        //     // updateLatAndLongExistingEvent($event);
-        //     updateVitesse($event);
-        // }
-        saveInfraction();
+        $this->info('Starting the process...');
+
+        $conduiteService = new ConduiteContinueService();
+        $conduiteService->checkTempsConduiteContinueNotification($this);
+
+        $this->info('Process completed!');
     }
 }

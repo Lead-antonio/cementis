@@ -21,6 +21,8 @@ class EventService
         'Survitesse excessive',
         'Survitesse sur la piste de Tritriva',
         'Survitesse sur la piste d\'Ibity',
+        'TEMPS DE CONDUITE CONTINUE JOUR',
+        'TEMPS DE CONDUITE CONTINUE NUIT',
     ];
 
     /**
@@ -156,14 +158,33 @@ class EventService
      * Enregistrer les évenements de dernier mois.
      *
      */
-    public function proccessEventForPeriod(){
+    // public function proccessEventForPeriod(){
+    //     $trucks = Vehicule::get();
+        
+    //     $start_date = Carbon::now()->subMonth()->startOfMonth()->startOfDay();
+    //     $end_date = Carbon::now()->subMonth()->endOfMonth()->endOfDay();
+        
+    //     foreach($trucks as $truck){
+    //         self::saveEventForPeriode($truck->imei, $start_date, $end_date);
+    //     }
+    // }
+    public function proccessEventForPeriod($console)
+    {
+        // Récupération des camions
         $trucks = Vehicule::get();
         
+        // Définition des dates de la période
         $start_date = Carbon::now()->subMonth()->startOfMonth()->startOfDay();
         $end_date = Carbon::now()->subMonth()->endOfMonth()->endOfDay();
         
-        foreach($trucks as $truck){
+        // Affichage de la barre de progression
+        $console->withProgressBar($trucks, function($truck) use ($start_date, $end_date) {
+            // Traitement de chaque camion
             self::saveEventForPeriode($truck->imei, $start_date, $end_date);
-        }
+        });
+
+        // Message final lorsque le traitement est terminé
+        $console->info('Tous les événements pour la période ont été traités.');
     }
+
 }

@@ -33,6 +33,8 @@ class Movement extends Model
 
     public $fillable = [
         'calendar_id',
+        'imei',
+        'rfid',
         'start_date',
         'start_hour',
         'end_date',
@@ -49,6 +51,8 @@ class Movement extends Model
     protected $casts = [
         'id' => 'integer',
         'calendar_id' => 'integer',
+        'imei' => 'string',
+        'rfid' => 'string',
         'start_date' => 'string',
         'end_date' => 'string',
         'type' => 'string'

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Calendar;
 
 use Illuminate\Console\Command;
 use App\Services\CalendarService;
@@ -39,7 +39,11 @@ class checkCalendar extends Command
     public function handle()
     {
         // checkCalendar();
+        $this->info('Starting the process...');
+
         $calendarService = new CalendarService();
-        $calendarService->checkCalendar();
+        $calendarService->checkCalendar($this);
+
+        $this->info('Process completed!');
     }
 }

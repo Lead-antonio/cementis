@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Mouvement;
 
 use Illuminate\Console\Command;
-use App\Services\EventService;
+use App\Helpers\Utils;
 
-class GetEvent extends Command
+class GetMovement extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get:event';
+    protected $signature = 'get:movement';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Fetch events from API';
+    protected $description = 'Get all movement in planning';
 
     /**
      * Create a new command instance.
@@ -38,8 +38,12 @@ class GetEvent extends Command
      */
     public function handle()
     {
-        // getEventFromApi();
-        $eventService = new EventService();
-        $eventService->proccessEventForPeriod();
+        $this->info('Starting the process...');
+        $utils = new Utils();
+
+        // Pass the current console instance to the method
+        $utils->saveDriveAndStop($this);
+        
+        $this->info('Process completed!');
     }
 }

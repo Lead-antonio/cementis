@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Calendar;
 
 use Illuminate\Console\Command;
+use App\Services\DriverService;
 
-class MissingEvent extends Command
+class checkDriverInCalendar extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'check:miss';
+    protected $signature = 'check:driver';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check all missing event from API';
+    protected $description = 'Check driver in calendars';
 
     /**
      * Create a new command instance.
@@ -37,6 +38,8 @@ class MissingEvent extends Command
      */
     public function handle()
     {
-        checkMissingEvent();
+        // checkDriverInCalendar();
+        $driverService = new DriverService();
+        $driverService->checkDistanceAndRfid();
     }
 }

@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\ConduiteContinue;
 
 use Illuminate\Console\Command;
-use App\Services\InfractionService;
+use App\Services\ConduiteContinueService;
 
-class CheckInfraction extends Command
+class TempsConduiteContinueCumul extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'check:infraction';
+    protected $signature = 'driver:cumul';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Check Temps de conduite continue';
 
     /**
      * Create a new command instance.
@@ -38,8 +38,9 @@ class CheckInfraction extends Command
      */
     public function handle()
     {
-        // saveInfraction();
-        $infractionService = new InfractionService();
-        $infractionService->saveInfraction();
+        $this->info('Starting the process...');
+
+        $conduiteService = new ConduiteContinueService();
+        $conduiteService->checkTempsConduiteContinueCumul($this);
     }
 }

@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Infraction;
 
 use Illuminate\Console\Command;
-use App\Services\DriverService;
+use App\Services\InfractionService;
 
-class checkDriverInCalendar extends Command
+class CheckInfraction extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'check:driver';
+    protected $signature = 'check:infraction';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Check driver in calendars';
+    protected $description = 'Command description';
 
     /**
      * Create a new command instance.
@@ -38,8 +38,12 @@ class checkDriverInCalendar extends Command
      */
     public function handle()
     {
-        // checkDriverInCalendar();
-        $driverService = new DriverService();
-        $driverService->checkDistanceAndRfid();
+        // saveInfraction();
+        $this->info('Starting the process...');
+
+        $infractionService = new InfractionService();
+        $infractionService->saveInfraction($this);
+
+        $this->info('Process completed!');
     }
 }
