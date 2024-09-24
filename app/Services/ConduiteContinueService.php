@@ -52,7 +52,7 @@ class ConduiteContinueService
 
             $move_start = $utils->convertTimeToSeconds($infraction->heure_debut);
             $all_movements = $mouvementService->getAllMouvementDuringCalendar($infraction->calendar_id);
-            if(!$Allmovements->isEmpty()){
+            if(!$all_movements->isEmpty()){
                 $stopmovement = $mouvementService->getStopBehindGivingDateAndHour($all_movements, $infraction->date_debut, $infraction->heure_debut);
                 if($stopmovement){
                     $stopTime =  $utils->convertTimeToSeconds($stopmovement->start_hour);
@@ -288,14 +288,16 @@ class ConduiteContinueService
             // Gérer les STOP dans la journée courante
             if ($movement['type'] === 'STOP') {
                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+
+                $stopDurationThreshold = $applyNightCondition ? 900 : 1200;
     
                 // Si un STOP est inférieur à 20 minutes, continuer à cumuler la durée de conduite
-                if ($stopDuration < 1200) {
+                if ($stopDuration < $stopDurationThreshold) {
                     continue; // Ignorer ce STOP et passer au mouvement suivant
                 }
     
                 // Si un STOP supérieur à 20 minutes est trouvé, vérifier les infractions
-                if ($stopDuration >= 1200) {
+                if ($stopDuration >= $stopDurationThreshold) {
                     if (($applyNightCondition && $totalDriveDuration > $nightCondition) || 
                         (!$applyNightCondition && $totalDriveDuration > $dayCondition)) {
                         $event = $applyNightCondition ? "TEMPS DE CONDUITE CONTINUE NUIT" : "TEMPS DE CONDUITE CONTINUE JOUR";
@@ -541,19 +543,39 @@ class ConduiteContinueService
             $console->withProgressBar($calendars, function($calendar) use ($mouvementService, $continueService, &$data_infraction) {
                 $allmovements = $mouvementService->getAllMouvementDuringCalendar($calendar->id);
                 $organizeMovements = $mouvementService->organizeMovements($allmovements);
-                $infraction = $continueService->checkForInfraction($array_infraction);
+                $infraction = $continueService->checkForInfraction($organizeMovements);
                 if($infraction){
                     $data_infraction = array_merge($data_infraction,$infraction);
                 }
             });
-            
+
             if (!empty($data_infraction)) {
+                dd($data_infraction);
                 try {
-                    DB::beginTransaction(); // Démarre une transaction
-                    DB::table('infraction')->insert($data_infraction);
+                    DB::beginTransaction(); // Démarre la transaction
+
+                    foreach ($data_infraction as $infraction) {
+                        // Rechercher une entrée existante avec les mêmes colonnes uniques
+                        $existingInfraction = DB::table('infraction')
+                            ->where('calendar_id', $infraction['calendar_id'])
+                            ->where('imei', $infraction['imei'])
+                            ->where('rfid', $infraction['rfid'])
+                            ->where('vehicule', $infraction['vehicule'])
+                            ->where('event', $infraction['event'])
+                            ->where('date_debut', $infraction['date_debut'])
+                            ->where('date_fin', $infraction['date_fin'])
+                            ->where('heure_debut', $infraction['heure_debut'])
+                            ->where('heure_fin', $infraction['heure_fin'])
+                            ->first();
+
+                        // Si une entrée existe
+                        if (!$existingInfraction) {
+                            DB::table('infraction')->insert($infraction);
+                        }
+                    }
+
                     DB::commit(); // Valide la transaction
-            
-                    $console->info(count($data_infraction) . ' infractions ont été insérées avec succès.');
+                    $console->info(count($data_infraction) . ' infractions traitées avec succès.');
                 } catch (Exception $e) {
                     DB::rollBack(); // Annule la transaction en cas d'erreur
                     $console->error('L\'insertion des infractions a échoué : ' . $e->getMessage());

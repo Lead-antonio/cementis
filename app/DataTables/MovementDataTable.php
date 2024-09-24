@@ -17,9 +17,30 @@ class MovementDataTable extends DataTable
      */
     public function dataTable($query)
     {
-        $dataTable = new EloquentDataTable($query);
+        // $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'movements.datatables_actions');
+        // return $dataTable->addColumn('action', 'movements.datatables_actions');
+        return (new EloquentDataTable($query))
+        ->editColumn('calendar_id', function ($model) {
+            return $model->related_calendar ? $model->related_calendar->name_importation : 'Pas de planning';
+        })
+        ->editColumn('camion', function ($model) {
+            return $model->related_calendar ? $model->related_calendar->camion : '';
+        })
+        ->editColumn('type', function ($model) {
+            if ($model->type === "DRIVE") {
+                return '<span class="badge badge-success">DRIVE</span>';
+            }
+            if ($model->type === "STOP") {
+                return '<span class="badge badge-danger">STOP</span>';
+            }
+        })
+        ->filterColumn('camion', function ($query, $keyword) {
+            $query->whereHas('related_calendar', function ($q) use ($keyword) {
+                $q->whereRaw("LOWER(camion) LIKE ?", ["%{$keyword}%"]);
+            });
+        })
+        ->rawColumns(['type', 'action']);
     }
 
     /**
@@ -62,48 +83,78 @@ class MovementDataTable extends DataTable
      *
      * @return array
      */
+    // protected function getColumns()
+    // {
+    //     return [
+    //         'calendar_id' => new Column([
+    //             'title' => __('models/movements.fields.calendar_id'), 'data' => 'calendar_id',
+    //             'searchable' => true,
+    //             'render' =>'function() {
+    //                 if(full.calendar_id){
+    //                     return full.related_calendar.name_importation;
+    //                 }else{
+    //                     return "Pas de planning";
+    //                 }
+    //             }'
+    //         ]),
+    //         'camion' => new Column([
+    //             'title' => "Camion", 'data' => 'full.related_calendar.camion',
+    //             'searchable' => true,
+    //             'render' =>'function() {
+    //                 if(full.calendar_id){
+    //                     return full.related_calendar.camion;
+    //                 }else{
+    //                     return "";
+    //                 }
+    //             }'
+    //         ]),
+    //         'start_date' => new Column(['title' => __('models/movements.fields.start_date'), 'data' => 'start_date', 'searchable' => true]),
+    //         'start_hour' => new Column(['title' => __('models/movements.fields.start_hour'), 'data' => 'start_hour', 'searchable' => true]),
+    //         'end_date' => new Column(['title' => __('models/movements.fields.end_date'), 'data' => 'end_date', 'searchable' => true]),
+    //         'end_hour' => new Column(['title' => __('models/movements.fields.end_hour'), 'data' => 'end_hour', 'searchable' => true]),
+    //         'duration' => new Column(['title' => __('models/movements.fields.duration'), 'data' => 'duration', 'searchable' => true]),
+    //         'type' => new Column([
+    //             'title' => __('models/movements.fields.type'), 'data' => 'type',
+    //             'searchable' => true,
+    //              'render' =>'function() {
+    //                 if(full.type == "DRIVE"){
+    //                     return `<span class="badge badge-success">${full.type}</span>`;
+    //                 }
+    //                 if(full.type == "STOP"){
+    //                     return `<span class="badge badge-danger">${full.type}</span>`;
+    //                 }
+    //             }'
+    //         ])
+    //     ];
+    // }
     protected function getColumns()
     {
         return [
             'calendar_id' => new Column([
-                'title' => __('models/movements.fields.calendar_id'), 'data' => 'calendar_id',
-                'render' =>'function() {
-                    if(full.calendar_id){
-                        return full.related_calendar.name_importation;
-                    }else{
-                        return "Pas de planning";
-                    }
+                'title' => __('models/movements.fields.calendar_id'),
+                'data' => 'calendar_id',
+                'searchable' => true,
+                'render' => 'function() {
+                    return full.related_calendar ? full.related_calendar.name_importation : "Pas de planning";
                 }'
             ]),
             'camion' => new Column([
-                'title' => "Camion", 'data' => 'full.related_calendar.camion',
+                'title' => 'Camion',
+                'data' => 'camion', // Pas de référence à "full.related_calendar.camion"
                 'searchable' => true,
-                'render' =>'function() {
-                    if(full.calendar_id){
-                        return full.related_calendar.camion;
-                    }else{
-                        return "";
-                    }
+                'render' => 'function() {
+                    return full.related_calendar ? full.related_calendar.camion : "";
                 }'
             ]),
-            'start_date' => new Column(['title' => __('models/movements.fields.start_date'), 'data' => 'start_date']),
-            'start_hour' => new Column(['title' => __('models/movements.fields.start_hour'), 'data' => 'start_hour']),
-            'end_date' => new Column(['title' => __('models/movements.fields.end_date'), 'data' => 'end_date']),
-            'end_hour' => new Column(['title' => __('models/movements.fields.end_hour'), 'data' => 'end_hour']),
-            'duration' => new Column(['title' => __('models/movements.fields.duration'), 'data' => 'duration']),
-            'type' => new Column([
-                'title' => __('models/movements.fields.type'), 'data' => 'type',
-                 'render' =>'function() {
-                    if(full.type == "DRIVE"){
-                        return `<span class="badge badge-success">${full.type}</span>`;
-                    }
-                    if(full.type == "STOP"){
-                        return `<span class="badge badge-danger">${full.type}</span>`;
-                    }
-                }'
-            ])
+            'start_date' => new Column(['title' => __('models/movements.fields.start_date'), 'data' => 'start_date', 'searchable' => true]),
+            'start_hour' => new Column(['title' => __('models/movements.fields.start_hour'), 'data' => 'start_hour', 'searchable' => true]),
+            'end_date' => new Column(['title' => __('models/movements.fields.end_date'), 'data' => 'end_date', 'searchable' => true]),
+            'end_hour' => new Column(['title' => __('models/movements.fields.end_hour'), 'data' => 'end_hour', 'searchable' => true]),
+            'duration' => new Column(['title' => __('models/movements.fields.duration'), 'data' => 'duration', 'searchable' => true]),
+            'type' => new Column(['title' => __('models/movements.fields.type'),'data' => 'type','searchable' => true,])
         ];
     }
+
 
     /**
      * Get filename for export.
