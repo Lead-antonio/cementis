@@ -233,12 +233,13 @@ class ConduiteContinueService
     
                     $infractionFound = true;
                     $result[] = [
+                        'calendar_id' => $movement['calendar_id'],
                         'imei' => $movement['imei'],
-                        'chauffeur' => $movement['rfid'],
+                        'rfid' => $movement['rfid'],
                         'vehicule' => $immatricule,
-                        'type' => $event,
+                        'event' => $event,
                         'distance' => 0,
-                        'vitesse' => 0,
+                        'distance_calendar' => 0,
                         'odometer' => 0,
                         'duree_infraction' => $totalDriveDuration,
                         'duree_initial' => $condition,
@@ -299,12 +300,13 @@ class ConduiteContinueService
     
                         $infractionFound = true;
                         $result[] = [
+                            'calendar_id' => $movement['calendar_id'],
                             'imei' => $movement['imei'],
-                            'chauffeur' => $movement['rfid'],
+                            'rfid' => $movement['rfid'],
                             'vehicule' => $immatricule,
-                            'type' => $event,
+                            'event' => $event,
                             'distance' => 0,
-                            'vitesse' => 0,
+                            'distance_calendar' => 0,
                             'odometer' => 0,
                             'duree_infraction' => $totalDriveDuration,
                             'duree_initial' => $condition,
@@ -335,12 +337,13 @@ class ConduiteContinueService
     
             $infractionFound = true;
             $result[] = [
+                'calendar_id' => $movement['calendar_id'],
                 'imei' => $movement['imei'],
-                'chauffeur' => $movements[0]['rfid'], // Assurez-vous que cela prend le bon chauffeur
+                'rfid' => $movements[0]['rfid'], // Assurez-vous que cela prend le bon chauffeur
                 'vehicule' => $immatricule,
-                'type' => $event,
+                'event' => $event,
                 'distance' => 0,
-                'vitesse' => 0,
+                'distance_calendar' => 0,
                 'odometer' => 0,
                 'duree_infraction' => $totalDriveDuration,
                 'duree_initial' => $condition,
@@ -355,9 +358,6 @@ class ConduiteContinueService
     
         return $result;
     }
-
-    
-    
 
     // $array_not_infraction =  [
     //     0 =>  [
@@ -542,16 +542,19 @@ class ConduiteContinueService
                 }
             });
             
-            if(!empty($data_infraction)){
-                // foreach ($data_infraction as $subArray) {
-                //     foreach ($subArray as $item) {
-                //         $result[] = $item;
-                //     }
-                // }
-                // DB::table('infraction')->insert($data_infraction);
-                dd($data_infraction);
-            }
-            $console->info('Tous les Conduite continue sont tous vérifiés.');
+            if (!empty($data_infraction)) {
+                try {
+                    DB::beginTransaction(); // Démarre une transaction
+                    DB::table('infraction')->insert($data_infraction);
+                    DB::commit(); // Valide la transaction
+            
+                    $console->info(count($data_infraction) . ' infractions ont été insérées avec succès.');
+                } catch (Exception $e) {
+                    DB::rollBack(); // Annule la transaction en cas d'erreur
+                    $console->error('L\'insertion des infractions a échoué : ' . $e->getMessage());
+                    Log::error('Erreur d\'insertion dans infraction: ' . $e->getMessage());
+                }
+            } 
         } catch (Exception $e) {
             // Gestion des erreurs
             Log::error('Erreur lors de la vérification du temps du conduite continue qui cumul: ' . $e->getMessage());
