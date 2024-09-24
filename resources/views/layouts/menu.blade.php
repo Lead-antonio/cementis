@@ -14,7 +14,7 @@
     </li>
 @endcan
 
-@can('generator_builder.index')
+{{-- @can('generator_builder.index')
     @php
         $isUserActive = Request::is($urlAdmin . '*generator_builder*');
     @endphp
@@ -24,7 +24,7 @@
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
 
 @can('attendances.index')

@@ -49,20 +49,25 @@ class ConduiteContinueService
                 $limite = 2 * 3600;
             }
 
-            
-            $notificationTime = $utils->convertTimeToSeconds($infraction->heure_debut);
-            $Allmovements = $mouvementService->getAllMouvementDuringCalendar($infraction->calendar_id);
+
+            $move_start = $utils->convertTimeToSeconds($infraction->heure_debut);
+            $all_movements = $mouvementService->getAllMouvementDuringCalendar($infraction->calendar_id);
             if(!$Allmovements->isEmpty()){
-                $stopmovement = $mouvementService->getStopBehindGivingDateAndHour($Allmovements, $infraction->date_debut, $infraction->heure_debut);
+                $stopmovement = $mouvementService->getStopBehindGivingDateAndHour($all_movements, $infraction->date_debut, $infraction->heure_debut);
                 if($stopmovement){
                     $stopTime =  $utils->convertTimeToSeconds($stopmovement->start_hour);
+                    $duree_mouvement = ($stopTime - $move_start); 
+                    $duree_infraction = $duree_mouvement - $limite;  
+                    $point =  ($duree_mouvement - $limite)/600; 
+
     
                     $updates[] = [
                         'id' => $infraction->id,
-                        'duree_initial' => $limite,
-                        'duree_infraction' => $limite + ($stopTime - $notificationTime),
-                        'point' => ($stopTime - $notificationTime) / 600,
-                        'insuffisance' => $stopTime - $notificationTime 
+                        'duree_initial' => $limite, 
+                        'duree_infraction' => $duree_mouvement, 
+                        'point' => $point,
+                        'insuffisance' => $duree_infraction,
+                        'heure_fin' => $stopmovement->start_hour,
                     ];
                 }
             }
@@ -76,6 +81,7 @@ class ConduiteContinueService
                 'duree_infraction' => $update['duree_infraction'],
                 'point' => $update['point'],
                 'insuffisance' => $update['insuffisance'],
+                'heure_fin' => $update['heure_fin']
             ]);
         });
 
@@ -89,7 +95,6 @@ class ConduiteContinueService
      *
      */
     public static function isNightPeriod($startHour, $endHour) {
-        // return ($startHour >= '22:00:00' || $endHour <= '04:00:00') || ($startHour < '04:00:00' && $endHour > '22:00:00') || ($startHour < '04:00:00' && $endHours < '22:00:00');
         if (($startHour >= '04:00:00' && $endHour <= '22:00:00')) {
             // Règle de jour
             return false;
@@ -168,7 +173,7 @@ class ConduiteContinueService
     //                         'distance' => 0, // Peut être calculé si besoin
     //                         'vitesse' => 0,
     //                         'odometer' => 0,
-    //                         'duree_infraction' => $totalDriveDuration, 
+    //                         'duree_mouvement' => $totalDriveDuration, 
     //                         'duree_initial' => $condition, // Exemple, vous pouvez ajuster
     //                         'date_debut' => $firstDriveDate,
     //                         'date_fin' => $lastDriveDate, // Peut être ajusté si besoin
@@ -536,7 +541,7 @@ class ConduiteContinueService
             $console->withProgressBar($calendars, function($calendar) use ($mouvementService, $continueService, &$data_infraction) {
                 $allmovements = $mouvementService->getAllMouvementDuringCalendar($calendar->id);
                 $organizeMovements = $mouvementService->organizeMovements($allmovements);
-                $infraction = $continueService->checkForInfraction($organizeMovements);
+                $infraction = $continueService->checkForInfraction($array_infraction);
                 if($infraction){
                     $data_infraction = array_merge($data_infraction,$infraction);
                 }
