@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use App\Models\Movement;
 
 class MovementService
@@ -17,7 +18,6 @@ class MovementService
         try {
             // Récupération de mouvements effectuer durant le calendrier
             $movements = Movement::where('calendar_id', $calendar_id)->get();
-
             // Gestion du cas où aucun point de pénalité n'est trouvé
             return $movements ? $movements : []; // Retourne 0 si pas de pénalité trouvée
 
@@ -63,7 +63,6 @@ class MovementService
             $sortedMovements = $allmovements->sortBy(function($movement) {
                 return $movement->start_date . ' ' . $movement->start_hour;
             })->values()->toArray(); // Convertir en tableau après tri
-
             $organizedMovements = [];
             $previousMovement = null;
 
@@ -96,4 +95,15 @@ class MovementService
             return 0;
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
 }
