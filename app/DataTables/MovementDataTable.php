@@ -51,7 +51,8 @@ class MovementDataTable extends DataTable
      */
     public function query(Movement $model)
     {
-        return $model->newQuery()->with(['related_calendar']);
+        $query = $model->newQuery()->with(['related_calendar']);
+        return $query->orderBy('start_date', 'ASC')->orderBy('start_hour', 'ASC');
     }
 
     /**
@@ -147,8 +148,8 @@ class MovementDataTable extends DataTable
                 }'
             ]),
             'start_date' => new Column(['title' => __('models/movements.fields.start_date'), 'data' => 'start_date', 'searchable' => true]),
-            'start_hour' => new Column(['title' => __('models/movements.fields.start_hour'), 'data' => 'start_hour', 'searchable' => true]),
             'end_date' => new Column(['title' => __('models/movements.fields.end_date'), 'data' => 'end_date', 'searchable' => true]),
+            'start_hour' => new Column(['title' => __('models/movements.fields.start_hour'), 'data' => 'start_hour', 'searchable' => true]),
             'end_hour' => new Column(['title' => __('models/movements.fields.end_hour'), 'data' => 'end_hour', 'searchable' => true]),
             'duration' => new Column(['title' => __('models/movements.fields.duration'), 'data' => 'duration', 'searchable' => true]),
             'type' => new Column(['title' => __('models/movements.fields.type'),'data' => 'type','searchable' => true,])

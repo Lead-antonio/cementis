@@ -79,7 +79,7 @@ class ImportExcelDataTable extends DataTable
                 'title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut',
                 'render' => 'function() {
                     var date = new Date(full.date_debut);
-                    date.setHours(date.getHours() - 1);
+                    date.setHours(date.getHours() - 3);
                     var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
                     return date_heure;
                 }',
@@ -90,7 +90,7 @@ class ImportExcelDataTable extends DataTable
 
                 if(full.date_fin!=null){
                     var date = new Date(full.date_fin);
-                    date.setHours(date.getHours() - 1);
+                    date.setHours(date.getHours() - 3);
                     var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
                 }
                 return date_heure;}'

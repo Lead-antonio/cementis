@@ -63,6 +63,7 @@ class MovementService
             $sortedMovements = $allmovements->sortBy(function($movement) {
                 return $movement->start_date . ' ' . $movement->start_hour;
             })->values()->toArray(); // Convertir en tableau après tri
+            
             $organizedMovements = [];
             $previousMovement = null;
 

@@ -37,18 +37,28 @@ class Utils
         return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
     }
 
-    public static function convertToTimeFormat($durationString) {
-        // Extraire les heures, minutes et secondes avec une expression régulière
-        preg_match('/(\d+)\s*h\s*(\d+)\s*min\s*(\d+)\s*s/', $durationString, $matches);
-        
-        // S'assurer que toutes les valeurs existent, sinon les remplacer par 00
-        $hours = isset($matches[1]) ? str_pad($matches[1], 2, "0", STR_PAD_LEFT) : "00";
-        $minutes = isset($matches[2]) ? str_pad($matches[2], 2, "0", STR_PAD_LEFT) : "00";
-        $seconds = isset($matches[3]) ? str_pad($matches[3], 2, "0", STR_PAD_LEFT) : "00";
-        
+    public static function convertToTimeFormat($durationString)
+    {
+        // Initialiser les valeurs par défaut
+        $hours = "00";
+        $minutes = "00";
+        $seconds = "00";
+
+        // Rechercher les heures, minutes et secondes avec une expression régulière flexible
+        if (preg_match('/(\d+)\s*h/', $durationString, $hoursMatch)) {
+            $hours = str_pad($hoursMatch[1], 2, "0", STR_PAD_LEFT);
+        }
+        if (preg_match('/(\d+)\s*min/', $durationString, $minutesMatch)) {
+            $minutes = str_pad($minutesMatch[1], 2, "0", STR_PAD_LEFT);
+        }
+        if (preg_match('/(\d+)\s*s/', $durationString, $secondsMatch)) {
+            $seconds = str_pad($secondsMatch[1], 2, "0", STR_PAD_LEFT);
+        }
+
         // Retourner le format "HH:MM:SS"
         return "$hours:$minutes:$seconds";
     }
+
 
     public static function convertTimeToSeconds($time)
     {
@@ -63,7 +73,7 @@ class Utils
     // GET DRIVES AND STOPS
     public static function getDrivesAndStop($imei_vehicule, $start_date, $end_date){
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",20";
-    
+
         try {
             $response = Http::timeout(300)->get($url);
             $data = $response->json();
@@ -181,9 +191,10 @@ class Utils
             }
 
             $drive_and_stops = Utils::getDrivesAndStop($calendar->imei, $calendar_start_date, $calendar_end_date);
+          
             if (!empty($drive_and_stops['drives'])) {
                 foreach ($drive_and_stops['drives'] as $drive) {
-                    DB::table('movement')->insert([
+                    DB::table('movement')->insertOrIgnore([
                         'imei' => $calendar->imei,
                         'rfid' => $drive_and_stops['rfid'],
                         'calendar_id' => $calendar->id,
@@ -201,7 +212,7 @@ class Utils
 
             if (!empty($drive_and_stops['stops'])) {
                 foreach ($drive_and_stops['stops'] as $stop) {
-                    DB::table('movement')->insert([
+                    DB::table('movement')->insertOrIgnore([
                         'imei' => $calendar->imei,
                         'rfid' => $drive_and_stops['rfid'],
                         'calendar_id' => $calendar->id,
