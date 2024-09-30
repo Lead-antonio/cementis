@@ -52,7 +52,7 @@ class MovementDataTable extends DataTable
     public function query(Movement $model)
     {
         $query = $model->newQuery()->with(['related_calendar']);
-        return $query->orderBy('start_date', 'ASC')->orderBy('start_hour', 'ASC');
+        return $query->orderBy('start_date', 'ASC')->orderBy('end_date', 'ASC')->orderBy('start_hour', 'ASC');
     }
 
     /**

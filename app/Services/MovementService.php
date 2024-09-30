@@ -17,7 +17,13 @@ class MovementService
     public function getAllMouvementDuringCalendar($calendar_id){
         try {
             // Récupération de mouvements effectuer durant le calendrier
-            $movements = Movement::where('calendar_id', $calendar_id)->get();
+            // $movements = Movement::where('calendar_id', $calendar_id)->get();
+            $movements = Movement::where('calendar_id', $calendar_id)
+            ->orderBy('start_date')
+            ->orderBy('end_date')
+            ->orderBy('start_hour')
+            ->get()
+            ->toArray();
             // Gestion du cas où aucun point de pénalité n'est trouvé
             return $movements ? $movements : []; // Retourne 0 si pas de pénalité trouvée
 
@@ -61,7 +67,7 @@ class MovementService
         try {
             // Trier les mouvements par start_date et start_hour
             $sortedMovements = $allmovements->sortBy(function($movement) {
-                return $movement->start_date . ' ' . $movement->start_hour;
+                return $movement->start_date . ' ' . $movement->end_date . ' ' . $movement->start_hour;
             })->values()->toArray(); // Convertir en tableau après tri
             
             $organizedMovements = [];
