@@ -4,6 +4,7 @@ namespace App\Console\Commands\Mouvement;
 
 use Illuminate\Console\Command;
 use App\Helpers\Utils;
+use App\Services\MovementService;
 
 class GetMovement extends Command
 {
@@ -39,10 +40,10 @@ class GetMovement extends Command
     public function handle()
     {
         $this->info('Starting the process...');
-        $utils = new Utils();
+        $movementService = new MovementService();
 
         // Pass the current console instance to the method
-        $utils->saveDriveAndStop($this);
+        $movementService->saveDriveAndStop($this);
         
         $this->info('Process completed!');
     }

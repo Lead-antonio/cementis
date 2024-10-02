@@ -175,4 +175,44 @@ class GeolocalisationService
             return null;
         }
     }
+
+    /**
+     * Antonio
+     * Effectue une requête vers l'API pour avoir tous les mouvements dans une intervalle de date.
+     *
+     * @param string imei
+     * @param datetime start_date
+     * @param datetime end_date
+     * @return json|null
+     */
+    public  function getMovementDriveAndStop($imei_vehicule, $start_date, $end_date){
+        $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",1";
+
+        try {
+
+            $response = $this->makeRequest($url);
+            $data = json_decode($response, true);
+            // $response = Http::timeout(300)->get($url);
+            // $data = $response->json();
+            $drives = isset($data['drives']) && is_array($data['drives']) ? $data['drives'] : null;
+            $stops = isset($data['stops']) && is_array($data['stops']) ? $data['stops'] : null;
+            $rfid = isset($data['route']) && is_array($data['route']) ? $data['route'][0][6]['rfid'] : null;
+    
+            // Retourner les drives et stops (peuvent être null ou des tableaux vides)
+            return [
+                'rfid' => $rfid,
+                'drives' => $drives,
+                'stops' => $stops
+            ];
+        } catch (\Exception $e) {
+            // Gérer les erreurs de requête HTTP
+            // Vous pouvez enregistrer le message d'erreur ou retourner des valeurs par défaut
+            return [
+                'rfid' => null,
+                'drives' => null,
+                'stops' => null
+            ];
+        }
+
+    }
 }

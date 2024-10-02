@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Events\GetEvent::class,
         \App\Console\Commands\ConduiteContinue\TempsConduiteContinueNotification::class,
         \App\Console\Commands\ConduiteContinue\TempsConduiteContinueCumul::class,
+        \App\Console\Commands\ConduiteMaximum\TempsConduiteMaximum::class,
         \App\Console\Commands\Mouvement\GetMovement::class,
     ];
 

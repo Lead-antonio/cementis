@@ -1195,6 +1195,7 @@ if (!function_exists('getDriveDuration')) {
     function getDriveDuration($imei_vehicule, $start_date, $end_date){
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei_vehicule.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
+        
         $response = Http::timeout(3000)->get($url);
         $data = $response->json();
 
@@ -1210,7 +1211,8 @@ if (!function_exists('getDriveDuration')) {
 
 if (!function_exists('getDriveDurationCached')) {
     function getDriveDurationCached($imei, $dateDebut, $dateFin) {
-        $cacheKey = "drive_duration_{$imei}_{$dateDebut}_{$dateFin}";
+        // $cacheKey = "drive_duration_{$imei}_{$dateDebut}_{$dateFin}";
+        $cacheKey = "drive_duration_{$imei}_" . $dateDebut->format('Y-m-d H:i:s') . '_' . $dateFin->format('Y-m-d H:i:s');
         $cacheDuration = now()->addMinutes(60); // Durée de mise en cache, par exemple 60 minutes
     
         return Cache::remember($cacheKey, $cacheDuration, function () use ($imei, $dateDebut, $dateFin) {

@@ -7,6 +7,7 @@ use Exception;
 use App\Models\Infraction;
 use App\Models\ImportExcel;
 use App\Services\MovementService;
+use App\Services\ConduiteMaximumService;
 use App\Services\TruckService;
 use App\Helpers\Utils;
 use Carbon\Carbon;
@@ -91,42 +92,6 @@ class ConduiteContinueService
 
     /**
      * Antonio
-     * Vérification du plage de nuit.
-     *
-     */
-    public static function isNightPeriod($startHour, $endHour) {
-        if (($startHour >= '04:00:00' && $endHour <= '22:00:00')) {
-            // Règle de jour
-            return false;
-        } elseif ($startHour >= '22:00:00' || $endHour <= '04:00:00') {
-            // Règle de nuit
-            return true;
-        } elseif (($startHour < '04:00:00' && $endHour > '22:00:00') || ($startHour < '04:00:00' && $endHour < '22:00:00')) {
-            // Le trajet chevauche la journée et la nuit
-            return true;
-        } 
-    }
-    // public function isNightPeriod($startHour, $endHour)
-    // {
-    //     // Définir les heures de début et de fin de la nuit
-    //     $nightStart = new \DateTime('22:00:00'); // 22h00
-    //     $nightEnd = new \DateTime('04:00:00'); // 04h00 (du jour suivant)
-
-    //     if ($startHour->format('H:i:s') >= $nightStart->format('H:i:s') || $endHour->format('H:i:s') <= $nightEnd->format('H:i:s')) {
-    //         // Règle de nuit
-    //         return true;
-    //     } elseif (($startHour->format('H:i:s') < $nightEnd->format('H:i:s') && $endHour->format('H:i:s') > $nightStart->format('H:i:s')) || ($startHour->format('H:i:s') < $nightEnd->format('H:i:s') && $endHour->format('H:i:s') < $nightStart->format('H:i:s'))) {
-    //         // Le trajet chevauche la journée et la nuit
-    //         return true;
-    //     } 
-        
-    // }
-
-    
-    
-
-    /**
-     * Antonio
      * Get first and last date and time withe DRIVE type
      *
      */
@@ -176,81 +141,38 @@ class ConduiteContinueService
         $result = [];
         $infractionFound = false;
 
-        // Variables pour gérer le cumul par journée
-        $currentDayStart = null;
-        $currentDayEnd = null;
         $immatricule = null;
 
-        // Variables pour heure de début et fin du premier et dernier DRIVE de la journée
-        $firstDriveStartHour = null;
-        $lastDriveEndHour = null;
+        // Variables pour date et heure de début et fin du premier et dernier DRIVE de la journée
+        $first_drive_start_date = null;
+        $last_drive_end_date = null;
+        $first_drive_start_hour = null;
+        $last_drive_end_hour = null;
 
         foreach ($movements as $index => $movement) {
-            // Convertir la date de début du mouvement pour la journée et soustraire un jour
-            $movementDate = Carbon::parse($movement['start_date'] . ' ' . $movement['start_hour']);
-            $movementEndDate = Carbon::parse($movement['end_date'] . ' ' . $movement['end_hour']);
-            $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
-
-            // Initialiser la journée courante (si première itération)
-            if (!$currentDayStart && !$currentDayEnd) {
-                $currentDayStart = $movementDate; // Début de la journée
-                $currentDayEnd = $movementDate->addHours(24);
-            }
-
-            // Si le mouvement appartient à un jour suivant, vérifier les infractions du jour courant
-            // if ($movementDate->between($currentDayStart, $currentDayEnd) && $movementEndDate->between($currentDayStart, $currentDayEnd)) {
-            //     // Vérifier s'il y a une infraction pour la journée précédente
-            //     if ($totalDriveDuration > 0) {
-            //         $event = $applyNightCondition ? "TEMPS DE CONDUITE CONTINUE NUIT" : "TEMPS DE CONDUITE CONTINUE JOUR";
-            //         $condition = $applyNightCondition ? $nightCondition : $dayCondition;
-            //         $first = Carbon::parse($currentDayStart->toDateString() . ' ' . $firstDriveStartHour);
-            //         $end = $first->addSeconds($totalDriveDuration);
-
-            //         $infractionFound = true;
-            //         $result[] = [
-            //             'calendar_id' => $movement['calendar_id'],
-            //             'imei' => $movement['imei'],
-            //             'rfid' => $movement['rfid'],
-            //             'vehicule' => $immatricule,
-            //             'event' => $event,
-            //             'distance' => 0,
-            //             'distance_calendar' => 0,
-            //             'odometer' => 0,
-            //             'duree_infraction' => $totalDriveDuration,
-            //             'duree_initial' => $condition,
-            //             'date_debut' => $currentDayStart,
-            //             'date_fin' => $end->toDateString(), // $end->toDateString()
-            //             'heure_debut' => $firstDriveStartHour,
-            //             'heure_fin' => $lastDriveEndHour,
-            //             'point' => ($totalDriveDuration - $condition) / 600,
-            //             'insuffisance' => ($totalDriveDuration - $condition)
-            //         ];
-            //     }
-
-            //     // Réinitialiser les cumuls pour la nouvelle journée
-            //     $totalDriveDuration = 0;
-            //     $applyNightCondition = false;
-            //     $currentDayStart = $movementDate; // Nouvelle journée
-            //     $currentDayEnd = $currentDayStart->addHours(24);
-            //     $firstDriveStartHour = null;  // Réinitialiser l'heure du premier DRIVE
-            //     $lastDriveEndHour = null;    // Réinitialiser l'heure du dernier DRIVE
-            // }
-
             // Cumuler les durées de DRIVE dans la journée courante
             if ($movement['type'] === 'DRIVE') {
                 $driveDuration = $utils->convertTimeToSeconds($movement['duration']);
                 $totalDriveDuration += $driveDuration;
 
-                // Enregistrer l'heure de début du premier DRIVE
-                if (!$firstDriveStartHour) {
-                    $firstDriveStartHour = $movement['start_hour'];
+                // Enregistrer la date  de début du premier DRIVE
+                if (!$first_drive_start_date) {
+                    $first_drive_start_date = $movement['start_date'];
                 }
 
+                // Enregistrer l'heure de début du premier DRIVE
+                if (!$first_drive_start_hour) {
+                    $first_drive_start_hour = $movement['start_hour'];
+                }
+
+                // Toujours mettre à jour la date de fin du dernier DRIVE
+                $last_drive_end_date = $movement['end_date'];
+
                 // Toujours mettre à jour l'heure de fin du dernier DRIVE
-                $lastDriveEndHour = $movement['end_hour'];
+                $last_drive_end_hour = $movement['end_hour'];
 
                 // Vérifier si la période DRIVE chevauche la nuit
-                if ($continueService->isNightPeriod($movement['start_hour'], $movement['end_hour'])) {
+                if ($utils->isNightPeriod($movement['start_hour'], $movement['end_hour'])) {
                     $applyNightCondition = true;
                 }
             }
@@ -265,8 +187,6 @@ class ConduiteContinueService
                         (!$applyNightCondition && $totalDriveDuration > $dayCondition)) {
                         $event = $applyNightCondition ? "TEMPS DE CONDUITE CONTINUE NUIT" : "TEMPS DE CONDUITE CONTINUE JOUR";
                         $condition = $applyNightCondition ? $nightCondition : $dayCondition;
-                        $first = Carbon::parse($currentDayStart->toDateString() . ' ' . $firstDriveStartHour);
-                        $end = $first->addSeconds($totalDriveDuration);
 
                         $infractionFound = true;
                         $result[] = [
@@ -280,10 +200,10 @@ class ConduiteContinueService
                             'odometer' => 0,
                             'duree_infraction' => $totalDriveDuration,
                             'duree_initial' => $condition,
-                            'date_debut' => $movement['start_date'],
-                            'date_fin' => $movement['end_date'],
-                            'heure_debut' => $firstDriveStartHour,
-                            'heure_fin' => $lastDriveEndHour,
+                            'date_debut' => $first_drive_start_date,
+                            'date_fin' => $last_drive_end_date,
+                            'heure_debut' => $first_drive_start_hour,
+                            'heure_fin' => $last_drive_end_hour,
                             'point' => ($totalDriveDuration - $condition) / 600,
                             'insuffisance' => ($totalDriveDuration - $condition)
                         ];
@@ -291,322 +211,41 @@ class ConduiteContinueService
 
                     $totalDriveDuration = 0;
                     $applyNightCondition = false;
-                    $firstDriveStartHour = null;
-                    $lastDriveEndHour = null;
+                    $first_drive_start_hour = null;
+                    $last_drive_end_hour = null;
+                    $first_drive_start_date = null;
+                    $last_drive_end_date = null;
                 }
             }
         }
-
-        // $condition = $applyNightCondition ? $nightCondition : $dayCondition;
-        // if ($totalDriveDuration > $condition) {
-        //     $event = $applyNightCondition ? "TEMPS DE CONDUITE CONTINUE NUIT" : "TEMPS DE CONDUITE CONTINUE JOUR";
-        //     $first = Carbon::parse($currentDayStart->toDateString() . ' ' . $firstDriveStartHour);
-        //     $end = $first->addSeconds($totalDriveDuration);
-
-        //     $infractionFound = true;
-        //     $result[] = [
-        //         'calendar_id' => $movement['calendar_id'],
-        //         'imei' => $movement['imei'],
-        //         'rfid' => $movements[0]['rfid'],
-        //         'vehicule' => $immatricule,
-        //         'event' => $event,
-        //         'distance' => 0,
-        //         'distance_calendar' => 0,
-        //         'odometer' => 0,
-        //         'duree_infraction' => $totalDriveDuration,
-        //         'duree_initial' => $condition,
-        //         'date_debut' => $movement['start_date'],
-        //         'date_fin' => $end->toDateString(),
-        //         'heure_debut' => $firstDriveStartHour,
-        //         'heure_fin' => $lastDriveEndHour,
-        //         'point' => ($totalDriveDuration - $condition) / 600,
-        //         'insuffisance' => ($totalDriveDuration - $condition)
-        //     ];
-        // }
-
         return $result;
-    }
-
-
-    // public static function checkForInfraction($movements)
-    // {
-    //     try {
-    //         $utils = new Utils();
-    //         $continueService = new ConduiteContinueService();
-    //         $truckService = new TruckService();
-
-    //         // Durées pour les infractions
-    //         $dayCondition = 4 * 3600; // 4 heures (jour)
-    //         $nightCondition = 2 * 3600; // 2 heures (nuit)
-    //         $eightHourRest = 8 * 3600; // 8 heures de repos
-    //         $tenHourRest = 10 * 3600; // 10 heures de repos
-    //         $glidingWindow = 24 * 3600; // 24 heures glissantes
-
-    //         $result = [];
-    //         $totalDriveDuration = 0;
-    //         $currentDayStart = null;
-    //         $firstDriveStartHour = null;
-    //         $lastDriveEndHour = null;
-    //         $applyNightCondition = false;
-    //         $pauseValidated = false; // Indicateur de pause validée
-    //         $lastStopTime = null;
-
-    //         foreach ($movements as $movement) {
-    //             $movementStartTime = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
-    //             $movementEndTime = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
-    //             $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
-
-    //             // Si c'est le premier mouvement, initialiser le début de la journée
-    //             if (!$currentDayStart) {
-    //                 $currentDayStart = $movementStartTime;
-    //             }
-
-    //             // Vérifier si une nouvelle journée commence
-    //             // if ($movementStartTime->getTimestamp() - $currentDayStart->getTimestamp() >= $glidingWindow || ($lastStopTime && ($movementStartTime->getTimestamp() - $lastStopTime->getTimestamp()) >= $eightHourRest)) {
-    //             //     // Réinitialiser les valeurs pour une nouvelle journée
-    //             //     $currentDayStart = $movementStartTime;
-    //             //     $totalDriveDuration = 0;
-    //             //     $firstDriveStartHour = null;
-    //             //     $lastDriveEndHour = null;
-    //             //     $applyNightCondition = false;
-    //             //     $pauseValidated = false; // Réinitialiser la validation de pause
-    //             //     $lastStopTime = null; // Réinitialiser le dernier arrêt
-    //             // }
-
-    //             // Cumuler les durées de DRIVE
-    //             if ($movement['type'] === 'DRIVE') {
-    //                 $driveDuration = $utils->convertTimeToSeconds($movement['duration']);
-    //                 $totalDriveDuration += $driveDuration;
-
-    //                 if (!$firstDriveStartHour) {
-    //                     $firstDriveStartHour = $movement['start_hour'];
-    //                 }
-    //                 $lastDriveEndHour = $movement['end_hour'];
-    //                 // Vérifier si le mouvement chevauche une période nocturne
-    //                 if ($continueService->isNightPeriod($movement['start_hour'], $movement['end_hour'])) {
-    //                     $applyNightCondition = true;
-    //                 }
-    //             }
-
-    //             // Vérifier les arrêts (STOP)
-    //             if ($movement['type'] === 'STOP') {
-    //                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
-    //                 $stopDurationThreshold = $applyNightCondition ? 900 : 1200; // 15 minutes (nuit) ou 20 minutes (jour)
-
-    //                 // Valider la pause si elle est longue
-    //                 if ($stopDuration >= $stopDurationThreshold) {
-    //                     $pauseValidated = true; // Pause validée
-    //                     $lastStopTime = $movementEndTime; // Enregistrer le moment de l'arrêt
-
-    //                     // Vérifier les infractions basées sur les durées de conduite
-    //                     $condition = $applyNightCondition ? $nightCondition : $dayCondition;
-    //                     if ($totalDriveDuration > $condition) {
-    //                         $result[] = self::createInfractionRecord(
-    //                             $movement,
-    //                             $immatricule,
-    //                             $totalDriveDuration,
-    //                             $condition,
-    //                             $firstDriveStartHour,
-    //                             $lastDriveEndHour,
-    //                             $currentDayStart,
-    //                             $applyNightCondition
-    //                         );
-
-    //                         // Journaux de débogage pour l'infraction
-    //                         error_log("Infraction enregistrée : Immatricule: $immatricule, Durée totale: $totalDriveDuration, Condition: $condition");
-    //                     }
-
-    //                     // Réinitialiser après un arrêt long (pause validée)
-    //                     $totalDriveDuration = 0; // Réinitialiser la durée de conduite cumulée
-    //                     $applyNightCondition = false; // Réinitialiser l'indicateur de nuit
-    //                     $firstDriveStartHour = null; // Réinitialiser l'heure de début du premier trajet
-    //                     $lastDriveEndHour = null; // Réinitialiser l'heure de fin du dernier trajet
-    //                 }
-    //             }
-    //         }
-            
-    //         // Vérifier les infractions après la dernière journée si pause non validée
-    //         // if ($totalDriveDuration > 0 && !$pauseValidated) {
-    //         //     $condition = $applyNightCondition ? $nightCondition : $dayCondition;
-    //         //     if ($totalDriveDuration > $condition) {
-    //         //         $result[] = self::createInfractionRecord(
-    //         //             end($movements), // Prendre le dernier mouvement
-    //         //             $immatricule,
-    //         //             $totalDriveDuration,
-    //         //             $condition,
-    //         //             $firstDriveStartHour,
-    //         //             $lastDriveEndHour,
-    //         //             $currentDayStart,
-    //         //             $applyNightCondition
-    //         //         );
-
-    //         //         // Journaux de débogage pour l'infraction
-    //         //         error_log("Infraction finale enregistrée : Immatricule: $immatricule, Durée totale: $totalDriveDuration, Condition: $condition");
-    //         //     }
-    //         // }
-
-    //         return $result;
-    //     } catch (Exception $e) {
-    //         error_log("Erreur dans le traitement des infractions : " . $e->getMessage());
-    //         return [];
-    //     }
-    // }
-
-    // public static function checkForInfraction($movements)
-    // {
-    //     try {
-    //         $utils = new Utils();
-    //         $continueService = new ConduiteContinueService();
-    //         $truckService = new TruckService();
-
-    //         // Durées pour les infractions
-    //         $dayDriveLimit = 4 * 3600; // 4 heures de conduite maximale (jour)
-    //         $nightDriveLimit = 2 * 3600; // 2 heures de conduite maximale (nuit)
-    //         $dayPauseDuration = 20 * 60; // 20 minutes (pause jour)
-    //         $nightPauseDuration = 15 * 60; // 15 minutes (pause nuit)
-    //         $glidingWindow = 24 * 3600; // 24 heures glissantes
-
-    //         $result = [];
-    //         $totalDriveDuration = 0;
-    //         $currentDayStart = null;
-    //         $applyNightCondition = false;
-    //         $pauseValidated = false; // Indicateur de pause validée
-    //         $lastStopTime = null;
-
-    //         foreach ($movements as $movement) {
-    //             $movementStartTime = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
-    //             $movementEndTime = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
-    //             $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
-
-    //             // Si c'est le premier mouvement, initialiser le début de la journée
-    //             if (!$currentDayStart) {
-    //                 $currentDayStart = $movementStartTime;
-    //             }
-
-    //             // Vérifier si une nouvelle journée commence
-    //             if ($movementStartTime->getTimestamp() - $currentDayStart->getTimestamp() >= $glidingWindow) {
-    //                 // Réinitialiser les valeurs pour une nouvelle journée
-    //                 $currentDayStart = $movementStartTime;
-    //                 $totalDriveDuration = 0;
-    //                 $applyNightCondition = false; // Réinitialiser l'indicateur de nuit
-    //                 $pauseValidated = false; // Réinitialiser la validation de pause
-    //                 $lastStopTime = null; // Réinitialiser le dernier arrêt
-    //             }
-
-    //             // Cumuler les durées de DRIVE
-    //             if ($movement['type'] === 'DRIVE') {
-    //                 $driveDuration = $utils->convertTimeToSeconds($movement['duration']);
-    //                 $totalDriveDuration += $driveDuration;
-
-    //                 // Vérifier si le mouvement chevauche une période nocturne
-    //                 if ($continueService->isNightPeriod($movementStartTime, $movementEndTime)) {
-    //                     $applyNightCondition = true;
-    //                 }
-    //             }
-
-    //             // Vérifier les arrêts (STOP)
-    //             if ($movement['type'] === 'STOP') {
-    //                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
-    //                 $stopDurationThreshold = $applyNightCondition ? $nightPauseDuration : $dayPauseDuration; // Pause réglementaire
-
-    //                 // Valider la pause si elle est longue
-    //                 if ($stopDuration >= $stopDurationThreshold) {
-    //                     $pauseValidated = true; // Pause validée
-    //                     $lastStopTime = $movementEndTime; // Enregistrer le moment de l'arrêt
-
-    //                     // Réinitialiser le cumul de conduite après une pause validée
-    //                     $totalDriveDuration = 0; // Réinitialiser la durée de conduite cumulée
-    //                     $applyNightCondition = false; // Réinitialiser l'indicateur de nuit
-    //                     $currentDayStart = $lastStopTime;
-    //                 }
-    //             }
-
-    //             // Vérifier si le total dépasse la limite après chaque mouvement
-    //             if ($pauseValidated) {
-    //                 // Vérifier les infractions basées sur les durées de conduite
-    //                 $condition = $applyNightCondition ? $nightDriveLimit : $dayDriveLimit;
-    //                 if ($totalDriveDuration > $condition) {
-    //                     $result[] = self::createInfractionRecord(
-    //                         $movement,
-    //                         $immatricule,
-    //                         $totalDriveDuration,
-    //                         $condition,
-    //                         $movement['start_hour'],
-    //                         $movement['end_hour'],
-    //                         $currentDayStart,
-    //                         $applyNightCondition
-    //                     );
-
-    //                 }
-    //             }
-    //         }
-
-    //         return $result;
-    //     } catch (Exception $e) {
-    //         error_log("Erreur dans le traitement des infractions : " . $e->getMessage());
-    //         return [];
-    //     }
-    // }
-
-
-
-
-
-
-    
-    // public static function createInfractionRecord($movement, $immatricule, $totalDriveDuration, $condition, $firstDriveStartHour, $lastDriveEndHour, $currentDay, $applyNightCondition) {
-    //     $first = new \DateTime($currentDay->format('Y-m-d') . ' ' . $firstDriveStartHour);
-    //     $end = (clone $first)->modify('+' . $totalDriveDuration . ' seconds');
-    
-    //     return [
-    //         'calendar_id' => $movement['calendar_id'],
-    //         'imei' => $movement['imei'],
-    //         'rfid' => $movement['rfid'],
-    //         'vehicule' => $immatricule,
-    //         'event' => $applyNightCondition ? "TEMPS DE CONDUITE CONTINUE NUIT" : "TEMPS DE CONDUITE CONTINUE JOUR",
-    //         'distance' => 0,
-    //         'distance_calendar' => 0,
-    //         'odometer' => 0,
-    //         'duree_infraction' => $totalDriveDuration,
-    //         'duree_initial' => $condition,
-    //         'date_debut' => $currentDay->format('Y-m-d'),
-    //         'date_fin' => $end->format('Y-m-d'),
-    //         'heure_debut' => $firstDriveStartHour,
-    //         'heure_fin' => $lastDriveEndHour,
-    //         'point' => ($totalDriveDuration - $condition) / 600,
-    //         'insuffisance' => ($totalDriveDuration - $condition)
-    //     ];
-    // }
-    
-    
+    } 
 
     /**
      * Antonio
-     * Vérification des infractions de conduite continue notifier par rapport à la  période du calendrier.
+     * Vérification des infractions de conduite continue cumul par rapport à la  période du calendrier.
      *
      */
     public static function checkTempsConduiteContinueCumul($console){
         try{
             $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
-            $startDate = Carbon::now()->subMonths(2)->endOfMonth();
-            $endDate = Carbon::now()->startOfMonth();
-
 
             $mouvementService = new MovementService();
             $continueService = new ConduiteContinueService();
+            $calendarService = new CalendarService();
+
             $data_infraction = [];
 
-            $calendars = ImportExcel::where('import_calendar_id', $lastmonth)->get();
-            $console->withProgressBar($calendars, function($calendar) use ($mouvementService, $continueService, &$data_infraction) {
-                    $allmovements = $mouvementService->getAllMouvementDuringCalendar($calendar->id);
-                    // $organizeMovements = $mouvementService->organizeMovements($allmovements); 
-                    // dd($organizeMovements); //$calendar->id
+            $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
+
+            $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $continueService, &$data_infraction) {
+                    $allmovements = $mouvementService->getAllMovementByJourney($journey['start'], $journey['end']);
                     $infraction = $continueService->checkForInfraction($allmovements);
                     if($infraction){
-                        $data_infraction = array_merge($data_infraction,$infraction);
+                        $data_infraction = array_merge($data_infraction, $infraction);
+                        $data_infraction = array_unique($data_infraction, SORT_REGULAR);
                     }
             });
-
             if (!empty($data_infraction)) {
                 try {
                     DB::beginTransaction(); // Démarre la transaction
@@ -617,7 +256,6 @@ class ConduiteContinueService
                             ->where('calendar_id', $infraction['calendar_id'])
                             ->where('imei', $infraction['imei'])
                             ->where('rfid', $infraction['rfid'])
-                            // ->where('vehicule', $infraction['vehicule'])
                             ->where('event', $infraction['event'])
                             ->where('date_debut', $infraction['date_debut'])
                             ->where('date_fin', $infraction['date_fin'])
