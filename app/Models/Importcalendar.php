@@ -44,8 +44,8 @@ class Importcalendar extends Model
     protected $casts = [
         'id' => 'integer',
         'name' => 'string',
-        'date_debut' => 'datetime',
-        'date_fin' => 'datetime',
+        'date_debut' => 'string',
+        'date_fin' => 'string',
         'observation' => 'string'
     ];
 

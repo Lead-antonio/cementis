@@ -81,7 +81,7 @@ class ImportExcelDataTable extends DataTable
                     var date = new Date(full.date_debut);
                     date.setHours(date.getHours() - 3);
                     var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
-                    return date_heure;
+                    return full.date_debut;
                 }',
             ]),
             'date_fin' => new Column(['title' => __('models/importExcels.fields.date_fin'), 'data' => 'date_fin',
@@ -93,7 +93,7 @@ class ImportExcelDataTable extends DataTable
                     date.setHours(date.getHours() - 3);
                     var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
                 }
-                return date_heure;}'
+                return full.date_fin;}'
         
         ]),
             'delais_route' => new Column(['title' => __('models/importExcels.fields.delais_route'), 'data' => 'delais_route']),

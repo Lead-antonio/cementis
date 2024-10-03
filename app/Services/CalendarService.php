@@ -180,7 +180,7 @@ class CalendarService
         // 1. Convertir les dates de début et de fin du calendrier en DateTime
         $calendarStartDate = new \DateTime($calendar->date_debut);
         $calendarEndDate = new \DateTime($calendar->date_fin);
-        $calendarEndDate->modify('-3 hours');
+        
         // 2. Prendre la première date du mouvement DRIVE comme point de départ de la première journée
         $firstDriveMovement = collect($movements_during_calendar)->firstWhere('type', 'DRIVE');
         $imei = $firstDriveMovement['imei'];

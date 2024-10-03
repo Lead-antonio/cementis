@@ -33,7 +33,7 @@ class MovementService
             ->get();
 
         // Affichage de la barre de progression
-        $console->withProgressBar($calendars, function ($calendar) use ($truckData, $geoloc_service) {
+        $console->withProgressBar($calendars, function ($calendar) use ($truckData, $geoloc_service, $utils) {
             $calendar->imei = $truckData->get(trim($calendar->camion));
             $calendar_start_date = new \DateTime($calendar->date_debut);
             $calendar_end_date = $calendar->date_fin ? new \DateTime($calendar->date_fin) : null;
@@ -119,7 +119,13 @@ class MovementService
     }
 
     
-
+    /**
+     * Antonio
+     * Retourne toutes les mouvements d'un date donnée.
+     * @param string start_date_time
+     * @param string end_date_time
+     * return array
+     */
     public function getAllMovementByJourney($startDateTime, $endDateTime){
         
         try {
@@ -135,6 +141,47 @@ class MovementService
         } catch (Exception $e) {
             // Gestion des erreurs
             Log::error("Erreur lors de la récupération des mouvements pendant un calandrier : " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Antonio
+     * Retourne le mouvement ayant le max duration stop dans une journée.
+     * @param string start_date_time
+     * @param string end_date_time
+     * return array
+     */
+    public function getMaxStopInJourney($startDateTime, $endDateTime){
+        
+        try {
+            // Requête pour obtenir la durée maximale
+            $maxDurationSubQuery  = Movement::where('type', 'STOP')
+            ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
+            ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
+            ->max('duration');
+
+            // Vérifier si la durée maximale a été trouvée
+            if ($maxDurationSubQuery !== null) {
+                // Requête pour obtenir le mouvement ayant la durée maximale
+                $movement = Movement::where('type', 'STOP')
+                    ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
+                    ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
+                    ->where('duration', '=', $maxDurationSubQuery)  // Comparer avec la durée maximale
+                    ->first();
+
+                // Vérifier si un mouvement a été trouvé
+                if ($movement) {
+                    return $movement->toArray();  // Si un mouvement est trouvé, le convertir en tableau
+                }
+            }
+
+            // Si aucun mouvement n'est trouvé ou si aucune durée maximale n'est trouvée
+            return null;
+
+        } catch (Exception $e) {
+            // Gestion des erreurs
+            Log::error("Erreur lors de la récupération du mouvment ayant le max duration stop pendant une journée : " . $e->getMessage());
             return 0;
         }
     }

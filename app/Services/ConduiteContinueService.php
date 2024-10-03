@@ -150,6 +150,7 @@ class ConduiteContinueService
         $last_drive_end_hour = null;
 
         foreach ($movements as $index => $movement) {
+            $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
             // Cumuler les durées de DRIVE dans la journée courante
             if ($movement['type'] === 'DRIVE') {
                 $driveDuration = $utils->convertTimeToSeconds($movement['duration']);

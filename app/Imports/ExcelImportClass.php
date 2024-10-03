@@ -133,6 +133,6 @@ class ExcelImportClass implements ToCollection
         }
 
         $unix_timestamp = Date::excelToTimestamp($excelDate);
-        return Carbon::createFromTimestamp($unix_timestamp); //->setTimezone('Africa/Nairobi')
+        return Carbon::createFromTimestamp($unix_timestamp); 
     }
 }

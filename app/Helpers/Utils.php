@@ -130,5 +130,28 @@ class Utils
         return true;
     }
 
+    /**
+     * Antonio
+     * Vérification du plage de nuit.
+     * @param string $start_hour
+     * return false | true
+     */
+    public function isBetweenNightPeriod($startHour)
+    {
+        $applyNightCondition = false;
+
+        $startTime = new \DateTime($startHour);
+        // Plage de nuit
+        $nightStart = new \DateTime("22:00:00");
+        $nightEnd = new \DateTime("04:00:00");
+
+        if ($startTime >= $nightStart || $startTime <= $nightEnd) {
+            // L'heure est dans la plage de nuit
+            $applyNightCondition = true;
+        }
+        
+        return $applyNightCondition;
+    }
+
 
 }
