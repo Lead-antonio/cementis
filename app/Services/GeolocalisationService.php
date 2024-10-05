@@ -187,13 +187,12 @@ class GeolocalisationService
      */
     public  function getMovementDriveAndStop($imei_vehicule, $start_date, $end_date){
         $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",1";
-
+        
         try {
 
             $response = $this->makeRequest($url);
             $data = json_decode($response, true);
-            // $response = Http::timeout(300)->get($url);
-            // $data = $response->json();
+            
             $drives = isset($data['drives']) && is_array($data['drives']) ? $data['drives'] : null;
             $stops = isset($data['stops']) && is_array($data['stops']) ? $data['stops'] : null;
             $rfid = isset($data['route']) && is_array($data['route']) ? $data['route'][0][6]['rfid'] : null;

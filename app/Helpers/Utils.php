@@ -76,6 +76,16 @@ class Utils
         return "$hours:$minutes:$seconds";
     }
 
+    public static function convertDurationSecondsToTimeFormat($seconds)
+    {
+        $hours = floor($seconds / 3600); // Calculer le nombre d'heures
+        $minutes = floor(($seconds % 3600) / 60); // Calculer le nombre de minutes
+        $seconds = $seconds % 60; // Calculer le nombre de secondes restant
+
+        // Retourner le format H:i:s
+        return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+    }
+
 
     /**
      * Antonio

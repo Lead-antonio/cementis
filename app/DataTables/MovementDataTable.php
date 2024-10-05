@@ -3,9 +3,11 @@
 namespace App\DataTables;
 
 use App\Models\Movement;
+use App\Models\Vehicule;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Column;
+use App\Services\TruckService;
 
 class MovementDataTable extends DataTable
 {
@@ -18,14 +20,15 @@ class MovementDataTable extends DataTable
     public function dataTable($query)
     {
         // $dataTable = new EloquentDataTable($query);
+        $truckService = new TruckService();
 
         // return $dataTable->addColumn('action', 'movements.datatables_actions');
         return (new EloquentDataTable($query))
         ->editColumn('calendar_id', function ($model) {
             return $model->related_calendar ? $model->related_calendar->name_importation : 'Pas de planning';
         })
-        ->editColumn('camion', function ($model) {
-            return $model->related_calendar ? $model->related_calendar->camion : '';
+        ->editColumn('camion', function ($model) use ($truckService) {
+            return  $truckService->getTruckPlateNumberByImei($model->imei);
         })
         ->editColumn('type', function ($model) {
             if ($model->type === "DRIVE") {
@@ -36,9 +39,13 @@ class MovementDataTable extends DataTable
             }
         })
         ->filterColumn('camion', function ($query, $keyword) {
-            $query->whereHas('related_calendar', function ($q) use ($keyword) {
-                $q->whereRaw("LOWER(camion) LIKE ?", ["%{$keyword}%"]);
-            });
+            // $query->whereHas('related_calendar', function ($q) use ($keyword) {
+            //     $q->whereRaw("LOWER(camion) LIKE ?", ["%{$keyword}%"]);
+            // });
+            $matchingImeis = Vehicule::whereRaw("LOWER(nom) LIKE ?", ["%{$keyword}%"])->pluck('imei')->toArray();
+            
+            // Appliquer le filtre sur les mouvements en utilisant les IMEIs correspondants
+            $query->whereIn('imei', $matchingImeis);
         })
         ->rawColumns(['type', 'action']);
     }
@@ -143,9 +150,6 @@ class MovementDataTable extends DataTable
                 'title' => 'Camion',
                 'data' => 'camion', // Pas de référence à "full.related_calendar.camion"
                 'searchable' => true,
-                'render' => 'function() {
-                    return full.related_calendar ? full.related_calendar.camion : "";
-                }'
             ]),
             'start_date' => new Column(['title' => __('models/movements.fields.start_date'), 'data' => 'start_date', 'searchable' => true]),
             'end_date' => new Column(['title' => __('models/movements.fields.end_date'), 'data' => 'end_date', 'searchable' => true]),

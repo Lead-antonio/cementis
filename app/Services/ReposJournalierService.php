@@ -97,7 +97,7 @@ class ReposJournalierService
             $data_infraction = [];
 
             $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
-            // dd($all_journey);
+            
             $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $repos_journalier_service, &$data_infraction) {
                     $max_stop_movement = $mouvementService->getMaxStopInJourney($journey['start'], $journey['end']);
                     $infraction = $repos_journalier_service->checkForInfractionReposJournalier($max_stop_movement);
