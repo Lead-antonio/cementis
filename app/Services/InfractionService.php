@@ -38,7 +38,6 @@ class InfractionService
             ->whereBetween('date', [$startDate, $endDate])
             ->orderBy('simple_date', 'ASC')
             ->orderBy('heure', 'ASC')->get();
-            
 
             $results = [];
             $prevRecord = null;

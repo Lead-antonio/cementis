@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Event;
 use App\Models\Penalite;
 use App\Models\Chauffeur;
 
