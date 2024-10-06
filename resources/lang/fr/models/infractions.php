@@ -12,7 +12,7 @@ return array (
     'event' => 'Event',
     'distance' => 'Distance',
     'odometer' => 'Odomètre',
-    'duree_infraction' => 'Durée infraction',
+    'duree_infraction' => 'Durée effectuée',
     'date_debut' => 'Date début',
     'date_fin' => 'Date fin',
     'heure_debut' => 'Heure début',

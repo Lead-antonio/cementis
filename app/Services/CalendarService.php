@@ -75,13 +75,12 @@ class CalendarService
     //     }
     // }
 
-    public function checkCalendar($console) {
+    public function checkCalendar($console, $planning) {
         try {
-            $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
-            $startDate = (new \DateTime())->modify('-2 months')->modify('last day of this month')->setTime(23, 59, 59);
-            $endDate = (new \DateTime())->modify('first day of this month')->setTime(0, 0, 0);
+            $startDate = new \DateTime($planning->date_debut);
+            $endDate = new \DateTime($planning->date_fin);
     
-            $calendars = ImportExcel::where('import_calendar_id', $lastmonth)->get();
+            $calendars = ImportExcel::where('import_calendar_id', $planning->id)->get();
             $infractions = Infraction::whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->whereBetween('date_fin', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->get();
@@ -261,6 +260,126 @@ class CalendarService
     }
 
 
+    /**
+     * Antonio
+     * Split work by journey
+     * @param string imei
+     * return array journeys
+     */ 
+    public static function splitWorkJouney($imei, $start_date, $end_date){
+        $mouvementService = new MovementService();
+        $continueService = new ConduiteContinueService();
+        $truckService = new TruckService();
+        $utils = new Utils();
+
+        $journeys = [];
+
+        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
+        $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+
+        $calendarStartDate = $start_date;
+        $calendarEndDate = $end_date;
+
+        // 2. Prendre la première date du mouvement DRIVE comme point de départ de la première journée
+        $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+        $imei = $firstDriveMovement['imei'];
+        $rfid = $firstDriveMovement['rfid'];
+
+        if ($firstDriveMovement) {
+            $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
+        } else {
+            // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
+            return $journeys;
+        }
+
+        // 3. Diviser le calendrier par périodes de 24 heures
+        while ($currentJourneyStart < $calendarEndDate) {
+            // Par défaut, la fin de la journée est +24 heures
+            $currentJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
+            $longestStopDuration = 0;
+            $nextJourneyStart = null;
+
+            
+            // Filtrer les mouvements dans la période actuelle (de $currentJourneyStart à $currentJourneyEnd)
+            $currentDayMovements = collect($movements_monthly)->filter(function ($movement) use ($currentJourneyStart, $currentJourneyEnd) {
+                $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+                return $movementDate >= $currentJourneyStart && $movementDate < $currentJourneyEnd;
+            });
+
+            foreach ($currentDayMovements as $movement) {
+                if ($movement['type'] === 'STOP') {
+                    $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+                    $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
+                    $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
+                    
+    
+                    // Calculer si l'arrêt est pendant le jour ou la nuit
+                    $isDayTimeStop = $utils->isNightPeriod($stopStart->format('H:i:s'), $stopEnd->format('H:i:s'));
+                    
+    
+                    // Arrêt prolongé en journée (8 heures ou plus)
+                    if ($isDayTimeStop && $stopDuration >= 10 * 3600) {
+                        $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
+                        $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
+                        break;
+                    }
+                    // Arrêt prolongé pendant la nuit (10 heures ou plus)
+                    elseif (!$isDayTimeStop && $stopDuration >= 8 * 3600) {
+                        $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
+                        $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
+                        break;
+                    }
+                }
+            }
+
+            // Ajouter cette journée à la liste des journées
+            $journeys[] = [
+                'imei' => $imei,
+                'rfid' => $rfid,
+                'camion' => $immatricule,
+                'start' => $currentJourneyStart->format('Y-m-d H:i:s'),
+                'end' => $currentJourneyEnd->format('Y-m-d H:i:s'),
+            ];
+            // Passer à la journée suivante (ajouter 24 heures)
+            $currentJourneyStart = $nextJourneyStart ? $nextJourneyStart : $currentJourneyEnd;
+        }
+
+        if (!empty($journeys)) {
+            $lastJourneyIndex = count($journeys) - 1;
+            $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+        }
+
+        return $journeys;
+    }
+
+        /**
+     * Antonio
+     * Split wrok weekly
+     * @param string imei
+     * @param DateTime start_date
+     * @param DateTime end_date
+     * return array work by journey
+     */ 
+    public static function getAllWorkJouneys($imei, $start_date, $end_date)
+    {
+        try {
+            $all_week = [];
+            
+            $weeks = self::splitWorkJouney($imei, $start_date, $end_date);
+
+            $all_week = array_merge($all_week, $weeks);
+            return $all_week;
+
+        } catch (\Exception $e) {
+            // En cas d'exception
+            \Log::error("Erreur dans getAllWorkWeekly: " . $e->getMessage());
+
+            // Retourner un message d'erreur
+            return $e->getMessage();
+        }
+    }
+
+
 
     /**
      * Antonio
@@ -268,7 +387,7 @@ class CalendarService
      * @param string imei
      * @param DateTime start_date
      * @param DateTime end_date
-     * return array journeys
+     * return array week
      */ 
     public static function splitWorkWeekly($imei, $start_date, $end_date)
     {

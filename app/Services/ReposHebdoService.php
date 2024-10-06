@@ -35,7 +35,6 @@ class ReposHebdoService
                     }
             });
             if (!empty($data_infraction)) {
-                dd($data_infraction);
                 try {
                     DB::beginTransaction(); // Démarre la transaction
 

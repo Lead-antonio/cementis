@@ -208,11 +208,12 @@ class MovementService
      * @param string end_date_time
      * return array
      */
-    public function getAllMovementByJourney($startDateTime, $endDateTime){
+    public function getAllMovementByJourney($imei, $startDateTime, $endDateTime){
         
         try {
             // Récupération de mouvements effectuer durant le calendrier
             $movements = Movement::whereRaw("CONCAT(start_date, ' ', start_hour) >= ? AND CONCAT(start_date, ' ', start_hour) <= ?", [$startDateTime, $endDateTime])
+            ->where('imei', $imei)
             ->orderBy('start_date', 'asc')
             ->orderBy('end_date', 'asc')
             ->orderBy('start_hour', 'asc')
@@ -234,13 +235,14 @@ class MovementService
      * @param string end_date_time
      * return array
      */
-    public function getMaxStopInJourney($startDateTime, $endDateTime){
+    public function getMaxStopInJourney($imei, $startDateTime, $endDateTime){
         
         try {
             // Requête pour obtenir la durée maximale
             $maxDurationSubQuery  = Movement::where('type', 'STOP')
             ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
             ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
+            ->where('imei', $imei)
             ->max('duration');
 
             // Vérifier si la durée maximale a été trouvée
@@ -249,6 +251,7 @@ class MovementService
                 $movement = Movement::where('type', 'STOP')
                     ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
                     ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
+                    ->where('imei', $imei)
                     ->where('duration', '=', $maxDurationSubQuery)  // Comparer avec la durée maximale
                     ->first();
 

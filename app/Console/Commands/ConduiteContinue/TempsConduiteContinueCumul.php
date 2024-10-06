@@ -4,6 +4,8 @@ namespace App\Console\Commands\ConduiteContinue;
 
 use Illuminate\Console\Command;
 use App\Services\ConduiteContinueService;
+use App\Models\ImportCalendar;
+use Illuminate\Support\Facades\DB;
 
 class TempsConduiteContinueCumul extends Command
 {
@@ -39,8 +41,14 @@ class TempsConduiteContinueCumul extends Command
     public function handle()
     {
         $this->info('Starting the process...');
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
+
+        // Définir la date de fin (début du mois courant)
+        $endDate = new \DateTime($lastmonth->date_fin);
 
         $conduiteService = new ConduiteContinueService();
-        $conduiteService->checkTempsConduiteContinueCumul($this);
+        $conduiteService->checkTempsConduiteContinueCumul($this, $startDate, $endDate);
     }
 }

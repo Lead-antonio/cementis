@@ -4,6 +4,8 @@ namespace App\Console\Commands\Calendar;
 
 use Illuminate\Console\Command;
 use App\Services\CalendarService;
+use App\Models\ImportCalendar;
+use Illuminate\Support\Facades\DB;
 
 class checkCalendar extends Command
 {
@@ -40,9 +42,11 @@ class checkCalendar extends Command
     {
         // checkCalendar();
         $this->info('Starting the process...');
+        $planning = DB::table('import_calendar')->latest('id')->first();
+
 
         $calendarService = new CalendarService();
-        $calendarService->checkCalendar($this);
+        $calendarService->checkCalendar($this, $planning);
 
         $this->info('Process completed!');
     }

@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use App\Helpers\Utils;
 use App\Services\MovementService;
 use App\Services\CalendarService;
+use App\Models\ImportCalendar;
+use Illuminate\Support\Facades\DB;
 
 
 class GetMovement extends Command
@@ -43,11 +45,12 @@ class GetMovement extends Command
     {
         $this->info('Starting the process...');
         $movementService = new MovementService();
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
 
-        $startDate = (new \DateTime())->modify('-2 months')->modify('last day of this month');
+        $startDate = new \DateTime($lastmonth->date_debut);
 
         // Définir la date de fin (début du mois courant)
-        $endDate = (new \DateTime())->modify('first day of this month');
+        $endDate = new \DateTime($lastmonth->date_fin);
 
         // Pass the current console instance to the method
         // $movementService->saveDriveAndStop($this);

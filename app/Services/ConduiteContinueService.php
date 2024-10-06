@@ -12,6 +12,7 @@ use App\Services\TruckService;
 use App\Helpers\Utils;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Models\Vehicule;
 
 class ConduiteContinueService
 {
@@ -227,26 +228,29 @@ class ConduiteContinueService
      * Vérification des infractions de conduite continue cumul par rapport à la  période du calendrier.
      *
      */
-    public static function checkTempsConduiteContinueCumul($console){
+    public static function checkTempsConduiteContinueCumul($console, $start_date, $end_date){
         try{
-            $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
-
             $mouvementService = new MovementService();
             $continueService = new ConduiteContinueService();
             $calendarService = new CalendarService();
-
+            $all_trucks = Vehicule::all();
+            
             $data_infraction = [];
 
-            $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
 
-            $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $continueService, &$data_infraction) {
-                    $allmovements = $mouvementService->getAllMovementByJourney($journey['start'], $journey['end']);
-                    $infraction = $continueService->checkForInfraction($allmovements);
-                    if($infraction){
-                        $data_infraction = array_merge($data_infraction, $infraction);
-                        $data_infraction = array_unique($data_infraction, SORT_REGULAR);
-                    }
-            });
+            foreach($all_trucks as $truck){
+                $imei = $truck->imei;
+                $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
+               
+                $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $continueService, &$data_infraction, $imei) {
+                        $allmovements = $mouvementService->getAllMovementByJourney($imei, $journey['start'], $journey['end']);
+                        $infraction = $continueService->checkForInfraction($allmovements);
+                        if($infraction){
+                            $data_infraction = array_merge($data_infraction, $infraction);
+                            $data_infraction = array_unique($data_infraction, SORT_REGULAR);
+                        }
+                });
+            }
             if (!empty($data_infraction)) {
                 try {
                     DB::beginTransaction(); // Démarre la transaction
@@ -254,7 +258,6 @@ class ConduiteContinueService
                     foreach ($data_infraction as $infraction) {
                         // Rechercher une entrée existante avec les mêmes colonnes uniques
                         $existingInfraction = DB::table('infraction')
-                            ->where('calendar_id', $infraction['calendar_id'])
                             ->where('imei', $infraction['imei'])
                             ->where('rfid', $infraction['rfid'])
                             ->where('event', $infraction['event'])
@@ -278,10 +281,14 @@ class ConduiteContinueService
                     Log::error('Erreur d\'insertion dans infraction: ' . $e->getMessage());
                 }
             } 
+             
         } catch (Exception $e) {
+            return $e->getMessage();
             // Gestion des erreurs
             Log::error('Erreur lors de la vérification du temps du conduite continue qui cumul: ' . $e->getMessage());
         }
+            // $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
+            
     }
     
 }

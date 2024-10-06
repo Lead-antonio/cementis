@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Services\CalendarService;
 use App\Helpers\Utils;
+use App\Models\Vehicule;
 
 class ReposJournalierService
 {
@@ -22,7 +23,7 @@ class ReposJournalierService
     {
         try {
             // Vérification des données nécessaires
-            if (!isset($movement['duration'], $movement['start_hour'], $movement['calendar_id'], $movement['imei'], $movement['rfid'])) {
+            if (!isset($movement['duration'], $movement['start_hour'], $movement['imei'], $movement['rfid'])) {
                 throw new Exception("Données manquantes dans le mouvement.");
             }
 
@@ -51,8 +52,7 @@ class ReposJournalierService
             if ($stopDuration < $condition) {
                 $event = "Temps de repos minimum après une journée de travail";
 
-                $result = [
-                    'calendar_id' => $movement['calendar_id'],
+                $result  = [
                     'imei' => $movement['imei'],
                     'rfid' => $movement['rfid'],
                     'event' => $event,
@@ -86,25 +86,29 @@ class ReposJournalierService
      * Vérification des infractions de conduite continue cumul par rapport à la  période du calendrier.
      *
      */
-    public static function checkTempsReposMinInJourneyTravail($console){
+    public static function checkTempsReposMinInJourneyTravail($console, $start_date, $end_date){
         try{
-            $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
-
             $mouvementService = new MovementService();
             $repos_journalier_service = new ReposJournalierService();
             $calendarService = new CalendarService();
+            $all_trucks = Vehicule::all();
 
             $data_infraction = [];
 
-            $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
-            
-            $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $repos_journalier_service, &$data_infraction) {
-                    $max_stop_movement = $mouvementService->getMaxStopInJourney($journey['start'], $journey['end']);
-                    $infraction = $repos_journalier_service->checkForInfractionReposJournalier($max_stop_movement);
-                    if (!empty($infraction)) {
-                        $data_infraction[] = $infraction;
-                    }
-            });
+            // $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
+            foreach($all_trucks as $truck){
+                $imei = $truck->imei;
+
+                $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
+               
+                $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $repos_journalier_service, &$data_infraction, $imei) {
+                        $max_stop_movement = $mouvementService->getMaxStopInJourney($imei, $journey['start'], $journey['end']);
+                        $infraction = $repos_journalier_service->checkForInfractionReposJournalier($max_stop_movement);
+                        if (!empty($infraction)) {
+                            $data_infraction[] = $infraction;
+                        }
+                });
+            }
             if (!empty($data_infraction)) {
                 try {
                     DB::beginTransaction(); // Démarre la transaction
@@ -112,7 +116,6 @@ class ReposJournalierService
                     foreach ($data_infraction as $infraction) {
                         // Rechercher une entrée existante avec les mêmes colonnes uniques
                         $existingInfraction = DB::table('infraction')
-                            ->where('calendar_id', $infraction['calendar_id'])
                             ->where('imei', $infraction['imei'])
                             ->where('rfid', $infraction['rfid'])
                             ->where('event', $infraction['event'])

@@ -5,6 +5,8 @@ namespace App\Console\Commands\Repos;
 use Illuminate\Console\Command;
 use App\Helpers\Utils;
 use App\Services\ReposHebdoService;
+use App\Models\ImportCalendar;
+use Illuminate\Support\Facades\DB;
 
 class checkReposHebdo extends Command
 {
@@ -40,10 +42,12 @@ class checkReposHebdo extends Command
     public function handle()
     {
         $this->info('Starting the process...');
-        $startDate = (new \DateTime())->modify('-2 months')->modify('last day of this month');
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
 
         // Définir la date de fin (début du mois courant)
-        $endDate = (new \DateTime())->modify('first day of this month');
+        $endDate = new \DateTime($lastmonth->date_fin);
 
         $repos_hebdo_service = new ReposHebdoService();
 

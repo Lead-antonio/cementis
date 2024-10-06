@@ -5,6 +5,7 @@ namespace App\Console\Commands\Repos;
 use Illuminate\Console\Command;
 use App\Helpers\Utils;
 use App\Services\ReposJournalierService;
+use Illuminate\Support\Facades\DB;
 
 class checkReposJourney extends Command
 {
@@ -42,8 +43,14 @@ class checkReposJourney extends Command
         $this->info('Starting the process...');
         $reposService = new ReposJournalierService();
 
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
+
+        // Définir la date de fin (début du mois courant)
+        $endDate = new \DateTime($lastmonth->date_fin);
         // Pass the current console instance to the method
-        $reposService->checkTempsReposMinInJourneyTravail($this);
+        $reposService->checkTempsReposMinInJourneyTravail($this, $startDate, $endDate);
         
         $this->info('Process completed!');
     }
