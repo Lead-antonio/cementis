@@ -39,7 +39,9 @@ class checkDriverInCalendar extends Command
     public function handle()
     {
         // checkDriverInCalendar();
+        $this->info('Starting the process...');
         $driverService = new DriverService();
-        $driverService->checkDistanceAndRfid();
+        $driverService->checkDistanceAndRfid($this);
+        $this->info('Process completed!');
     }
 }

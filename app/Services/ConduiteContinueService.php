@@ -241,15 +241,29 @@ class ConduiteContinueService
             foreach($all_trucks as $truck){
                 $imei = $truck->imei;
                 $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
-               
-                $console->withProgressBar($all_journey, function($journey) use ($mouvementService, $continueService, &$data_infraction, $imei) {
-                        $allmovements = $mouvementService->getAllMovementByJourney($imei, $journey['start'], $journey['end']);
-                        $infraction = $continueService->checkForInfraction($allmovements);
-                        if($infraction){
-                            $data_infraction = array_merge($data_infraction, $infraction);
-                            $data_infraction = array_unique($data_infraction, SORT_REGULAR);
+                if(is_array($all_journey)){
+
+                    $journeyCount = count($all_journey);
+                   
+                    $console->withProgressBar($journeyCount, function($progressBar) use ($all_journey,$mouvementService, $continueService, &$data_infraction, $imei) {
+                        foreach($all_journey as $journey){
+                            $allmovements = $mouvementService->getAllMovementByJourney($imei, $journey['start'], $journey['end']);
+                            $infraction = $continueService->checkForInfraction($allmovements);
+                            if($infraction){
+                                $data_infraction = array_merge($data_infraction, $infraction);
+                                $data_infraction = array_unique($data_infraction, SORT_REGULAR);
+                            }
+    
+                            // Mettre à jour la barre de progression
+                            $progressBar->advance();
                         }
-                });
+                            
+                    });
+                }else{
+                    // Si $all_journey n'est pas un tableau, afficher une erreur
+                    $console->error("Erreur: Le résultat de getAllWorkJouneys pour le camion IMEI $imei n'est pas un tableau. Résultat: " . print_r($all_journey, true));
+                    continue;
+                }
             }
             if (!empty($data_infraction)) {
                 try {

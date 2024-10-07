@@ -4,6 +4,7 @@ namespace App\Console\Commands\Events;
 
 use Illuminate\Console\Command;
 use App\Services\EventService;
+use Illuminate\Support\Facades\DB;
 
 class GetEvent extends Command
 {

@@ -4,6 +4,7 @@ namespace App\Console\Commands\Infraction;
 
 use Illuminate\Console\Command;
 use App\Services\InfractionService;
+use Illuminate\Support\Facades\DB;
 
 class CheckInfraction extends Command
 {
@@ -40,9 +41,15 @@ class CheckInfraction extends Command
     {
         // saveInfraction();
         $this->info('Starting the process...');
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
+
+        // Définir la date de fin (début du mois courant)
+        $endDate = new \DateTime($lastmonth->date_fin);
 
         $infractionService = new InfractionService();
-        $infractionService->saveInfraction($this);
+        $infractionService->saveInfraction($this, $startDate, $endDate);
 
         $this->info('Process completed!');
     }

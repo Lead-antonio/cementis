@@ -13,29 +13,22 @@ class InfractionService
     const EVENT_TYPES = [
         'Accélération brusque', 
         'Freinage brusque', 
-        'Excès de vitesse en agglomération', 
-        'Excès de vitesse hors agglomération', 
-        'Survitesse excessive',
-        'Survitesse sur la piste de Tritriva',
-        'Survitesse sur la piste d\'Ibity',
-        'TEMPS DE CONDUITE CONTINUE JOUR',
-        'TEMPS DE CONDUITE CONTINUE NUIT',
     ];
 
     /**
      * Antonio
      * Vérifie les évenements par rapport au EVENT_TYPES dans un intervalle de dates donné.
      */
-    public function checkInfraction()
+    public function checkInfraction($start_date, $end_date)
     {
         try {
             $penaliteService = new PenaliteService();
-            $startDate = Carbon::now()->subMonths(2)->endOfMonth();
-            $endDate = Carbon::now()->startOfMonth();
+            // $startDate = Carbon::now()->subMonths(2)->endOfMonth();
+            // $endDate = Carbon::now()->startOfMonth();
 
             $records = DB::table('event')
             ->select('imei', 'chauffeur', 'vehicule', 'type', 'odometer','vitesse', 'latitude', 'longitude', DB::raw("LEFT(date,10) as simple_date"), DB::raw("RIGHT(date,8) as heure"), 'date as date_heure')
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereBetween('date', [$start_date, $end_date])
             ->orderBy('simple_date', 'ASC')
             ->orderBy('heure', 'ASC')->get();
 
@@ -84,8 +77,8 @@ class InfractionService
      * Antonio
      * Enregistre les infractions détectées dans la base de données.
      */
-    public function saveInfraction($console){
-        $infractions = $this->checkInfraction();
+    public function saveInfraction($console, $start_date, $end_date){
+        $infractions = $this->checkInfraction($start_date, $end_date);
 
         $console->withProgressBar($infractions, function($item)  {
         // foreach($infractions as $item){
