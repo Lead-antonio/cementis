@@ -39,9 +39,15 @@ class GetEvent extends Command
     public function handle()
     {
         $this->info('Starting the process...');
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
+
+        // Définir la date de fin (début du mois courant)
+        $endDate = new \DateTime($lastmonth->date_fin);
 
         $eventService = new EventService();
-        $eventService->proccessEventForPeriod($this);
+        $eventService->proccessEventForPeriod($this, $startDate, $endDate);
 
         $this->info('Process completed!');
     }
