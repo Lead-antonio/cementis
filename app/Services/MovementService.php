@@ -235,8 +235,7 @@ class MovementService
      * @param string end_date_time
      * return array
      */
-    public function getMaxStopInJourney($imei, $startDateTime, $endDateTime){
-        
+    public function getMaxStopInJourney($imei, $startDateTime, $endDateTime){    
         try {
             // Requête pour obtenir la durée maximale
             $maxDurationSubQuery  = Movement::where('type', 'STOP')
