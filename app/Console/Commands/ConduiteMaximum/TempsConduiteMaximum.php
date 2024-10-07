@@ -46,7 +46,7 @@ class TempsConduiteMaximum extends Command
 
         $calendar = ImportExcel::where('import_calendar_id', $lastmonth)->first();
         $conduite_max_Service = new ConduiteMaximumService();
-        $journeys = $conduite_max_Service->splitCalendarByJourney($calendar);
-        dd($journeys);
+        // $journeys = $conduite_max_Service->splitCalendarByJourney($calendar);
+        // dd($journeys);
     }
 }
