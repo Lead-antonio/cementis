@@ -68,7 +68,7 @@ class DriverService
 
                 // Convertir date_debut en \DateTime
                 $calendar_start_date = new \DateTime($calendar->date_debut);
-                dd($calendar_start_date); // Pour visualiser la date
+                // dd($calendar_start_date); // Pour visualiser la date
 
                 // Convertir date_fin en \DateTime ou laisser null si la date est vide
                 $calendar_end_date = $calendar->date_fin ? new \DateTime($calendar->date_fin) : null;

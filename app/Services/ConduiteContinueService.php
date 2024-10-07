@@ -288,7 +288,6 @@ class ConduiteContinueService
             Log::error('Erreur lors de la vérification du temps du conduite continue qui cumul: ' . $e->getMessage());
         }
             // $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
-            
     }
     
 }
