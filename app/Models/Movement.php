@@ -23,12 +23,9 @@ class Movement extends Model
 {
     use SoftDeletes;
 
-
     public $table = 'movement';
     
-
     protected $dates = ['deleted_at'];
-
 
 
     public $fillable = [
