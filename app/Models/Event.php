@@ -31,17 +31,7 @@ class Event extends Model
 
 
     public $fillable = [
-        'imei',
-        'chauffeur',
-        'vehicule',
-        'type',
-        'description',
-        'vitesse',
-        'odometer',
-        'latitude',
-        'longitude',
-        'duree',
-        'date'
+        'imei', 'chauffeur', 'vehicule','type','description', 'vitesse','odometer','latitude','longitude','duree','date'
     ];
 
     /**

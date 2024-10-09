@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\ConduiteMaximumService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CheckDriveMaxNightAndDay extends Command
 {
@@ -40,10 +41,8 @@ class CheckDriveMaxNightAndDay extends Command
     public function handle()
     {
         $drivemax = new ConduiteMaximumService();
-        $startDate = Carbon::now()->subMonths(2)->endOfMonth();
-        $endDate = Carbon::now()->startOfMonth();
-
-        $drivemax->CheckDriveMaxDayAndNight($startDate, $endDate);
+        // $drivemax->checkDrivingInfractions('865135060336425', '3B00F9C1F0');
+        $drivemax->checkTempsConduiteMaximum($this);
 
     }
 }
