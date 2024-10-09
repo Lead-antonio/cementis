@@ -157,7 +157,7 @@ class MovementService
         $insertData = []; // Tableau pour stocker les données à insérer
 
         try {
-            Vehicule::chunk(10, function ($all_trucks) use ($console, $geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
+            Vehicule::chunk(50, function ($all_trucks) use ($console, $geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
                 $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
                     try {
                         // Récupérer les mouvements
@@ -257,7 +257,7 @@ class MovementService
             ->orderBy('start_hour')
             ->get()
             ->toArray();
-
+            
             // Gestion du cas où aucun point de pénalité n'est trouvé
             return $movements ? $movements : []; // Retourne 0 si pas de pénalité trouvée
 

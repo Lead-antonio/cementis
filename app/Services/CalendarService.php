@@ -274,8 +274,8 @@ class CalendarService
 
         $journeys = [];
 
-        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
         $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
 
         $calendarStartDate = $start_date;
         $calendarEndDate = $end_date;
@@ -486,8 +486,8 @@ class CalendarService
         $weeks = [];
         
         try {
-            $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
             $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+            $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
             $calendarStartDate = $start_date;
             $calendarEndDate = $end_date;
             

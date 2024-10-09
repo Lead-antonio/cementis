@@ -187,73 +187,52 @@ class DriverService
             $truckData = $existingTrucks->pluck('imei', 'nom');
             $truckNames = $truckData->keys();
 
-            // Compter le nombre total de calendriers à traiter pour la barre de progression
-            $totalCalendars = ImportExcel::whereIn('camion', $truckNames)
-                ->where('import_calendar_id', $lastmonth)
-                ->count();
-
-            // Vérifier s'il y a des calendriers à traiter
-            if ($totalCalendars === 0) {
-                $console->info('Aucun calendrier à traiter.');
-                return;
-            }
-
-            // Créer une nouvelle barre de progression
-            $progressBar = new ProgressBar($console, $totalCalendars);
-            $progressBar->start(); // Démarrer la barre de progression
-
             ImportExcel::whereIn('camion', $truckNames)
-                ->where('import_calendar_id', $lastmonth)
-                ->chunk(10, function ($calendars) use ($truckData, $apiService, $progressBar) {
-                    $calendars->each(function ($calendar) use ($truckData, $apiService, $progressBar) {
-                        // Assigner IMEI
-                        $calendar->imei = $truckData->get(trim($calendar->camion));
+            ->where('import_calendar_id', $lastmonth)
+            ->chunk(10, function ($calendars) use ($truckData, $apiService) {
+                $calendars->each(function ($calendar) use ($truckData, $apiService) {
+                    // Assigner IMEI
+                    $calendar->imei = $truckData->get(trim($calendar->camion));
 
-                        // Convertir date_debut en \DateTime
-                        $calendar_start_date = new \DateTime($calendar->date_debut);
+                    // Convertir date_debut en \DateTime
+                    $calendar_start_date = new \DateTime($calendar->date_debut);
+                    // dd($calendar_start_date); // Pour visualiser la date
 
-                        // Convertir date_fin en \DateTime ou laisser null si la date est vide
-                        $calendar_end_date = $calendar->date_fin ? new \DateTime($calendar->date_fin) : null;
+                    // Convertir date_fin en \DateTime ou laisser null si la date est vide
+                    $calendar_end_date = $calendar->date_fin ? new \DateTime($calendar->date_fin) : null;
 
-                        // Si date_fin est nulle, calculer en fonction de la durée de route
-                        if ($calendar_end_date === null) {
-                            $dureeEnHeures = floatval($calendar->delais_route);
-                            if ($dureeEnHeures <= 1) {
-                                // Fin de journée
-                                $calendar_end_date = (clone $calendar_start_date)->setTime(23, 59, 59); // Fin de journée
-                            } else {
-                                // Ajouter des jours en fonction de la durée
-                                $dureeEnJours = ceil($dureeEnHeures / 24);
-                                $calendar_end_date = (clone $calendar_start_date)->modify("+$dureeEnJours days");
-                            }
+                    // Si date_fin est nulle, calculer en fonction de la durée de route
+                    if ($calendar_end_date === null) {
+                        $dureeEnHeures = floatval($calendar->delais_route);
+                        if ($dureeEnHeures <= 1) {
+                            // Fin de journée
+                            $calendar_end_date = (clone $calendar_start_date)->setTime(23, 59, 59); // Fin de journée
+                        } else {
+                            // Ajouter des jours en fonction de la durée
+                            $dureeEnJours = ceil($dureeEnHeures / 24);
+                            $calendar_end_date = (clone $calendar_start_date)->modify("+$dureeEnJours days");
                         }
+                    }
 
-                        // Appeler l'API avec les objets \DateTime
-                        $api = $apiService->getRfidAndDistanceWithImeiAndPeriod($calendar->imei, $calendar_start_date, $calendar_end_date);
+                    // Appeler l'API avec les objets \DateTime
+                    $api = $apiService->getRfidAndDistanceWithImeiAndPeriod($calendar->imei, $calendar_start_date, $calendar_end_date);
 
-                        // Stocker les résultats dans les champs appropriés
-                        $calendar->rfid_chauffeur = $api['rfid'];
-                        $calendar->distance = $api['distance'];
-
-                        // Incrémenter la barre de progression après chaque traitement
-                        $progressBar->advance();
-                    });
-
-                    // Mise à jour en batch dans la base de données
-                    DB::transaction(function () use ($calendars) {
-                        foreach ($calendars as $item) {
-                            ImportExcel::where('id', $item->id)->update([
-                                'distance' => $item->distance,
-                                'imei' => $item->imei,
-                                'rfid_chauffeur' => $item->rfid_chauffeur,
-                            ]);
-                        }
-                    });
+                    // Stocker les résultats dans les champs appropriés
+                    $calendar->rfid_chauffeur = $api['rfid'];
+                    $calendar->distance = $api['distance'];
                 });
 
-            // Fin de la barre de progression
-            $progressBar->finish();
-            $console->newLine(); // Pour ajouter une nouvelle ligne après la barre de progression
+                // Mise à jour en batch dans la base de données
+                DB::transaction(function () use ($calendars) {
+                    foreach ($calendars as $item) {
+                        ImportExcel::where('id', $item->id)->update([
+                            'distance' => $item->distance,
+                            'imei' => $item->imei,
+                            'rfid_chauffeur' => $item->rfid_chauffeur,
+                        ]);
+                    }
+                });
+            });
         } catch (Exception $e) {
             // Gestion des erreurs
             Log::error('Erreur lors de la vérification de la distance et du RFID : ' . $e->getMessage());
