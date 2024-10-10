@@ -14,7 +14,7 @@ use App\Models\Penalite;
 class OverSpeedService{
 
 
-    public function CheckOverSpeed($startDate,$endDate) {
+    public function CheckOverSpeed($startDate, $endDate) {
         // Types d'infractions à vérifier
         $eventTypes = [
             'Excès de vitesse en agglomération', 
@@ -34,38 +34,47 @@ class OverSpeedService{
                 ->orderBy('date', 'ASC')
                 ->get();
     
-            $eventIntervals = [];
-            $currentInterval = [];
-            $prevRecord = null;
+            // Grouper les événements par imei, chauffeur et véhicule
+            $groupedRecords = $records->groupBy(function($record) {
+                return $record->imei . '_' . $record->chauffeur . '_' . $record->vehicule;
+            });
     
-            foreach ($records as $record) {
-                if ($prevRecord !== null) {
-                    $prevDateTime = Carbon::parse($prevRecord->date);
-                    $currentDateTime = Carbon::parse($record->date);
-                    $timeDiff = $prevDateTime->diffInMinutes($currentDateTime);
-    
-                    if ($timeDiff <= 5) {
-                        $currentInterval[] = $record;
-                    } else {
-                        if (count($currentInterval) > 1) {
-                            $this->saveInfraction($currentInterval); // Sauvegarder l'infraction
+            foreach ($groupedRecords as $groupKey => $group) {
+                $eventIntervals = [];
+                $currentInterval = [];
+                $prevRecord = null;
+        
+                foreach ($group as $record) {
+                    if ($prevRecord !== null) {
+                        $prevDateTime = Carbon::parse($prevRecord->date);
+                        $currentDateTime = Carbon::parse($record->date);
+                        $timeDiff = $prevDateTime->diffInMinutes($currentDateTime);
+        
+                        // Vérifier si l'événement actuel est dans un intervalle de moins de 5 minutes
+                        if ($timeDiff <= 5) {
+                            $currentInterval[] = $record;
+                        } else {
+                            if (count($currentInterval) > 1) {
+                                $this->saveInfraction($currentInterval); // Sauvegarder l'infraction
+                            }
+                            // Commencer un nouvel intervalle
+                            $currentInterval = [$record];
                         }
-                        $currentInterval = [$record];
+                    } else {
+                        $currentInterval[] = $record;
                     }
-                } else {
-                    $currentInterval[] = $record;
+                    $prevRecord = $record;
                 }
-                $prevRecord = $record;
-            }
-    
-            // Ajouter le dernier intervalle s'il y en a un
-            if (count($currentInterval) > 1) {
-                $this->saveInfraction($currentInterval); // Sauvegarder l'infraction
+        
+                // Ajouter le dernier intervalle s'il y en a un
+                if (count($currentInterval) > 1) {
+                    $this->saveInfraction($currentInterval); // Sauvegarder l'infraction
+                }
             }
         }
-
+        
         return "Infractions détectées et sauvegardées.";
-    }
+    }    
     
     
     private function saveInfraction($interval) {
@@ -84,7 +93,10 @@ class OverSpeedService{
         $eventType = trim($firstEvent->type);
         $penalite_event = Penalite::where('event',$eventType)->first();
 
+        // dd($firstEvent->date,$lastEvent->date,$firstEvent->type,$dureeSeconds, $penalite ,$penalite_event->param);
+
         $totalPoints = ($dureeSeconds * $penalite ) / $penalite_event->param;
+
     
         // Si le total des points est égal à 0, ne pas sauvegarder l'infraction
         if ($totalPoints <= 0) {
