@@ -82,7 +82,7 @@
                                     <td style="text-align: center">{{ $result->driver }}</td>
                                     <td style="text-align: center">{{$result->transporteur_nom}}</td>
                                     <td style="text-align: center">{{ trim($result->infraction) }}</td>
-                                    <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
+                                    <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_fin.' '.$result->heure_fin)->format('d-m-Y H:i:s') }}</td>
                                     <td style="text-align: center">
                                         <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->infraction }}')">
                                             {{ $result->gps_debut }}
