@@ -21,8 +21,6 @@ class EventService
         'Survitesse excessive',
         'Survitesse sur la piste de Tritriva',
         'Survitesse sur la piste d\'Ibity',
-        'TEMPS DE CONDUITE CONTINUE JOUR',
-        'TEMPS DE CONDUITE CONTINUE NUIT',
     ];
 
     /**
@@ -168,14 +166,14 @@ class EventService
     //         self::saveEventForPeriode($truck->imei, $start_date, $end_date);
     //     }
     // }
-    public function proccessEventForPeriod($console)
+    public function proccessEventForPeriod($console, $start_date, $end_date)
     {
         // Récupération des camions
         $trucks = Vehicule::get();
         
         // Définition des dates de la période
-        $start_date = Carbon::now()->subMonth()->startOfMonth()->startOfDay();
-        $end_date = Carbon::now()->subMonth()->endOfMonth()->endOfDay();
+        // $start_date = Carbon::now()->subMonth()->startOfMonth()->startOfDay();
+        // $end_date = Carbon::now()->subMonth()->endOfMonth()->endOfDay();
         
         // Affichage de la barre de progression
         $console->withProgressBar($trucks, function($truck) use ($start_date, $end_date) {

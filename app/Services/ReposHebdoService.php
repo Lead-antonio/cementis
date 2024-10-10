@@ -27,13 +27,15 @@ class ReposHebdoService
             $data_infraction = [];
 
             $all_work_weekly = $calendarService->getAllWorkWeekly($start_date, $end_date);
-
-            $console->withProgressBar($all_work_weekly, function($week) use ($repos_hebdo_service, &$data_infraction) {
-                    $infraction = $repos_hebdo_service->checkForInfractionReposHebdo($week);
-                    if (!empty($infraction)) {
-                        $data_infraction[] = $infraction;
-                    }
-            });
+            if(is_array($all_work_weekly)){
+                $weekCount = count($all_work_weekly);
+                $console->withProgressBar($all_work_weekly, function($week) use ($repos_hebdo_service, &$data_infraction) {
+                        $infraction = $repos_hebdo_service->checkForInfractionReposHebdo($week);
+                        if (!empty($infraction)) {
+                            $data_infraction[] = $infraction;
+                        }
+                });
+            }
             if (!empty($data_infraction)) {
                 try {
                     DB::beginTransaction(); // Démarre la transaction

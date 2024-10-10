@@ -274,8 +274,8 @@ class CalendarService
 
         $journeys = [];
 
-        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
         $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
 
         $calendarStartDate = $start_date;
         $calendarEndDate = $end_date;
@@ -360,7 +360,7 @@ class CalendarService
      * @param DateTime end_date
      * return array work by journey
      */ 
-    public static function getAllWorkJouneys($imei, $start_date, $end_date)
+    public static function getAllWorkJouneys($imei, $start_date, $end_date , $console = null)
     {
         try {
             $all_week = [];
@@ -371,6 +371,11 @@ class CalendarService
             return $all_week;
 
         } catch (\Exception $e) {
+            // En cas d'exception, affichage dans la console si $console est défini
+            if ($console) {
+                $console->error("Erreur dans getAllWorkWeekly: " . $e->getMessage());
+            }
+            
             // En cas d'exception
             \Log::error("Erreur dans getAllWorkWeekly: " . $e->getMessage());
 
@@ -389,6 +394,89 @@ class CalendarService
      * @param DateTime end_date
      * return array week
      */ 
+    // public static function splitWorkWeekly($imei, $start_date, $end_date)
+    // {
+    //     $mouvementService = new MovementService();
+    //     $continueService = new ConduiteContinueService();
+    //     $truckService = new TruckService();
+    //     $utils = new Utils();
+    //     $weeks = [];
+    //     $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
+    //     $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+    //     $calendarStartDate = $start_date;
+    //     $calendarEndDate = $end_date;
+        
+    //     // 2. Prendre le premier mouvement DRIVE comme point de départ de la première semaine
+    //     $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+    //     $imei = $firstDriveMovement['imei'];
+    //     $rfid = $firstDriveMovement['rfid'];
+
+    //     if ($firstDriveMovement) {
+    //         $currentWeekStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
+    //     } else {
+    //         // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
+    //         return $weeks;
+    //     }
+
+    //     // 3. Diviser le calendrier par semaines (168 heures)
+    //     while ($currentWeekStart < $calendarEndDate) {
+    //         // Par défaut, la fin de la semaine est +168 heures
+    //         $currentWeekEnd = (clone $currentWeekStart)->modify('+168 hours');
+    //         $longestStopDuration = 0;
+    //         $nextWeekStart = null;
+
+    //         // Filtrer les mouvements dans la semaine actuelle (de $currentWeekStart à $currentWeekEnd)
+    //         $currentWeekMovements = collect($movements_monthly)->filter(function ($movement) use ($currentWeekStart, $currentWeekEnd) {
+    //             $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+    //             return $movementDate >= $currentWeekStart && $movementDate < $currentWeekEnd;
+    //         });
+
+    //         foreach ($currentWeekMovements as $movement) {
+    //                 if ($movement['type'] === 'STOP') {
+    //                     $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+    //                     $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
+    //                     $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
+
+    //                     // Calculer la durée maximale d'arrêt pendant cette semaine
+    //                 if ($stopDuration > $longestStopDuration) {
+    //                     $longestStopDuration = $stopDuration;
+    //                 }
+
+    //                 // Calculer si l'arrêt est supérieur à 24 heures
+    //                 if ($stopDuration >= 24 * 3600) {
+    //                     $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
+    //                     $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         if ($longestStopDuration > 0) {
+    //             // Ajouter cette semaine à la liste des semaines
+    //             $weeks[] = [
+    //                 'name_importation' => null,
+    //                 'calendar_id' => null,
+    //                 'imei' => $imei,
+    //                 'rfid' => $rfid,
+    //                 'camion' => $immatricule,
+    //                 'start' => $currentWeekStart->format('Y-m-d H:i:s'),
+    //                 'end' => $currentWeekEnd->format('Y-m-d H:i:s'),
+    //                 'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
+    //             ];
+    //         }
+
+    //         // Passer à la semaine suivante (après l'arrêt ou 168 heures)
+    //         $currentWeekStart = $nextWeekStart ? $nextWeekStart : $currentWeekEnd;
+    //     }
+
+    //     // Ajuster la dernière semaine pour terminer à la date de fin du calendrier, si nécessaire
+    //     if (!empty($weeks)) {
+    //         $lastWeekIndex = count($weeks) - 1;
+    //         $weeks[$lastWeekIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+    //     }
+
+    //     return $weeks;
+    // }
     public static function splitWorkWeekly($imei, $start_date, $end_date)
     {
         $mouvementService = new MovementService();
@@ -396,82 +484,92 @@ class CalendarService
         $truckService = new TruckService();
         $utils = new Utils();
         $weeks = [];
-        $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
-        $immatricule = $truckService->getTruckPlateNumberByImei($imei);
-        $calendarStartDate = $start_date;
-        $calendarEndDate = $end_date;
         
-        // 2. Prendre le premier mouvement DRIVE comme point de départ de la première semaine
-        $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
-        $imei = $firstDriveMovement['imei'];
-        $rfid = $firstDriveMovement['rfid'];
+        try {
+            $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+            $movements_monthly = $mouvementService->getAllMouvementByImei($imei, $start_date, $end_date);
+            $calendarStartDate = $start_date;
+            $calendarEndDate = $end_date;
+            
+            // 2. Prendre le premier mouvement DRIVE comme point de départ de la première semaine
+            $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+            $imei = $firstDriveMovement['imei'] ?? null; // Assurez-vous que ces valeurs sont définies
+            $rfid = $firstDriveMovement['rfid'] ?? null;
 
-        if ($firstDriveMovement) {
-            $currentWeekStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
-        } else {
-            // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
-            return $weeks;
-        }
+            if ($firstDriveMovement) {
+                $currentWeekStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
+            } else {
+                // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
+                return $weeks;
+            }
 
-        // 3. Diviser le calendrier par semaines (168 heures)
-        while ($currentWeekStart < $calendarEndDate) {
-            // Par défaut, la fin de la semaine est +168 heures
-            $currentWeekEnd = (clone $currentWeekStart)->modify('+168 hours');
-            $longestStopDuration = 0;
-            $nextWeekStart = null;
+            // 3. Diviser le calendrier par semaines (168 heures)
+            while ($currentWeekStart < $calendarEndDate) {
+                // Par défaut, la fin de la semaine est +168 heures
+                $currentWeekEnd = (clone $currentWeekStart)->modify('+168 hours');
+                $longestStopDuration = 0;
+                $nextWeekStart = null;
 
-            // Filtrer les mouvements dans la semaine actuelle (de $currentWeekStart à $currentWeekEnd)
-            $currentWeekMovements = collect($movements_monthly)->filter(function ($movement) use ($currentWeekStart, $currentWeekEnd) {
-                $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
-                return $movementDate >= $currentWeekStart && $movementDate < $currentWeekEnd;
-            });
+                // Filtrer les mouvements dans la semaine actuelle (de $currentWeekStart à $currentWeekEnd)
+                $currentWeekMovements = collect($movements_monthly)->filter(function ($movement) use ($currentWeekStart, $currentWeekEnd) {
+                    $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+                    return $movementDate >= $currentWeekStart && $movementDate < $currentWeekEnd;
+                });
 
-            foreach ($currentWeekMovements as $movement) {
+                foreach ($currentWeekMovements as $movement) {
                     if ($movement['type'] === 'STOP') {
                         $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
                         $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
                         $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
 
                         // Calculer la durée maximale d'arrêt pendant cette semaine
-                    if ($stopDuration > $longestStopDuration) {
-                        $longestStopDuration = $stopDuration;
-                    }
+                        if ($stopDuration > $longestStopDuration) {
+                            $longestStopDuration = $stopDuration;
+                        }
 
-                    // Calculer si l'arrêt est supérieur à 24 heures
-                    if ($stopDuration >= 24 * 3600) {
-                        $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
-                        $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
-                        break;
+                        // Calculer si l'arrêt est supérieur à 24 heures
+                        if ($stopDuration >= 24 * 3600) {
+                            $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
+                            $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
+                            break;
+                        }
                     }
                 }
+
+                if ($longestStopDuration > 0) {
+                    // Ajouter cette semaine à la liste des semaines
+                    $weeks[] = [
+                        'name_importation' => null,
+                        'calendar_id' => null,
+                        'imei' => $imei,
+                        'rfid' => $rfid,
+                        'camion' => $immatricule,
+                        'start' => $currentWeekStart->format('Y-m-d H:i:s'),
+                        'end' => $currentWeekEnd->format('Y-m-d H:i:s'),
+                        'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
+                    ];
+                }
+
+                // Passer à la semaine suivante (après l'arrêt ou 168 heures)
+                $currentWeekStart = $nextWeekStart ? $nextWeekStart : $currentWeekEnd;
             }
 
-            if ($longestStopDuration > 0) {
-                // Ajouter cette semaine à la liste des semaines
-                $weeks[] = [
-                    'name_importation' => null,
-                    'calendar_id' => null,
-                    'imei' => $imei,
-                    'rfid' => $rfid,
-                    'camion' => $immatricule,
-                    'start' => $currentWeekStart->format('Y-m-d H:i:s'),
-                    'end' => $currentWeekEnd->format('Y-m-d H:i:s'),
-                    'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
-                ];
+            // Ajuster la dernière semaine pour terminer à la date de fin du calendrier, si nécessaire
+            if (!empty($weeks)) {
+                $lastWeekIndex = count($weeks) - 1;
+                $weeks[$lastWeekIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
             }
 
-            // Passer à la semaine suivante (après l'arrêt ou 168 heures)
-            $currentWeekStart = $nextWeekStart ? $nextWeekStart : $currentWeekEnd;
-        }
-
-        // Ajuster la dernière semaine pour terminer à la date de fin du calendrier, si nécessaire
-        if (!empty($weeks)) {
-            $lastWeekIndex = count($weeks) - 1;
-            $weeks[$lastWeekIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+        } catch (\Exception $e) {
+            // Gestion des exceptions
+            \Log::error("Erreur lors de la division des semaines pour l'IMEI $imei : " . $e->getMessage());
+            // Vous pouvez choisir de relancer l'exception ou de retourner un tableau vide
+            return [];
         }
 
         return $weeks;
     }
+
 
     /**
      * Antonio

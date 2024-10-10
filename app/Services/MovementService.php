@@ -100,56 +100,124 @@ class MovementService
      * Trier les mouvements par couple DRIVE + STOP.
      * @param console $console
      */
+    // public static function getAllMouvementMonthly($console, $date_start_month, $date_end_month)
+    // {
+    //     $all_trucks = Vehicule::all();
+    //     $geoloc_service = new GeolocalisationService();
+    //     $utils = new Utils();
+
+    //     $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $utils, $date_start_month, $date_end_month) {
+    //         $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
+
+    //         if (!empty($drive_and_stops['drives'])) {
+    //             foreach ($drive_and_stops['drives'] as $drive) {
+    //                 $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
+    //                 $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
+    //                 DB::table('movement')->insertOrIgnore([
+    //                     'imei' => $truck->imei,
+    //                     'rfid' => $drive_and_stops['rfid'],
+    //                     'start_date' => $drive_start_date,
+    //                     'end_date' => $drive_end_date,
+    //                     'start_hour' => $drive_start_date->format('H:i:s'),
+    //                     'end_hour' => $drive_end_date->format('H:i:s'),
+    //                     'duration' => $utils->convertDurationToTime($drive['duration']),
+    //                     'type' => 'DRIVE',
+    //                     'created_at' => new \DateTime(),
+    //                     'updated_at' => new \DateTime(),
+    //                 ]);
+    //             }
+    //         }
+
+    //         if (!empty($drive_and_stops['stops'])) {
+    //             foreach ($drive_and_stops['stops'] as $stop) {
+    //                 $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
+    //                 $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
+    //                 DB::table('movement')->insertOrIgnore([
+    //                     'imei' => $truck->imei,
+    //                     'rfid' => $drive_and_stops['rfid'],
+    //                     'start_date' => $stop_start_date,
+    //                     'end_date' => $stop_end_date,
+    //                     'start_hour' => $stop_start_date->format('H:i:s'),
+    //                     'end_hour' => $stop_end_date->format('H:i:s'),
+    //                     'duration' => $utils->convertDurationToTime($stop['duration']),
+    //                     'type' => 'STOP',
+    //                     'created_at' => new \DateTime(),
+    //                     'updated_at' => new \DateTime(),
+    //                 ]);
+    //             }
+    //         }
+    //     });
+
+    //     $console->info('All movements have been processed.');
+    // }
     public static function getAllMouvementMonthly($console, $date_start_month, $date_end_month)
     {
-        $all_trucks = Vehicule::all();
         $geoloc_service = new GeolocalisationService();
         $utils = new Utils();
+        $insertData = []; // Tableau pour stocker les données à insérer
 
-        $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $utils, $date_start_month, $date_end_month) {
-            $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
+        try {
+            Vehicule::chunk(50, function ($all_trucks) use ($console, $geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
+                $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
+                    try {
+                        // Récupérer les mouvements
+                        $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
 
-            if (!empty($drive_and_stops['drives'])) {
-                foreach ($drive_and_stops['drives'] as $drive) {
-                    $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
-                    $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
-                    DB::table('movement')->insertOrIgnore([
-                        'imei' => $truck->imei,
-                        'rfid' => $drive_and_stops['rfid'],
-                        'start_date' => $drive_start_date,
-                        'end_date' => $drive_end_date,
-                        'start_hour' => $drive_start_date->format('H:i:s'),
-                        'end_hour' => $drive_end_date->format('H:i:s'),
-                        'duration' => $utils->convertDurationToTime($drive['duration']),
-                        'type' => 'DRIVE',
-                        'created_at' => new \DateTime(),
-                        'updated_at' => new \DateTime(),
-                    ]);
-                }
-            }
+                        // Gestion des "drives"
+                        if (!empty($drive_and_stops['drives'])) {
+                            foreach ($drive_and_stops['drives'] as $drive) {
+                                $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
+                                $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
+                                DB::table('movement')->insertOrIgnore([
+                                    'imei' => $truck->imei,
+                                    'rfid' => $drive_and_stops['rfid'],
+                                    'start_date' => $drive_start_date,
+                                    'end_date' => $drive_end_date,
+                                    'start_hour' => $drive_start_date->format('H:i:s'),
+                                    'end_hour' => $drive_end_date->format('H:i:s'),
+                                    'duration' => $utils->convertDurationToTime($drive['duration']),
+                                    'type' => 'DRIVE',
+                                    'created_at' => new \DateTime(),
+                                    'updated_at' => new \DateTime(),
+                                ]);
+                            }
+                        }
 
-            if (!empty($drive_and_stops['stops'])) {
-                foreach ($drive_and_stops['stops'] as $stop) {
-                    $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
-                    $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
-                    DB::table('movement')->insertOrIgnore([
-                        'imei' => $truck->imei,
-                        'rfid' => $drive_and_stops['rfid'],
-                        'start_date' => $stop_start_date,
-                        'end_date' => $stop_end_date,
-                        'start_hour' => $stop_start_date->format('H:i:s'),
-                        'end_hour' => $stop_end_date->format('H:i:s'),
-                        'duration' => $utils->convertDurationToTime($stop['duration']),
-                        'type' => 'STOP',
-                        'created_at' => new \DateTime(),
-                        'updated_at' => new \DateTime(),
-                    ]);
-                }
-            }
-        });
+                        // Gestion des "stops"
+                        if (!empty($drive_and_stops['stops'])) {
+                            foreach ($drive_and_stops['stops'] as $stop) {
+                                $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
+                                $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
+                                DB::table('movement')->insertOrIgnore([
+                                    'imei' => $truck->imei,
+                                    'rfid' => $drive_and_stops['rfid'],
+                                    'start_date' => $stop_start_date,
+                                    'end_date' => $stop_end_date,
+                                    'start_hour' => $stop_start_date->format('H:i:s'),
+                                    'end_hour' => $stop_end_date->format('H:i:s'),
+                                    'duration' => $utils->convertDurationToTime($stop['duration']),
+                                    'type' => 'STOP',
+                                    'created_at' => new \DateTime(),
+                                    'updated_at' => new \DateTime(),
+                                ]);
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        // Si une erreur se produit pour ce camion, on l'affiche dans la console
+                        $console->error("Erreur avec le camion IMEI : {$truck->imei} - Message : " . $e->getMessage());
+                    }
+                });
+            });
 
-        $console->info('All movements have been processed.');
+            $console->info('All movements have been processed.');
+        } catch (\Exception $e) {
+            // Capture globale des erreurs
+            $console->error("Erreur lors du traitement des mouvements - Message : " . $e->getMessage());
+        }
     }
+
+
+
 
     /**
      * Antonio
@@ -189,7 +257,7 @@ class MovementService
             ->orderBy('start_hour')
             ->get()
             ->toArray();
-
+            
             // Gestion du cas où aucun point de pénalité n'est trouvé
             return $movements ? $movements : []; // Retourne 0 si pas de pénalité trouvée
 
