@@ -107,7 +107,7 @@ class EventController extends AppBaseController
         $existingScoring = Scoring::where('id_planning', $selectedPlanning)->exists();
         $import_calendar = Importcalendar::all();
         if($existingScoring){
-            $scoring = Scoring::where('id_planning', $selectedPlanning)->get();
+            $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         }else{
             $data = [];
             $createScoring = [];
@@ -159,7 +159,7 @@ class EventController extends AppBaseController
                 }
             }
             $this->saveScoring($createScoring);
-            $scoring = Scoring::where('id_planning', $selectedPlanning)->get();
+            $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         }
         
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring'));
@@ -216,7 +216,7 @@ class EventController extends AppBaseController
             }
         }
         $this->saveScoring($createScoring);
-        $scoring = Scoring::where('id_planning', $selectedPlanning)->get();
+        $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
     }
 
