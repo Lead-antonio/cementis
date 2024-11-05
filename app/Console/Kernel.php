@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CheckOverspeed::class,
     ];
 
+    
+
     /**
      * Define the application's command schedule.
      *
