@@ -77,6 +77,9 @@ Route::post('/import-installation', 'App\Http\Controllers\ImportInstallationCont
 
 Route::get('import-excels/installation/{id}', 'App\Http\Controllers\ImportInstallationController@liste_importation')->name('import_excels.installation');
 
+Route::get('/exportation-generale', 'App\Http\Controllers\ExportController@exportation_excel')->name('exportation.view');
+Route::post('/getcolumns', 'App\Http\Controllers\ExportController@getTableColumns')->name('exportation.getcolumns');
+Route::post('/exportation-table', 'App\Http\Controllers\ExportController@exportTable')->name('exportation.getexport');
 
 
 Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);

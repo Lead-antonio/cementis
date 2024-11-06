@@ -347,6 +347,8 @@
     </a>
 </li>
 
+
+
 {{-- Importattion générique --}}
 @php
     $isImportModelActive = Request::is($urlAdmin . '*importModels*');
@@ -378,4 +380,12 @@
 
 
     </ul>
+</li>
+
+
+<li class="nav-item">
+    <a href="{{ route('exportation.view') }}" class="nav-link {{ Request::is('movements*') ? 'active' : '' }}">
+        <i class="nav-icon fa fa-file-export"></i>
+        <p>Exportation generale</p>
+    </a>
 </li>
