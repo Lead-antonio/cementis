@@ -23,6 +23,11 @@ class InfractionService
     {
         try {
             $penaliteService = new PenaliteService();
+            // Cloner $start_date pour ne pas modifier la date de départ
+            $end_date = clone $start_date;
+
+            // Définir la date de fin au dernier jour du mois
+            $end_date->modify('last day of this month')->setTime(23, 59, 59);
             // $startDate = Carbon::now()->subMonths(2)->endOfMonth();
             // $endDate = Carbon::now()->startOfMonth();
 

@@ -100,6 +100,7 @@ class ReposJournalierService
                 $imei = $truck->imei;
 
                 $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
+                // dd($all_journey);
                 if(is_array($all_journey)){
                     $journeyCount = count($all_journey);
 

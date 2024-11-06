@@ -78,7 +78,11 @@ class CalendarService
     public function checkCalendar($console, $planning) {
         try {
             $startDate = new \DateTime($planning->date_debut);
-            $endDate = new \DateTime($planning->date_fin);
+            // $endDate = new \DateTime($planning->date_fin);
+            $endDate = clone $startDate;
+
+            // Définir la date de fin au dernier jour du mois
+            $endDate->modify('last day of this month')->setTime(23, 59, 59);
     
             $calendars = ImportExcel::where('import_calendar_id', $planning->id)->get();
             $infractions = Infraction::whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
@@ -385,6 +389,22 @@ class CalendarService
     }
 
 
+    public static function filterWeeks(array $weeks): array
+    {
+        return array_filter($weeks, function ($week) {
+            // Calcul de l'intervalle en secondes entre 'start' et 'end' de chaque semaine
+            $start = new \DateTime($week['start']);
+            $end = new \DateTime($week['end']);
+            $interval = $end->getTimestamp() - $start->getTimestamp();
+
+            // Conversion de la durée maximale d'arrêt en secondes
+            $longestStopDuration = (new Utils())->convertTimeToSeconds($week['max_stop_duration']);
+
+            // Filtrer selon la condition requise
+            return $interval >= (168 * 3600) || $longestStopDuration >= (24 * 3600);
+        });
+    }
+
 
     /**
      * Antonio
@@ -567,7 +587,7 @@ class CalendarService
             return [];
         }
 
-        return $weeks;
+        return self::filterWeeks($weeks);;
     }
 
 

@@ -27,6 +27,7 @@ class ReposHebdoService
             $data_infraction = [];
 
             $all_work_weekly = $calendarService->getAllWorkWeekly($start_date, $end_date);
+            
             if(is_array($all_work_weekly)){
                 $weekCount = count($all_work_weekly);
                 $console->withProgressBar($all_work_weekly, function($week) use ($repos_hebdo_service, &$data_infraction) {
