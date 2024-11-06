@@ -260,5 +260,18 @@ class ImportInstallationController extends AppBaseController
     {
         return $importExcelDataTable->with('id', $id)->render('import_installations.index');
     }
+    
 
+    
+    /**
+     * Show the form for creating a new ImportInstallation.
+     *
+     * @return Response
+     */
+    public function exportation_excel()
+    {
+        return view('export_general.export_generique');
+    }
+
+    
 }
