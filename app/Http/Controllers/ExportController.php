@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Exports\DynamicTableExport;
 use App\Models\Chauffeur;
 use App\Models\Infraction;
+use App\Models\Scoring;
 use App\Models\Transporteur;
 use App\Models\User;
 use App\Models\Vehicule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -17,88 +19,9 @@ class ExportController extends AppBaseController
 
      // Lister les modèles disponibles
      protected $models = [
-        'users' => User::class,
-        'Transporteur' => Transporteur::class,
         'Infraction' => Infraction::class,
-        'chauffeur' => Chauffeur::class,
-        'vehicule' => Vehicule::class,
+        'scoring' => Scoring::class,
     ];
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 
 
      /**
@@ -113,6 +36,34 @@ class ExportController extends AppBaseController
     }
 
 
+    // public function getTableColumns(Request $request)
+    // {
+    //     $modelName = $request->input('model');
+    //     $modelClass = $this->models[$modelName] ?? null;
+
+    //     if ($modelClass) {
+    //         try {
+    //             $table = (new $modelClass)->getTable();
+
+    //             // Colonnes spécifiées pour certains modèles
+    //             $restrictedColumns = [
+    //                 'Infraction' => ['date_debut', 'date_fin'],
+    //                 // Ajouter d'autres modèles et leurs colonnes restreintes ici si nécessaire
+    //             ];
+
+    //             // Utiliser les colonnes restreintes si le modèle a des restrictions
+    //             $columns = $restrictedColumns[$modelName] ?? Schema::getColumnListing($table);
+
+    //             return response()->json($columns);
+    //         } catch (\Exception $e) {
+    //             return response()->json(['error' => 'Erreur lors de la récupération des colonnes : ' . $e->getMessage()], 500);
+    //         }
+    //     }
+
+    //     return response()->json(['error' => 'Modèle non trouvé ou invalide'], 404);
+    // }
+
+
     public function getTableColumns(Request $request)
     {
         $modelName = $request->input('model');
@@ -120,12 +71,37 @@ class ExportController extends AppBaseController
 
         if ($modelClass) {
             $table = (new $modelClass)->getTable();
-            $columns = Schema::getColumnListing($table);
-            return response()->json($columns);
+
+            // Colonnes restreintes pour les filtres
+            $restrictedColumns = [
+                'Infraction' => ['date_debut', 'date_fin'],
+                // Ajoutez des restrictions pour d'autres modèles si nécessaire
+            ];
+
+            // Obtenir toutes les colonnes de la table pour l'affichage complet
+            $allColumns = Schema::getColumnListing($table);
+
+            // Filtrer uniquement les colonnes spécifiées pour le modèle (pour le filtre)
+            $filterableColumns = $restrictedColumns[$modelName] ?? $allColumns;
+
+            // Ajouter les types de colonnes pour toutes les colonnes
+            $columnsWithTypes = [];
+            foreach ($allColumns as $column) {
+                $type = Schema::getColumnType($table, $column);
+                $columnsWithTypes[] = [
+                    'name' => $column,
+                    'type' => $type,
+                    'filterable' => in_array($column, $filterableColumns), // Indique si c'est filtrable
+                ];
+            }
+
+            return response()->json($columnsWithTypes);
         }
 
         return response()->json([], 404); // Si le modèle n'existe pas
     }
+
+    
 
     /**
      * Summary of exportTable
@@ -135,10 +111,36 @@ class ExportController extends AppBaseController
     public function exportTable(Request $request)
     {
         $table = $request->input('table');
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-
-        return Excel::download(new DynamicTableExport($table, $startDate, $endDate), $table . '.xlsx');
+        $filters = json_decode($request->input('filters'), true);
+    
+        // Vérifier que la table existe
+        if (!Schema::hasTable($table)) {
+            return back()->withErrors('Table introuvable');
+        }
+    
+        $query = DB::table($table);
+    
+        // Appliquer les filtres dynamiques
+        if (!empty($filters)) {
+            $query->where(function ($query) use ($filters) {
+                foreach ($filters as $filter) {
+                    if (isset($filter['column'], $filter['operator'], $filter['value'])) {
+                        if (isset($filter['connector']) && $filter['connector'] === 'OR') {
+                            $query->orWhere($filter['column'], $filter['operator'], $filter['value']);
+                        } else {
+                            $query->where($filter['column'], $filter['operator'], $filter['value']);
+                        }
+                    }
+                }
+            });
+        }
+    
+        // Exécution de la requête et exportation
+        $results = $query->get();
+    
+        // Exportation avec Excel
+        return Excel::download(new DynamicTableExport($query->get(), $table), $table . '.xlsx');
     }
+    
 
 }

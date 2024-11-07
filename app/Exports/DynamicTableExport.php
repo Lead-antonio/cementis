@@ -9,15 +9,13 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class DynamicTableExport implements FromCollection, WithHeadings
 {
+    protected $data;
     protected $table;
-    protected $startDate;
-    protected $endDate;
 
-    public function __construct($table, $startDate = null, $endDate = null)
+    public function __construct($data, $table)
     {
+        $this->data = $data;
         $this->table = $table;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 
     /**
@@ -25,14 +23,7 @@ class DynamicTableExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        $query = DB::table($this->table);
-
-        // Appliquer le filtre de date si les dates sont fournies
-        if ($this->startDate && $this->endDate) {
-            $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
-        }
-
-        return $query->get();
+        return collect($this->data); // Utiliser les données déjà filtrées
     }
 
     /**
@@ -40,8 +31,6 @@ class DynamicTableExport implements FromCollection, WithHeadings
      */
     public function headings(): array
     {
-        return Schema::getColumnListing($this->table);
+        return Schema::getColumnListing($this->table); // Utiliser le nom de la table pour obtenir les colonnes
     }
-
-    
 }
