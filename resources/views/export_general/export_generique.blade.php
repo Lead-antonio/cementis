@@ -20,9 +20,9 @@
                 <!-- Sélection du modèle -->
                 <div class="row">
                     <div class="form-group col-sm-3">
-                        <label for="modelSelect">Choisissez un modèle :</label>
+                        <label for="modelSelect">Choisissez une table: </label>
                         <select id="modelSelect" class="form-control" required>
-                            <option value="">Sélectionner un modèle</option>
+                            <option value="">Sélectionner une table</option>
                             @foreach($modelNames as $modelName)
                                 <option value="{{ $modelName }}">{{ $modelName }}</option>
                             @endforeach
@@ -53,7 +53,7 @@
                             <!-- Les filtres dynamiques apparaîtront ici -->
                         </div>
                         {{-- <button class="btn btn-primary" onclick="ajouterFiltre()">Ajouter une condition</button> --}}
-                        <button id="addConditionButton" class="btn btn-primary" onclick="ajouterFiltre()">Ajouter une condition</button>
+                        <button id="addConditionButton" class="btn btn-primary" onclick="ajouterFiltre()">Ajouter condition</button>
 
                     </div>
                 </div>
@@ -66,7 +66,7 @@
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+       $(document).ready(function() {
             $('#modelSelect').on('change', function() {
                 let modelName = $(this).val();
                 if (modelName) {
@@ -76,27 +76,31 @@
                         data: { model: modelName },
                         headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                         success: function(columns) {
+                            // Vider les conteneurs pour chaque nouveau modèle
                             $('#columnsList').empty();
-                            $('#filters').empty(); // Vider les filtres pour chaque nouveau modèle
-                            $('#filterContainer').show();
+                            $('#filters').empty(); // Réinitialiser les filtres
+
+                            // Réafficher les éléments masqués
                             $('#columnsContainer').show();
+                            $('#filterContainer').show();
                             $('#exportButton').show();
+                            $('#addConditionButton').show(); // Réafficher le bouton "Ajouter condition"
+
+                            // Assigner le modèle sélectionné au champ masqué
                             $('#selectedTable').val(modelName);
                             window.columns = columns;
 
                             // Afficher toutes les colonnes dans la liste des colonnes disponibles
                             columns.forEach(column => {
-                                $('#columnsList').append(`<li class="list-group-item">${column.name} (${column.type})</li>`);
+                                $('#columnsList').append(`<li class="list-group-item">${column.name}</li>`);
                             });
 
-                            // Restreindre les colonnes filtrables pour le modèle 'Infraction'
+                            // Filtrer les colonnes pour les conditions dynamiques
                             let filterableColumns = columns;
-                            if (modelName === 'Infraction') {
-                                filterableColumns = columns.filter(column => ['date_debut', 'date_fin'].includes(column.name));
-                            }
-
-                            // Stocker les colonnes filtrables pour utilisation lors de l'ajout d'un filtre
                             window.filterableColumns = filterableColumns;
+
+                            // Remettre le bouton "Ajouter condition" visible après chaque sélection de table
+                            toggleAddConditionButton();
                         },
                         error: function() {
                             alert("Impossible de récupérer les colonnes.");
@@ -106,12 +110,16 @@
                         }
                     });
                 } else {
+                    // Masquer et réinitialiser les conteneurs si aucune table n'est sélectionnée
                     $('#columnsContainer').hide();
                     $('#filterContainer').hide();
                     $('#exportButton').hide();
+                    $('#columnsList').empty();
+                    $('#filters').empty();
                 }
             });
         });
+
     
         function ajouterFiltre() {
             const index = $('#filters .filter-group').length;
@@ -119,7 +127,7 @@
                 <div class="row">
                     <!-- Sélection de la colonne (required) -->
                     <div class="form-group col-sm-3">
-                        <select class="form-control filter-column" name="filters[${index}][column]" required onchange="changerTypeValeur(this, ${index}); updateFilterableColumns();">
+                        <select class="form-control filter-column" name="filters[${index}][column]" required onchange="changerTypeValeur(this, ${index})">
                             <option value="">Sélectionner une colonne</option>`;
             
             window.filterableColumns.forEach(column => {
@@ -149,37 +157,36 @@
                     <div class="form-group col-sm-2">
                         <select class="form-control filter-connector" name="filters[${index}][connector]" onchange="ajouterConditionSupp(${index})">
                             <option value="">Aucun</option>
-                            <option value="AND">AND</option>
-                            <option value="OR">OR</option>
+                            <option value="AND">ET</option>
+                            <option value="OR">OU</option>
                         </select>
                     </div>
                     
                     <div class="form-group col-sm-2">
-                        <button class="btn btn-danger" onclick="$(this).closest('.filter-group').remove(); updateFilterableColumns(); toggleAddConditionButton(); checkFormCompletion();">Supprimer</button>
+                        <button class="btn btn-danger" onclick="$(this).closest('.filter-group').remove(); toggleAddConditionButton(); checkFormCompletion();">Supprimer</button>
                     </div>
                 </div>
             </div>`;
 
             $('#filters').append(filterHtml);
-            updateFilterableColumns();
+            // updateFilterableColumns();
             toggleAddConditionButton();
             checkFormCompletion(); // Vérifie si le formulaire est complet
         }
-
-
-
-
     
         function changerTypeValeur(selectElement, index) {
             const selectedOption = $(selectElement).find('option:selected');
             const columnType = selectedOption.data('type');
-            console.log('selectElement',selectElement);
+            const columnValue = selectedOption.val(); 
+            console.log('selectElement', columnValue);
             console.log('columnType',columnType);
             const valueInput = $(`#filterValue${index}`);
+
+            console.log('selectedOption',selectedOption);
             
-            if (columnType === 'datetime') {
+            if (columnType === 'datetime' || (columnType === 'string' && columnValue.includes('date'))) {
                 valueInput.attr('type', 'date');
-            } else if (columnType === 'integer') {
+            } else if (columnType === 'integer' || columnType === 'decimal' ) {
                 valueInput.attr('type', 'number');
             } else {
                 valueInput.attr('type', 'text');
@@ -233,10 +240,11 @@
         // Fonction pour afficher ou masquer le bouton "Ajouter une condition"
         function toggleAddConditionButton() {
             const hasFilters = $('#filters .filter-group').length > 0;
-            if (hasFilters) {
-                $('#addConditionButton').hide();
-            } else {
+            // Affiche le bouton "Ajouter condition" si aucun filtre n'est présent
+            if (!hasFilters) {
                 $('#addConditionButton').show();
+            } else {
+                $('#addConditionButton').hide();
             }
         }
 
