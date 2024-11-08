@@ -341,7 +341,7 @@ class ConduiteContinueService
                     }
                 }
                 $all_journey = $calendarService->getAllWorkJouneys($imei ,$calendar_start_date, $calendar_end_date);
-                $data_journeys = array_merge($data_journeys, $all_journey);
+                // $data_journeys = array_merge($data_journeys, $all_journey);
                 if(is_array($all_journey)){
 
                     $journeyCount = count($all_journey);
