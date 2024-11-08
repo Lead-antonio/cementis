@@ -252,7 +252,7 @@ class EventController extends AppBaseController
             
             // $scoring = tabScoringCard();
             $scoring = tabScoringCard_new();
-
+            
             return Excel::download(new ScoringExport($scoring ), 'scoring.xlsx');
         } catch (\Throwable $th) {
 

@@ -114,7 +114,6 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     }
 
 
-
     public function registerEvents(): array
     {
         return [
