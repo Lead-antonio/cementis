@@ -85,7 +85,7 @@ class GeolocalisationService
         $formattedEndDate = $end_date->format('YmdHis');
 
         $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE,{$imei_vehicule},{$formattedStartDate},{$formattedEndDate},20";
-
+        
         try {
             $response = $this->makeRequest($url);
             $data = json_decode($response, true);
@@ -98,13 +98,38 @@ class GeolocalisationService
                 ];
             }
     
+            // foreach ($data['route'] as $item) {
+            //     if (isset($item[6]['rfid']) && $item[6]['rfid'] !== null) {
+            //         $rfid = $item[6]['rfid'];
+            //         $distance = isset($data['route_length']) ? $data['route_length'] : 0;
+            //         break;
+            //     }
+            // }
+            $rfid = null;
+            $firstOdo = null;
+            $lastOdo = null;
+            $firstRfid = null;
+            $lastRfid = null;
             foreach ($data['route'] as $item) {
-                if (isset($item[6]['rfid']) && $item[6]['rfid'] !== null) {
+                // Vérifier si l'RFID et l'odomètre sont présents dans les données
+                if (isset($item[6]['rfid'], $item[6]['odo']) && $item[6]['rfid'] !== null) {
+                    // Assigner l'RFID du premier enregistrement
+                    if ($firstRfid === null) {
+                        $firstRfid = $item[6]['rfid'];
+                        $firstOdo = $item[6]['odo'];
+                    }
+                    
+                    // Mettre à jour l'RFID et l'odomètre du dernier enregistrement
+                    $lastRfid = $item[6]['rfid'];
+                    $lastOdo = $item[6]['odo'];
                     $rfid = $item[6]['rfid'];
-                    $distance = isset($data['route_length']) ? $data['route_length'] : 0;
-                    break;
                 }
             }
+            
+            // Calculer la distance seulement si l'RFID du premier et du dernier sont identiques
+            $distance = ($firstRfid === $lastRfid && $firstOdo !== null && $lastOdo !== null) 
+                ? ($lastOdo - $firstOdo) 
+                : null;
         } catch (\Exception $e) {
             // Gérer les erreurs de requête HTTP
             // Vous pouvez enregistrer le message d'erreur ou retourner des valeurs par défaut
@@ -113,7 +138,7 @@ class GeolocalisationService
                 'distance' => null
             ];
         }
-    
+        
         return [
             'rfid' => $rfid,
             'distance' => $distance
