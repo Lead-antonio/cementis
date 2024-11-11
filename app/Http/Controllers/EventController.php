@@ -106,62 +106,62 @@ class EventController extends AppBaseController
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $existingScoring = Scoring::where('id_planning', $selectedPlanning)->exists();
         $import_calendar = Importcalendar::all();
-        if($existingScoring){
-            $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
-        }else{
-            $data = [];
-            $createScoring = [];
+        // if($existingScoring){
+        //     $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
+        // }else{
+        //     $data = [];
+        //     $createScoring = [];
             
 
-            $results = scoring($selectedPlanning);
-            if($results){
-                foreach ($results as $result) {
-                    $driver = $result->driver;
-                    $event = $result->event;
-                    $camion = $result->camion;
-                    $transporteur = $result->transporteur;
-                    $total_point = $result->total_point;
+        //     $results = scoring($selectedPlanning);
+        //     if($results){
+        //         foreach ($results as $result) {
+        //             $driver = $result->driver;
+        //             $event = $result->event;
+        //             $camion = $result->camion;
+        //             $transporteur = $result->transporteur;
+        //             $total_point = $result->total_point;
                     
-                    if (!isset($data[$driver])) {
-                        $data[$driver] = [
-                            'transporteur' => $transporteur,
-                            'total_point' => $total_point,
-                            'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Survitesse sur la piste d\'Ibity' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Survitesse sur la piste de Tritriva' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'TEMPS DE CONDUITE CONTINUE NUIT' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'TEMPS DE CONDUITE CONTINUE JOUR' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                            'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
-                        ];
-                        $distance = getDistanceTotalDriverInCalendar($driver, $selectedPlanning);
-                        // dd($distance);
+        //             if (!isset($data[$driver])) {
+        //                 $data[$driver] = [
+        //                     'transporteur' => $transporteur,
+        //                     'total_point' => $total_point,
+        //                     'Accélération brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Freinage brusque' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Excès de vitesse hors agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Excès de vitesse en agglomération' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Survitesse excessive' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Survitesse sur la piste d\'Ibity' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Survitesse sur la piste de Tritriva' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'TEMPS DE CONDUITE CONTINUE NUIT' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'TEMPS DE CONDUITE CONTINUE JOUR' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Temps de conduite maximum dans une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                     'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
+        //                 ];
+        //                 $distance = getDistanceTotalDriverInCalendar($driver, $selectedPlanning);
+        //                 // dd($distance);
 
-                        $createScoring[] = [
-                            'id_planning' => $selectedPlanning,
-                            'driver_id' => $result->driver_id,
-                            'transporteur_id' => $result->transporteur_id,
-                            'driver' => $driver,
-                            'transporteur' => $transporteur,
-                            'camion' => $camion,
-                            'comment' => '',
-                            'distance' => $distance,
-                            'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
-                        ];
-                    }
+        //                 $createScoring[] = [
+        //                     'id_planning' => $selectedPlanning,
+        //                     'driver_id' => $result->driver_id,
+        //                     'transporteur_id' => $result->transporteur_id,
+        //                     'driver' => $driver,
+        //                     'transporteur' => $transporteur,
+        //                     'camion' => $camion,
+        //                     'comment' => '',
+        //                     'distance' => $distance,
+        //                     'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
+        //                 ];
+        //             }
         
-                    $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
-                }
-            }
-            $this->saveScoring($createScoring);
-            $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
-        }
-        
+        //             $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
+        //         }
+        //     }
+        //     $this->saveScoring($createScoring);
+        //     $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
+        // }
+        $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring'));
     }
 

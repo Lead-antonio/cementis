@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Mouvement\GetMovement::class,
         \App\Console\Commands\Repos\checkReposJourney::class,
         \App\Console\Commands\CheckOverspeed::class,
+        \App\Console\Commands\Scoring\GenerateScoring::class,
     ];
 
     

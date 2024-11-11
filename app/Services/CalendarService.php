@@ -80,7 +80,6 @@ class CalendarService
             $startDate = new \DateTime($planning->date_debut);
             // $endDate = new \DateTime($planning->date_fin);
             $endDate = clone $startDate;
-
             // Définir la date de fin au dernier jour du mois
             $endDate->modify('last day of this month')->setTime(23, 59, 59);
     
@@ -350,7 +349,9 @@ class CalendarService
 
         if (!empty($journeys)) {
             $lastJourneyIndex = count($journeys) - 1;
-            $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+            if($journeys[$lastJourneyIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')){
+                $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+            }
         }
 
         return $journeys;
@@ -577,7 +578,9 @@ class CalendarService
             // Ajuster la dernière semaine pour terminer à la date de fin du calendrier, si nécessaire
             if (!empty($weeks)) {
                 $lastWeekIndex = count($weeks) - 1;
-                $weeks[$lastWeekIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+                if($weeks[$lastWeekIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')){
+                    $weeks[$lastWeekIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+                }
             }
 
         } catch (\Exception $e) {
@@ -587,7 +590,7 @@ class CalendarService
             return [];
         }
 
-        return self::filterWeeks($weeks);;
+        return self::filterWeeks($weeks);
     }
 
 
