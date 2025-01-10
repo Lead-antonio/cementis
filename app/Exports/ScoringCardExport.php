@@ -35,6 +35,9 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                               'Transporteur' => $scoring->transporteur->nom ?? '',
                               'Camion' => $scoring->camion,
                               'Scoring' => $scoring->point,
+                              'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning ),
+                              'Commentaire' => $scoring->comment
+
                           ];
                       });
     }
@@ -48,7 +51,9 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             'Chauffeur',
             'Transporteur',
             'Camion',
-            'Scoring'
+            'Scoring',
+            'Infraction le plus fréquent',
+            'Commentaire'
         ];
     }
 

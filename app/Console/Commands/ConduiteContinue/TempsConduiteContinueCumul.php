@@ -49,6 +49,6 @@ class TempsConduiteContinueCumul extends Command
         $endDate = new \DateTime($lastmonth->date_fin);
 
         $conduiteService = new ConduiteContinueService();
-        $conduiteService->checkTempsConduiteContinueCumul($this, $startDate, $endDate);
+        $conduiteService->checkTempsConduiteContinueCumul($this);
     }
 }

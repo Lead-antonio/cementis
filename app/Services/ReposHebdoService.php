@@ -74,14 +74,70 @@ class ReposHebdoService
         }
     }
 
+    /**
+     * Antonio
+     * Vérification si il y a un TEMPS DE REPOS Hebdomadaire  et point selon la durée éffectué..
+     *
+     */
+    // public static function checkForInfractionReposHebdo($week)
+    // {
+    //     try {
+    //         $utils = new Utils();
+    //         // Conditions de repos en secondes
+    //         $condition = 24 * 3600;
+    //         $start_date_time = new \DateTime($week['start']);
+    //         $end_date_time = new \DateTime($week['end']);
+
+    //         $result = [];
+    //         $max_stop_duration = $utils->convertTimeToSeconds($week['max_stop_duration']);
+
+    //         // Vérifier si la durée du STOP est inférieure à la condition requise
+    //         if ($max_stop_duration < $condition) {
+    //             $event = "Temps de repos hebdomadaire";
+
+    //             $result = [
+    //                 'calendar_id' => null,
+    //                 'imei' => $week['imei'],
+    //                 'rfid' => $week['rfid'],
+    //                 'event' => $event,
+    //                 'vehicule' => $week['camion'],
+    //                 'distance' => 0,
+    //                 'distance_calendar' => 0,
+    //                 'odometer' => 0,
+    //                 'duree_infraction' => $max_stop_duration,
+    //                 'duree_initial' => $condition,
+    //                 'date_debut' => $start_date_time->format('Y-m-d'),
+    //                 'date_fin' => $end_date_time->format('Y-m-d'),
+    //                 'heure_debut' => $start_date_time->format('H:i:s'),
+    //                 'heure_fin' => $end_date_time->format('H:i:s'),
+    //                 'point' => ($condition - $max_stop_duration) / 600, // Points calculés
+    //                 'insuffisance' => ($condition - $max_stop_duration) // Différence en secondes
+    //             ];
+    //         }
+
+    //         return $result;
+
+    //     } catch (Exception $e) {
+    //         // Enregistre l'erreur dans les logs
+    //         Log::error("Erreur dans checkForInfractionReposJournalier: " . $e->getMessage());
+    //         return $e->getMessage();
+    //     }
+    // }
+
+    /**
+     * Antonio
+     * Vérification si il y a un TEMPS DE REPOS Hebdomadaire  et point égale 1 à chaque infraction.
+     *
+     */
     public static function checkForInfractionReposHebdo($week)
     {
         try {
             $utils = new Utils();
             // Conditions de repos en secondes
-            $condition = 24 * 3600;
+            $condition = (24 * 3600);
             $start_date_time = new \DateTime($week['start']);
             $end_date_time = new \DateTime($week['end']);
+            $penaliteService = new PenaliteService();
 
             $result = [];
             $max_stop_duration = $utils->convertTimeToSeconds($week['max_stop_duration']);
@@ -89,6 +145,7 @@ class ReposHebdoService
             // Vérifier si la durée du STOP est inférieure à la condition requise
             if ($max_stop_duration < $condition) {
                 $event = "Temps de repos hebdomadaire";
+                $point = $penaliteService->getPointPenaliteByEventType($event);
 
                 $result = [
                     'calendar_id' => null,
@@ -105,7 +162,7 @@ class ReposHebdoService
                     'date_fin' => $end_date_time->format('Y-m-d'),
                     'heure_debut' => $start_date_time->format('H:i:s'),
                     'heure_fin' => $end_date_time->format('H:i:s'),
-                    'point' => ($condition - $max_stop_duration) / 600, // Points calculés
+                    'point' => $point, // Points calculés
                     'insuffisance' => ($condition - $max_stop_duration) // Différence en secondes
                 ];
             }

@@ -50,11 +50,16 @@ class GetMovement extends Command
         $startDate = new \DateTime($lastmonth->date_debut);
 
         // Définir la date de fin (début du mois courant)
-        $endDate = new \DateTime($lastmonth->date_fin);
+        // $endDate = new \DateTime($lastmonth->date_fin);
+        $endDate = clone $startDate;
+
+            // Définir la date de fin au dernier jour du mois
+        $endDate->modify('last day of this month')->setTime(23, 59, 59);
 
         // Pass the current console instance to the method
         // $movementService->saveDriveAndStop($this);
         $movementService->getAllMouvementMonthly($this, $startDate, $endDate);
+        // $movementService->getMissingMouvementMonthly($this, $startDate, $endDate);
         
         $this->info('Process completed!');
     }

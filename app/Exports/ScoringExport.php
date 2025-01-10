@@ -18,11 +18,13 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithEvents
 {
     protected $scoring;
+    protected $distance_totale;
     protected $totals = [];
 
-    public function __construct($scoring)
+    public function __construct($scoring, $distance_totale)
     {
         $this->scoring = $scoring;
+        $this->distance_totale = $distance_totale;
     }
 
     public function collection()
@@ -39,9 +41,8 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Date de l\'évènement',
             'Durée(s)',
             'Coordonnées GPS',
-            'Distance',
             'Point de pénalité',
-            'Distance parcourue',
+            'Distance total',
             'Scoring Card'
         ];
     }
@@ -76,8 +77,12 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
         }
 
         $scoringCard = $driver === 'Total :' ? number_format(($this->totals[$driver]['penalty_point'] != 0 ? ($this->totals[$driver]['penalty_point'] / $this->totals[$driver]['distance']) * 100 : 0), 2) : '';
-        $coordinates = $row->latitude . ', ' . $row->longitude;
+        $coordinates = '';
 
+        if (!is_null($row->latitude) && !is_null($row->longitude)) {
+            $coordinates = $row->latitude . ', ' . $row->longitude;
+        }
+        
         return [
             $row->driver,
             $row->transporteur_nom,
@@ -85,9 +90,9 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             \Carbon\Carbon::parse($row->date_event)->format('d-m-Y H:i:s'),
             $row->duree,
             $coordinates,
-            $row->distance,
+            //$row->distance,
             $row->penalty_point,
-            $row->distance_calendar . ' Km',
+            //$row->distance_calendar . ' Km',
             $scoringCard
         ];
     }
@@ -150,7 +155,11 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             // Insérer une nouvelle ligne après la dernière ligne de données pour ce chauffeur
             $insertRow = $lastDataRow + 1;
     
-            $scoringCard = number_format(($total['penalty_point'] != 0 ? ($total['penalty_point'] / $total['distance_calendar']) * 100 : 0), 2);
+            $scoringCard = 0; // Valeur par défaut
+
+            if ($this->distance_totale != 0) {
+                $scoringCard = number_format(($total['penalty_point'] != 0 ? ($total['penalty_point'] / $this->distance_totale) * 100 : 0), 2);
+            }
             
             $event->sheet->insertNewRowBefore($insertRow, 1);
     
@@ -160,19 +169,19 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             $event->sheet->setCellValue('D' . $insertRow, ''); // Date de l'évènement
             $event->sheet->setCellValue('E' . $insertRow, ''); // Durée(s)
             $event->sheet->setCellValue('F' . $insertRow, ''); // Coordonnées GPS
-            $event->sheet->setCellValue('G' . $insertRow, ''); // Coordonnées GPS
-            $event->sheet->setCellValue('H' . $insertRow, $total['penalty_point']); // Point de pénalité
-            $event->sheet->setCellValue('I' . $insertRow, $total['distance_calendar'] . ' Km'); // Distance parcourue
-            $event->sheet->setCellValue('J' . $insertRow, $scoringCard); // Scoring Card
+            //$event->sheet->setCellValue('G' . $insertRow, ''); // Coordonnées GPS
+            $event->sheet->setCellValue('G' . $insertRow, $total['penalty_point']); // Point de pénalité
+            $event->sheet->setCellValue('H' . $insertRow, $this->distance_totale . ' Km'); // Distance parcourue
+            $event->sheet->setCellValue('I' . $insertRow, $scoringCard); // Scoring Card
     
             // Appliquer le style vert à la cellule contenant le total de point de pénalité
-            $event->sheet->getStyle('H' . $insertRow)->applyFromArray([
+            $event->sheet->getStyle('G' . $insertRow)->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '00FF00']]
             ]);
     
             // Appliquer le style orange à la cellule contenant le total de distance parcourue
-            $event->sheet->getStyle('I' . $insertRow)->applyFromArray([
+            $event->sheet->getStyle('H' . $insertRow)->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFA500']] 
             ]);
@@ -180,7 +189,7 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             // Appliquer le style bleu à la cellule contenant le total du scoring card
             $fillColor = ['argb' => 'FF6495ED']; // ARGB pour Blue
 
-            $event->sheet->getStyle('J' . $insertRow)->applyFromArray([
+            $event->sheet->getStyle('I' . $insertRow)->applyFromArray([
                 'font' => ['bold' => true],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => $fillColor]
             ]);

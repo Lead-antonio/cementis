@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Overspeed;
 
 use App\Services\OverSpeedService;
 use Carbon\Carbon;

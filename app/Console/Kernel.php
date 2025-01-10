@@ -23,7 +23,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ConduiteMaximum\TempsConduiteMaximum::class,
         \App\Console\Commands\Mouvement\GetMovement::class,
         \App\Console\Commands\Repos\checkReposJourney::class,
-        \App\Console\Commands\CheckOverspeed::class,
+        \App\Console\Commands\Overspeed\CheckOverspeed::class,
+        \App\Console\Commands\Scoring\GenerateScoring::class,
     ];
 
     

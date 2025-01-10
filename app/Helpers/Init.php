@@ -151,7 +151,7 @@ if (!function_exists('tabScoringCard')) {
 
 
 if (!function_exists('tabScoringCard_new')) {
-    function tabScoringCard_new()
+    function tabScoringCard_new($chauffeur, $id_planning)
     {
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -170,6 +170,8 @@ if (!function_exists('tabScoringCard_new')) {
             'i.distance_calendar',
             DB::raw("(i.point * 100) / i.distance_calendar as score_card")
             )
+        ->where('ch.nom',$chauffeur)
+        ->where('ie.import_calendar_id', $id_planning)
         ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance','i.distance_calendar')
         ->orderBy('ch.nom')
         ->orderBy('t.nom')
@@ -2126,13 +2128,13 @@ use Illuminate\Support\Str;
 if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
 
     function getPlateNumberByRfidAndTransporteur($driverId, $transporteurId){
-        set_time_limit(600);
+        set_time_limit(2000);
         $chauffeur = Chauffeur::where('id', $driverId)->first();
         $transporteur = Transporteur::where('id', $transporteurId)->first();
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
         // $response = Http::timeout(300)->get($url);
-        $response = Http::timeout(300)->retry(3, 100)->get($url);
+        $response = Http::timeout(5000)->retry(3, 1000)->get($url);
         $data = $response->json();
         $plate_number = "";
         // foreach($data as $item){
