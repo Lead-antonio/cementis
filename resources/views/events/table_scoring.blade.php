@@ -54,7 +54,7 @@
             <div class="card-body p-0">
                 <table id="tableau-score" class="table table-bordered table-responsive" width="100%">
                     <thead>
-                        <tr>
+                        <tr>    
                             <th style="text-align: center;">Chauffeur</th>
                             <th style="text-align: center;">Transporteur</th>
                             <th style="text-align: center;">Infraction</th>

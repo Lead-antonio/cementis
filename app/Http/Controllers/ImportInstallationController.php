@@ -273,5 +273,4 @@ class ImportInstallationController extends AppBaseController
         return view('export_general.export_generique');
     }
 
-    
 }
