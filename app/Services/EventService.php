@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\DB;
 class EventService
 {
     const ALLOWED_EVENT = [
-        'Accélération brusque', 
-        'Freinage brusque', 
+        // 'Accélération brusque', 
+        // 'Freinage brusque', 
         'Excès de vitesse en agglomération', 
         'Excès de vitesse hors agglomération', 
         'Survitesse excessive',

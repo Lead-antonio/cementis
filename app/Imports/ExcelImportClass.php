@@ -39,10 +39,14 @@ class ExcelImportClass implements ToCollection
 
             $values = array_values($data);
 
+             // Vérifier si le champ "camion" est vide et ignorer l'insertion si c'est le cas
+            if (empty($values[0])) { // Assurez-vous que $values[0] correspond à "camion"
+                continue; // Passe à la ligne suivante
+            }
 
             ImportExcel::create([
                 'name_importation' => $this->name_file_excel,
-                'camion' => isset($values[0]) ? $values[0] : null,
+                'camion' => $values[0],
                 'date_debut' => isset($values[1]) ? $this->convertExcelDateToCarbon($values[1]) : null,
                 'date_fin' => isset($values[2]) ? $this->convertExcelDateToCarbon($values[2]) : null,
                 'delais_route' => isset($values[3]) ? floatval($values[3]) : null,

@@ -11,8 +11,13 @@ use Illuminate\Support\Facades\DB;
 class InfractionService
 {
     const EVENT_TYPES = [
-        'Accélération brusque', 
-        'Freinage brusque', 
+        // 'Accélération brusque', 
+        // 'Freinage brusque', 
+        'Excès de vitesse en agglomération', 
+        'Excès de vitesse hors agglomération', 
+        'Survitesse excessive',
+        'Survitesse sur la piste de Tritriva',
+        'Survitesse sur la piste d\'Ibity',
     ];
 
     /**

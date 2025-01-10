@@ -16,7 +16,72 @@ class ReposJournalierService
 {
     /**
      * Antonio
-     * Vérification si il y a un TEMPS DE CONDUITE JOUR ou NUIT.
+     * Vérification si il y a un TEMPS DE REPOS JOURNALIER et point selon la durée éffectué.
+     *
+     */
+    // public static function checkForInfractionReposJournalier($movement)
+    // {
+    //     try {
+    //         // Vérification des données nécessaires
+    //         if (!isset($movement['duration'], $movement['start_hour'], $movement['imei'], $movement['rfid'])) {
+    //             throw new Exception("Données manquantes dans le mouvement.");
+    //         }
+
+    //         $utils = new Utils();
+    //         $continueService = new ConduiteContinueService();
+    //         $truckService = new TruckService();
+
+    //         // Conditions de repos en secondes
+    //         $conditions = [
+    //             'day' => 8 * 3600, // 8 heures (jour)
+    //             'night' => 10 * 3600, // 10 heures (nuit)
+    //         ];
+
+    //         $result = [];
+    //         $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
+    //         // Convertir la durée du STOP en secondes
+    //         $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+
+    //         // Vérifier si l'heure de début du STOP est dans la plage nuit
+    //         $isNightTime = $utils->isBetweenNightPeriod($movement['start_hour']);
+
+    //         // Déterminer la condition à appliquer (nuit ou jour)
+    //         $condition = $isNightTime ? $conditions['night'] : $conditions['day'];
+
+    //         // Vérifier si la durée du STOP est inférieure à la condition requise
+    //         if ($stopDuration < $condition) {
+    //             $event = "Temps de repos minimum après une journée de travail";
+
+    //             $result  = [
+    //                 'imei' => $movement['imei'],
+    //                 'rfid' => $movement['rfid'],
+    //                 'event' => $event,
+    //                 'vehicule' => $immatricule,
+    //                 'distance' => 0,
+    //                 'distance_calendar' => 0,
+    //                 'odometer' => 0,
+    //                 'duree_infraction' => $stopDuration,
+    //                 'duree_initial' => $condition,
+    //                 'date_debut' => $movement['start_date'],
+    //                 'date_fin' => $movement['end_date'],
+    //                 'heure_debut' => $movement['start_hour'],
+    //                 'heure_fin' => $movement['end_hour'],
+    //                 'point' => ($condition - $stopDuration) / 600, // Points calculés
+    //                 'insuffisance' => ($condition - $stopDuration) // Différence en secondes
+    //             ];
+    //         }
+
+    //         return $result;
+
+    //     } catch (Exception $e) {
+    //         // Enregistre l'erreur dans les logs
+    //         Log::error("Erreur dans checkForInfractionReposJournalier: " . $e->getMessage());
+    //     }
+    // }
+
+    /**
+     * Antonio
+     * Vérification si il y a un TEMPS DE REPOS JOURNALIER et point égale 1 à chaque infraction.
      *
      */
     public static function checkForInfractionReposJournalier($movement)
@@ -30,28 +95,20 @@ class ReposJournalierService
             $utils = new Utils();
             $continueService = new ConduiteContinueService();
             $truckService = new TruckService();
+            $penaliteService = new PenaliteService();
 
-            // Conditions de repos en secondes
-            $conditions = [
-                'day' => 8 * 3600, // 8 heures (jour)
-                'night' => 10 * 3600, // 10 heures (nuit)
-            ];
+            $condition = (8 * 3600) + 600;
 
             $result = [];
             $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
             // Convertir la durée du STOP en secondes
             $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
 
-            // Vérifier si l'heure de début du STOP est dans la plage nuit
-            $isNightTime = $utils->isBetweenNightPeriod($movement['start_hour']);
-
-            // Déterminer la condition à appliquer (nuit ou jour)
-            $condition = $isNightTime ? $conditions['night'] : $conditions['day'];
-
             // Vérifier si la durée du STOP est inférieure à la condition requise
             if ($stopDuration < $condition) {
                 $event = "Temps de repos minimum après une journée de travail";
-
+                $point = $penaliteService->getPointPenaliteByEventType($event);
+                
                 $result  = [
                     'imei' => $movement['imei'],
                     'rfid' => $movement['rfid'],
@@ -66,7 +123,7 @@ class ReposJournalierService
                     'date_fin' => $movement['end_date'],
                     'heure_debut' => $movement['start_hour'],
                     'heure_fin' => $movement['end_hour'],
-                    'point' => ($condition - $stopDuration) / 600, // Points calculés
+                    'point' => $point, // Points calculés
                     'insuffisance' => ($condition - $stopDuration) // Différence en secondes
                 ];
             }
@@ -78,7 +135,6 @@ class ReposJournalierService
             Log::error("Erreur dans checkForInfractionReposJournalier: " . $e->getMessage());
         }
     }
-
 
 
     /**

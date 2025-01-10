@@ -14,7 +14,7 @@ class TempsConduiteMaximum extends Command
      *
      * @var string
      */
-    protected $signature = 'driver:max-journey';
+    protected $signature = 'check:drivermax';
 
     /**
      * The console command description.
@@ -42,11 +42,8 @@ class TempsConduiteMaximum extends Command
     {
         $this->info('Starting the process...');
 
-        $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
-
-        $calendar = ImportExcel::where('import_calendar_id', $lastmonth)->first();
-        $conduite_max_Service = new ConduiteMaximumService();
-        // $journeys = $conduite_max_Service->splitCalendarByJourney($calendar);
-        // dd($journeys);
+        $drivemax = new ConduiteMaximumService();
+        // $drivemax->checkDrivingInfractions('865135060336425', '3B00F9C1F0');
+        $drivemax->checkTempsConduiteMaximum($this);
     }
 }

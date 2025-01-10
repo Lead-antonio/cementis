@@ -47,7 +47,7 @@
                     
                     <button onclick="exportToPDF()" class="btn btn-outline-secondary">Exporter en PDF</button>
 
-                    <a class="btn btn-success" href="{{ route('event.exportscoring') }}"> Exporter en Excel</a>
+                    <a class="btn btn-success" href="{{ route('event.exportscoring', ['chauffeur' => $chauffeur, 'id_planning' => $id_planning]) }}"> Exporter en Excel</a>
 
                 </div>
             </div>
@@ -60,8 +60,8 @@
                             <th style="text-align: center;">Infraction</th>
                             <th style="text-align: center;">Date de l'infraction</th>
                             <th style="text-align: center;">Coordonnées gps</th>
-                            <th style="text-align: center;">Durée infraction / durée effectuée</th>
-                            <th style="text-align: center;">Insuffisance / Excès</th>
+                            <th style="text-align: center; word-wrap: break-word; white-space: normal; width: 100px;">Durée infraction / durée effectuée</th>
+                            <th style="text-align: center; word-wrap: break-word; white-space: normal; width: 80px;">Insuffisance/Excès</th>
                             <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
                             <th style="text-align: center;">Distance totale dans le calendrier</th>
                             <th style="text-align: center;">Point de pénalité</th>
@@ -144,35 +144,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/plugins/jquery.rowspanizer.min.js') }}"></script>
 
-    
 
-
-    <style>
-        .scoring-green {
-            background-color: #6dac10; /* Vert */
-            color: #000000; /* Couleur de texte */
-        }
-        .scoring-yellow {
-            background-color: #f7d117; /* Jaune */
-            color: #000000; /* Couleur de texte */
-        }
-        .scoring-orange {
-            background-color: #f58720; /* Orange */
-            color: #000000; /* Couleur de texte */
-        }
-        .scoring-red {
-            background-color: #f44336; /* Rouge */
-            color: #ffffff; /* Couleur de texte */
-        }
-        .point-row {
-            background-color: #808080; /* Couleur de fond différente */
-            color: #000000; /* Couleur de texte */
-        }
-        .distance-row {
-            background-color: #808080;  /* Couleur de fond différente */
-            color: #000000; /* Couleur de texte */
-        }
-    </style>
     <script>
 
         $(document).ready(function() {
@@ -217,9 +189,51 @@
     <script >
         function exportToPDF() {
             const element = document.getElementById('tableau-score');
-            html2pdf().from(element).save('tableau.pdf');
+            const options = {
+                margin: 0.5, // Marge autour du contenu
+                filename: 'tableau.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 4 }, // Augmente la résolution
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } // Paysage pour un tableau large
+            };
+
+            html2pdf().set(options).from(element).save();
         }
 
         $("#tableau-score").rowspanizer({columns: [0, 1, 2], vertical_align:'middle'});
     </script>
+    <style>
+        .scoring-green {
+            background-color: #6dac10; /* Vert */
+            color: #000000; /* Couleur de texte */
+        }
+        .scoring-yellow {
+            background-color: #f7d117; /* Jaune */
+            color: #000000; /* Couleur de texte */
+        }
+        .scoring-orange {
+            background-color: #f58720; /* Orange */
+            color: #000000; /* Couleur de texte */
+        }
+        .scoring-red {
+            background-color: #f44336; /* Rouge */
+            color: #ffffff; /* Couleur de texte */
+        }
+        .point-row {
+            background-color: #808080; /* Couleur de fond différente */
+            color: #000000; /* Couleur de texte */
+        }
+        .distance-row {
+            background-color: #808080;  /* Couleur de fond différente */
+            color: #000000; /* Couleur de texte */
+        }
+        #tableau-score {
+            /* font-size: 10px; */
+            width: 100%; /* Assurez-vous que le tableau utilise toute la largeur */
+        }
+
+        #tableau-score th, #tableau-score td {
+            padding: 4px; /* Réduire l'espacement */
+        }
+    </style>
 @endsection

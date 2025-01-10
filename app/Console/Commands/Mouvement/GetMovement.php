@@ -59,6 +59,7 @@ class GetMovement extends Command
         // Pass the current console instance to the method
         // $movementService->saveDriveAndStop($this);
         $movementService->getAllMouvementMonthly($this, $startDate, $endDate);
+        // $movementService->getMissingMouvementMonthly($this, $startDate, $endDate);
         
         $this->info('Process completed!');
     }

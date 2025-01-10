@@ -208,7 +208,8 @@ class EventController extends AppBaseController
                         'camion' => $camion,
                         'comment' => '',
                         'distance' => $distance,
-                        'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
+                        'point' => $total_point
+                        // 'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
                     ];
                 }
     
@@ -231,7 +232,7 @@ class EventController extends AppBaseController
     public function TableauScoring($chauffeur, $id_planning){
         $scoring = tabScoringCard($chauffeur, $id_planning);
         
-        return view('events.table_scoring', compact('scoring', 'id_planning'));
+        return view('events.table_scoring', compact('scoring', 'id_planning', 'chauffeur'));
     }
 
     public function TableauScoringPdf(){
@@ -246,18 +247,18 @@ class EventController extends AppBaseController
     }
 
 
-    public function exportScoring()
+    public function exportScoring($chauffeur, $id_planning)
     {
         try {
             
-            // $scoring = tabScoringCard();
-            $scoring = tabScoringCard_new();
-            
-            return Excel::download(new ScoringExport($scoring ), 'scoring.xlsx');
+            // $scoring = tabScoringCard($chauffeur, $id_planning);
+            $scoring = tabScoringCard_new($chauffeur, $id_planning);
+            $distance_total = getDistanceTotalDriverInCalendar($chauffeur, $id_planning);
+            return Excel::download(new ScoringExport($scoring, $distance_total ), 'scoring.xlsx');
         } catch (\Throwable $th) {
 
-            dd($th->getMessage());
-            //throw $th;
+            // dd($th->getMessage());
+            throw $th;
         }
     }
 

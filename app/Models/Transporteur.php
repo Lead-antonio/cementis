@@ -21,7 +21,7 @@ class Transporteur extends Model
 
     public $table = 'transporteur';
     
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $dates = ['deleted_at'];
 

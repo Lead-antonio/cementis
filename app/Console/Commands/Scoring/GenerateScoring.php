@@ -90,7 +90,8 @@ class GenerateScoring extends Command
                             'camion' => $camion,
                             'comment' => '',
                             'distance' => $distance,
-                            'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
+                            'point' => $total_point
+                            // 'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
                         ];
                     }
 

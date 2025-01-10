@@ -17,79 +17,210 @@ use Illuminate\Support\Facades\DB;
 class ConduiteMaximumService
 {
     /**
-     * Summary of CheckDriveMaxDayAndNight
-     * jonny
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return void
+     * Antonio
+     * Vérification si il y a un TEMPS DE CONDUITE  MAXIMUM DANS UNE JOURNEE DE TRAVAIL.
+     * Avec règle de jour ou nuit et point selon durée effectué
      */
-    // public function CheckDriveMaxDayAndNight($startDate, $endDate) {
-    //     // Définir les périodes de jour et de nuit
-    //     $dayStart = Carbon::createFromTime(4, 0, 0);    // 4h00
-    //     $dayEnd = Carbon::createFromTime(21, 59, 59);   // 21h59
-    //     $nightStart = Carbon::createFromTime(22, 0, 0); // 22h00
-    //     $nightEnd = Carbon::createFromTime(3, 59, 59)->addDay(); // 3h59 du jour suivant
-    
-    //     // Récupérer les mouvements (conduite) pour la période donnée
-    //     $movements = Movement::where('type', 'DRIVE')
-    //         ->where('start_date', '>=', $startDate)
-    //         ->where('end_date', '<=', $endDate)
-    //         ->get();
-    
-    //     // Grouper les mouvements par chauffeur (rfid) et véhicule (imei)
-    //     $groupedMovements = $movements->groupBy(function($item) {
-    //         return $item->imei . '-' . $item->rfid;
-    //     });
-    
-    //     // Parcourir chaque groupe (un chauffeur et un véhicule)
-    //     foreach ($groupedMovements as $group) {
-    //         $dayDrivingDuration = 0; // Durée totale de conduite de jour pour ce groupe
-    //         $nightDrivingDuration = 0; // Durée totale de conduite de nuit pour ce groupe
-    //         $firstDriveStart = null; // Variable pour stocker le début de la première conduite
-    
-    //         foreach ($group as $movement) {
-    //             $startDateTime = Carbon::parse($movement->start_date . ' ' . $movement->start_hour);
-    //             $endDateTime = Carbon::parse($movement->end_date . ' ' . $movement->end_hour);
-    
-    //             // Initialiser le début de la journée de conduite à la première conduite
-    //             if (is_null($firstDriveStart)) {
-    //                 $firstDriveStart = $startDateTime;
+    // public static function checkForInfractionConduiteMax($movements)
+    // {
+    //     $utils = new Utils();
+    //     $continueService = new ConduiteContinueService();
+    //     $truckService = new TruckService();
+    //     $totalDriveDuration = 0;
+    //     $applyNightCondition = false;
+    //     $dayCondition = 3600 * 13; // 13 heures (jour)
+    //     $nightCondition = 3600 * 12; // 12 heures (nuit)
+    //     $result = [];
+    //     $infractionFound = false;
+
+    //     $immatricule = null;
+
+    //     // Variables pour date et heure de début et fin du premier et dernier DRIVE de la journée
+    //     $first_drive_start_date = null;
+    //     $last_drive_end_date = null;
+    //     $first_drive_start_hour = null;
+    //     $last_drive_end_hour = null;
+
+    //     foreach ($movements as $index => $movement) {
+    //         $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
+    //         // Cumuler les durées de DRIVE dans la journée courante
+    //         if ($movement['type'] === 'DRIVE') {
+    //             $driveDuration = $utils->convertTimeToSeconds($movement['duration']);
+    //             $totalDriveDuration += $driveDuration;
+
+    //             // Enregistrer la date  de début du premier DRIVE
+    //             if (!$first_drive_start_date) {
+    //                 $first_drive_start_date = $movement['start_date'];
     //             }
-    
-    //             // Calculer la fin de la journée glissante de 24h
-    //             $dayEndWindow = $firstDriveStart->copy()->addHours(24);
-    
-    //             // Si le mouvement dépasse la période de 24h, on arrête l'analyse pour cette période
-    //             if ($endDateTime > $dayEndWindow) {
-    //                 break;
+
+    //             // Enregistrer l'heure de début du premier DRIVE
+    //             if (!$first_drive_start_hour) {
+    //                 $first_drive_start_hour = $movement['start_hour'];
     //             }
-    
-    //             // Séparer en période jour et nuit si chevauchement
-    //             if ($startDateTime < $dayEnd && $endDateTime > $dayStart) {
-    //                 // Calculer la durée de conduite de jour
-    //                 $dayDrivingDuration += $this->calculateDrivingInRange($startDateTime, $endDateTime, $dayStart, $dayEnd);
-    //             }
-    
-    //             if ($startDateTime < $nightEnd && $endDateTime > $nightStart) {
-    //                 // Calculer la durée de conduite de nuit
-    //                 $nightDrivingDuration += $this->calculateDrivingInRange($startDateTime, $endDateTime, $nightStart, $nightEnd);
+
+    //             // Toujours mettre à jour la date de fin du dernier DRIVE
+    //             $last_drive_end_date = $movement['end_date'];
+
+    //             // Toujours mettre à jour l'heure de fin du dernier DRIVE
+    //             $last_drive_end_hour = $movement['end_hour'];
+
+    //             // Vérifier si la période DRIVE chevauche la nuit
+    //             if ($utils->isNightPeriod($movement['start_hour'], $movement['end_hour'])) {
+    //                 $applyNightCondition = true;
     //             }
     //         }
-    
-    //         // Vérifier les infractions pour conduite de jour
-    //         if ($dayDrivingDuration > 13 * 3600) { // 13 heures en secondes
-    //             $this->registerInfraction($group[0]->rfid, $group[0]->imei, 'Conduite maximum dans une journée de travail (Jour)', $dayDrivingDuration, $startDate, $group, 13 * 3600);
-    //         }
-    
-    //         // Vérifier les infractions pour conduite de nuit
-    //         if ($nightDrivingDuration > 12 * 3600) { // 12 heures en secondes
-    //             $this->registerInfraction($group[0]->rfid, $group[0]->imei, 'Conduite maximum dans une journée de travail (Nuit)', $nightDrivingDuration, $startDate, $group, 12 * 3600);
-    //         }
+
+    //             if($applyNightCondition == true){
+    //                 if($totalDriveDuration > $nightCondition ){
+    //                     $result[] = [
+    //                         'calendar_id' => $movement['calendar_id'],
+    //                         'imei' => $movement['imei'],
+    //                         'rfid' => $movement['rfid'],
+    //                         'vehicule' => $immatricule,
+    //                         'event' => "Temps de conduite maximum dans une journée de travail",
+    //                         'distance' => 0,
+    //                         'distance_calendar' => 0,
+    //                         'odometer' => 0,
+    //                         'duree_infraction' => ($totalDriveDuration - $nightCondition),
+    //                         'duree_initial' => 600,
+    //                         'date_debut' => $first_drive_start_date,
+    //                         'date_fin' => $last_drive_end_date,
+    //                         'heure_debut' => $first_drive_start_hour,
+    //                         'heure_fin' => $last_drive_end_hour,
+    //                         'point' => ($totalDriveDuration - $nightCondition)  / 600
+    //                     ];
+
+    //                     $totalDriveDuration = 0;
+    //                     $applyNightCondition = false;
+    //                     $first_drive_start_hour = null;
+    //                     $last_drive_end_hour = null;
+    //                     $first_drive_start_date = null;
+    //                     $last_drive_end_date = null;
+
+    //                 }
+    //             }
+                
+    //             if($applyNightCondition == false){
+
+    //                 if($totalDriveDuration > $dayCondition ){
+    //                     $result[] = [
+    //                         'calendar_id' => $movement['calendar_id'],
+    //                         'imei' => $movement['imei'],
+    //                         'rfid' => $movement['rfid'],
+    //                         'vehicule' => $immatricule,
+    //                         'event' => "Temps de conduite maximum dans une journée de travail",
+    //                         'distance' => 0,
+    //                         'distance_calendar' => 0,
+    //                         'odometer' => 0,
+    //                         'duree_infraction' => ($totalDriveDuration - $dayCondition),
+    //                         'duree_initial' => $dayCondition,
+    //                         'date_debut' => $first_drive_start_date,
+    //                         'date_fin' => $last_drive_end_date,
+    //                         'heure_debut' => $first_drive_start_hour,
+    //                         'heure_fin' => $last_drive_end_hour,
+    //                         'point' => ($totalDriveDuration - $dayCondition ) / 600
+    //                     ];
+
+    //                     $totalDriveDuration = 0;
+    //                     $applyNightCondition = false;
+    //                     $first_drive_start_hour = null;
+    //                     $last_drive_end_hour = null;
+    //                     $first_drive_start_date = null;
+    //                     $last_drive_end_date = null;
+
+    //                 }
+    //             }
+
     //     }
-    // }
+    //     return $result;
+    // } 
+
+    /**
+     * Antonio
+     * Vérification si il y a un TEMPS DE CONDUITE  MAXIMUM DANS UNE JOURNEE DE TRAVAIL.
+     * Sans règle de jour ou nuit et à chaque infraction 1 point
+     */
+    public static function checkForInfractionConduiteMax($movements)
+    {
+        $utils = new Utils();
+        $continueService = new ConduiteContinueService();
+        $truckService = new TruckService();
+        $penaliteService = new PenaliteService();
+        $totalDriveDuration = 0;
+        $condition = (13 * 3600) + 600; // 13 heures 10 minutes
+        $result = [];
+        $infractionFound = false;
+        $event = "Temps de conduite maximum dans une journée de travail";
+
+        $immatricule = null;
+
+        // Variables pour date et heure de début et fin du premier et dernier DRIVE de la journée
+        $first_drive_start_date = null;
+        $last_drive_end_date = null;
+        $first_drive_start_hour = null;
+        $last_drive_end_hour = null;
+        $point = $penaliteService->getPointPenaliteByEventType($event);
+
+        foreach ($movements as $index => $movement) {
+            $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
+            // Cumuler les durées de DRIVE dans la journée courante
+            if ($movement['type'] === 'DRIVE') {
+                $driveDuration = $utils->convertTimeToSeconds($movement['duration']);
+                $totalDriveDuration += $driveDuration;
+
+                // Enregistrer la date  de début du premier DRIVE
+                if (!$first_drive_start_date) {
+                    $first_drive_start_date = $movement['start_date'];
+                }
+
+                // Enregistrer l'heure de début du premier DRIVE
+                if (!$first_drive_start_hour) {
+                    $first_drive_start_hour = $movement['start_hour'];
+                }
+
+                // Toujours mettre à jour la date de fin du dernier DRIVE
+                $last_drive_end_date = $movement['end_date'];
+
+                // Toujours mettre à jour l'heure de fin du dernier DRIVE
+                $last_drive_end_hour = $movement['end_hour'];
+            }
+
+            if($totalDriveDuration > $condition ){
+                $result[] = [
+                    'calendar_id' => $movement['calendar_id'],
+                    'imei' => $movement['imei'],
+                    'rfid' => $movement['rfid'],
+                    'vehicule' => $immatricule,
+                    'event' => "Temps de conduite maximum dans une journée de travail",
+                    'distance' => 0,
+                    'distance_calendar' => 0,
+                    'odometer' => 0,
+                    'duree_infraction' => ($totalDriveDuration - $condition),
+                    'duree_initial' => $condition,
+                    'date_debut' => $first_drive_start_date,
+                    'date_fin' => $last_drive_end_date,
+                    'heure_debut' => $first_drive_start_hour,
+                    'heure_fin' => $last_drive_end_hour,
+                    'point' => $point
+                ];
+
+                $totalDriveDuration = 0;
+                $first_drive_start_hour = null;
+                $last_drive_end_hour = null;
+                $first_drive_start_date = null;
+                $last_drive_end_date = null;
+
+            }
+        }
+        return $result;
+    } 
 
     
-
+    /**
+     * Antonio
+     * Enregistrement des infractions de  TEMPS DE CONDUITE  MAXIMUM DANS UNE JOURNEE DE TRAVAIL.
+     * 
+     */
     public static function checkTempsConduiteMaximum($console){
         try{
             $mouvementService = new MovementService();
@@ -137,7 +268,7 @@ class ConduiteMaximumService
                     $console->withProgressBar($journeyCount, function($progressBar) use ($all_journey,$mouvementService, $continueService, &$data_infraction, $imei) {
                         foreach($all_journey as $journey){
                             $allmovements = $mouvementService->getAllMovementByJourney($imei, $journey['start'], $journey['end']);
-                            $infraction = $continueService->checkForInfractionTemps($allmovements);
+                            $infraction = self::checkForInfractionConduiteMax($allmovements);
                             if($infraction){
                                 $data_infraction = array_merge($data_infraction, $infraction);
                                 $data_infraction = array_unique($data_infraction, SORT_REGULAR);
@@ -154,7 +285,6 @@ class ConduiteMaximumService
                 }
             }
             if (!empty($data_infraction)) {
-                // dd($data_infraction);
                 // dd($data_journeys);
                 try {
                     DB::beginTransaction(); // Démarre la transaction

@@ -151,7 +151,7 @@ if (!function_exists('tabScoringCard')) {
 
 
 if (!function_exists('tabScoringCard_new')) {
-    function tabScoringCard_new()
+    function tabScoringCard_new($chauffeur, $id_planning)
     {
         $results = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -170,6 +170,8 @@ if (!function_exists('tabScoringCard_new')) {
             'i.distance_calendar',
             DB::raw("(i.point * 100) / i.distance_calendar as score_card")
             )
+        ->where('ch.nom',$chauffeur)
+        ->where('ie.import_calendar_id', $id_planning)
         ->groupBy('t.nom','ch.nom', 'i.duree_infraction','i.heure_debut','i.heure_fin', 'i.gps_debut', 'i.date_debut', 'i.gps_fin', 'i.event', 'i.point', 'i.distance','i.distance_calendar')
         ->orderBy('ch.nom')
         ->orderBy('t.nom')

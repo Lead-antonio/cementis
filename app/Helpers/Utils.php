@@ -110,9 +110,37 @@ class Utils
      * @param string $end_hour
      * return false | true
      */
+    // public static function isNightPeriod($startHour, $endHour)
+    // {
+    //     // Convertir les heures en objets DateTime pour faciliter la comparaison
+    //     $startTime = new \DateTime($startHour);
+    //     $endTime = new \DateTime($endHour);
+        
+    //     // Définir les périodes de jour et de nuit
+    //     $dayStart = new \DateTime('04:00:00');
+    //     $dayEnd = new \DateTime('22:00:00');
+        
+    //     // Cas 1 : Si le début et la fin sont dans la même journée (ne traverse pas minuit)
+    //     if ($startTime >= $dayStart && $endTime <= $dayEnd) {
+    //         return false; // C'est pendant la journée
+    //     }
+        
+    //     // Cas 2 : Si la plage horaire traverse minuit
+    //     if ($startTime > $endTime) {
+    //         // Ceci gère les cas où la période traverse minuit (par exemple, de 18h00 à 02h00)
+    //         return true;
+    //     }
+        
+    //     // Cas 3 : Si la plage est entièrement pendant la période de nuit
+    //     if ($startTime >= $dayEnd || $endTime <= $dayStart) {
+    //         return true; // C'est pendant la nuit
+    //     }
+
+    //     // Par défaut, retourner vrai si cela tombe en dehors de la période de jour (cas particulier)
+    //     return true;
+    // }
     public static function isNightPeriod($startHour, $endHour)
     {
-        // Convertir les heures en objets DateTime pour faciliter la comparaison
         $startTime = new \DateTime($startHour);
         $endTime = new \DateTime($endHour);
         
@@ -120,25 +148,23 @@ class Utils
         $dayStart = new \DateTime('04:00:00');
         $dayEnd = new \DateTime('22:00:00');
         
-        // Cas 1 : Si le début et la fin sont dans la même journée (ne traverse pas minuit)
-        if ($startTime >= $dayStart && $endTime <= $dayEnd) {
-            return false; // C'est pendant la journée
+        // Si la plage traverse minuit
+        if ($startTime > $endTime) {
+            // Vérifie si une partie de la plage est en dehors de la période de jour
+            if ($startTime >= $dayEnd || $endTime <= $dayStart) {
+                return true; // C'est la nuit
+            }
+            return true; // Traversée de nuit
         }
         
-        // Cas 2 : Si la plage horaire traverse minuit
-        if ($startTime > $endTime) {
-            // Ceci gère les cas où la période traverse minuit (par exemple, de 18h00 à 02h00)
+        // Si le début ou la fin est en dehors de la période de jour
+        if ($startTime < $dayStart || $endTime > $dayEnd) {
             return true;
         }
-        
-        // Cas 3 : Si la plage est entièrement pendant la période de nuit
-        if ($startTime >= $dayEnd || $endTime <= $dayStart) {
-            return true; // C'est pendant la nuit
-        }
 
-        // Par défaut, retourner vrai si cela tombe en dehors de la période de jour (cas particulier)
-        return true;
+        return false; // C'est pendant la journée
     }
+
 
     /**
      * Antonio

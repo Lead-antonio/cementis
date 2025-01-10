@@ -151,7 +151,7 @@
 
             // Function to attach event listeners for sorting
             function attachSortListeners() {
-                let ascending = true;
+                let ascending = false;
                 const maiSortIcon = document.getElementById('maiSortIcon');
 
                 // Function to sort the table by the "Mai" column
@@ -298,7 +298,7 @@
 
         // Ajoutez des écouteurs d'événements aux trie de la colonne scoring
         document.addEventListener('DOMContentLoaded', function() {
-            let ascending = true;
+            let ascending = false;
             const maiSortIcon = document.getElementById('maiSortIcon');
             // Fonction pour trier les lignes du tableau en fonction des valeurs de la colonne "Mai"
             function sortTableByMai() {

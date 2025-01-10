@@ -97,7 +97,7 @@ Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')
 
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
-Route::get('/event/exportscoring', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
+Route::get('/event/exportscoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
 
 Route::get('/event/exportscoringcard/{planning?}', 'App\Http\Controllers\EventController@exportscoringcard')->name('event.exportscoringcard');
 
