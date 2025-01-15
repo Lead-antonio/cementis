@@ -42,8 +42,7 @@ class TempsConduiteMaximum extends Command
     {
         $this->info('Starting the process...');
 
-        $drivemax = new ConduiteMaximumService();
-        // $drivemax->checkDrivingInfractions('865135060336425', '3B00F9C1F0');
-        $drivemax->checkTempsConduiteMaximum($this);
+        // $drivemax = new ConduiteMaximumService();
+        // $drivemax->checkTempsConduiteMaximum($this);
     }
 }
