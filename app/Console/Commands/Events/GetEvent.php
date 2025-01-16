@@ -14,7 +14,7 @@ class GetEvent extends Command
      * @var string
      */
     protected $signature = 'get:event';
-
+    
     /**
      * The console command description.
      *

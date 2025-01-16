@@ -23,7 +23,7 @@ class OverSpeedService{
             'Survitesse sur la piste de Tritriva',
             'Survitesse sur la piste d\'Ibity',
         ];
-        
+    
         // Boucle sur chaque type d'événement
         foreach ($eventTypes as $eventType) {
             // Récupérer les événements pour un type donné
@@ -146,12 +146,14 @@ class OverSpeedService{
         $dureeMinutes = ceil($dureeSeconds / 60);
     
         // Calcul des points selon la règle de trois : 60s = 1 point
-        $penalite = $penaliteService->getPointPenaliteByEventType($firstEvent->type);
+        // $penalite = $penaliteService->getPointPenaliteByEventType($firstEvent->type);
         $eventType = trim($firstEvent->type);
         $penalite_event = Penalite::where('event',$eventType)->first();
+        
+        // $totalPoints = ($dureeSeconds * $penalite ) / $penalite_event->param;
 
-
-        $totalPoints = ($dureeSeconds * $penalite ) / $penalite_event->param;
+        // 1 point de pénalité pour l'infraction 
+        $totalPoints = 1;
 
     
         // Si le total des points est égal à 0, ne pas sauvegarder l'infraction

@@ -43,7 +43,7 @@ class CheckOverspeed extends Command
                 
         $startDate = Carbon::now()->subMonths(2)->endOfMonth();
         $endDate = Carbon::now()->startOfMonth();
-
+                
         // $date = "2024-06-01";
         // $startDate = Carbon::parse($date)->startOfMonth();
         // $endDate = Carbon::parse($date)->endOfMonth();
