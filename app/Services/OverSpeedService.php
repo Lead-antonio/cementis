@@ -28,6 +28,7 @@ class OverSpeedService{
         foreach ($eventTypes as $eventType) {
             // Récupérer les événements pour un type donné
             $records = DB::table('event')
+                ->distinct()
                 ->select('imei', 'chauffeur', 'vehicule', 'type', 'odometer', 'vitesse', 'latitude', 'longitude', 'date')
                 ->where('type', $eventType)  // Filtre par type d'événement
                 ->whereBetween('date', [$startDate, $endDate])

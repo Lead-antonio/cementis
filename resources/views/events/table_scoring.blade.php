@@ -58,12 +58,13 @@
                             <th style="text-align: center;">Chauffeur</th>
                             <th style="text-align: center;">Transporteur</th>
                             <th style="text-align: center;">Infraction</th>
-                            <th style="text-align: center;">Date de l'infraction</th>
+                            <th style="text-align: center;">Date début</th>
+                            <th style="text-align: center;">Date fin</th>
                             <th style="text-align: center;">Coordonnées gps</th>
                             <th style="text-align: center; word-wrap: break-word; white-space: normal; width: 100px;">Durée infraction / durée effectuée</th>
                             <th style="text-align: center; word-wrap: break-word; white-space: normal; width: 80px;">Insuffisance/Excès</th>
-                            <th style="text-align: center;">Distance parcourue pendant l'infraction</th>
-                            <th style="text-align: center;">Distance totale dans le calendrier</th>
+                            {{-- <th style="text-align: center;">Distance parcourue pendant l'infraction</th> --}}
+                            <th style="text-align: center;">Distance totale calendrier</th>
                             <th style="text-align: center;">Point de pénalité</th>
                             <th style="text-align: center;">Scoring Card</th>
                         </tr>
@@ -82,6 +83,7 @@
                                     <td style="text-align: center">{{ $result->driver }}</td>
                                     <td style="text-align: center">{{$result->transporteur_nom}}</td>
                                     <td style="text-align: center">{{ trim($result->infraction) }}</td>
+                                    <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
                                     <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_fin.' '.$result->heure_fin)->format('d-m-Y H:i:s') }}</td>
                                     <td style="text-align: center">
                                         <a href="#" onclick="showMapModal('{{ $result->gps_debut }}', '{{ $result->infraction }}')">
@@ -90,7 +92,6 @@
                                     </td>
                                     <td style="text-align: center">{{ convertMinuteHeure($result->duree_infraction) }}</td>
                                     <td style="text-align: center">{{ $result->insuffisance ? convertMinuteHeure($result->insuffisance) : "" }}</td>
-                                    <td style="text-align: center">{{ $result->distance }} Km</td>
                                     <td style="text-align: center"></td>
                                     <td style="text-align: center">{{ $result->point }}</td>
                                 </tr>
@@ -104,7 +105,8 @@
                                 $distanceTotal = getDistanceTotalDriverInCalendar($driver, $id_planning);
 
                                 if ($distanceTotal > 0) {
-                                    $scoring_card = number_format(($total_point / $distanceTotal) * 100, 2);
+                                    // $scoring_card = number_format(($total_point / $distanceTotal) * 100, 2);
+                                    $scoring_card = ($total_point);
                                 } else {
                                     $scoring_card = 0; // Ou toute autre valeur par défaut
                                 }

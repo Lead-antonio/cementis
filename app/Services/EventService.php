@@ -164,12 +164,13 @@ class EventService
                         // Filtre supplémentaire pour s'assurer que les données sont valides
                         if ($event[10]['rfid'] != "0000000000" && trim($event[10]['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0")) {
                             // Ajouter les données dans le tableau `$filteredData` sans les insérer
+                            $date = (new \DateTime($event[4]))->modify('+3 hours');
                             $filteredData[] = [
                                 'imei' => trim($event[2]),
                                 'chauffeur' => $event[10]['rfid'],
                                 'vehicule' => $event[3],
                                 'type' => trim($event[1]),
-                                'date' => $event[4],
+                                'date' => $date,
                                 'odometer' => $event[10]['odo'] ?? 0,
                                 'vitesse' => $event[9] ?? 0,
                                 'latitude' => $event[5] ?? 0,

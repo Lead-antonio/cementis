@@ -88,9 +88,7 @@ class EventDataTable extends DataTable
                 'title' => __('models/events.fields.date'), 'data' => 'date',
                 'render' => 'function() {
                     var date = new Date(full.date);
-                    date.setHours(date.getHours() - 1);
-                    var date_heure = moment(date).format("DD-MM-YYYY HH:mm:ss");
-
+                    var date_heure = moment.utc(date).format("DD-MM-YYYY HH:mm:ss");
                     return date_heure;
                 }',
             ])
