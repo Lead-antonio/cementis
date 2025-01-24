@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebhookController;
 
+
 Route::get('/', [
     App\Http\Controllers\DashboardController::class, 'index'
 ])->name('dashboard');
@@ -146,3 +147,6 @@ Route::resource('importInstallationErrors', App\Http\Controllers\ImportInstallat
 Route::resource('movements', App\Http\Controllers\MovementController::class);
 
 Route::resource('importModels', App\Http\Controllers\ImportModelController::class);
+
+Route::resource('process', App\Http\Controllers\ProcessController::class);
+

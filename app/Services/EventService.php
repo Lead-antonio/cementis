@@ -250,7 +250,33 @@ class EventService
             $chunkSize = 100;
 
             foreach (array_chunk($allEvents, $chunkSize) as $chunk) {
-                Event::insert($chunk);
+                $eventsToInsert = []; // Tableau pour stocker les événements à insérer
+
+                foreach ($chunk as $event) {
+                    // Vérifiez si l'événement existe déjà
+                    $exists = DB::table('event')
+                        ->where('imei', $event['imei'])
+                        ->where('chauffeur', $event['chauffeur'])
+                        ->where('vehicule', $event['vehicule']) 
+                        ->where('type', trim($event['type']))  
+                        ->where('vitesse', $event['vitesse']) 
+                        ->where('latitude', number_format((float)$event['latitude'], 2, '.', ''))
+                        ->where('longitude', number_format((float)$event['longitude'], 2, '.', ''))
+                        ->where('odometer', number_format((float)$event['odometer'], 2, '.', '')) 
+                        ->where('description', trim($event['description']))     
+                        ->where('duree', $event['duree'])     
+                        ->where('date', $event['date'])     
+                        ->exists();
+                    // Si l'événement n'existe pas, ajoutez-le au tableau des insertions
+                    if (!$exists) {
+                        $eventsToInsert[] = $event;
+                    }
+                }
+
+                // Insérez uniquement les événements qui n'existent pas déjà
+                if (!empty($eventsToInsert)) {
+                    Event::insert($eventsToInsert);
+                }
             }
             $console->info('Tous les événements pour la période ont été insérés.');
         } else {

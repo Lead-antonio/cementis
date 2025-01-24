@@ -220,7 +220,20 @@ class GeolocalisationService
             
             $drives = isset($data['drives']) && is_array($data['drives']) ? $data['drives'] : null;
             $stops = isset($data['stops']) && is_array($data['stops']) ? $data['stops'] : null;
-            $rfid = isset($data['route']) && is_array($data['route']) ? $data['route'][0][6]['rfid'] : null;
+            // $rfid = isset($data['route']) && is_array($data['route']) && isset($data['route'][0][6]['rfid']) ? $data['route'][0][6]['rfid'] : null;
+            $rfid = null;
+
+            if (isset($data['route']) && is_array($data['route'])) {
+                // Vérifier si le premier élément a une clé 'rfid'
+                if (isset($data['route'][0][6]['rfid'])) {
+                    $rfid = $data['route'][0][6]['rfid'];
+                }
+                // Sinon, vérifier si le dernier élément a une clé 'rfid'
+                elseif (isset($data['route'][count($data['route']) - 1][6]['rfid'])) {
+                    $rfid = $data['route'][count($data['route']) - 1][6]['rfid'];
+                }
+            }
+
     
             // Retourner les drives et stops (peuvent être null ou des tableaux vides)
             return [

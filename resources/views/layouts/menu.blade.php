@@ -273,48 +273,13 @@
     </ul>
 </li>
 
-{{-- <li class="nav-item">
-    <a href="{{ route('penalites.index') }}"
-       class="nav-link {{ Request::is('penalites*') ? 'active' : '' }}">
-       <i class="nav-icon fas fa-exclamation-triangle"></i> 
-        <p>@lang('models/penalites.plural')</p>
+
+<li class="nav-item">
+    <a href="{{ route('process.index') }}" class="nav-link {{ Request::is('process*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-microchip"></i>
+        <p>@lang('models/process.plural')</p>
     </a>
-</li> --}}
-
-
-{{-- <li class="nav-item">
-    <a href="{{ route('fichierExcels.index') }}"
-       class="nav-link {{ Request::is('fichierExcels*') ? 'active' : '' }}">
-        <p>@lang('models/fichierExcels.plural')</p>
-    </a>
-</li> --}}
-
-{{-- <li class="nav-item">
-    <a href="{{ route('importcalendars.index') }}"
-       class="nav-link {{ Request::is('importcalendars*') ? 'active' : '' }}">
-        <p>@lang('models/importcalendars.plural')</p>
-    </a>
-</li> --}}
-
-
-{{-- <li class="nav-item">
-    <a href="{{ route('groupeEvents.index') }}"
-       class="nav-link {{ Request::is('groupeEvents*') ? 'active' : '' }}">
-        <p>@lang('models/groupeEvents.plural')</p>
-    </a>
-</li> --}}
-{{--  
-
---}}
-
-
-
-{{-- <li class="nav-item">
-    <a href="{{ route('scorings.index') }}"
-       class="nav-link {{ Request::is('scorings*') ? 'active' : '' }}">
-        <p>@lang('models/scorings.plural')</p>
-    </a>
-</li> --}}
+</li>
 
 <li class="nav-item">
     <a href="{{ route('installateurs.index') }}" class="nav-link {{ Request::is('installateurs*') ? 'active' : '' }}">
