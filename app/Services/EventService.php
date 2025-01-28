@@ -160,7 +160,7 @@ class EventService
             // Parcourir les données de l'API
             if (!empty($apiData)) {
                 foreach ($apiData as $event) {
-                    if (in_array($event[1], self::ALLOWED_EVENT) && isset($event[10]['rfid'])) {
+                    if (in_array(trim($event[1]), self::ALLOWED_EVENT) && isset($event[10]['rfid'])) {
                         // Filtre supplémentaire pour s'assurer que les données sont valides
                         if ($event[10]['rfid'] != "0000000000" && trim($event[10]['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0")) {
                             // Ajouter les données dans le tableau `$filteredData` sans les insérer

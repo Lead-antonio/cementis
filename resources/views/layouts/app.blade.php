@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="{{ mix('js/app.js') }}"></script>
 
     <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
 
@@ -143,9 +144,42 @@
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
     <script type="text/javascript">
+        console.log(window.Echo);
+        window.Echo.channel('job-completed')
+        .listen('.job.completed', (event) => {
+            console.log('Événement reçu :', event);
+            if (event.status === 'completed') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succès',
+                    text: `Étape ${event.stepId} terminée avec succès !`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            } 
+            if (event.status === 'error') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: `Erreur lors de l'exécution de l'étape ${event.stepId}.`,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        });
+
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+        console.log('Pusher connecté');
+        });
+
+        window.Echo.connector.pusher.connection.bind('error', (error) => {
+            console.log('Erreur Pusher:', error);
+        });
         $(document).ready(function() {
             // Masquer le loader et l'overlay lorsque la page est chargée
             $('#overlay').hide();
@@ -161,6 +195,8 @@
     </script>
     
     <script type="text/javascript">
+        
+
         $(function() {
             bsCustomFileInput.init();
         });
@@ -177,29 +213,29 @@
         }, 10000);
 
 
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('select-all').addEventListener('change', function () {
-                var selectAllCheckbox = this; // Stockez une référence à la case à cocher "Sélectionner tout"
-                var checkboxes = document.querySelectorAll('.select-checkbox');
-                // console.log("checkboxes",checkboxes);
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = selectAllCheckbox.checked;
-                });
-            });
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     document.getElementById('select-all').addEventListener('change', function () {
+        //         var selectAllCheckbox = this; // Stockez une référence à la case à cocher "Sélectionner tout"
+        //         var checkboxes = document.querySelectorAll('.select-checkbox');
+        //         // console.log("checkboxes",checkboxes);
+        //         checkboxes.forEach(function (checkbox) {
+        //             checkbox.checked = selectAllCheckbox.checked;
+        //         });
+        //     });
 
-            var selectCheckboxes = document.querySelectorAll('.select-checkbox');
-            selectCheckboxes.forEach(function(checkbox) {
-                checkbox.addEventListener('change', function() {
-                    var allChecked = true;
-                    selectCheckboxes.forEach(function(cb) {
-                        if (!cb.checked) {
-                            allChecked = false;
-                        }
-                    });
-                    document.getElementById('select-all').checked = allChecked;
-                });
-            });
-        });
+        //     var selectCheckboxes = document.querySelectorAll('.select-checkbox');
+        //     selectCheckboxes.forEach(function(checkbox) {
+        //         checkbox.addEventListener('change', function() {
+        //             var allChecked = true;
+        //             selectCheckboxes.forEach(function(cb) {
+        //                 if (!cb.checked) {
+        //                     allChecked = false;
+        //                 }
+        //             });
+        //             document.getElementById('select-all').checked = allChecked;
+        //         });
+        //     });
+        // });
 
 
         // Fonction pour modifier ou ajouter le transporteur_id selectionné dans la table transporteur

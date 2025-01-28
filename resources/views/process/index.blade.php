@@ -91,7 +91,7 @@
                             @endphp
                         @endforeach
                     </div> --}}
-                    <div class="row g-4">
+                    {{-- <div class="row row-cols-1 row-cols-md-4 row-cols-lg-8 g-3">
                         @php
                             $canStartNext = true; // Permet de contrôler si une étape est bloquée
                         @endphp
@@ -101,7 +101,7 @@
                                 $status = $progression ? $progression->status : 'pending';
                                 $isBlocked = !$canStartNext; // L'étape est bloquée si les précédentes ne sont pas terminées
                             @endphp
-                            <div class="col-md-2">
+                            <div class="col">
                                 <div class="card h-100 shadow-sm 
                                     {{ $status === 'completed' ? 'bg-secondary text-white' : ($isBlocked ? 'bg-light' : '') }}">
                                     <div class="card-header text-center 
@@ -136,7 +136,58 @@
                                 $canStartNext = $status === 'completed';
                             @endphp
                         @endforeach
+                    </div> --}}
+                    <div class="d-flex justify-content-center align-items-center gap-4">
+                        @php
+                            $canStartNext = true; // Contrôle si une étape est bloquée
+                        @endphp
+                        @foreach ($steps as $step)
+                            @php
+                                $progression = $step->currentProgression();
+                                $status = $progression ? $progression->status : 'pending';
+                                $isBlocked = !$canStartNext; // L'étape est bloquée si les précédentes ne sont pas terminées
+                            @endphp
+                            <div class="step {{ $status === 'completed' ? 'step-completed' : ($isBlocked ? 'step-blocked' : 'step-pending') }}">
+                                <div class="step-circle">
+                                    @if ($status === 'completed')
+                                        <i class="fas fa-check"></i> <!-- Icône Check -->
+                                    @elseif ($status === 'in_progress')
+                                        <i class="fas fa-hourglass-start spinning"></i> <!-- Icône en rotation -->
+                                    @else
+                                        <span>{{ $step->order }}</span> <!-- Numéro de l'étape -->
+                                    @endif
+                                </div>
+                                <div class="step-label text-center">
+                                    <p class="mb-1">{{ $step->name }}</p>
+                                    @if ($status === 'completed')
+                                        <button class="btn btn-success btn-sm" disabled>Terminé</button>
+                                    @elseif ($status === 'in_progress')
+                                        <button class="btn btn-warning btn-sm" disabled>En cours</button>
+                                    @elseif ($status === 'error')
+                                        <button class="btn btn-danger btn-sm" disabled>Erreur</button>
+                                    @elseif ($isBlocked)
+                                        <button class="btn btn-secondary btn-sm" disabled>Démarrer</button>
+                                    @else
+                                        <button 
+                                            class="btn btn-primary btn-sm start-step" 
+                                            data-step="{{ $step->id }}">
+                                            Démarrer
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                    
+                            @if (!$loop->last)
+                                <div class="step-line {{ $canStartNext ? 'step-line-active' : 'step-line-blocked' }}"></div>
+                            @endif
+                    
+                            @php
+                                // Bloquer les étapes suivantes si la précédente n'est pas terminée
+                                $canStartNext = $status === 'completed';
+                            @endphp
+                        @endforeach
                     </div>
+                    
                     
                     
                 </div>
@@ -151,6 +202,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script>
         document.querySelectorAll('.start-step').forEach(button => {
             button.addEventListener('click', function () {
@@ -186,6 +238,94 @@
             });
         });
     </script>
+    <style>
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
 
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #6c757d; /* Couleur par défaut (bloqué) */
+            transition: all 0.3s ease;
+        }
+
+        .step-label {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+            color: #6c757d; /* Couleur par défaut */
+        }
+
+        .step-completed .step-circle {
+            background-color: #28a745; /* Vert pour "Terminé" */
+        }
+
+        .step-pending .step-circle {
+            background-color: #007bff; /* Bleu pour "En attente" */
+        }
+
+        .step-blocked .step-circle {
+            background-color: #6c757d; /* Gris pour "Bloqué" */
+        }
+
+        .step-line {
+            width: 80px;
+            height: 5px;
+            background-color: #6c757d; /* Couleur par défaut (bloqué) */
+            transition: all 0.3s ease;
+        }
+
+        .step-line-active {
+            background-color: #007bff; /* Bleu pour les étapes accessibles */
+        }
+
+        .step-line-blocked {
+            background-color: #6c757d; /* Gris pour les étapes bloquées */
+        }
+
+        button.start-step:active {
+            transform: scale(0.95);
+            transition: all 0.2s ease;
+        }
+        .step-completed .step-circle {
+            background-color: #28a745; /* Vert pour "Terminé" */
+        }
+
+        .step-in-progress .step-circle {
+            background-color: #ffc107; /* Jaune pour "En cours" */
+        }
+
+        .step-pending .step-circle {
+            background-color: #007bff; /* Bleu pour "En attente" */
+        }
+
+        /* Animation de rotation pour l'icône */
+        .spinning {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+    </style>
 
 @endsection
