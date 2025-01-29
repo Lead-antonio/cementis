@@ -221,10 +221,11 @@
                     // Afficher un pop-up avec le message de succès
                     Swal.fire({
                         icon: 'success',
-                        title: 'Processus démarré',
+                        title: data.process_name,
                         text: data.message,
-                        timer: 3000,
-                        showConfirmButton: false
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        window.location.reload(); 
                     });
                 })
                 .catch(error => {
@@ -233,6 +234,8 @@
                         icon: 'error',
                         title: 'Erreur',
                         text: "Une erreur s'est produite lors du démarrage du processus.",
+                    }).then(() => {
+                        window.location.reload(); 
                     });
                 });
             });

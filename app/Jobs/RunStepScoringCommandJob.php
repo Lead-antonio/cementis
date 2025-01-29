@@ -12,12 +12,17 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Progression;
 use Carbon\Carbon;
 use App\Events\JobCompleted;
+use App\Models\Process;
 
 class RunStepScoringCommandJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $stepId;
+
+    public $timeout = 14400;
+
+    public $maxExceptions = 10;
 
     protected $commands = [
         1 => "get:event",
@@ -63,7 +68,8 @@ class RunStepScoringCommandJob implements ShouldQueue
             Progression::where('step_id', $this->stepId)
                 ->where('month', $currentMonth)
                 ->update(['status' => 'completed']);
-            broadcast(new JobCompleted($this->stepId, 'completed'));
+            $process = Process::findOrFail($this->stepId);
+            broadcast(new JobCompleted($process, 'completed'));
             Log::info("Étape {$this->stepId} marquée comme terminée pour $currentMonth.");
             Log::info('Événement JobCompleted diffusé', ['stepId' => $this->stepId]);
             
@@ -72,8 +78,8 @@ class RunStepScoringCommandJob implements ShouldQueue
             Progression::where('step_id', $this->stepId)
                 ->where('month', $currentMonth)
                 ->update(['status' => 'error']);
-
-            broadcast(new JobCompleted($this->stepId, 'error'));
+            $process = Process::findOrFail($this->stepId);
+            broadcast(new JobCompleted($process, 'error'));
             Log::error("Erreur lors de l'exécution de l'étape {$this->stepId} pour $currentMonth : " . $e->getMessage());
             Log::info('Événement JobCompleted diffusé', ['stepId' => $this->stepId]);
         }

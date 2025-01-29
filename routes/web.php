@@ -65,6 +65,7 @@ Route::post('/process/{step}/run', function ($step) {
 
     // Retourner une réponse immédiate
     return response()->json([
-        'message' => "Le processus pour l'étape {$step} a démarré en arrière-plan."
+        'message' => "Le processus pour l'étape {$process->name} a démarré en arrière-plan.",
+        'process_name' => $process->name
     ], 200);
 })->name('process.run');

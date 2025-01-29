@@ -156,19 +156,23 @@
             if (event.status === 'completed') {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Succès',
-                    text: `Étape ${event.stepId} terminée avec succès !`,
-                    timer: 3000,
-                    showConfirmButton: false
+                    title: event.process.name,
+                    text: `L'exécution de l'étape ${event.process.name} est terminée avec succès !`,
+                    confirmButtonText: 'Ok'
+                }).then(() => {
+                    window.location.reload(); // Recharge aussi en cas d'erreur
                 });
             } 
             if (event.status === 'error') {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Erreur',
-                    text: `Erreur lors de l'exécution de l'étape ${event.stepId}.`,
-                    timer: 3000,
-                    showConfirmButton: false
+                    title: event.process.name,
+                    text: `Erreur lors de l'exécution de l'étape ${event.process.name}.`,
+                    confirmButtonText: 'Ok'
+                    // timer: 3000,
+                    // showConfirmButton: false
+                }).then(() => {
+                    window.location.reload(); // Recharge aussi en cas d'erreur
                 });
             }
         });

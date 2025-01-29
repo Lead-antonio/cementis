@@ -41,12 +41,20 @@ class CheckOverspeed extends Command
     {
         $overspeed = new OverSpeedService();
                 
-        $startDate = Carbon::now()->subMonths(2)->endOfMonth();
-        $endDate = Carbon::now()->startOfMonth();
+        // $startDate = Carbon::now()->subMonths(2)->endOfMonth();
+        // $endDate = Carbon::now()->startOfMonth();
                 
         // $date = "2024-06-01";
         // $startDate = Carbon::parse($date)->startOfMonth();
         // $endDate = Carbon::parse($date)->endOfMonth();
+        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+
+        $startDate = new \DateTime($lastmonth->date_debut);
+
+        $endDate = clone $startDate;
+
+            // Définir la date de fin au dernier jour du mois
+        $endDate->modify('last day of this month')->setTime(23, 59, 59);
 
         $overspeed->CheckOverSpeed($startDate,$endDate);
     }

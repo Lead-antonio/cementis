@@ -9,22 +9,25 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Process;
 
 class JobCompleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $stepId;
+
     public $status;
+
+    public $process;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($stepId, $status)
+    public function __construct(Process $process, $status)
     {
-        $this->stepId = $stepId;
+        $this->process = $process;
         $this->status = $status;
     }
 
