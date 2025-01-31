@@ -5,6 +5,7 @@ namespace App\Console\Commands\Overspeed;
 use App\Services\OverSpeedService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CheckOverspeed extends Command
 {

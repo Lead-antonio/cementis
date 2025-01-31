@@ -13,6 +13,7 @@ use App\Models\Progression;
 use Carbon\Carbon;
 use App\Events\JobCompleted;
 use App\Models\Process;
+use App\Models\RunJob;
 
 class RunStepScoringCommandJob implements ShouldQueue
 {
@@ -53,8 +54,16 @@ class RunStepScoringCommandJob implements ShouldQueue
     public function handle()
     {
         $currentMonth = Carbon::now()->format('Y-m');
+        $runJob = RunJob::firstOrCreate([], ['is_running' => false]);
+
+        if ($runJob->is_running) {
+            Log::warning("Job déjà en cours, annulation de l'étape {$this->stepId}.");
+            return;
+        }
 
         try {
+            $runJob->update(['is_running' => true]);
+
             // Exécuter la commande en fonction de l'étape
             if (array_key_exists($this->stepId, $this->commands)) {
                 $command = $this->commands[$this->stepId];
@@ -82,6 +91,9 @@ class RunStepScoringCommandJob implements ShouldQueue
             broadcast(new JobCompleted($process, 'error'));
             Log::error("Erreur lors de l'exécution de l'étape {$this->stepId} pour $currentMonth : " . $e->getMessage());
             Log::info('Événement JobCompleted diffusé', ['stepId' => $this->stepId]);
+        }finally {
+            $runJob->update(['is_running' => false]);
+            Log::info("Job libéré : run_jobs.is_running remis à false.");
         }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Models\RunJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -38,7 +39,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('queue:work --once --timeout=0');
+        $runJob = RunJob::first();
+        if (!$runJob->is_running) {
+            $schedule->command('queue:work');
+        }
     }
 
     /**
