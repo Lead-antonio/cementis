@@ -57,30 +57,19 @@ class DashboardController extends Controller
 
     public function count_driver_has_scoring($id_planning)
     {
-        $scoring = Scoring::where('id_planning', $id_planning)->get();
-        $drivers = [];
-
-        foreach ($scoring as $item) {
-            $camion = $item->camion;
-
-            // Extraction de l'immatriculation
-            if (strpos($camion, ' - ') !== false) {
-                $immatriculation = explode(' - ', $camion)[0];
-            } else {
-                $immatriculation = $camion;
+        $query = Scoring::where('id_planning', $id_planning);
+        $camionsImport = ImportExcel::where('import_calendar_id', $id_planning)
+                        ->pluck('camion') // Récupère uniquement la colonne "camion"
+                        ->toArray();
+        $countDriver = Scoring::where('id_planning', $id_planning)
+        ->where(function ($q) use ($camionsImport) {
+            foreach ($camionsImport as $camion) {
+                $q->orWhere('camion', 'LIKE', "%{$camion}%");
             }
+        })
+        ->count();
 
-            // Vérification si le camion existe dans import_excel
-            $exists = ImportExcel::where('import_calendar_id', $id_planning)
-                        ->where('camion', 'LIKE', $immatriculation . '%')
-                        ->exists();
-
-            if ($exists) {
-                $drivers[$item->driver_id] = true; // Stocker l'ID du chauffeur unique
-            }
-        }
-
-        return count($drivers); // Nombre de chauffeur uniques ayant un score
+        return $countDriver; // Nombre de chauffeur uniques ayant un score
     }
 
 
