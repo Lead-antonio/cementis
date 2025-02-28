@@ -40,9 +40,17 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                                 ->toArray();
 
             if ($this->alphaciment_driver === "oui") {
-                $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
+                $query->where(function ($q) use ($camionsImport) {
+                    foreach ($camionsImport as $camion) {
+                        $q->orWhere('camion', 'LIKE', "%{$camion}%");
+                    }
+                }); // Ne garder que les camions présents dans ImportExcel
             } elseif ($this->alphaciment_driver === "non") {
-                $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
+                $query->where(function ($q) use ($camionsImport) {
+                    foreach ($camionsImport as $camion) {
+                        $q->where('camion', 'NOT LIKE', "%{$camion}%");
+                    }
+                }); // Exclure ces camions
             }
 
         }

@@ -239,9 +239,19 @@ class EventController extends AppBaseController
                                 ->toArray();
 
             if ($alphaciment_driver === "oui") {
-                $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
+                // $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
+                $query->where(function ($q) use ($camionsImport) {
+                    foreach ($camionsImport as $camion) {
+                        $q->orWhere('camion', 'LIKE', "%{$camion}%");
+                    }
+                });
             } elseif ($alphaciment_driver === "non") {
-                $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
+                // $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
+                $query->where(function ($q) use ($camionsImport) {
+                    foreach ($camionsImport as $camion) {
+                        $q->where('camion', 'NOT LIKE', "%{$camion}%");
+                    }
+                });
             }
 
         }
