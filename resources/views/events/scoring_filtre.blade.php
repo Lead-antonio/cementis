@@ -198,11 +198,55 @@
                 var exportLink = $('#export-link');
                 var baseUrl = "{{ route('event.exportscoringcard') }}";
                 exportLink.attr('href', baseUrl + '/' + selectedValue);
+
+                var selectedAlphaciment = $('#alphaciment_driver').val(); // Récupérer la valeur de alphaciment_driver
+                
+                // Mettre à jour le lien d'exportation avec les deux paramètres
+                var exportLink = $('#export-link');
+                var baseUrl = "{{ route('event.exportscoringcard') }}";
+                exportLink.attr('href', baseUrl + '?planning=' + selectedValue + '&alphaciment_driver=' + selectedAlphaciment);
+                
                 
                 $.ajax({
                     url: "{{ route('ajax.scoring') }}", // Route à laquelle la requête Ajax sera envoyée
                     type: 'GET',
                     data: { planning: selectedValue },
+                    success: function(response) {
+                        $('#dataTable').html('')
+                        $('#dataTable').html(response);
+                        $('#overlay').hide();
+                        $('#loader').hide();
+
+                        attachCommentListeners();
+                        attachSortListeners();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+            });
+
+
+            $('#alphaciment_driver').change(function() {
+                $('#overlay').show();
+                $('#loader').show();
+                
+                var selectedPlanning = $('#planning').val(); // Récupère le planning sélectionné
+                var selectedAlphaciment = $(this).val(); // Récupère la valeur de alphaciment_driver
+
+                console.log("Planning:", selectedPlanning);
+                console.log("Alphaciment Driver:", selectedAlphaciment);
+
+                // Mettre à jour l'URL du bouton d'exportation
+                var exportLink = $('#export-link');
+                var baseUrl = "{{ route('event.exportscoringcard') }}";
+                exportLink.attr('href', baseUrl + '?planning=' + selectedPlanning + '&alphaciment_driver=' + selectedAlphaciment);
+
+
+                $.ajax({
+                    url: "{{ route('ajax.scoringdriver') }}", // Route à laquelle la requête Ajax sera envoyée
+                    type: 'GET',
+                    data: { planning: selectedPlanning ,alphaciment_driver : selectedAlphaciment   },
                     success: function(response) {
                         $('#dataTable').html('')
                         $('#dataTable').html(response);
@@ -328,4 +372,6 @@
 
             sortTableByMai();
         });
+
+
     </script>

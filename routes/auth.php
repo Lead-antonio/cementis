@@ -100,13 +100,14 @@ Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->n
 
 Route::get('/event/exportscoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
 
-Route::get('/event/exportscoringcard/{planning?}', 'App\Http\Controllers\EventController@exportscoringcard')->name('event.exportscoringcard');
+Route::get('/admin/event/exportscoringcard', 'App\Http\Controllers\EventController@exportscoringcard')->name('event.exportscoringcard');
 
 Route::post('/save-comments', [App\Http\Controllers\EventController::class, 'saveComments'])->name('save.comments');
 
 Route::get('/new/scoring', 'App\Http\Controllers\EventController@newscoring')->name('new.scoring');
 
 Route::get('/ajax/scoring', 'App\Http\Controllers\EventController@ajaxHandle')->name('ajax.scoring');
+Route::get('/ajax/scoringdriver', 'App\Http\Controllers\EventController@FilterByTruckInCalendar')->name('ajax.scoringdriver');
 
 
 Route::get('/events/table/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');

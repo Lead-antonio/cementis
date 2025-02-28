@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\ImportExcel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use App\Models\Scoring;
 use Illuminate\Support\Facades\DB;
@@ -12,10 +13,12 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
 {
     protected $planning;
+    protected $alphaciment_driver;
 
-    public function __construct($planning)
+    public function __construct($planning,$alphaciment_driver)
     {
         $this->planning = $planning;
+        $this->alphaciment_driver = $alphaciment_driver;
     }
     
     /**
@@ -26,21 +29,36 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         // Utiliser l'ID de planning passé, ou le plus récent si non spécifié
         $selectedPlanning = $this->planning ?? DB::table('import_calendar')->latest('id')->value('id');
 
-        return Scoring::where('id_planning', $selectedPlanning)
-                      ->with(['driver', 'transporteur'])
-                      ->get()
-                      ->map(function($scoring) {
-                            return [
-                              'Chauffeur' => $scoring->driver->nom ?? '',
-                              'Transporteur' => $scoring->transporteur->nom ?? '',
-                              'Camion' => $scoring->camion,
-                              'Scoring' => $scoring->point,
-                              'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning ),
-                              'Commentaire' => $scoring->comment
+        // Définir la requête de base pour récupérer les scorings
+        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver', 'transporteur']);
 
-                          ];
-                      });
+        // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
+        if ($this->alphaciment_driver !== null) {
+            // Récupérer la liste des camions du ImportExcel en fonction du planning sélectionné
+            $camionsImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
+                                ->pluck('camion') // Récupère uniquement la colonne "camion"
+                                ->toArray();
+
+            if ($this->alphaciment_driver === "oui") {
+                $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
+            } elseif ($this->alphaciment_driver === "non") {
+                $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
+            }
+
+        }
+        
+        return $query->get()->map(function($scoring) {
+            return [
+                'Chauffeur' => $scoring->driver->nom ?? '',
+                'Transporteur' => $scoring->transporteur->nom ?? '',
+                'Camion' => $scoring->camion,
+                'Scoring' => $scoring->point,
+                'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning),
+                'Commentaire' => $scoring->comment
+            ];
+        });
     }
+
 
     /**
      * @return array
