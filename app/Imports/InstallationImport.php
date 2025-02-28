@@ -6,11 +6,13 @@ use App\Models\ImportInstallation;
 use Maatwebsite\Excel\Concerns\ToModel;
 use App\Models\Transporteur;
 use App\Models\Chauffeur;
+use App\Models\ChauffeurUpdate;
 use App\Models\ImportInstallationError;
 use App\Models\ImportNameInstallation;
 use App\Models\Vehicule;
 use App\Models\Installateur;
 use App\Models\Installation;
+use App\Models\VehiculeUpdate;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -64,18 +66,62 @@ class InstallationImport implements ToCollection, WithHeadingRow
             $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first() : null;
 
             // Si les deux existent, on saute la ligne
-            if ($existingChauffeur && $existingVehicule) {
-                $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] et le véhicule [{$row['immatriculation']}] existent déjà.");
+            // if ($existingChauffeur && $existingVehicule) {
+
+            //     ChauffeurUpdate::create([
+            //         'chauffeur_id' => $existingChauffeur->id,
+            //         'rfid' =>  $row['rfid'],
+            //         'rfid_physique' =>  $row['rfid_physique'],
+            //         'numero_badge' =>  $row['numero_badge'],
+            //         'nom' =>  $row['nom'],
+            //         'contact' =>  (string) $row['chauffeur_telephone'],
+            //         'transporteur_id' => $transporteur->id,
+            //         'date_installation' =>   $row['date_installation']
+            //     ]);
+
+
+            //     VehiculeUpdate::create([
+            //         'vehicule_id' => $existingVehicule->id,
+            //         'imei' => (string) $row['imei'],
+            //         'nom' => $row['immatriculation'],
+            //         'id_transporteur' => $transporteur->id,
+            //         'description' => $row['description'], 
+            //         'date_installation' => $row['date_installation'],
+            //     ]);
+
+            //     $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] et le véhicule [{$row['immatriculation']}] existent déjà.");
+            //     $this->errorCount++;
+            //     // continue;
+            // }
+
+            if($existingChauffeur){
+
+                ChauffeurUpdate::create([
+                    'chauffeur_id' => $existingChauffeur->id,
+                    'rfid' =>  $row['rfid'],
+                    'rfid_physique' =>  $row['rfid_physique'],
+                    'numero_badge' =>  $row['numero_badge'],
+                    'nom' =>  $row['nom'],
+                    'contact' =>  (string) $row['chauffeur_telephone'],
+                    'transporteur_id' => $transporteur->id,
+                    'date_installation' =>  null
+                ]);
+
+                $this->addError("Ligne N° {$numero_ligne}: Rfid: [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}]   existe déjà." ."Nouveau nom attribué à ce rfid:"  . $row['nom'] ."." );
                 $this->errorCount++;
-                continue;
             }
 
-            elseif($existingChauffeur){
-                $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] existe déjà.");
-                $this->errorCount++;
-            }
-            elseif($existingVehicule){
-                $this->addError("Ligne N° {$numero_ligne} le véhicule [{$row['immatriculation']}] existe déjà.");
+            if($existingVehicule){
+
+                VehiculeUpdate::create([
+                    'vehicule_id' => $existingVehicule->id,
+                    'imei' => (string) $row['imei'],
+                    'nom' => $row['immatriculation'],
+                    'id_transporteur' => $transporteur->id,
+                    'date_installation' => null,
+                ]);
+                
+                $this->addError("Ligne N° {$numero_ligne} :imei  [{$row['imei']}] est déjà attribué à {$existingVehicule->nom} .Nouveau vehicule attribué à cet imei :" . $row['immatriculation']  .".");
                 $this->errorCount++;
             }
 
@@ -98,6 +144,8 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     'nom' => $row['immatriculation'],
                     'description' => $row['description'],
                     'id_transporteur' => $transporteur->id,
+                    'rfid_physique' =>  $row['rfid_physique'],
+                    'numero_badge' =>  $row['numero_badge'],
                 ]);
             } else {
                 $vehicule = $existingVehicule;
@@ -135,7 +183,6 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 'dates' => $dateInstallation,
                 'import_name_id' => $this->import_name_id,
             ]);
-
             $this->successCount++;
         }
 

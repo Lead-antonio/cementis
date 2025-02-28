@@ -18,7 +18,7 @@
                                 <i class="fas fa-file-excel"></i> Excel
                             </a>
                         </div>
-
+                        
                         <div class="col-sm-3">
                             <select class="form form-control" name="planning" id="planning" style="width: auto;">
                                 <option value="">Veuillez-choisir le planning</option>
