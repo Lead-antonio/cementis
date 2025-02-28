@@ -53,7 +53,7 @@ class GenerateScoring extends Command
             $data = [];
             $createScoring = [];
             $results = scoring($selectedPlanning); // Appel de la fonction scoring
-
+            
             if ($results) {
                 foreach ($results as $result) {
                     $driver = $result->driver;
@@ -79,7 +79,7 @@ class GenerateScoring extends Command
                             'Temps de repos hebdomadaire' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                             'Temps de repos minimum après une journée de travail' => ['valeur' => 0, 'duree' => 0, 'point' => 0],
                         ];
-                        $distance = getDistanceTotalDriverInCalendar($driver, $selectedPlanning);
+                        // $distance = getDistanceTotalDriverInCalendar($driver, $selectedPlanning);
 
                         $createScoring[] = [
                             'id_planning' => $selectedPlanning,
@@ -89,8 +89,8 @@ class GenerateScoring extends Command
                             'transporteur' => $transporteur,
                             'camion' => $camion,
                             'comment' => '',
-                            'distance' => $distance,
-                            'point' => $total_point
+                            'distance' => 0,
+                            'point' => ($total_point !== null) ? $total_point : 0
                             // 'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
                         ];
                     }
@@ -122,16 +122,17 @@ class GenerateScoring extends Command
                 if (empty($item['camion'])) {
                     $item['camion'] = getPlateNumberByRfidAndTransporteur($item['driver_id'], $item['transporteur_id']);
                 }
-
-                Scoring::create([
-                    'id_planning' => $item['id_planning'],
-                    'driver_id' => $item['driver_id'],
-                    'transporteur_id' => $item['transporteur_id'],
-                    'camion' => $item['camion'],
-                    'comment' => $item['comment'],
-                    'distance' => $item['distance'],
-                    'point' => $item['point'],
-                ]);
+                if(!empty($item['camion'])){
+                    Scoring::create([
+                        'id_planning' => $item['id_planning'],
+                        'driver_id' => $item['driver_id'],
+                        'transporteur_id' => $item['transporteur_id'],
+                        'camion' => $item['camion'],
+                        'comment' => $item['comment'],
+                        'distance' => $item['distance'],
+                        'point' => $item['point'],
+                    ]);
+                }
             }
         }
     }

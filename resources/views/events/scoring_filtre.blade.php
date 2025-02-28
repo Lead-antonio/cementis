@@ -94,6 +94,9 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $countCheckedTrucks = 0;
+                    @endphp
                     @foreach ($scoring as $item)
                         <tr>
                             <td style="text-align: center;"><a href="{{ route('events.table.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">{{$item->driver->nom}}</a></td>
@@ -103,7 +106,9 @@
                                 @php
                                     $score = round($item->point, 2);
                                     $isTruckinCalendarChecked = checkTruckinCalendar($selectedPlanning, $item->camion);
-
+                                    if ($isTruckinCalendarChecked) {
+                                        $countCheckedTrucks++; // Incrémentation si le camion est présent dans le calendrier
+                                    }
                                     if($score == 0 && $isTruckinCalendarChecked){
                                         echo 'scoring-green';
                                     } elseif ($score > 0 && $score <= 2) {
@@ -122,6 +127,7 @@
                         </tr>
                     @endforeach
                 </tbody>
+                {{-- <p>Nombre de camions dans le calendrier : {{ $countCheckedTrucks }}</p> --}}
             </table>
             {{-- <div class="d-flex justify-content-end" style="margin: 0% 2% 1% 0%;">
                 <button type="submit" class="btn btn-primary" onclick="submitForm()">Enregistrer les commentaires</button>

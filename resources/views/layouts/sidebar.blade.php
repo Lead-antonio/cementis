@@ -1,4 +1,4 @@
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+<aside class="main-sidebar sidebar-dark-primary elevation-4" style="background: linear-gradient(145deg, #000000, #a24742);">
     <a href="{{ route('dashboard') }}" class="brand-link">
         <img src="{{url('images/alpha_ciment.jpg')}}" style="border-radius: 16% !important"
              alt="{{ config('app.name') }} Logo"

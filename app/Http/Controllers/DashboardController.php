@@ -6,7 +6,10 @@ use App\Models\Transporteur;
 use Illuminate\Http\Request;
 use App\Models\Vehicule;
 use App\Models\Chauffeur;
+use App\Models\ImportExcel;
+use App\Models\Scoring;
 use App\Repositories\DashboardRepository;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -31,62 +34,88 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $structuredData = [];
         $totalVehicules = Vehicule::count();
         $totalTransporteurs = Transporteur::count();
         $totalChauffeurs = Chauffeur::count();
+        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $data = $this->dashboardRepository->GetData();
         $data['totalVehicules'] = $totalVehicules;
         $data['totalTransporteurs'] = $totalTransporteurs;
         $data['totalChauffeurs'] = $totalChauffeurs;
-        
+        $data['transporteurData'] = json_encode($structuredData);
 
         $data['best_scoring'] = getAllGoodScoring();
         $data['bad_scoring'] = getAllBadScoring();
 
-       $topworst = topAndWorstChauffeur();
-
-        // Structurer les données pour inclure les clés "text" et "children"
-        $structuredData = [];
-        foreach ($topworst as $item) {
-            $transporteurData = [
-                'text' => $item['transporteur'],
-                'children' => [
-                    [
-                        'text' => 'Meilleur Scoring',
-                        'type' => 'top', // Définissez le type comme "top"
-                        'children' => [],
-                    ],
-                    [
-                        'text' => 'Moins Bon Scoring',
-                        'type' => 'worst', // Définissez le type comme "worst"
-                        'children' => [],
-                    ],
-                ],
-            ];
-    
-            // Ajouter les meilleurs chauffeurs
-            $topChauffeurs = $item['top_chauffeurs']->take(3); // Prendre les top 3
-            foreach ($topChauffeurs as $topChauffeur) {
-                $transporteurData['children'][0]['children'][] = [
-                    'text' => $topChauffeur->driver . ' (Score: ' . $topChauffeur->score_card . ')',
-                    'icon' => 'fa fa-user'
-                ];
-            }
-    
-            // Ajouter les pires chauffeurs
-            $worstChauffeurs = $item['worst_chauffeurs']->take(3); // Prendre les pires 3
-            foreach ($worstChauffeurs as $worstChauffeur) {
-                $transporteurData['children'][1]['children'][] = [
-                    'text' => $worstChauffeur->driver . ' (Score: ' . $worstChauffeur->score_card . ')',
-                    'icon' => 'fa fa-user'
-                ];
-            }
-    
-            $structuredData[] = $transporteurData;
-        }
-    
-        $data['transporteurData'] = json_encode($structuredData);
-
+        $data['driver_has_score'] = $this->count_driver_has_scoring($selectedPlanning);
+        $data['driver_not_has_score'] = $this->count_driver_not_has_scoring($selectedPlanning);  
+        $data['driver_not_fix'] = $this->driver_not_fix();
+        
         return view('dashboard.index', $data);
+    }
+
+    public function count_driver_has_scoring($id_planning)
+    {
+        $scoring = Scoring::where('id_planning', $id_planning)->get();
+        $drivers = [];
+
+        foreach ($scoring as $item) {
+            $camion = $item->camion;
+
+            // Extraction de l'immatriculation
+            if (strpos($camion, ' - ') !== false) {
+                $immatriculation = explode(' - ', $camion)[0];
+            } else {
+                $immatriculation = $camion;
+            }
+
+            // Vérification si le camion existe dans import_excel
+            $exists = ImportExcel::where('import_calendar_id', $id_planning)
+                        ->where('camion', 'LIKE', $immatriculation . '%')
+                        ->exists();
+
+            if ($exists) {
+                $drivers[$item->driver_id] = true; // Stocker l'ID du chauffeur unique
+            }
+        }
+
+        return count($drivers); // Nombre de chauffeur uniques ayant un score
+    }
+
+
+    public function count_driver_not_has_scoring($id_planning)
+    {
+        $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
+        ->distinct()
+        ->pluck('camion')
+        ->map(function ($camion) {
+            return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
+        })
+        ->unique() // Supprime les doublons après transformation
+        ->toArray();
+
+        // Récupérer tous les camions de scoring pour ce planning
+        $scoringTrucks = Scoring::where('id_planning', $id_planning)
+            ->pluck('camion')
+            ->map(function($camion) {
+                return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
+            })
+            ->toArray();
+
+        // Trouver les camions dans import_excel qui ne sont pas dans scoring
+        $missingTrucks = array_diff($importTrucks, $scoringTrucks);
+
+        return count(array_values($missingTrucks));
+    }
+
+    public function driver_not_fix(){
+        $repartitionChauffeurs = Transporteur::select('transporteur.nom', 'chauffeur.transporteur_id', \DB::raw('COUNT(*) as nombre_chauffeurs_non_fixes'))
+            ->join('chauffeur', 'chauffeur.transporteur_id', '=', 'transporteur.id')
+            ->where('chauffeur.nom', 'chauffeur non fixe')
+            ->groupBy('chauffeur.transporteur_id', 'transporteur.nom')
+            ->get();
+
+        return $repartitionChauffeurs;
     }
 }

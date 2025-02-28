@@ -281,37 +281,20 @@ if(!function_exists('getAllGoodScoring')){
     function getAllGoodScoring(){
         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
         
-        $results = DB::table('infraction as i')
-        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        ->select(
-            'ch.rfid as rfid',
-            'ch.nom as driver',
-            't.nom as transporteur_nom',
-            DB::raw('SUM(i.point) as point')
-        )
-        ->where('ie.import_calendar_id', '=', $lastmonth)
-        ->groupBy('ch.nom', 't.nom', 'ch.rfid')
+        $topMinScores = DB::table('scoring as s')
+        ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
+        ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
+        ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
+        ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
+        ->whereColumn('ie.import_calendar_id', 's.id_planning')
+        ->where('s.id_planning', $lastmonth) // Filtre par id_planning
+        ->select('t.nom AS transporteur' ,'c.nom AS driver', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
+        ->groupBy('s.driver_id', 's.camion', 'c.nom', 't.nom')
         ->orderBy('point', 'asc')
-        ->limit(10)
+        ->limit(3)
         ->get();
         
-        foreach($results as $item){
-            // $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-            // $item->scoring = round(($item->point / $item->distance) * 100, 2);
-            $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-
-            if ($item->distance > 0) {
-                $item->scoring = round(($item->point / $item->distance) * 100, 2);
-            } else {
-                $item->scoring = 0; 
-            }
-        }
-        $sortedResults = $results->sortBy('scoring');
-        $sortedResults = $sortedResults->values();
-        
-        return $sortedResults;
+        return $topMinScores;
     }
 }
 
@@ -319,37 +302,20 @@ if(!function_exists('getAllBadScoring')){
     function getAllBadScoring(){
         $lastmonth = DB::table('import_calendar')->latest('id')->value('id');
         
-        $results = DB::table('infraction as i')
-        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-        ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        ->select(
-            'ch.rfid as rfid',
-            'ch.nom as driver',
-            't.nom as transporteur_nom',
-            DB::raw('SUM(i.point) as point')
-        )
-        ->where('ie.import_calendar_id', '=', $lastmonth)
-        ->groupBy('ch.nom', 't.nom', 'ch.rfid')
-        ->orderBy('point', 'asc')
-        ->limit(10)
+        $topMaxScores = DB::table('scoring as s')
+        ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
+        ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
+        ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
+        ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
+        ->whereColumn('ie.import_calendar_id', 's.id_planning')
+        ->where('s.id_planning', $lastmonth)
+        ->select('t.nom AS transporteur' ,'c.nom AS driver', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
+        ->groupBy('s.driver_id', 's.camion', 'c.nom', 't.nom')
+        ->orderBy('point', 'desc')
+        ->limit(3)
         ->get();
         
-        foreach($results as $item){
-            // $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-            // $item->scoring = round(($item->point / $item->distance) * 100, 2);
-            $item->distance = getDistanceTotalDriverInCalendar($item->driver, $lastmonth);
-
-            if ($item->distance > 0) {
-                $item->scoring = round(($item->point / $item->distance) * 100, 2);
-            } else {
-                $item->scoring = 0; 
-            }
-        }
-        $sortedResults = $results->sortByDesc('scoring');
-        $sortedResults = $sortedResults->values();
-        
-        return $sortedResults;
+        return $topMaxScores;
     }
 }
 
@@ -2159,9 +2125,19 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
 
 if(!function_exists('checkTruckinCalendar')){
     function checkTruckinCalendar($id_planning, $camion){
+        if (strpos($camion, ' - ') !== false) {
+            // Extraire uniquement l'immatriculation
+            $immatriculation = explode(' - ', $camion)[0];
+        } else {
+            // Prendre le camion tel quel (cas des immatriculations normales)
+            $immatriculation = $camion;
+        }
+        // $exists = ImportExcel::where('import_calendar_id', $id_planning)
+        //                   ->where('camion', $camion)
+        //                   ->exists();
         $exists = ImportExcel::where('import_calendar_id', $id_planning)
-                          ->where('camion', $camion)
-                          ->exists();
+                     ->where('camion', 'LIKE', $immatriculation . '%') // Recherche en début de chaîne
+                     ->exists();
 
 
         return $exists ? true : false;
