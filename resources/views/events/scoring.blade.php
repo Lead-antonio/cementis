@@ -30,7 +30,7 @@
                 
                         <div class="col-md-3 col-sm-6 mb-2">
                             <select class="form-control" name="alphaciment_driver" id="alphaciment_driver">
-                                <option value="">Type de score...</option>
+                                <option value="">Type de scoring card...</option>
                                 <option value="oui" {{ $alphaciment_driver === 'oui' ? 'selected' : '' }}>Score alpha ciment</option>
                                 <option value="non" {{ $alphaciment_driver === 'non' ? 'selected' : '' }}>Hors alpha ciment</option>
                             </select>
