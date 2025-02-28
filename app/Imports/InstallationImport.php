@@ -37,99 +37,207 @@ class InstallationImport implements ToCollection, WithHeadingRow
     }
 
     public function collection(Collection $rows)
-    {   
-        foreach  ($rows as $index => $row)  {
+    {
+        foreach ($rows as $index => $row) {
+            $numero_ligne = $index + 2;
 
-            // dd($row);
-            
-             // Vérifier le RFID existant
-            $existingChauffeur = Chauffeur::where('rfid', $row['rfid'])->first();
-            if ($existingChauffeur) {
-                    $numero_ligne = $index +1;
-                    $this->addError("Ligne N° {$numero_ligne}: le RFID N° [{$row['rfid']}] est déjà attribué au chauffeur {$existingChauffeur->nom} ");
-                    $this->errorCount++;
-                    continue; // Passer à la ligne suivante
-            }
- 
-            // // Vérifier le véhicule doublon
-            $existingVehicule = Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first();
-            if ($existingVehicule) {
-                $numero_lignes = $index +1;
-                $this->addError("Ligne N° {$numero_lignes}: le véhicule est déjà présent dans la base ");
-                $this->errorCount++;
-                continue; // Passer à la ligne suivante
-            }
-
-            // Vérifier et insérer les données dans la table Transporteur
+            // Vérifier et insérer le transporteur
             if (!isset($this->transporteurs[$row['transporteur']])) {
-                $transporteur = Transporteur::firstOrCreate([
-                    'nom' => $row['transporteur']
-                ], [
-                    'adresse' => $row['adresse'],
-                    'tel' => (string) $row['transporteur_telephone'],
-                ]);
+                $transporteur = Transporteur::firstOrCreate(
+                    ['nom' => $row['transporteur']],
+                    ['adresse' => $row['adresse'], 'tel' => (string) $row['transporteur_telephone']]
+                );
                 $this->transporteurs[$row['transporteur']] = $transporteur->id;
             } else {
                 $transporteur = Transporteur::find($this->transporteurs[$row['transporteur']]);
             }
 
-            // Insérer les données dans la table Chauffeur
-            $chauffeur = Chauffeur::create([
-                'rfid' => $row['rfid'],
-                'nom' => $row['nom'],
-                'contact' =>  (string)  $row['chauffeur_telephone'],
-                'transporteur_id' => $transporteur->id,
-            ]);
+            // Vérification : au moins l'un des deux (RFID ou IMEI) doit être présent
+            if (empty($row['rfid']) && empty($row['imei'])) {
+                $this->addError("Ligne N° {$numero_ligne}: RFID et IMEI sont tous les deux vides, l'enregistrement est ignoré.");
+                $this->errorCount++;
+                continue;
+            }
 
-            // Insérer les données dans la table Véhicule
-            $vehicule = Vehicule::create([
-                'imei' => (string) $row['imei'],
-                'nom' => $row['immatriculation'],
-                'description' => $row['description'],
-                'id_transporteur' => $transporteur->id,
-            ]);
+            // Vérifier l'existence du chauffeur et du véhicule
+            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->first() : null;
+            $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first() : null;
 
-            // Insérer les données dans la table Installateur
-            $installateur = Installateur::firstOrCreate([
-                'matricule' => (string)  $row['matricule_tech'],
-                'obs' => ""
-            ]);
+            // Si les deux existent, on saute la ligne
+            if ($existingChauffeur && $existingVehicule) {
+                $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] et le véhicule [{$row['immatriculation']}] existent déjà.");
+                $this->errorCount++;
+                continue;
+            }
 
-            // Insérer les données dans la table Installation
-            $installation = Installation::create([
-                'date_installation' => Carbon::parse($row['date_installation']),
-                'vehicule_id' => $vehicule->id,
-                'installateur_id' => $installateur->id,
-            ]);
+            elseif($existingChauffeur){
+                $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] existe déjà.");
+                $this->errorCount++;
+            }
+            elseif($existingVehicule){
+                $this->addError("Ligne N° {$numero_ligne} le véhicule [{$row['immatriculation']}] existe déjà.");
+                $this->errorCount++;
+            }
+
+            // Insérer le chauffeur si inexistant et RFID non vide
+            if (!$existingChauffeur && !empty($row['rfid'])) {
+                $chauffeur = Chauffeur::create([
+                    'rfid' => $row['rfid'],
+                    'nom' => $row['nom'],
+                    'contact' => (string) $row['chauffeur_telephone'],
+                    'transporteur_id' => $transporteur->id,
+                ]);
+            } else {
+                $chauffeur = $existingChauffeur;
+            }
+
+            // Insérer le véhicule si inexistant et IMEI non vide
+            if (!$existingVehicule && !empty($row['imei'])) {
+                $vehicule = Vehicule::create([
+                    'imei' => (string) $row['imei'],
+                    'nom' => $row['immatriculation'],
+                    'description' => $row['description'],
+                    'id_transporteur' => $transporteur->id,
+                ]);
+            } else {
+                $vehicule = $existingVehicule;
+            }
+
+            // Insérer ou récupérer l'installateur
+            $installateur = Installateur::firstOrCreate(
+                ['matricule' => (string) $row['matricule_tech']],
+                ['obs' => ""]
+            );
+
+            // Insérer l'installation si un véhicule a été créé ou existe déjà
+            if ($vehicule) {
+                $installation = Installation::create([
+                    'date_installation' => Carbon::parse($row['date_installation']),
+                    'vehicule_id' => $vehicule->id,
+                    'installateur_id' => $installateur->id,
+                ]);
+            }
 
             $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
 
-            // Insérer les données dans la table ImportInstallation
+            // Insérer les données dans ImportInstallation
             ImportInstallation::create([
                 'transporteur_nom' => $row['transporteur'],
                 'transporteur_adresse' => $row['adresse'],
-                'transporteur_tel' => (string)  $row['transporteur_telephone'],
+                'transporteur_tel' => (string) $row['transporteur_telephone'],
                 'chauffeur_nom' => $row['nom'],
                 'chauffeur_rfid' => $row['rfid'],
-                'chauffeur_contact' => (string)  $row['chauffeur_telephone'],
+                'chauffeur_contact' => (string) $row['chauffeur_telephone'],
                 'vehicule_nom' => $row['immatriculation'],
                 'vehicule_imei' => (string) $row['imei'],
                 'vehicule_description' => $row['description'],
-                'installateur_matricule' => (string)  $row['matricule_tech'],
-                'dates' =>  $dateInstallation,
+                'installateur_matricule' => (string) $row['matricule_tech'],
+                'dates' => $dateInstallation,
                 'import_name_id' => $this->import_name_id,
             ]);
 
             $this->successCount++;
-
         }
 
         $this->saveErrors();
     }
 
+
+
+    // public function collection(Collection $rows)
+    // {   
+    //     foreach  ($rows as $index => $row)  {
+
+    //         // dd($row);
+            
+    //          // Vérifier le RFID existant
+    //         $existingChauffeur = Chauffeur::where('rfid', $row['rfid'])->first();
+    //         if ($existingChauffeur) {
+    //                 $numero_ligne = $index +1;
+    //                 $this->addError("Ligne N° {$numero_ligne}: le RFID N° [{$row['rfid']}] est déjà attribué au chauffeur {$existingChauffeur->nom} ");
+    //                 $this->errorCount++;
+    //                 continue; // Passer à la ligne suivante
+    //         }
+ 
+    //         // // Vérifier le véhicule doublon
+    //         $existingVehicule = Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first();
+    //         if ($existingVehicule) {
+    //             $numero_lignes = $index +1;
+    //             $this->addError("Ligne N° {$numero_lignes}: le véhicule est déjà présent dans la base ");
+    //             $this->errorCount++;
+    //             continue; // Passer à la ligne suivante
+    //         }
+
+    //         // Vérifier et insérer les données dans la table Transporteur
+    //         if (!isset($this->transporteurs[$row['transporteur']])) {
+    //             $transporteur = Transporteur::firstOrCreate([
+    //                 'nom' => $row['transporteur']
+    //             ], [
+    //                 'adresse' => $row['adresse'],
+    //                 'tel' => (string) $row['transporteur_telephone'],
+    //             ]);
+    //             $this->transporteurs[$row['transporteur']] = $transporteur->id;
+    //         } else {
+    //             $transporteur = Transporteur::find($this->transporteurs[$row['transporteur']]);
+    //         }
+
+    //         // Insérer les données dans la table Chauffeur
+    //         $chauffeur = Chauffeur::create([
+    //             'rfid' => $row['rfid'],
+    //             'nom' => $row['nom'],
+    //             'contact' =>  (string)  $row['chauffeur_telephone'],
+    //             'transporteur_id' => $transporteur->id,
+    //         ]);
+
+    //         // Insérer les données dans la table Véhicule
+    //         $vehicule = Vehicule::create([
+    //             'imei' => (string) $row['imei'],
+    //             'nom' => $row['immatriculation'],
+    //             'description' => $row['description'],
+    //             'id_transporteur' => $transporteur->id,
+    //         ]);
+
+    //         // Insérer les données dans la table Installateur
+    //         $installateur = Installateur::firstOrCreate([
+    //             'matricule' => (string)  $row['matricule_tech'],
+    //             'obs' => ""
+    //         ]);
+
+    //         // Insérer les données dans la table Installation
+    //         $installation = Installation::create([
+    //             'date_installation' => Carbon::parse($row['date_installation']),
+    //             'vehicule_id' => $vehicule->id,
+    //             'installateur_id' => $installateur->id,
+    //         ]);
+
+    //         $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
+
+    //         // Insérer les données dans la table ImportInstallation
+    //         ImportInstallation::create([
+    //             'transporteur_nom' => $row['transporteur'],
+    //             'transporteur_adresse' => $row['adresse'],
+    //             'transporteur_tel' => (string)  $row['transporteur_telephone'],
+    //             'chauffeur_nom' => $row['nom'],
+    //             'chauffeur_rfid' => $row['rfid'],
+    //             'chauffeur_contact' => (string)  $row['chauffeur_telephone'],
+    //             'vehicule_nom' => $row['immatriculation'],
+    //             'vehicule_imei' => (string) $row['imei'],
+    //             'vehicule_description' => $row['description'],
+    //             'installateur_matricule' => (string)  $row['matricule_tech'],
+    //             'dates' =>  $dateInstallation,
+    //             'import_name_id' => $this->import_name_id,
+    //         ]);
+
+    //         $this->successCount++;
+
+    //     }
+
+    //     $this->saveErrors();
+    // }
+
     protected function addError($error)
     {
-        $this->errors[] = $error . ".";
+        $this->errors[] = $error . "";
     }
 
     public function getErrors()
