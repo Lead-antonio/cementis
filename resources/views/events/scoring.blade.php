@@ -12,8 +12,11 @@
                         {{-- <div class="col-sm-2">
                             <a class="btn btn-success" href="{{ route('event.exportscoringcard') }}"> Exporter en Excel</a>
                         </div> --}}
-                        <div class="col-sm-2">
-                            <a id="export-link" class="btn btn-success" href="{{ route('event.exportscoringcard', ['planning' => $selectedPlanning]) }}"><i class="fas fa-file-excel"></i> Excel</a>
+                        <div class="col-sm-2 excel-button">
+                            <a id="export-link" class="btn btn-success" 
+                                href="{{ route('event.exportscoringcard', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </a>
                         </div>
 
                         <div class="col-sm-3">
@@ -22,6 +25,14 @@
                                 @foreach($import_calendar as $calendar)
                                     <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>{{$calendar->name}}</option>    
                                 @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form form-control" name="alphaciment_driver" id="alphaciment_driver" style="width: auto;">
+                                <option value="">Veuillez-choisir camion calendrier</option>
+                                <option value="oui" {{ $alphaciment_driver === 'oui' ? 'selected' : '' }}>Oui</option>
+                                <option value="non" {{ $alphaciment_driver === 'non' ? 'selected' : '' }}>Non</option>
+
                             </select>
                         </div>
                         {{-- <div class="form-row" style="margin: 0% 0% 0% 1%;width: 62%;"> --}}
@@ -61,6 +72,10 @@
       .scoring-red {
           background-color: #f44336; /* Rouge */
           color: #ffffff; /* Couleur de texte */
+      }
+
+      .excel-button{
+        max-width: 8.666667%!important;
       }
 
     </style>

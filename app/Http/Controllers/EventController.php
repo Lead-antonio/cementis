@@ -106,6 +106,8 @@ class EventController extends AppBaseController
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $existingScoring = Scoring::where('id_planning', $selectedPlanning)->exists();
         $import_calendar = Importcalendar::all();
+        $alphaciment_driver = $request->query('alphaciment_driver', null);
+
         // if($existingScoring){
         //     $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         // }else{
@@ -162,7 +164,7 @@ class EventController extends AppBaseController
         //     $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
         // }
         $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
-        return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring'));
+        return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
     }
 
     public function ajaxHandle(Request $request){
@@ -221,7 +223,32 @@ class EventController extends AppBaseController
         return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
     }
 
+    public function FilterByTruckInCalendar(Request $request){
+        $selectedPlanning = $request->input('planning');
+        $alphaciment_driver = $request->input('alphaciment_driver');
+        
+        $data = [];
 
+        $query = Scoring::where('id_planning', $selectedPlanning);
+
+        // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
+        if ($alphaciment_driver !== null) {
+            // Récupérer la liste des camions du ImportExcel en fonction du planning sélectionné
+            $camionsImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
+                                ->pluck('camion') // Récupère uniquement la colonne "camion"
+                                ->toArray();
+
+            if ($alphaciment_driver === "oui") {
+                $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
+            } elseif ($alphaciment_driver === "non") {
+                $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
+            }
+
+        }
+
+        $scoring = $query->orderBy('point', 'desc')->get();
+        return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
+    }
 
 
     public function showMap($latitude, $longitude)
@@ -266,9 +293,11 @@ class EventController extends AppBaseController
      * Fonction pour exporter les données scoringcard en un fichier excel
      * jonny
      */
-    public function exportscoringcard($planning = null)
+    public function exportscoringcard(Request $request)
     {
-        return Excel::download(new ScoringCardExport($planning), 'scoring_card.xlsx');
+        $planning = $request->planning ?? null;
+        $alphaciment_driver = $request->alphaciment_driver ?? null;
+        return Excel::download(new ScoringCardExport($planning,$alphaciment_driver), 'scoring_card.xlsx');
     }
 
     /**
