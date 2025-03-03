@@ -27,6 +27,7 @@ class ImportNameInstallation extends Model
     public $timestamps = false;
 
     public $fillable = [
+        'id',
         'name',
         'observation'
     ];

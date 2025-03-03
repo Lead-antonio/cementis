@@ -76,33 +76,76 @@ class InstallationImport implements ToCollection, WithHeadingRow
 
             if($existingChauffeur){
 
-                ChauffeurUpdate::create([
-                    'chauffeur_id' => $existingChauffeur->id,
-                    'rfid' =>  $row['rfid'],
-                    'rfid_physique' =>  $row['rfid_physique'],
-                    'numero_badge' =>  $row['numero_badge'],
-                    'nom' =>  $row['nom'],
-                    'contact' =>  (string) $row['chauffeur_telephone'],
-                    'transporteur_id' => $transporteur->id,
-                    'date_installation' =>  $dateInstallation 
-                ]);
+                 // Vérifier si les mêmes données existent déjà dans Chauffeur
+                $existsInChauffeur = Chauffeur::where('rfid', $row['rfid'])
+                ->where('nom', $row['nom'])
+                ->where('transporteur_id', $transporteur->id)
+                ->exists();
 
-                $this->addError("Ligne N° {$numero_ligne}: Rfid: [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}]   existe déjà." ."Nouveau nom attribué à ce rfid:"  . $row['nom'] ."." );
-                $this->errorCount++;
+                if ($existsInChauffeur) {
+                    // Ajouter une erreur et ignorer l'insertion
+                    $this->addError("Ligne N° {$numero_ligne}: Les informations du chauffeur avec le RFID [{$row['rfid']}] et le nom [{$row['nom']}] existent déjà dans la table Chauffeur.");
+                    $this->errorCount++;
+                } else {
+                    // Vérifier si les mêmes données existent déjà dans ChauffeurUpdate
+                    $existingChauffeurUpdate = ChauffeurUpdate::where('chauffeur_id', $existingChauffeur->id)
+                        ->where('rfid', $row['rfid'])
+                        ->where('nom', $row['nom'])
+                        ->first();
+
+                    if (empty($existingChauffeurUpdate)) {
+                        // Insérer dans ChauffeurUpdate si non trouvé
+                        ChauffeurUpdate::create([
+                            'chauffeur_id' => $existingChauffeur->id,
+                            'rfid' => $row['rfid'],
+                            'rfid_physique' => $row['rfid_physique'],
+                            'numero_badge' => $row['numero_badge'],
+                            'nom' => $row['nom'],
+                            'contact' => (string) $row['chauffeur_telephone'],
+                            'transporteur_id' => $transporteur->id,
+                            'date_installation' => $dateInstallation
+                        ]);
+
+                        $this->addError("Ligne N° {$numero_ligne}: RFID [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}] existe déjà. Nouveau nom attribué à ce RFID: {$row['nom']}.");
+                        $this->errorCount++;
+                    }
+                }
             }
 
            
-            if($existingVehicule){
-                VehiculeUpdate::create([
-                    'vehicule_id' => $existingVehicule->id,
-                    'imei' => (string) $row['imei'],
-                    'nom' => $row['immatriculation'],
-                    'id_transporteur' => $transporteur->id,
-                    'date_installation' => $dateInstallation,
-                ]);
-                
-                $this->addError("Ligne N° {$numero_ligne} :imei  [{$row['imei']}] est déjà attribué à {$existingVehicule->nom} .Nouveau vehicule attribué à cet imei :" . $row['immatriculation']  .".");
-                $this->errorCount++;
+            if ($existingVehicule) {
+
+                // Vérifier si les mêmes données existent déjà dans Vehicule
+                $existsInVehicule = Vehicule::where('imei', (string) $row['imei'])
+                    ->where('nom', $row['immatriculation'])
+                    ->where('id_transporteur', $transporteur->id)
+                    ->exists();
+            
+                if ($existsInVehicule) {
+                    // Ajouter une erreur et ignorer l'insertion
+                    $this->addError("Ligne N° {$numero_ligne} : Les informations du véhicule avec l'IMEI [{$row['imei']}] et l'immatriculation [{$row['immatriculation']}] existent déjà dans la table Vehicule.");
+                    $this->errorCount++;
+                } else {
+                    // Vérifier si les mêmes données existent déjà dans VehiculeUpdate
+                    $existingVehiculeUpdate = VehiculeUpdate::where('vehicule_id', $existingVehicule->id)
+                        ->where('imei', (string) $row['imei'])
+                        ->where('nom', $row['immatriculation'])
+                        ->first();
+            
+                    if (empty($existingVehiculeUpdate)) {
+                        // Insérer dans VehiculeUpdate si non trouvé
+                        VehiculeUpdate::create([
+                            'vehicule_id' => $existingVehicule->id,
+                            'imei' => (string) $row['imei'],
+                            'nom' => $row['immatriculation'],
+                            'id_transporteur' => $transporteur->id,
+                            'date_installation' => $dateInstallation,
+                        ]);
+            
+                        $this->addError("Ligne N° {$numero_ligne} : IMEI [{$row['imei']}] est déjà attribué à {$existingVehicule->nom}. Nouveau véhicule attribué à cet IMEI : {$row['immatriculation']}.");
+                        $this->errorCount++;
+                    }
+                }
             }
 
             // Insérer le chauffeur si inexistant et RFID non vide

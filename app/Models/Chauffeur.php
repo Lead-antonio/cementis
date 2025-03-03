@@ -47,6 +47,8 @@ class Chauffeur extends Model
         'rfid' => 'string',
         'nom' => 'string',
         'contact' => 'string',
+        'numero_badge' => 'string',
+        'rfid_physique' => 'string',
         'transporteur_id' => 'integer',
     ];
 
