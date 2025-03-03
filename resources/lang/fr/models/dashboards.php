@@ -14,7 +14,7 @@ return [
     */
     'header' => [
         'index' => 'Tableau de bord',
-        'home' => 'accueil'
+        'home' => 'Accueil'
     ],
     'fields' => [
         'user_id' => 'Full name',

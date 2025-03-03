@@ -51,6 +51,7 @@ class DashboardController extends Controller
         $data['driver_has_score'] = $this->count_driver_has_scoring($selectedPlanning);
         $data['driver_not_has_score'] = $this->count_driver_not_has_scoring($selectedPlanning);  
         $data['driver_not_fix'] = $this->driver_not_fix();
+        $data['selectedPlanning'] = $selectedPlanning;
         
         return view('dashboard.index', $data);
     }

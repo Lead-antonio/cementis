@@ -98,19 +98,23 @@ Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')
 
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
-Route::get('/event/exportscoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\EventController@exportScoring')->name('event.exportscoring');
+Route::get('/export/excel/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@export_excel_driver_Scoring')->name('export.excel.detail.scoring');
 
-Route::get('/admin/event/exportscoringcard', 'App\Http\Controllers\EventController@exportscoringcard')->name('event.exportscoringcard');
+Route::get('/export/excel/scoring', 'App\Http\Controllers\ScoringController@export_excel_scoring_card')->name('export.excel.scoring');
 
-Route::post('/save-comments', [App\Http\Controllers\EventController::class, 'saveComments'])->name('save.comments');
+Route::post('/save-comments', [App\Http\Controllers\ScoringController::class, 'saveComments'])->name('save.comments');
 
-Route::get('/new/scoring', 'App\Http\Controllers\EventController@newscoring')->name('new.scoring');
+Route::get('/new/scoring', 'App\Http\Controllers\ScoringController@scoring_card')->name('new.scoring');
 
-Route::get('/ajax/scoring', 'App\Http\Controllers\EventController@ajaxHandle')->name('ajax.scoring');
-Route::get('/ajax/scoringdriver', 'App\Http\Controllers\EventController@FilterByTruckInCalendar')->name('ajax.scoringdriver');
+Route::get('/ajax/scoring', 'App\Http\Controllers\ScoringController@filter_scoring_by_planning')->name('ajax.scoring');
 
+Route::get('/ajax/scoringdriver', 'App\Http\Controllers\ScoringController@FilterByTruckInCalendar')->name('ajax.scoringdriver');
 
-Route::get('/events/table/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\EventController@TableauScoring')->name('events.table.scoring');
+Route::get('/detail/driver-has-scoring', 'App\Http\Controllers\ScoringController@driver_has_scoring')->name('detail.driver-has-scoring');
+
+Route::get('/detail/truck-have-not-scoring', 'App\Http\Controllers\VehiculeController@count_driver_not_has_scoring')->name('detail.truck-have-not-scoring');
+
+Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
 

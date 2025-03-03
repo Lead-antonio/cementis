@@ -47,7 +47,7 @@
                     
                     <button onclick="exportToPDF()" class="btn btn-outline-secondary">Exporter en PDF</button>
 
-                    <a class="btn btn-success" href="{{ route('event.exportscoring', ['chauffeur' => $chauffeur, 'id_planning' => $id_planning]) }}"> Exporter en Excel</a>
+                    <a class="btn btn-success" href="{{ route('export.excel.detail.scoring', ['chauffeur' => $chauffeur, 'id_planning' => $id_planning]) }}"> Exporter en Excel</a>
 
                 </div>
             </div>
@@ -108,7 +108,7 @@
                                     // $scoring_card = number_format(($total_point / $distanceTotal) * 100, 2);
                                     $scoring_card = ($total_point);
                                 } else {
-                                    $scoring_card = 0; // Ou toute autre valeur par défaut
+                                    $scoring_card = $total_point; // Ou toute autre valeur par défaut
                                 }
                                 if ($scoring_card >= 0 && $scoring_card <= 2) {
                                     $scoringClass = 'scoring-green';

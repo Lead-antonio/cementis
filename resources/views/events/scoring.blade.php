@@ -12,7 +12,7 @@
                     <div class="row"> <!-- Ajout d'une row ici -->
                         <div class="col-md-3 col-sm-6 mb-2 excel-button"> <!-- Ajustement des tailles -->
                             <a id="export-link" class="btn btn-success w-100" 
-                                href="{{ route('event.exportscoringcard', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
+                                href="{{ route('export.excel.scoring', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
                                 <i class="fas fa-file-excel"></i> Excel
                             </a>
                         </div>
