@@ -20,9 +20,7 @@
     <div class="content px-3">
         <div class="card">
             <div class="card-body">
-                <div class="row">
-                    @include('chauffeurs.show_fields')
-                </div>
+                @include('chauffeurs.show_fields')
             </div>
         </div>
     </div>

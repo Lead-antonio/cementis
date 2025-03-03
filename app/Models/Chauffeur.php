@@ -27,13 +27,14 @@ class Chauffeur extends Model
     protected $dates = ['deleted_at'];
 
 
-
     public $fillable = [
         'id',
         'rfid',
         'nom',
         'contact',
-        'transporteur_id'
+        'transporteur_id',
+        'numero_badge',
+        'rfid_physique',
     ];
 
     /**
@@ -57,6 +58,11 @@ class Chauffeur extends Model
     public function penalties()
     {
         return $this->hasMany(PenaliteChauffeur::class,'id_chauffeur');
+    }
+
+    public function chauffeur_update()
+    {
+        return $this->hasMany(ChauffeurUpdate::class,'chauffeur_id');
     }
 
 
