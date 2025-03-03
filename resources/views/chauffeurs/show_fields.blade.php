@@ -53,6 +53,7 @@
                         <th>{{ __('Rfid physique') }}</th>
                         <th>{{ __('Numéro badge') }}</th>
                         <th>{{ __('Transporteur') }}</th>
+                        <th>{{ __('Date d\'installation') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,6 +65,7 @@
                             <td>{{ $update->rfid_physique ?? ''}}</td>
                             <td>{{ $update->numero_badge ?? '-' }}</td>
                             <td>{{ $update->transporteur->nom }}</td>
+                            <td>{{ $update->date_installation }}</td>
                         </tr>
                     @endforeach
                 </tbody>
