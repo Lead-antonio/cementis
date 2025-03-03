@@ -26,90 +26,100 @@
         <div class="row">
             <!-- Transporteurs -->
             <div class="col-md-2">
-                <div class="card card-custom transporteur">
-                    <div class="card-body card-body-custom">
-                        <div>
-                            <h4 class="card-title-custom">Transporteurs</h4>
-                            <h3>{{$totalTransporteurs}}</h3>
+                <a href="{{ route('transporteurs.index') }}" class="text-decoration-none">
+                    <div class="card card-custom transporteur">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Transporteurs</h4>
+                                <h3>{{$totalTransporteurs}}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-city"></i>
+                            </div>
                         </div>
-                        <div class="icon-container">
-                            <i class="nav-icon fas fa-city"></i>
-                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
                     </div>
-                    {{-- <div class="card-footer card-footer-custom">
-                        <small>+15% depuis hier</small>
-                    </div> --}}
-                </div>
+                </a>
             </div>
         
             <!-- Véhicules -->
             <div class="col-md-2">
-                <div class="card card-custom vehicule">
-                    <div class="card-body card-body-custom">
-                        <div>
-                            <h4 class="card-title-custom">Véhicules</h4>
-                            <h3>{{ $totalVehicules }}</h3>
+                <a href="{{ route('vehicules.index') }}" class="text-decoration-none">
+                    <div class="card card-custom vehicule">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Véhicules</h4>
+                                <h3>{{ $totalVehicules }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-truck"></i>
+                            </div>
                         </div>
-                        <div class="icon-container">
-                            <i class="nav-icon fas fa-truck"></i>
-                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
                     </div>
-                    {{-- <div class="card-footer card-footer-custom">
-                        <small>+15% depuis hier</small>
-                    </div> --}}
-                </div>
+                </a>
             </div>
         
             <!-- Chauffeurs -->
             <div class="col-md-2">
-                <div class="card card-custom chauffeur">
-                    <div class="card-body card-body-custom">
-                        <div>
-                            <h4 class="card-title-custom">Chauffeurs</h4>
-                            <h3>{{ $totalChauffeurs }}</h3>
+                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
+                    <div class="card card-custom chauffeur">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Chauffeurs</h4>
+                                <h3>{{ $totalChauffeurs }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
                         </div>
-                        <div class="icon-container">
-                            <i class="nav-icon fas fa-user"></i>
-                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
                     </div>
-                    {{-- <div class="card-footer card-footer-custom">
-                        <small>+15% depuis hier</small>
-                    </div> --}}
-                </div>
+                </a>
             </div>
 
             <div class="col-md-3">
-                <div class="card card-custom scoring">
-                    <div class="card-body card-body-custom">
-                        <div>
-                            <h4 class="card-title-custom">Nombre de chauffeur avec score</h4>
-                            <h3>{{ $driver_has_score }}</h3>
+                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none">
+                    <div class="card card-custom scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de chauffeur avec score</h4>
+                                <h3>{{ $driver_has_score }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
                         </div>
-                        <div class="icon-container">
-                            <i class="nav-icon fas fa-user"></i>
-                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
                     </div>
-                    {{-- <div class="card-footer card-footer-custom">
-                        <small>+15% depuis hier</small>
-                    </div> --}}
-                </div>
+                </a>
             </div>
 
             <div class="col-md-3">
-                <div class="card card-custom no-scoring">
-                    <div class="card-body card-body-custom">
-                        <div>
-                            <h4 class="card-title-custom">Nombre de chauffeur sans score</h4>
-                            <h3>{{ $driver_not_has_score }}</h3>
+                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none">
+                    <div class="card card-custom no-scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de camion dans le calendrier sans score</h4>
+                                <h3>{{ $driver_not_has_score }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-truck"></i>
+                            </div>
                         </div>
-                        <div class="icon-container">
-                            <i class="nav-icon fas fa-user"></i>
-                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
                     </div>
-                    {{-- <div class="card-footer card-footer-custom">
-                        <small>+15% depuis hier</small>
-                    </div> --}}
-                </div>
+                </a>
             </div>
         </div>
         
@@ -174,20 +184,22 @@
                                                 <div class="card-body">
                                                     @foreach ($best_scoring as $key => $item)
                                                         <div class="card rounded-card">
-                                                            <div class="card-body card-list">
-                                                                <div class="number-circle">{{ $key + 1 }}</div>
-                                                                <strong> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
-                                                                <span class="badge rounded-pill 
-                                                                    {{ 
-                                                                        (round($item->point) == 0) ? 'bg-success' : 
-                                                                        (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
-                                                                        (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
-                                                                        (round($item->point) > 10 ? 'bg-danger' : ''))) 
-                                                                    }}"
-                                                                >
-                                                                    {{ $item->point }}
-                                                                </span>
-                                                            </div>
+                                                            <a class="text-decoration-none text-dark" href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver, 'id_planning'  => $selectedPlanning]) }}">
+                                                                <div class="card-body card-list">
+                                                                    <div class="number-circle">{{ $key + 1 }}</div>
+                                                                    <strong> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
+                                                                    <span class="badge rounded-pill 
+                                                                        {{ 
+                                                                            (round($item->point) == 0) ? 'bg-success' : 
+                                                                            (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
+                                                                            (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
+                                                                            (round($item->point) > 10 ? 'bg-danger' : ''))) 
+                                                                        }}"
+                                                                    >
+                                                                        {{ $item->point }}
+                                                                    </span>
+                                                                </div>
+                                                            </a>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -219,20 +231,22 @@
                                                     @endphp
                                                     @foreach ($bad_scoring as $key => $item)
                                                         <div class="card rounded-card">
-                                                            <div class="card-body card-list ">
-                                                                <div class="number-circle-worst">{{ $totalItems - $key }}</div>
-                                                                <strong> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
-                                                                <span class="badge rounded-pill 
-                                                                    {{ 
-                                                                        (round($item->point) == 0) ? 'bg-success' : 
-                                                                        (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
-                                                                        (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
-                                                                        (round($item->point) > 10 ? 'bg-danger' : ''))) 
-                                                                    }}"
-                                                                >
-                                                                    {{ $item->point }}
-                                                                </span>
-                                                            </div>
+                                                            <a class="text-decoration-none text-dark" href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver, 'id_planning'  => $selectedPlanning]) }}">
+                                                                <div class="card-body card-list">
+                                                                    <div class="number-circle-worst">{{ $totalItems - $key }}</div>
+                                                                    <strong class="text-dark"> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
+                                                                    <span class="badge rounded-pill
+                                                                        {{ 
+                                                                            (round($item->point) == 0) ? 'bg-success' : 
+                                                                            (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
+                                                                            (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
+                                                                            (round($item->point) > 10 ? 'bg-danger' : ''))) 
+                                                                        }}" 
+                                                                    >
+                                                                        {{ $item->point }}
+                                                                    </span>
+                                                                </div>
+                                                            </a>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -323,14 +337,14 @@
             labels: labels,
             datasets: [
                     {
-                        label: 'Nombre de Chauffeurs',
+                        label: 'Nombre de chauffeurs',
                         data: chauffeursData, // Chauffeurs par transporteur
                         backgroundColor: 'rgba(54, 162, 235, 0.6)', // Bleu
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
                     },
                     {
-                        label: 'Nombre de Véhicules',
+                        label: 'Nombre de véhicules',
                         data: vehiculesData, // Véhicules par transporteur
                         backgroundColor: 'rgba(255, 99, 132, 0.6)', // Rouge
                         borderColor: 'rgba(255, 99, 132, 1)',
@@ -356,7 +370,20 @@
                             }
                         }
                     }
+                },
+                plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 16, // Taille de la police pour la légende
+                            family: 'Arial', // Police de caractères
+                            weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
+                            lineHeight: 1.2 // Hauteur de ligne
+                        },
+                        color: '#333' // Couleur de la légende
+                    }
                 }
+            }
         }
     });
 // ---------------------------------------------------------------------------------------------------
@@ -386,14 +413,14 @@
         data: {
             labels: labels, // Étiquettes (noms des transporteurs)
             datasets: [{
-                label: 'Nombre de Chauffeurs non fixes',
+                label: 'Nombre de chauffeurs non fixes',
                 data: data, // Données (nombre de chauffeurs non fixes)
                 backgroundColor: 'rgba(54, 162, 235, 0.2)', // Couleur de fond des barres
                 borderColor: 'rgba(54, 162, 235, 1)', // Couleur des bordures des barres
                 borderWidth: 1
             }, {
                 // label: 'Total des Chauffeurs non fixes: ' + totalNonFixed, // Légende supplémentaire
-                label: 'Total des Chauffeurs Non Fixes : '+ totalNonFixed,
+                label: 'Total des chauffeurs non fixes : '+ totalNonFixed,
                 backgroundColor: 'rgba(255, 99, 132, 0)', // Transparent
                 borderColor: 'rgba(255, 99, 132, 1)', // Couleur pour le total
                 borderWidth: 0,
