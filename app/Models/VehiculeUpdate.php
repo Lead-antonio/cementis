@@ -20,4 +20,10 @@ class VehiculeUpdate extends Model
         'description',
         'date_installation',
     ];
+
+
+    public function transporteur()
+    {
+        return $this->belongsTo(Transporteur::class, 'id_transporteur');
+    }
 }

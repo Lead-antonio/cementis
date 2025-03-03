@@ -11,6 +11,7 @@ use Flash;
 use App\Models\Transporteur;
 use App\Models\Vehicule;
 use App\Http\Controllers\AppBaseController;
+use App\Models\VehiculeUpdate;
 use Response;
 
 class VehiculeController extends AppBaseController
@@ -75,13 +76,14 @@ class VehiculeController extends AppBaseController
     public function show($id)
     {
         $vehicule = $this->vehiculeRepository->find($id);
+        $vehicule_update = VehiculeUpdate::with('transporteur')->where('vehicule_id',$id)->get();
         if (empty($vehicule)) {
             Flash::error(__('messages.not_found', ['model' => __('models/vehicules.singular')]));
 
             return redirect(route('vehicules.index'));
         }
 
-        return view('vehicules.show')->with('vehicule', $vehicule);
+        return view('vehicules.show',compact('vehicule', 'vehicule_update'));
     }
 
     /**

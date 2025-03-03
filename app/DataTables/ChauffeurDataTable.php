@@ -30,7 +30,7 @@ class ChauffeurDataTable extends DataTable
      */
     public function query(Chauffeur $model)
     {
-        return $model->newQuery()->with(['related_transporteur']);
+        return $model->newQuery()->with(['related_transporteur','chauffeur_update']);
     }
 
     /**
@@ -69,7 +69,9 @@ class ChauffeurDataTable extends DataTable
         return [
             // 'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
             'nom' => new Column(['title' => __('models/chauffeurs.fields.nom'), 'data' => 'nom']),
-            'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
+            'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid_physique'), 'data' => 'rfid_physique']),
+            'rfid_physique' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
+            'numero_badge' => new Column(['title' => __('models/chauffeurs.fields.numero_badge'), 'data' => 'numero_badge']),
             'transporteur_id' => new Column([
                 'title' => __('models/chauffeurs.fields.transporteur_id'), 'data' => 'related_transporteur.nom',
                 'render' =>'function() {

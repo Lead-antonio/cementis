@@ -30,7 +30,8 @@ class VehiculeDataTable extends DataTable
      */
     public function query(Vehicule $model)
     {
-        return $model->newQuery()->with(['related_transporteur']);
+        return $model->newQuery()->with(['related_transporteur','installation', 'vehicule_update' => function($query) {
+            $query->latest()->limit(1);}]);
     }
 
     /**
@@ -66,9 +67,38 @@ class VehiculeDataTable extends DataTable
     {
         return [
             // 'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
-            'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom']),
-            'id_transporteur' => new Column(['title' => __('models/vehicules.fields.id_transporteur'), 'data' => 'related_transporteur.nom']),
-        ];
+            'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom',
+            'render' => function () {
+                return "
+                    function(data, type, row) {
+                        if (row.vehicule_update && row.vehicule_update.length > 0) {
+                            return row.vehicule_update[0].nom; // Affiche le nom du dernier vehicule_update
+                        }
+                        return data; // Affiche le nom original du véhicule
+                    }
+                ";
+            }
+        ]),
+        'id_transporteur' => new Column(['title' => __('models/vehicules.fields.id_transporteur'), 'data' => 'related_transporteur.nom']),
+        'imei' => new Column(['title' => __('models/vehicules.fields.imei'), 'data' => 'imei']),
+        'installation' => new Column(['title' => __('models/vehicules.fields.date_installation'), 'data' => 'installation[0].date_installation',
+        'render' => 'function() {
+            const dateObject = new Date(full.installation[0].date_installation);
+            if (isNaN(dateObject.getTime())) {
+                return data; 
+            }
+            const year = dateObject.getFullYear();
+            const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+            const day = String(dateObject.getDate()).padStart(2, "0");
+            const hours = String(dateObject.getHours()).padStart(2, "0");
+            const minutes = String(dateObject.getMinutes()).padStart(2, "0");
+            const formattedDate = `${day}/${month}/${year}`;
+            return formattedDate;
+        }'
+    
+    ]),
+        
+    ];
     }
 
     /**

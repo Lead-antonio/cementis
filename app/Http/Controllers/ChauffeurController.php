@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Imports\DriverImportClass;
 use App\Models\Chauffeur;
+use App\Models\ChauffeurUpdate;
 use Excel;
 use Response;
 
@@ -113,14 +114,14 @@ class ChauffeurController extends AppBaseController
     public function show($id)
     {
         $chauffeur = $this->chauffeurRepository->find($id);
-
+        $chauffeur_update = ChauffeurUpdate::with('transporteur')->where('chauffeur_id',$id)->get();
         if (empty($chauffeur)) {
             Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
 
             return redirect(route('chauffeurs.index'));
         }
 
-        return view('chauffeurs.show')->with('chauffeur', $chauffeur);
+        return view('chauffeurs.show',compact('chauffeur','chauffeur_update'));
     }
 
     /**

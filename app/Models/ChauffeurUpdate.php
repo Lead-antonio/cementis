@@ -18,6 +18,14 @@ class ChauffeurUpdate extends Model
         'nom',
         'contact',
         'transporteur_id',
-        'date_installation'
+        'date_installation',
+        'numero_badge',
+        'rfid_physique',
     ];
+
+
+    public function transporteur()
+    {
+        return $this->belongsTo(Transporteur::class, 'transporteur_id');
+    }
 }

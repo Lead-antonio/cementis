@@ -63,5 +63,15 @@ class Vehicule extends Model
         return $this->belongsTo(Transporteur::class, 'id_transporteur');
     }
 
-    
+
+    public function vehicule_update()
+    {
+        return $this->hasMany(VehiculeUpdate::class,'vehicule_id');
+    }
+
+    public function installation()
+    {
+        return $this->hasMany(Installation::class,'vehicule_id');
+    }
+
 }

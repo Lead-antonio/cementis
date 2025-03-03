@@ -66,33 +66,13 @@ class InstallationImport implements ToCollection, WithHeadingRow
             $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first() : null;
 
             // Si les deux existent, on saute la ligne
-            // if ($existingChauffeur && $existingVehicule) {
+            
 
-            //     ChauffeurUpdate::create([
-            //         'chauffeur_id' => $existingChauffeur->id,
-            //         'rfid' =>  $row['rfid'],
-            //         'rfid_physique' =>  $row['rfid_physique'],
-            //         'numero_badge' =>  $row['numero_badge'],
-            //         'nom' =>  $row['nom'],
-            //         'contact' =>  (string) $row['chauffeur_telephone'],
-            //         'transporteur_id' => $transporteur->id,
-            //         'date_installation' =>   $row['date_installation']
-            //     ]);
-
-
-            //     VehiculeUpdate::create([
-            //         'vehicule_id' => $existingVehicule->id,
-            //         'imei' => (string) $row['imei'],
-            //         'nom' => $row['immatriculation'],
-            //         'id_transporteur' => $transporteur->id,
-            //         'description' => $row['description'], 
-            //         'date_installation' => $row['date_installation'],
-            //     ]);
-
-            //     $this->addError("Ligne N° {$numero_ligne}: Le chauffeur [{$existingChauffeur->nom}] et le véhicule [{$row['immatriculation']}] existent déjà.");
-            //     $this->errorCount++;
-            //     // continue;
-            // }
+            $dateInstallation = null;
+            if (!empty($row['date_installation'])) { // Vérifie si non vide
+                $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
+            }
+           
 
             if($existingChauffeur){
 
@@ -104,21 +84,21 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     'nom' =>  $row['nom'],
                     'contact' =>  (string) $row['chauffeur_telephone'],
                     'transporteur_id' => $transporteur->id,
-                    'date_installation' =>  null
+                    'date_installation' =>  $dateInstallation 
                 ]);
 
                 $this->addError("Ligne N° {$numero_ligne}: Rfid: [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}]   existe déjà." ."Nouveau nom attribué à ce rfid:"  . $row['nom'] ."." );
                 $this->errorCount++;
             }
 
+           
             if($existingVehicule){
-
                 VehiculeUpdate::create([
                     'vehicule_id' => $existingVehicule->id,
                     'imei' => (string) $row['imei'],
                     'nom' => $row['immatriculation'],
                     'id_transporteur' => $transporteur->id,
-                    'date_installation' => null,
+                    'date_installation' => $dateInstallation,
                 ]);
                 
                 $this->addError("Ligne N° {$numero_ligne} :imei  [{$row['imei']}] est déjà attribué à {$existingVehicule->nom} .Nouveau vehicule attribué à cet imei :" . $row['immatriculation']  .".");
@@ -130,6 +110,8 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 $chauffeur = Chauffeur::create([
                     'rfid' => $row['rfid'],
                     'nom' => $row['nom'],
+                    'rfid_physique' =>  $row['rfid_physique'],
+                    'numero_badge' =>  $row['numero_badge'],
                     'contact' => (string) $row['chauffeur_telephone'],
                     'transporteur_id' => $transporteur->id,
                 ]);
@@ -160,13 +142,13 @@ class InstallationImport implements ToCollection, WithHeadingRow
             // Insérer l'installation si un véhicule a été créé ou existe déjà
             if ($vehicule) {
                 $installation = Installation::create([
-                    'date_installation' => Carbon::parse($row['date_installation']),
+                    'date_installation' =>  $dateInstallation,
                     'vehicule_id' => $vehicule->id,
                     'installateur_id' => $installateur->id,
                 ]);
             }
 
-            $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
+            
 
             // Insérer les données dans ImportInstallation
             ImportInstallation::create([
@@ -180,7 +162,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 'vehicule_imei' => (string) $row['imei'],
                 'vehicule_description' => $row['description'],
                 'installateur_matricule' => (string) $row['matricule_tech'],
-                'dates' => $dateInstallation,
+                'dates' => $dateInstallation ,
                 'import_name_id' => $this->import_name_id,
             ]);
             $this->successCount++;
@@ -321,11 +303,17 @@ class InstallationImport implements ToCollection, WithHeadingRow
         return $this->errorCount;
     }
 
-    protected function excelDateToCarbon($excelDate) {
-        // Excel date starts on 1st January 1900
-        $carbonDate = Carbon::createFromDate(1900, 1, 1)->addDays($excelDate - 2); // Excel's day 1 is actually 0
-        return $carbonDate;
+    protected function excelDateToCarbon($excelDate)
+    {
+        if (is_numeric($excelDate)) {
+            // Excel date starts on 1st January 1900
+            return Carbon::createFromDate(1900, 1, 1)->addDays($excelDate - 2); // Excel's day 1 is actually 0
+        } else {
+            // Si ce n'est pas un nombre, essayer de le convertir avec Carbon
+            return Carbon::parse($excelDate);
+        }
     }
+
 
     // public function generateErrorFile()
     // {
