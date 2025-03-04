@@ -18,7 +18,8 @@ class VehiculeRepository extends BaseRepository
      */
     protected $fieldSearchable = [
         'id',
-        'nom'
+        'nom',
+        'vehicule_update.nom'
     ];
 
     /**

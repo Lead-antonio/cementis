@@ -31,7 +31,7 @@ class VehiculeDataTable extends DataTable
     public function query(Vehicule $model)
     {
         return $model->newQuery()->with(['related_transporteur','installation', 'vehicule_update' => function($query) {
-            $query->latest()->limit(1);}]);
+            $query->latest()->limit(1);}])->select('vehicule.*');
     }
 
     /**
@@ -68,6 +68,7 @@ class VehiculeDataTable extends DataTable
         return [
             // 'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
             'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom',
+            'name' => 'vehicule_update.nom',
             'render' => function () {
                 return "
                     function(data, type, row) {
@@ -81,7 +82,7 @@ class VehiculeDataTable extends DataTable
         ]),
         'id_transporteur' => new Column(['title' => __('models/vehicules.fields.id_transporteur'), 'data' => 'related_transporteur.nom']),
         'imei' => new Column(['title' => __('models/vehicules.fields.imei'), 'data' => 'imei']),
-        'installation' => new Column(['title' => __('models/vehicules.fields.date_installation'), 'data' => 'installation[0].date_installation',
+        'installation' => new Column(['title' => __('models/vehicules.fields.date_installation'), 
         'render' => 'function() {
             const dateObject = new Date(full.installation[0].date_installation);
             if (isNaN(dateObject.getTime())) {

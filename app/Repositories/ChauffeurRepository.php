@@ -20,7 +20,8 @@ class ChauffeurRepository extends BaseRepository
         'id',
         'rfid',
         'nom',
-        'contact'
+        'contact',
+        'chauffeur_update.nom'
     ];
 
     /**
