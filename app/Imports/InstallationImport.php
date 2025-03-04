@@ -353,7 +353,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
             return Carbon::createFromDate(1900, 1, 1)->addDays($excelDate - 2); // Excel's day 1 is actually 0
         } else {
             // Si ce n'est pas un nombre, essayer de le convertir avec Carbon
-            return Carbon::parse($excelDate);
+            return null;
         }
     }
 

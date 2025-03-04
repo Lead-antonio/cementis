@@ -7,7 +7,7 @@
 <!-- Détails du Véhicule -->
 <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-        <h4>{{ __('Détails du Véhicule') }}</h4>
+        <h4>{{ __('Détails du Chauffeur') }}</h4>
     </div>
     <div class="card-body">
         <div class="row">
@@ -38,11 +38,11 @@
 <!-- Historique des Mises à Jour du Véhicule -->
 <div class="card mb-4">
     <div class="card-header bg-secondary text-white">
-        <h4>{{ __('Historique des Mises à Jour du Véhicule') }}</h4>
+        <h4>{{ __('Historique des Mises à Jour du chauffeur') }}</h4>
     </div>
     <div class="card-body">
         @if($chauffeur_update->isEmpty())
-            <p class="text-center text-muted">Aucune mise à jour trouvée pour ce véhicule.</p>
+            <p class="text-center text-muted">Aucune mise à jour trouvée pour ce chauffeur.</p>
         @else
             <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
