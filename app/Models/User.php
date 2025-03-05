@@ -68,6 +68,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function routeNotificationForDatabase()
+    {
+        return $this->notifications();
+    }
     public function isSuperAdmin()
     {
         return $this->hasRole(Role::SUPPER_ADMIN);

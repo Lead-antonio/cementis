@@ -60,6 +60,41 @@
                         @endforeach
                     </div>
                 </li> --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        🔔
+                        @if(Auth::user()->unreadNotifications->count() > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ Auth::user()->unreadNotifications->count() }}
+                                <span class="visually-hidden">notifications non lues</span>
+                            </span>
+                        @endif
+                    </a>
+                
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                        @foreach(Auth::user()->unreadNotifications as $notification)
+                            <li>
+                                <a class="dropdown-item" href="{{ $notification->data['url'] }}">
+                                    {{ $notification->data['message'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                
+                        @if(Auth::user()->unreadNotifications->isEmpty())
+                            <li><a class="dropdown-item text-muted">Aucune notification</a></li>
+                        @endif
+                
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+                
                 <li class="nav-item dropdown user-menu">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                         <img src="{{url('images/avatars.png')}}" class="user-image img-circle elevation-2" alt="User Image">
@@ -112,7 +147,7 @@
             <div class="float-right d-none d-sm-block">
                 
             </div>
-            <strong>Droits d'auteur &copy; 2023 <a> M-Tec</a>.</strong> Tous droits réservés.
+            <strong>Droits d'auteur &copy; 2025 <a> M-Tec</a>.</strong> Tous droits réservés.
         </footer>
     </div>
 
@@ -359,6 +394,42 @@
         
 
     </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function updateNotifications() {
+        $.get("{{ route('notifications.fetch') }}", function (data) {
+            $('#notificationsDropdown .badge').text(data.count);
+
+            let dropdownMenu = $('#notificationsDropdown').next('.dropdown-menu');
+            dropdownMenu.empty();
+
+            if (data.notifications.length > 0) {
+                data.notifications.forEach(notification => {
+                    dropdownMenu.append(`
+                        <li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>
+                    `);
+                });
+
+                dropdownMenu.append('<li><hr class="dropdown-divider"></li>');
+                dropdownMenu.append(`
+                    <li>
+                        <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
+                        </form>
+                    </li>
+                `);
+            } else {
+                dropdownMenu.append('<li><a class="dropdown-item text-muted">Aucune notification</a></li>');
+            }
+        });
+    }
+
+    setInterval(updateNotifications, 10000); // Rafraîchissement toutes les 10 secondes
+</script>
+
 
 <style>
         .dataTables_wrapper {

@@ -104,6 +104,7 @@ class DashboardController extends Controller
             ->join('chauffeur', 'chauffeur.transporteur_id', '=', 'transporteur.id')
             ->where('chauffeur.nom', 'chauffeur non fixe')
             ->groupBy('chauffeur.transporteur_id', 'transporteur.nom')
+            ->orderByDesc('nombre_chauffeurs_non_fixes')
             ->get();
 
         return $repartitionChauffeurs;

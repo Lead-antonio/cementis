@@ -155,3 +155,6 @@ Route::resource('importModels', App\Http\Controllers\ImportModelController::clas
 
 Route::resource('process', App\Http\Controllers\ProcessController::class);
 
+
+
+Route::resource('periodSettings', App\Http\Controllers\PeriodSettingController::class);

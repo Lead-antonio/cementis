@@ -68,7 +68,7 @@ class VehiculeDataTable extends DataTable
         return [
             // 'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
             'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom',
-            'name' => 'vehicule_update.nom',
+            // 'name' => 'vehicule_update.nom',
             'render' => function () {
                 return "
                     function(data, type, row) {
