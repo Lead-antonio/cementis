@@ -51,6 +51,7 @@ class DashboardController extends Controller
         $data['driver_has_score'] = $this->count_driver_has_scoring($selectedPlanning);
         $data['driver_not_has_score'] = $this->count_driver_not_has_scoring($selectedPlanning);  
         $data['driver_not_fix'] = $this->driver_not_fix();
+        $data['driver_in_calendar'] = $this->count_driver_in_calendar($selectedPlanning);
         $data['selectedPlanning'] = $selectedPlanning;
         
         return view('dashboard.index', $data);
@@ -97,6 +98,20 @@ class DashboardController extends Controller
         $missingTrucks = array_diff($importTrucks, $scoringTrucks);
 
         return count(array_values($missingTrucks));
+    }
+
+    public function count_driver_in_calendar($id_planning)
+    {
+        $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
+        ->distinct()
+        ->pluck('camion')
+        ->map(function ($camion) {
+            return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
+        })
+        ->unique() // Supprime les doublons après transformation
+        ->toArray();
+
+        return count($importTrucks);
     }
 
     public function driver_not_fix(){

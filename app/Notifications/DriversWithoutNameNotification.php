@@ -32,8 +32,8 @@ class DriversWithoutNameNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'message' => "Il y a {$this->count} chauffeurs sans nom. Veuillez vérifier.",
-            // 'url' => route('drivers.index'),
+            'message' => "Il y a {$this->count} chauffeurs non fixes. Veuillez vérifier.",
+            'url' => route('chauffeurs.index', ['non_fixe' => 1]),
         ];
     }
 }

@@ -62,16 +62,15 @@
                 </li> --}}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        🔔
                         @if(Auth::user()->unreadNotifications->count() > 0)
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger" style="margin: -13% 0% 0% 16%;">
                                 {{ Auth::user()->unreadNotifications->count() }}
-                                <span class="visually-hidden">notifications non lues</span>
                             </span>
                         @endif
+                        🔔
                     </a>
                 
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static">
                         @foreach(Auth::user()->unreadNotifications as $notification)
                             <li>
                                 <a class="dropdown-item" href="{{ $notification->data['url'] }}">
@@ -176,6 +175,9 @@
     {{-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
@@ -395,7 +397,7 @@
 
     </script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
 <script>
     function updateNotifications() {
         $.get("{{ route('notifications.fetch') }}", function (data) {

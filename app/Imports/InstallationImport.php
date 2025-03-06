@@ -62,7 +62,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
             }
 
             // Vérifier l'existence du chauffeur et du véhicule
-            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->first() : null;
+            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->where('nom', $row['nom'])->first() : null;
             $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first() : null;
 
             // Si les deux existent, on saute la ligne

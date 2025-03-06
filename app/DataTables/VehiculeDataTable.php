@@ -69,16 +69,16 @@ class VehiculeDataTable extends DataTable
             // 'id' => new Column(['title' => __('models/vehicules.fields.id'), 'data' => 'id']),
             'nom' => new Column(['title' => __('models/vehicules.fields.nom'), 'data' => 'nom',
             // 'name' => 'vehicule_update.nom',
-            'render' => function () {
-                return "
-                    function(data, type, row) {
-                        if (row.vehicule_update && row.vehicule_update.length > 0) {
-                            return row.vehicule_update[0].nom; // Affiche le nom du dernier vehicule_update
-                        }
-                        return data; // Affiche le nom original du véhicule
-                    }
-                ";
-            }
+            // 'render' => function () {
+            //     return "
+            //         function(data, type, row) {
+            //             if (row.vehicule_update && row.vehicule_update.length > 0) {
+            //                 return row.vehicule_update[0].nom; // Affiche le nom du dernier vehicule_update
+            //             }
+            //             return data; // Affiche le nom original du véhicule
+            //         }
+            //     ";
+            // }
         ]),
         'id_transporteur' => new Column(['title' => __('models/vehicules.fields.id_transporteur'), 'data' => 'related_transporteur.nom']),
         'imei' => new Column(['title' => __('models/vehicules.fields.imei'), 'data' => 'imei']),
