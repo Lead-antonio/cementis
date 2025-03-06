@@ -15,6 +15,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use App\Imports\DriverImportClass;
 use App\Models\Chauffeur;
 use App\Models\ChauffeurUpdate;
+use App\Models\ChauffeurUpdateType;
 use Excel;
 use Response;
 
@@ -52,6 +53,14 @@ class ChauffeurController extends AppBaseController
             Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
             Session::forget('deleted');
         }
+
+        $chauffeur = Chauffeur::with('related_transporteur')->get(); // Récupère les chauffeurs avec transporteur
+        $transporteurs = Transporteur::pluck('nom', 'id'); // Récupère les transporteurs
+        $chauffeurUpdateTypes = ChauffeurUpdateType::pluck('name', 'id'); // Récupère les types d'update
+
+        
+        view()->share(compact('chauffeur', 'transporteurs', 'chauffeurUpdateTypes'));
+
         return $chauffeurDataTable->render('chauffeurs.index');
     }
 
@@ -66,7 +75,7 @@ class ChauffeurController extends AppBaseController
         $action = "create";
         return view('chauffeurs.create', compact('transporteur', 'action'));
     }
-
+    
     public function import_driver_excel(Request $request){
         try{
             // Verfication de l'extension du fichier 
@@ -143,6 +152,30 @@ class ChauffeurController extends AppBaseController
         }
 
         return view('chauffeurs.edit', compact('chauffeur', 'transporteur','action'));
+    }
+
+    /**
+     * Show the form for editing the specified Chauffeur.
+     *
+     * @param int $id
+     *
+     * @return Response
+     */
+    public function edit_story($id)
+    {
+        $chauffeur = $this->chauffeurRepository->find($id);
+        $transporteur = Transporteur::pluck('nom', 'id');
+        $action = "edit";
+        $chauffeurUpdateTypes = ChauffeurUpdateType::pluck('name', 'id'); // Récupère les types d'update
+
+        
+        // if (empty($chauffeur)) {
+        //     Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
+
+        //     return redirect(route('chauffeurs.index'));
+        // }
+
+        return view('chauffeurs.edit_story', compact('chauffeur', 'transporteur','chauffeurUpdateTypes','action'));
     }
 
     /**

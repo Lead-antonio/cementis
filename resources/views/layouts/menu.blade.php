@@ -196,6 +196,14 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a href="{{ route('chauffeurUpdateTypes.index') }}"
+               class="nav-link {{ Request::is('chauffeurUpdateTypes*') ? 'active' : '' }}">
+               <i class="nav-icon fas fa-truck"></i>
+                <p>@lang('models/chauffeurUpdateTypes.plural')</p>
+            </a>
+        </li>
+
     </ul>
 </li>
 
@@ -280,3 +288,13 @@
         <p>Exportation generale</p>
     </a>
 </li>
+
+
+<li class="nav-item">
+    <a href="{{ route('chauffeurUpdateStories.index') }}"
+       class="nav-link {{ Request::is('chauffeurUpdateStories*') ? 'active' : '' }}">
+       <i class="nav-icon fa fa-list"></i>
+        <p>@lang('models/chauffeurUpdateStories.plural')</p>
+    </a>
+</li>
+

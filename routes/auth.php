@@ -117,9 +117,9 @@ Route::get('/detail/truck-have-not-scoring', 'App\Http\Controllers\VehiculeContr
 Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
+Route::get('/chauffeurs/edit_story/{id}', 'App\Http\Controllers\ChauffeurController@edit_story')->name('chauffeurs.edit_story');
 
 Route::resource('events', App\Http\Controllers\EventController::class);
-
 
 Route::resource('transporteurs', App\Http\Controllers\TransporteurController::class);
 
@@ -155,3 +155,9 @@ Route::resource('importModels', App\Http\Controllers\ImportModelController::clas
 
 Route::resource('process', App\Http\Controllers\ProcessController::class);
 
+
+
+Route::resource('chauffeurUpdateTypes', App\Http\Controllers\ChauffeurUpdateTypeController::class);
+
+
+Route::resource('chauffeurUpdateStories', App\Http\Controllers\ChauffeurUpdateStoryController::class);
