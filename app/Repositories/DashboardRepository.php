@@ -46,12 +46,13 @@ class DashboardRepository
         $dashboardInfo['driverTop'] = driverTop();
         $dashboardInfo['driverWorst'] = driverWorst();
         $dashboardInfo['scoring'] = scoringCard();
-        //$dashboardInfo['count_vehicule_transporteur'] = Transporteur::withCount('vehicule')->get();
-        //$dashboardInfo['count_driver_transporteur'] = Transporteur::withCount('chauffeurs')->get();
+        $dashboardInfo['vehicule_transporteur'] = Transporteur::withCount('vehicule')->orderByDesc('vehicule_count')->get();
+        $dashboardInfo['driver_transporteur'] = Transporteur::withCount('chauffeurs')->orderByDesc('chauffeurs_count')->get();
         $transporteurs = Transporteur::withCount(['vehicule', 'chauffeurs'])
                                         ->orderByDesc('vehicule_count')
                                         ->orderByDesc('chauffeurs_count')
                                         ->get();
+
         $dashboardInfo['transporteurs'] = $transporteurs;
         $totalChauffeurs = $transporteurs->sum('chauffeurs_count');
         $totalVehicules = $transporteurs->sum('vehicule_count');

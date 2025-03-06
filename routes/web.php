@@ -69,3 +69,21 @@ Route::post('/process/{step}/run', function ($step) {
         'process_name' => $process->name
     ], 200);
 })->name('process.run');
+
+
+Route::patch('/notifications/read-all', function (Request $request) {
+    Auth::user()->unreadNotifications->markAsRead();
+    return redirect()->back();
+})->name('notifications.markAllAsRead');
+
+Route::get('/notifications/fetch', function () {
+    return response()->json([
+        'count' => Auth::user()->unreadNotifications->count(),
+        'notifications' => Auth::user()->unreadNotifications->map(function ($notification) {
+            return [
+                'message' => $notification->data['message'],
+                'url' => $notification->data['url'],
+            ];
+        }),
+    ]);
+})->name('notifications.fetch');

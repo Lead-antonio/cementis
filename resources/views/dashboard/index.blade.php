@@ -108,8 +108,8 @@
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
-                                <h4 class="card-title-custom">Nombre de camion dans le calendrier sans score</h4>
-                                <h3>{{ $driver_not_has_score }}</h3>
+                                <h4 class="card-title-custom">Nombre de véhicules dans le calendrier</h4>
+                                <h3>{{ $driver_in_calendar }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-truck"></i>
@@ -134,17 +134,22 @@
                         <ul class="nav nav-tabs card-header-tabs flex-grow-1" id="myTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
-                                    <strong>Classement des Scores</strong> 
+                                    <strong>Classement des scores</strong> 
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    <strong>Répartition des Chauffeurs et Véhicules</strong> 
+                                <button class="nav-link" id="vehicule-tab" data-bs-toggle="tab" data-bs-target="#vehicule" type="button" role="tab" aria-controls="vehicule" aria-selected="false">
+                                    <strong>Répartition des véhicules par transporteurs</strong> 
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="chauffeur-tab" data-bs-toggle="tab" data-bs-target="#chauffeur" type="button" role="tab" aria-controls="chauffeur" aria-selected="false">
+                                    <strong>Répartition des chauffeurs par transporteurs</strong> 
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">
-                                    <strong>Répartition des Chauffeurs Non Fixes</strong> 
+                                    <strong>Répartition des chauffeurs non fixes</strong> 
                                 </button>
                             </li>
                         </ul>
@@ -257,8 +262,11 @@
                                     </div>
                                 </div> 
                             </div>
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                <canvas id="transporteursChart" ></canvas>
+                            <div class="tab-pane fade" id="vehicule" role="tabpanel" aria-labelledby="vehicule-tab">
+                                <canvas id="vehiculeChart" ></canvas>
+                            </div>
+                            <div class="tab-pane fade" id="chauffeur" role="tabpanel" aria-labelledby="chauffeur-tab">
+                                <canvas id="chauffeurChart" ></canvas>
                             </div>
                             <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                                 <canvas id="driver_not_fix"></canvas>
@@ -281,9 +289,10 @@
 
 @push('third_party_scripts')
 <!-- ChartJS -->
-{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js" integrity="sha512-asxKqQghC1oBShyhiBwA+YgotaSYKxGP1rcSYTDrB0U6DxwlJjU59B67U8+5/++uFjcuVM8Hh5cokLjZlhm3Vg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.0/chart.min.js" integrity="sha512-asxKqQghC1oBShyhiBwA+YgotaSYKxGP1rcSYTDrB0U6DxwlJjU59B67U8+5/++uFjcuVM8Hh5cokLjZlhm3Vg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}}
 @endpush
 @push('page_scripts')
 
@@ -315,34 +324,22 @@
     //     },
     //     'plugins': ['types']
     // });
-
     
-// ---------------------------------- CHART TRANSPORTEUR -------------------------------------------
-    var ctx = document.getElementById('transporteursChart').getContext('2d');
-    var transporteurs = @json($dashboardInfo['transporteurs']); // On récupère les données
+    Chart.register(ChartDataLabels);
+// ---------------------------------- CHART TRANSPORTEUR VEHICULE-------------------------------------------
+    var ctx = document.getElementById('vehiculeChart').getContext('2d');
+    var vehicules = @json($dashboardInfo['vehicule_transporteur']); // On récupère les données
 
     // Extraire les noms, le nombre de véhicules et de chauffeurs
-    var labels = transporteurs.map(t => t.nom);
-    var chauffeursData = transporteurs.map(t => t.chauffeurs_count);
-    var vehiculesData = transporteurs.map(t => t.vehicule_count);
-
-    var maxChauffeurs = Math.max(...chauffeursData);
-    var maxVehicules = Math.max(...vehiculesData);
-    var maxValue = Math.max(maxChauffeurs, maxVehicules);
+    var labels = vehicules.map(t => t.nom);
+    var vehiculesData = vehicules.map(t => t.vehicule_count);
 
 
-    var transporteursChart  = new Chart(ctx, {
+    var vehiculeChart  = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [
-                    {
-                        label: 'Nombre de chauffeurs',
-                        data: chauffeursData, // Chauffeurs par transporteur
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)', // Bleu
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    },
                     {
                         label: 'Nombre de véhicules',
                         data: vehiculesData, // Véhicules par transporteur
@@ -353,22 +350,15 @@
                 ]
         },
         options: {
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: true,
                 animation: {
                     duration: 0 // Désactivation des animations pour améliorer les performances
                 },
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 10, // Définir un pas de 10
-                            max: Math.ceil(maxValue / 10) * 10, // Valeur maximale de l'axe Y
-                            min: 0, // Valeur minimale de l'axe Y
-                            callback: function(value) {
-                                return value; // Afficher les valeurs sans formatage spécial
-                            }
-                        }
                     }
                 },
                 plugins: {
@@ -382,6 +372,78 @@
                         },
                         color: '#333' // Couleur de la légende
                     }
+                },
+                datalabels: {
+                    anchor: 'center', // Positionnement du texte
+                    align: 'center', // Alignement du texte
+                    color: '#000', // Couleur du texte
+                    font: {
+                        size: 15, // Taille de la police pour la légende
+                        family: 'Arial', // Police de caractères
+                        weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
+                        lineHeight: 1.2 // Hauteur de ligne
+                    },
+                }
+            }
+        }
+    });
+// ---------------------------------------------------------------------------------------------------
+
+// ---------------------------------- CHART TRANSPORTEUR CHAUFFEUR-------------------------------------------
+var ctx = document.getElementById('chauffeurChart').getContext('2d');
+    var chauffeurs = @json($dashboardInfo['driver_transporteur']); // On récupère les données
+
+    // Extraire les noms, le nombre de véhicules et de chauffeurs
+    var labels = chauffeurs.map(t => t.nom);
+    var chauffeurData = chauffeurs.map(t => t.chauffeurs_count);
+
+    
+    var chauffeurChart  = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                    {
+                        label: 'Nombre de chauffeurs',
+                        data: chauffeurData, 
+                        backgroundColor: 'rgba(75, 192, 75, 0.2)', 
+                        borderColor: 'rgba(75, 192, 75, 1)', 
+                        borderWidth: 1,
+                    }
+                ]
+        },
+        options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                    }
+                },
+                plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 16, // Taille de la police pour la légende
+                            family: 'Arial', // Police de caractères
+                            weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
+                            lineHeight: 1.2 // Hauteur de ligne
+                        },
+                        color: '#333' // Couleur de la légende
+                    }
+                },
+
+                datalabels: {
+                    anchor: 'center', // Positionnement du texte
+                    align: 'center', // Alignement du texte
+                    color: '#000', // Couleur du texte
+                    font: {
+                        size: 15, // Taille de la police pour la légende
+                        family: 'Arial', // Police de caractères
+                        weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
+                        lineHeight: 1.2 // Hauteur de ligne
+                    },
                 }
             }
         }
@@ -430,9 +492,10 @@
             }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             scales: {
-                y: {
+                x: {
                     beginAtZero: true // Commencer l'axe Y à zéro
                 }
             },
@@ -447,6 +510,17 @@
                         },
                         color: '#333' // Couleur de la légende
                     }
+                },
+                datalabels: {
+                    anchor: 'center', // Positionnement du texte
+                    align: 'center', // Alignement du texte
+                    color: '#000', // Couleur du texte
+                    font: {
+                        size: 15, // Taille de la police pour la légende
+                        family: 'Arial', // Police de caractères
+                        weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
+                        lineHeight: 1.2 // Hauteur de ligne
+                    },
                 }
             }
         }

@@ -6,7 +6,8 @@ return array (
   'fields' => 
   array (
     'id' => 'Id',
-    'nom' => 'Nom',
+    'old_nom' => 'Ancien nom',
+    'new_nom' => 'Nouveau nom',
     'rfid' => 'Rfid',
     'contact' => 'Contact',
     'transporteur_id' => 'Transporteur',

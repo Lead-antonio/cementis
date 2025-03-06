@@ -88,6 +88,8 @@
             })
         }, 10000);
     </script>
+
+    
     <style>
         .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active, .sidebar-light-primary .nav-sidebar>.nav-item>.nav-link.active {
             background-color: #83878c !important;

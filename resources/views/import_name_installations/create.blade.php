@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     @lang('models/importNameInstallations.singular')
+                     <h1>@lang('models/importNameInstallations.singular')</h1>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
             </div>
 
             <div class="card-footer">
-                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
+                {!! Form::submit(__('crud.save'), ['class' => 'btn btn-primary']) !!}
                 <a href="{{ route('importNameInstallations.index') }}" class="btn btn-default">
                  @lang('crud.cancel')
                 </a>

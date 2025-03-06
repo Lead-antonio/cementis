@@ -289,6 +289,16 @@
     </a>
 </li>
 
+<li class="nav-item">
+    <a href="{{ route('periodSettings.index') }}"
+       class="nav-link {{ Request::is('periodSettings*') ? 'active' : '' }}">
+       <i class="nav-icon fa fa-business-time"></i>
+        <p>@lang('models/periodSettings.plural')</p>
+    </a>
+</li>
+
+
+
 
 <li class="nav-item">
     <a href="{{ route('chauffeurUpdateStories.index') }}"

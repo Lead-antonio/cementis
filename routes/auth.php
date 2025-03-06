@@ -157,6 +157,9 @@ Route::resource('process', App\Http\Controllers\ProcessController::class);
 
 
 
+Route::resource('periodSettings', App\Http\Controllers\PeriodSettingController::class);
+
+
 Route::resource('chauffeurUpdateTypes', App\Http\Controllers\ChauffeurUpdateTypeController::class);
 
 

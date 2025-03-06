@@ -51,6 +51,7 @@ class DashboardController extends Controller
         $data['driver_has_score'] = $this->count_driver_has_scoring($selectedPlanning);
         $data['driver_not_has_score'] = $this->count_driver_not_has_scoring($selectedPlanning);  
         $data['driver_not_fix'] = $this->driver_not_fix();
+        $data['driver_in_calendar'] = $this->count_driver_in_calendar($selectedPlanning);
         $data['selectedPlanning'] = $selectedPlanning;
         
         return view('dashboard.index', $data);
@@ -99,11 +100,26 @@ class DashboardController extends Controller
         return count(array_values($missingTrucks));
     }
 
+    public function count_driver_in_calendar($id_planning)
+    {
+        $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
+        ->distinct()
+        ->pluck('camion')
+        ->map(function ($camion) {
+            return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
+        })
+        ->unique() // Supprime les doublons après transformation
+        ->toArray();
+
+        return count($importTrucks);
+    }
+
     public function driver_not_fix(){
         $repartitionChauffeurs = Transporteur::select('transporteur.nom', 'chauffeur.transporteur_id', \DB::raw('COUNT(*) as nombre_chauffeurs_non_fixes'))
             ->join('chauffeur', 'chauffeur.transporteur_id', '=', 'transporteur.id')
             ->where('chauffeur.nom', 'chauffeur non fixe')
             ->groupBy('chauffeur.transporteur_id', 'transporteur.nom')
+            ->orderByDesc('nombre_chauffeurs_non_fixes')
             ->get();
 
         return $repartitionChauffeurs;

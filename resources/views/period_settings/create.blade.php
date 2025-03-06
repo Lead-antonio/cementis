@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     @lang('models/movements.singular')
+                     <h1>@lang('models/periodSettings.singular')</h1>
                 </div>
             </div>
         </div>
@@ -17,17 +17,17 @@
 
         <div class="card">
 
-            {!! Form::open(['route' => 'movements.store']) !!}
+            {!! Form::open(['route' => 'periodSettings.store']) !!}
 
             <div class="card-body">
                 <div class="row">
-                    @include('movements.fields')
+                    @include('period_settings.fields')
                 </div>
             </div>
 
             <div class="card-footer">
                 {!! Form::submit(__('crud.save'), ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('movements.index') }}" class="btn btn-default">
+                <a href="{{ route('periodSettings.index') }}" class="btn btn-default">
                  @lang('crud.cancel')
                 </a>
             </div>
