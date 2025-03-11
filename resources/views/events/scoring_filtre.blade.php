@@ -19,7 +19,18 @@
                     @endphp
                     @foreach ($scoring as $item)
                         <tr>
-                            <td style="text-align: center;"><a href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">{{$item->driver->nom}}</a></td>
+                            <td style="text-align: center;">
+                                @if(!empty($item->driver))
+                                @php
+                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                @endphp
+                                    <a href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">
+                                        {{ $chauffeur->nom }}
+                                    </a>
+                                @else
+                                    <span>Chauffeur sans nom</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
                             <td style="text-align: center;">{{  $item->camion  }}</td>
                             <td style="text-align: center;" class="

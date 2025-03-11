@@ -324,8 +324,8 @@ class MovementService
             $query->select(DB::raw(1))
                   ->from('movement')
                   ->whereRaw('movement.imei = vehicule.imei')
-                  ->whereMonth('movement.start_date', 11)
-                  ->whereMonth('movement.end_date', 11);
+                  ->whereMonth('movement.start_date', 1)
+                  ->whereMonth('movement.end_date', 1);
         })->get();
         
         try {

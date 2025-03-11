@@ -114,6 +114,8 @@ Route::get('/detail/driver-has-scoring', 'App\Http\Controllers\ScoringController
 
 Route::get('/detail/truck-have-not-scoring', 'App\Http\Controllers\VehiculeController@count_driver_not_has_scoring')->name('detail.truck-have-not-scoring');
 
+Route::get('/detail/truck-calendar', 'App\Http\Controllers\VehiculeController@count_car_in_calendar')->name('detail.truck-calendar');
+
 Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');

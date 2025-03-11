@@ -96,6 +96,19 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     // Ajouter une erreur et ignorer l'insertion
                     $this->addError("Ligne N° {$numero_ligne}: Les informations du chauffeur avec le RFID [{$row['rfid']}] et le nom [{$row['nom']}] existent déjà dans la table Chauffeur.");
                     $this->errorCount++;
+                    $updateData = [];
+
+                    if (is_null($existsInChauffeur->rfid_physique)) {
+                        $updateData['rfid_physique'] = $row['rfid_physique'];
+                    }
+                
+                    if (is_null($existsInChauffeur->numero_badge)) {
+                        $updateData['numero_badge'] = $row['numero_badge'];
+                    }
+                
+                    if (!empty($updateData)) {
+                        $existsInChauffeur->update($updateData);
+                    }
                 } else {
                     // Vérifier si les mêmes données existent déjà dans ChauffeurUpdate
                     $existingChauffeurUpdate = ChauffeurUpdate::where('chauffeur_id', $existingChauffeur->id)
