@@ -2,43 +2,33 @@
 <div class='btn-group'>
 
     @if ($validation == false)
-        <button type="button" class='btn btn-success btn-xs' data-toggle="modal" data-target="#commentModal-{{ $id }}">
-            <i class="fa fa-check"> Validé</i>
+        <button type="button" class='btn btn-success saveButton' data-id="{{ $id }}">
+           Validé
         </button> 
     @else
         Validé
     @endif
-    {{-- <a href="{{ route('chauffeurUpdateStories.show', $id) }}" class='btn btn-default btn-xs'>
-        <i class="fa fa-eye"></i>
-    </a>
-    <a href="{{ route('chauffeurUpdateStories.edit', $id) }}" class='btn btn-default btn-xs'>
-        <i class="fa fa-edit"></i>
-    </a>
-    {!! Form::button('<i class="fa fa-trash"></i>', [
-        'type' => 'submit',
-        'class' => 'btn btn-danger btn-xs',
-        'onclick' => 'return confirm("'.__('crud.are_you_sure').'")'
-    ]) !!} --}}
 </div>
 {!! Form::close() !!}
 
-
-<div class="modal fade" id="commentModal-{{ $id }}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel-{{ $id }}" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="commentModalLabel-{{ $id }}">Voulez-vous valider cet mise à jour?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                {!! Form::submit('Enregistrer', ['class' => 'btn btn-primary']) !!}
-            </div>
-            {!! Form::close() !!}
-        </div>
-    </div>
-</div>
+<script>
+    // Sélectionner tous les boutons avec la classe saveButton
+    document.querySelectorAll('.saveButton').forEach(button => {
+        button.addEventListener('click', function() {
+            const chauffeurId = this.getAttribute('data-id'); // Récupérer l'ID du chauffeur
+            Swal.fire({
+                title: 'Confirmer la validation',
+                text: 'Voulez-vous vraiment valider ce chauffeur ?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Oui, valider',
+                cancelButtonText: 'Annuler',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Soumettre le formulaire correspondant à l'ID du chauffeur
+                    document.getElementById('form-delete-' + chauffeurId).submit();
+                }
+            });
+        });
+    });
+</script>

@@ -25,6 +25,7 @@ class ChauffeurUpdateStory extends Model
 
     protected $dates = ['deleted_at'];
 
+    public $timestamps = true;
 
     public $fillable = [
         'chauffeur_id',
@@ -37,6 +38,7 @@ class ChauffeurUpdateStory extends Model
         'numero_badge',
         'rfid_physique',
         'validation',
+        'created_at'
     ];
 
     /**

@@ -41,7 +41,7 @@ class Installation extends Model
      */
     protected $casts = [
         'id' => 'integer',
-        'date_installation' => 'datetime',
+        'date_installation' => 'date',
         'vehicule_id' => 'integer',
         'installateur_id' => 'integer'
     ];

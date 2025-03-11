@@ -134,7 +134,7 @@
                         </tbody>
                     </table>
                     
-                    <h3 style="padding-top:10px;padding-bottom:5px;padding-left: 137px;">Voici le détails du mise à jour sur l'informations du chauffeur </h3>
+                    <h3 style="padding-top:10px;padding-bottom:5px;padding-left: 137px;">Voici le détails de la mise à jour sur l'informations du chauffeur </h3>
 
                     <table style="width: 100%; max-width: 950px; margin: 0 auto; background-color: #ffffff;">
                         <tbody>

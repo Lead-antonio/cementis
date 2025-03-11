@@ -7,12 +7,19 @@ use App\Http\Requests;
 use App\Http\Requests\CreateChauffeurUpdateStoryRequest;
 use App\Http\Requests\UpdateChauffeurUpdateStoryRequest;
 use App\Repositories\ChauffeurUpdateStoryRepository;
+use Exception;
 use Flash;
 use App\Http\Controllers\AppBaseController;
 use App\Mail\ChauffeurUpdateMail;
+use App\Models\ChauffeurUpdate;
 use App\Models\ChauffeurUpdateStory;
+use App\Models\User;
+use App\Notifications\UpdateChauffeurInfoNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Notification;
+
 use Response;
 
 class ChauffeurUpdateStoryController extends AppBaseController
@@ -37,6 +44,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
         return $chauffeurUpdateStoryDataTable->render('chauffeur_update_stories.index');
     }
 
+
     /**
      * Show the form for creating a new ChauffeurUpdateStory.
      *
@@ -58,7 +66,20 @@ class ChauffeurUpdateStoryController extends AppBaseController
     {
         $input = $request->all();
 
-        $chauffeurUpdateStory = $this->chauffeurUpdateStoryRepository->create($input);
+        // dd($input);
+
+        $input_ = [
+            "chauffeur_update_type_id" => $request->chauffeur_update_type_id,
+            "nom" => $request->nom,
+            "rfid" =>  $request->rfid,
+            "transporteur_id" => $request->hidden_transporteur_id,
+            "rfid_physique" => $request->rfid_physique,
+            "contact" => $request->contact,
+            "numero_badge" => $request->numero_badge,
+            "chauffeur_id" => $request->chauffeur_id,
+        ];
+
+        $chauffeurUpdateStory = $this->chauffeurUpdateStoryRepository->create($input_);
 
         $chauffeur_info = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)
         ->with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur'])->get()->toArray();
@@ -66,7 +87,20 @@ class ChauffeurUpdateStoryController extends AppBaseController
         Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
         ->send(new ChauffeurUpdateMail($chauffeur_info));   
 
-         Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
+
+          // Envoyer une notification aux administrateurs
+          $admins = User::whereHas('roles', function ($query) {
+            $query->where('name', 'supper-admin');
+        })->get();
+
+
+
+        $chauffeur_info_ = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)->first();
+      
+        
+        Notification::send($admins, new UpdateChauffeurInfoNotification($chauffeur_info_->nom));
+
+        Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
         
         return redirect(route('chauffeurs.index'));
     }
@@ -158,5 +192,60 @@ class ChauffeurUpdateStoryController extends AppBaseController
         Flash::success(__('messages.deleted', ['model' => __('models/chauffeurUpdateStories.singular')]));
 
         return redirect(route('chauffeurUpdateStories.index'));
+    }
+
+
+    /**
+     * Summary of ValidationUpdateChauffeur
+     * jonny
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
+    public function ValidationUpdateChauffeur(Request $request){
+
+        $chauffeur_update_id =  $request->id;
+        $validation = $request->validation;
+        $rfid_ = $request->rfid;
+
+        try{
+            if($validation == true){
+                $chauffeur_update =  ChauffeurUpdateStory::find($chauffeur_update_id);
+                $chauffeur_update->update(['validation' => true]);
+
+                if($rfid_ == null){
+                    $rfid_ =  $chauffeur_update->rfid;
+                }
+                
+                ChauffeurUpdate::create([
+                    'chauffeur_id' =>  $chauffeur_update->chauffeur_id,
+                    'rfid'=>  $rfid_,
+                    'nom' =>  $chauffeur_update->nom,
+                    'contact' =>  $chauffeur_update->contact,
+                    'transporteur_id' =>  $chauffeur_update->transporteur_id,
+                    'numero_badge'=>  $chauffeur_update->numero_badge,
+                    'rfid_physique'=>  $chauffeur_update->rfid_physique,
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'La mise à jour a été validée avec succès.'
+                ]);
+            }elseif($validation == false){
+
+            }
+        }catch(Exception $e){
+            return response()->json([
+                'error' => false,
+                'message' => 'La mise à jour a été validée avec succès.'
+            ]);
+        }
+
+    }
+
+
+    public function validation_list(){
+        $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur'])->paginate(10);
+
+        return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
     }
 }

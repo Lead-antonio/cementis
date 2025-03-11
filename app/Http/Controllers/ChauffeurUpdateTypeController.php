@@ -112,7 +112,7 @@ class ChauffeurUpdateTypeController extends AppBaseController
     public function update($id, UpdateChauffeurUpdateTypeRequest $request)
     {
         $chauffeurUpdateType = $this->chauffeurUpdateTypeRepository->find($id);
-
+            
         if (empty($chauffeurUpdateType)) {
             Flash::error(__('messages.not_found', ['model' => __('models/chauffeurUpdateTypes.singular')]));
 
