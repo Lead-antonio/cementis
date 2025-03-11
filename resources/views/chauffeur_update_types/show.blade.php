@@ -5,11 +5,11 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>@lang('models/vehicules.singular')</h1>
+                    <h1>@lang('models/chauffeurUpdateTypes.singular')</h1>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-default float-right"
-                       href="{{ route('vehicules.index') }}">
+                       href="{{ route('chauffeurUpdateTypes.index') }}">
                          @lang('crud.back')
                     </a>
                 </div>
@@ -20,7 +20,9 @@
     <div class="content px-3">
         <div class="card">
             <div class="card-body">
-                @include('vehicules.show_fields')
+                <div class="row">
+                    @include('chauffeur_update_types.show_fields')
+                </div>
             </div>
         </div>
     </div>

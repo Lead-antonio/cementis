@@ -119,9 +119,9 @@ Route::get('/detail/truck-calendar', 'App\Http\Controllers\VehiculeController@co
 Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
+Route::get('/chauffeurs/edit_story/{id}', 'App\Http\Controllers\ChauffeurController@edit_story')->name('chauffeurs.edit_story');
 
 Route::resource('events', App\Http\Controllers\EventController::class);
-
 
 Route::resource('transporteurs', App\Http\Controllers\TransporteurController::class);
 
@@ -160,3 +160,13 @@ Route::resource('process', App\Http\Controllers\ProcessController::class);
 
 
 Route::resource('periodSettings', App\Http\Controllers\PeriodSettingController::class);
+
+
+Route::resource('chauffeurUpdateTypes', App\Http\Controllers\ChauffeurUpdateTypeController::class);
+
+
+Route::resource('chauffeurUpdateStories', App\Http\Controllers\ChauffeurUpdateStoryController::class);
+
+
+Route::post('/chauffeurUpdateStorie/validation', 'App\Http\Controllers\ChauffeurUpdateStoryController@ValidationUpdateChauffeur')->name('chauffeurUpdateStorie.validation');
+Route::get('/chauffeurUpdateStorie/validation_list', 'App\Http\Controllers\ChauffeurUpdateStoryController@validation_list')->name('chauffeurUpdateStorie.validation_list');

@@ -62,25 +62,35 @@ class InstallationImport implements ToCollection, WithHeadingRow
             }
 
             // Vérifier l'existence du chauffeur et du véhicule
-            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->where('nom', $row['nom'])->first() : null;
-            $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', $row['imei'])->orWhere('nom', $row['immatriculation'])->first() : null;
+            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->first() : null;
+            $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', (string) $row['imei'])->first() : null;
 
             // Si les deux existent, on saute la ligne
-            
-
             $dateInstallation = null;
             if (!empty($row['date_installation'])) { // Vérifie si non vide
                 $dateInstallation = $this->excelDateToCarbon($row['date_installation']);
             }
            
-
             if($existingChauffeur){
-
                  // Vérifier si les mêmes données existent déjà dans Chauffeur
                 $existsInChauffeur = Chauffeur::where('rfid', $row['rfid'])
                 ->where('nom', $row['nom'])
                 ->where('transporteur_id', $transporteur->id)
                 ->first();
+
+                // $updateData = [];
+
+                // if (is_null($existsInChauffeur->rfid_physique)) {
+                //     $updateData['rfid_physique'] = $row['rfid_physique'];
+                // }
+            
+                // if (is_null($existsInChauffeur->numero_badge)) {
+                //     $updateData['numero_badge'] = $row['numero_badge'];
+                // }
+            
+                // if (!empty($updateData)) {
+                //     $existsInChauffeur->update($updateData);
+                // }
 
                 if ($existsInChauffeur) {
                     // Ajouter une erreur et ignorer l'insertion
@@ -124,7 +134,6 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     }
                 }
             }
-
            
             if ($existingVehicule) {
 
@@ -132,7 +141,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 $existsInVehicule = Vehicule::where('imei', (string) $row['imei'])
                     ->where('nom', $row['immatriculation'])
                     ->where('id_transporteur', $transporteur->id)
-                    ->exists();
+                    ->first();
             
                 if ($existsInVehicule) {
                     // Ajouter une erreur et ignorer l'insertion

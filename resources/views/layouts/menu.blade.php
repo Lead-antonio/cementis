@@ -196,6 +196,14 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a href="{{ route('chauffeurUpdateTypes.index') }}"
+               class="nav-link {{ Request::is('chauffeurUpdateTypes*') ? 'active' : '' }}">
+               <i class="nav-icon fas fa-truck"></i>
+                <p>@lang('models/chauffeurUpdateTypes.plural')</p>
+            </a>
+        </li>
+
     </ul>
 </li>
 
@@ -286,6 +294,17 @@
        class="nav-link {{ Request::is('periodSettings*') ? 'active' : '' }}">
        <i class="nav-icon fa fa-business-time"></i>
         <p>@lang('models/periodSettings.plural')</p>
+    </a>
+</li>
+
+
+
+
+<li class="nav-item">
+    <a href="{{ route('chauffeurUpdateStorie.validation_list') }}"
+       class="nav-link ">
+       <i class="nav-icon fa fa-list"></i>
+        <p>@lang('models/chauffeurUpdateStories.plural')</p>
     </a>
 </li>
 

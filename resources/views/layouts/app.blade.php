@@ -40,6 +40,7 @@
     <div class="wrapper">
         <!-- Main Header -->
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+
             <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
@@ -69,8 +70,42 @@
                         @endif
                         🔔
                     </a>
+
+
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static" style="width: 646px;">
+                        <div class="dropdown-header">Notifications</div>
+                        @forelse (Auth::user()->unreadNotifications as $notification)
+
+                            <div class="d-flex align-items-start p-3" style="border-radius: 5px; background-color: #f8f9fa; margin-bottom: 5px;">
+                                <!-- Icône de notification agrandie -->
+                                <div class="notification-icon" style="width: 40px; height: 40px; background-color: #e0e0e0; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+                                    <i class="fa fa-edit text-primary" style="font-size: 20px;"></i>
+                                </div>  
+                                <!-- Détails de la notification -->
+                                <a class="w-100" href="{{ $notification->data['url'] }}">
+                                    <div class="mb-1 font-weight-bold" style="color: #333;"  >
+                                        {{ $notification->data['message']  }}
+                                    </div>
+                                    <small style="display: block;">
+                                        {{ $notification->created_at->diffForHumans() }}
+                                    </small>
+                                </a>
+                            </div>
+                        @empty
+                            <span class="dropdown-item text-muted">Aucune notification</span>
+                        @endforelse
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
+                            </form>
+                        </li>
+                    </ul>
+
                 
-                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static">
+                    {{-- <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static">
                         @foreach(Auth::user()->unreadNotifications as $notification)
                             <li>
                                 <a class="dropdown-item" href="{{ $notification->data['url'] }}">
@@ -91,7 +126,7 @@
                                 <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
                             </form>
                         </li>
-                    </ul>
+                    </ul> --}}
                 </li>
                 
                 <li class="nav-item dropdown user-menu">
@@ -409,7 +444,21 @@
             if (data.notifications.length > 0) {
                 data.notifications.forEach(notification => {
                     dropdownMenu.append(`
-                        <li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>
+
+
+                        <div class="d-flex align-items-start p-3" style="border-radius: 5px; background-color: #f8f9fa; margin-bottom: 5px;">
+                            <!-- Icône de notification agrandie -->
+                            <div class="notification-icon" style="width: 40px; height: 40px; background-color: #e0e0e0; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+                                <i class="fa fa-edit text-primary" style="font-size: 20px;"></i>
+                            </div>
+                            <!-- Détails de la notification -->
+
+                            <a class="w-100" href=" ${notification.url}">
+                                <div class="mb-1 font-weight-bold" style="color: #333;"  >
+                                    ${notification.message}
+                                </div>
+                            </a>
+                        </div>
                     `);
                 });
 
@@ -429,7 +478,7 @@
         });
     }
 
-    setInterval(updateNotifications, 10000); // Rafraîchissement toutes les 10 secondes
+    // setInterval(updateNotifications, 10000); // Rafraîchissement toutes les 10 secondes
 </script>
 
 
