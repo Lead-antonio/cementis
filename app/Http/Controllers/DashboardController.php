@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Vehicule;
 use App\Models\Chauffeur;
 use App\Models\ImportExcel;
+use App\Models\Importcalendar;
 use App\Models\Scoring;
 use App\Repositories\DashboardRepository;
 use Illuminate\Support\Facades\DB;
@@ -32,27 +33,39 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $structuredData = [];
         $totalVehicules = Vehicule::count();
         $totalTransporteurs = Transporteur::count();
         $totalChauffeurs = Chauffeur::count();
-        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
+        $selectedPlanning = $request->selectedPlanning ?? DB::table('import_calendar')->latest('id')->value('id');
         $data = $this->dashboardRepository->GetData();
+        $data['import_calendar'] = $import_calendar = Importcalendar::all();
+        $data['selectedPlanning'] = $selectedPlanning;
         $data['totalVehicules'] = $totalVehicules;
         $data['totalTransporteurs'] = $totalTransporteurs;
         $data['totalChauffeurs'] = $totalChauffeurs;
         $data['transporteurData'] = json_encode($structuredData);
 
-        $data['best_scoring'] = getAllGoodScoring();
-        $data['bad_scoring'] = getAllBadScoring();
-
+        $data['best_scoring'] = getAllGoodScoring($selectedPlanning);
+        $data['bad_scoring'] = getAllBadScoring($selectedPlanning);
+        
         $data['driver_has_score'] = $this->count_driver_has_scoring($selectedPlanning);
         $data['driver_not_has_score'] = $this->count_driver_not_has_scoring($selectedPlanning);  
         $data['driver_not_fix'] = $this->driver_not_fix();
         $data['driver_in_calendar'] = $this->count_driver_in_calendar($selectedPlanning);
-        $data['selectedPlanning'] = $selectedPlanning;
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'driver_has_score' => $data['driver_has_score'],
+                'driver_not_has_score' => $data['driver_not_has_score'],
+                'driver_in_calendar' => $data['driver_in_calendar'],
+                'best_scoring' => view('dashboard.best_scoring', ['best_scoring' => $data['best_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
+                'bad_scoring' => view('dashboard.bad_scoring', ['bad_scoring' => $data['bad_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
+                
+            ]);
+        }
         
         return view('dashboard.index', $data);
     }
@@ -61,45 +74,59 @@ class DashboardController extends Controller
     {
         $query = Scoring::where('id_planning', $id_planning);
         $camionsImport = ImportExcel::where('import_calendar_id', $id_planning)
+                        ->distinct()
                         ->pluck('camion') // Récupère uniquement la colonne "camion"
+                        ->unique()
                         ->toArray();
-        $countDriver = Scoring::where('id_planning', $id_planning)
-        ->where(function ($q) use ($camionsImport) {
-            foreach ($camionsImport as $camion) {
-                $q->orWhere('camion', 'LIKE', "%{$camion}%");
-            }
-        })
-        ->count();
 
-        return $countDriver; // Nombre de chauffeur uniques ayant un score
+        $scoring_trucks = Scoring::where('id_planning', $id_planning)->pluck('camion')->unique()->toArray();
+        $clean_trucks = array_map(function($entry) {
+            preg_match('/\b[0-9]{3,}[A-Z]+\b/', $entry, $matches);
+            return $matches[0] ?? $entry;
+        }, $scoring_trucks);         
+        
+        $common_matricules = array_intersect($camionsImport, $clean_trucks);
+    
+        return count($common_matricules); 
     }
-
 
     public function count_driver_not_has_scoring($id_planning)
     {
+        // Récupérer les camions uniques depuis ImportExcel
         $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
-        ->distinct()
-        ->pluck('camion')
-        ->map(function ($camion) {
-            return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
-        })
-        ->unique() // Supprime les doublons après transformation
-        ->toArray();
-
-        // Récupérer tous les camions de scoring pour ce planning
-        $scoringTrucks = Scoring::where('id_planning', $id_planning)
+            ->distinct()
             ->pluck('camion')
-            ->map(function($camion) {
+            ->map(function ($camion) {
                 return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
             })
+            ->unique()
             ->toArray();
 
-        // Trouver les camions dans import_excel qui ne sont pas dans scoring
-        $missingTrucks = array_diff($importTrucks, $scoringTrucks);
+        $importTrucks = array_map('trim', $importTrucks);
 
-        return count(array_values($missingTrucks));
+
+        $scoringTrucks = Scoring::where('id_planning', $id_planning)->pluck('camion')->unique()->toArray();
+        
+        $matricules = array_map(function($entry) {
+            preg_match('/\b[0-9]{3,}[A-Z]+\b/', $entry, $matches);
+            return $matches[0] ?? $entry;
+        }, $scoringTrucks);
+
+        $common_matricules = array_intersect($importTrucks, $matricules);
+
+        $result = [];
+
+        foreach ($importTrucks as $value) {
+            if (!in_array($value, array_unique($common_matricules))) {
+                $result[] = $value;
+            }
+        }
+
+        return count(array_unique($result));
     }
 
+
+    
     public function count_driver_in_calendar($id_planning)
     {
         $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)

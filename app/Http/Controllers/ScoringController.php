@@ -107,7 +107,7 @@ class ScoringController extends AppBaseController
     // Antonio
     // List of driver having a scoring
     public function driver_has_scoring(Request $request){
-        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
+        $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
 
         $import_calendar = Importcalendar::all();
         $alphaciment_driver = 'oui';

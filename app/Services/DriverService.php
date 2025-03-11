@@ -241,5 +241,52 @@ class DriverService
     }
 
 
+    public function  updateChauffeurData(){
+        $chauffeurs_anciens = DB::table('chauffeur as c1')
+        ->whereExists(function ($query) {
+            $query->select(DB::raw(1))
+                ->from('chauffeur as c2')
+                ->whereRaw('c1.rfid = c2.rfid')
+                ->whereRaw('c1.id <> c2.id')
+                ->whereRaw('c1.created_at < c2.created_at'); // Ancien chauffeur
+        })
+        ->get();
+
+        $ids_to_delete = [];
+
+        foreach ($chauffeurs_anciens as $ancien) {
+            // Récupérer tous les chauffeurs récents liés à ce RFID
+            $chauffeurs_recents = DB::table('chauffeur')
+                ->where('rfid', $ancien->rfid)
+                ->where('created_at', '>', $ancien->created_at) // Récupérer les nouveaux
+                ->get();
+            
+
+            foreach ($chauffeurs_recents as $nouveau) {
+                DB::table('chauffeur_updates')->insert([
+                    'chauffeur_id'        => $ancien->id,  // ID du chauffeur ancien
+                    'transporteur_id' => $nouveau->transporteur_id,
+                    'rfid'             => $nouveau->rfid,
+                    'nom'              => $nouveau->nom,
+                    'contact'          => $nouveau->contact,
+                    'rfid_physique' => $nouveau->rfid_physique,
+                    'numero_badge' => $nouveau->numero_badge,
+                    'date_installation' => $nouveau->created_at,
+                    'created_at' => $nouveau->created_at,
+                    'updated_at' => $nouveau->updated_at,
+                ]);
+
+                $ids_a_supprimer[] = $nouveau->id;
+            }
+
+            if (!empty($ids_a_supprimer)) {
+                DB::table('chauffeur')
+                    ->whereIn('id', $ids_a_supprimer)
+                    ->delete();
+            }
+        }
+    }
+
+
 
 }

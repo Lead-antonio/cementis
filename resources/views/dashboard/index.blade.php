@@ -23,12 +23,23 @@
 <section class="content">
     <div class="container-fluid">
 
+        <div class="col-md-3 col-sm-6 mb-2">
+            <select class="form-control" name="planning" id="planning">
+                <option value="">Veuillez choisir le planning</option>
+                @foreach($import_calendar as $calendar)
+                    <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>
+                        {{$calendar->name}}
+                    </option>    
+                @endforeach
+            </select>
+        </div>
+
         <div class="row">
             <!-- Transporteurs -->
             <div class="col-md-2">
                 <a href="{{ route('transporteurs.index') }}" class="text-decoration-none">
                     <div class="card card-custom transporteur">
-                        <div class="card-body card-body-custom">
+                        <div class="card-body card-body-transporteurs">
                             <div>
                                 <h4 class="card-title-custom">Transporteurs</h4>
                                 <h3>{{$totalTransporteurs}}</h3>
@@ -48,7 +59,7 @@
             <div class="col-md-2">
                 <a href="{{ route('vehicules.index') }}" class="text-decoration-none">
                     <div class="card card-custom vehicule">
-                        <div class="card-body card-body-custom">
+                        <div class="card-body card-body-vehicules">
                             <div>
                                 <h4 class="card-title-custom">Véhicules</h4>
                                 <h3>{{ $totalVehicules }}</h3>
@@ -68,7 +79,7 @@
             <div class="col-md-2">
                 <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
                     <div class="card card-custom chauffeur">
-                        <div class="card-body card-body-custom">
+                        <div class="card-body card-body-chauffeurs">
                             <div>
                                 <h4 class="card-title-custom">Chauffeurs</h4>
                                 <h3>{{ $totalChauffeurs }}</h3>
@@ -84,13 +95,13 @@
                 </a>
             </div>
 
-            <div class="col-md-3">
-                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none">
+            <div class="col-md-2">
+                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none" id="truck-having-scoring">
                     <div class="card card-custom scoring">
                         <div class="card-body card-body-custom">
                             <div>
                                 <h4 class="card-title-custom">Nombre de chauffeur avec score</h4>
-                                <h3>{{ $driver_has_score }}</h3>
+                                <h3 id="driver_has_score">{{ $driver_has_score }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -103,13 +114,32 @@
                 </a>
             </div>
 
-            <div class="col-md-3">
-                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none">
+            <div class="col-md-2">
+                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none" id="truck-not-having-scoring">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
+                                <h4 class="card-title-custom">Nombre de véhicules dans calendrier sans score</h4>
+                                <h3 id="driver_not_has_score">{{ $driver_not_has_score }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
+                        </div>
+                        {{-- <div class="card-footer card-footer-custom">
+                            <small>+15% depuis hier</small>
+                        </div> --}}
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-2">
+                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none" id="truck-in-calendar">
+                    <div class="card card-custom calendar">
+                        <div class="card-body card-body-custom">
+                            <div>
                                 <h4 class="card-title-custom">Nombre de véhicules dans le calendrier</h4>
-                                <h3>{{ $driver_in_calendar }}</h3>
+                                <h3 id="driver_in_calendar">{{ $driver_in_calendar }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-truck"></i>
@@ -186,27 +216,8 @@
                                             </div>
                         
                                             <div class="card-body">
-                                                <div class="card-body">
-                                                    @foreach ($best_scoring as $key => $item)
-                                                        <div class="card rounded-card">
-                                                            <a class="text-decoration-none text-dark" href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver, 'id_planning'  => $selectedPlanning]) }}">
-                                                                <div class="card-body card-list">
-                                                                    <div class="number-circle">{{ $key + 1 }}</div>
-                                                                    <strong> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
-                                                                    <span class="badge rounded-pill 
-                                                                        {{ 
-                                                                            (round($item->point) == 0) ? 'bg-success' : 
-                                                                            (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
-                                                                            (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
-                                                                            (round($item->point) > 10 ? 'bg-danger' : ''))) 
-                                                                        }}"
-                                                                    >
-                                                                        {{ $item->point }}
-                                                                    </span>
-                                                                </div>
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
+                                                <div class="card-body" id="best_scoring_container">
+                                                    @include('dashboard.best_scoring', ['best_scoring' => $best_scoring, 'selectedPlanning' => $selectedPlanning])
                                                 </div>
                                             </div>
                                             <!-- /.card-header -->
@@ -230,30 +241,8 @@
                                             </div>
                         
                                             <div class="card-body">
-                                                <div class="card-body">
-                                                    @php
-                                                        $totalItems = count($bad_scoring);
-                                                    @endphp
-                                                    @foreach ($bad_scoring as $key => $item)
-                                                        <div class="card rounded-card">
-                                                            <a class="text-decoration-none text-dark" href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver, 'id_planning'  => $selectedPlanning]) }}">
-                                                                <div class="card-body card-list">
-                                                                    <div class="number-circle-worst">{{ $totalItems - $key }}</div>
-                                                                    <strong class="text-dark"> {{ $item->transporteur }}</strong> - {{ $item->driver }} : 
-                                                                    <span class="badge rounded-pill
-                                                                        {{ 
-                                                                            (round($item->point) == 0) ? 'bg-success' : 
-                                                                            (round($item->point) > 2 && round($item->point) <= 5 ? 'bg-warning' : 
-                                                                            (round($item->point) > 5 && round($item->point) <= 10 ? 'bg-orange' : 
-                                                                            (round($item->point) > 10 ? 'bg-danger' : ''))) 
-                                                                        }}" 
-                                                                    >
-                                                                        {{ $item->point }}
-                                                                    </span>
-                                                                </div>
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
+                                                <div class="card-body" id="bad_scoring_container">
+                                                    @include('dashboard.bad_scoring', ['best_scoring' => $bad_scoring, 'selectedPlanning' => $selectedPlanning])
                                                 </div>
                                             </div>
                                             <!-- /.card-header -->
@@ -297,6 +286,94 @@
 @push('page_scripts')
 
 <script>
+
+    $(document).ready(function () {
+        $('#planning').change(function () {
+            $('#overlay').show();
+            $('#loader').show();
+            var selectedPlanning = $(this).val();
+            
+            if (selectedPlanning) {
+                $.ajax({
+                    url: "{{ route('dashboard') }}",
+                    type: "GET",
+                    data: { selectedPlanning: selectedPlanning },
+                    success: function (response) {
+                        console.log("RESPONSE :", response);
+                        // Mettre à jour les données dynamiquement (exemple)
+                        $('#driver_has_score').text(response.driver_has_score);
+                        $('#driver_not_has_score').text(response.driver_not_has_score);
+                        $('#driver_in_calendar').text(response.driver_in_calendar);
+                        $('#best_scoring_container').html(response.best_scoring);
+                        $('#bad_scoring_container').html(response.bad_scoring);
+                        // Autres mises à jour selon tes données
+                        $('#overlay').hide();
+                        $('#loader').hide();
+                    }
+                });
+            }
+        });
+    });
+
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     let select = document.getElementById("planning");
+    //     let link = document.getElementById("truck-not-having-scoring");
+
+    //     function updateLink() {
+    //         let selectedValue = select.value;
+    //         let baseUrl = "{{ route('detail.truck-have-not-scoring') }}";
+    //         link.href = selectedValue ? `${baseUrl}?id_planning=${selectedValue}` : baseUrl;
+    //     }
+
+    //     // Mettre à jour le lien au chargement de la page
+    //     updateLink();
+
+    //     // Mettre à jour le lien lorsqu'on change la sélection
+    //     select.addEventListener("change", updateLink);
+    // });
+
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     let select = document.getElementById("planning");
+    //     let link = document.getElementById("truck-having-scoring");
+
+    //     function updateLink() {
+    //         let selectedValue = select.value;
+    //         let baseUrl = "{{ route('detail.driver-has-scoring') }}";
+    //         link.href = selectedValue ? `${baseUrl}?id_planning=${selectedValue}` : baseUrl;
+    //     }
+
+    //     // Mettre à jour le lien au chargement de la page
+    //     updateLink();
+
+    //     // Mettre à jour le lien lorsqu'on change la sélection
+    //     select.addEventListener("change", updateLink);
+    // });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        let select = document.getElementById("planning");
+        let links = {
+            "truck-not-having-scoring": "{{ route('detail.truck-have-not-scoring') }}",
+            "truck-having-scoring": "{{ route('detail.driver-has-scoring') }}",
+            "truck-in-calendar": "{{ route('detail.truck-calendar') }}",
+        };
+
+        function updateLinks() {
+            let selectedValue = select.value;
+            for (let id in links) {
+                let linkElement = document.getElementById(id);
+                if (linkElement) {
+                    linkElement.href = selectedValue ? `${links[id]}?id_planning=${selectedValue}` : links[id];
+                }
+            }
+        }
+
+        // Mettre à jour les liens au chargement de la page
+        updateLinks();
+
+        // Mettre à jour les liens lorsqu'on change la sélection
+        select.addEventListener("change", updateLinks);
+    });
+
 // var userCheckinChart = new Chart(document.getElementById('userCheckinChart').getContext('2d'), @json($chartUserCheckin));
 
 // var driverStat = new Chart(document.getElementById('driverStat').getContext('2d'), @json($chartDriver));
@@ -555,23 +632,34 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     }
 
     .card-custom.chauffeur {
-    background: linear-gradient(145deg, #5e5e65, #ee3e35);
+        background: linear-gradient(145deg, #5e5e65, #ee3e35);
+        min-height: 94%;
     }
 
     .card-custom.vehicule {
         background: linear-gradient(145deg, #5e5e65, #ee3e35);
+        min-height: 94%;
     }
 
     .card-custom.transporteur {
         background: linear-gradient(145deg, #5e5e65, #ee3e35);
+        min-height: 94%;
     }
 
     .card-custom.scoring {
         background: linear-gradient(145deg, #000000, #ffffff);
+        min-height: 94%;
+    }
+
+    .card-custom.calendar {
+        background: linear-gradient(145deg, #000000, #ffffff);
+        min-height: 94%;
     }
 
     .card-custom.no-scoring {
         background: linear-gradient(145deg, #000000, #ffffff);
+        /* max-height: 86%; */
+        max-height: 94%;
     }
 
     .card-custom:hover {
@@ -582,6 +670,28 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     .card-body-custom {
         display: flex;
         justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+    }
+
+    .card-body-transporteurs {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+    }
+
+    .card-body-vehicules {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+    }
+
+    .card-body-chauffeurs {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
         flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
     }
@@ -589,7 +699,7 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     .icon-container {
         font-size: 24px; /* Réduire la taille des icônes pour s'ajuster dans la carte */
         background-color: rgba(255, 255, 255, 0.2);
-        padding: 10px;
+        padding: 5%;
         border-radius: 50%;
         display: flex;
         align-items: center;

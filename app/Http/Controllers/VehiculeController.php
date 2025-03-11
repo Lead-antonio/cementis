@@ -10,6 +10,7 @@ use App\Http\Requests\CreateVehiculeRequest;
 use App\Http\Requests\UpdateVehiculeRequest;
 use App\Repositories\VehiculeRepository;
 use App\Models\Transporteur;
+use Illuminate\Http\Request;
 use App\Models\Vehicule;
 use App\Models\Chauffeur;
 use App\Models\ImportExcel;
@@ -71,9 +72,9 @@ class VehiculeController extends AppBaseController
         return redirect(route('vehicules.index'));
     }
 
-    public function count_driver_not_has_scoring(TrucknotscoringDataTable $dataTable)
+    public function count_car_in_calendar(TrucknotscoringDataTable $dataTable, Request $request)
     {
-        $id_planning = DB::table('import_calendar')->latest('id')->value('id');
+        $id_planning = $request->id_planning  ?? DB::table('import_calendar')->latest('id')->value('id');
 
         $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
         ->distinct()
@@ -84,23 +85,47 @@ class VehiculeController extends AppBaseController
         ->unique() // Supprime les doublons après transformation
         ->toArray();
 
-        // Récupérer tous les camions de scoring pour ce planning
-        $scoringTrucks = Scoring::where('id_planning', $id_planning)
-            ->pluck('camion')
-            ->map(function($camion) {
-                return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
-            })
-            ->toArray();
-
-        // Trouver les camions dans import_excel qui ne sont pas dans scoring
-        $missingTrucks = array_diff($importTrucks, $scoringTrucks);
-
+        $missingTrucks = $importTrucks;
         $missingTrucks = array_map(fn($immatriculation) => ['immatriculation' => $immatriculation], $missingTrucks);
-        // dd($missingTrucks);
             
         return $dataTable->with(['data' => $missingTrucks])->render('vehicules.list_vehicule');
+    }
 
-        // return view('vehicules.list_vehicule')->with('vehicule', $missingTrucks);
+    public function count_driver_not_has_scoring(TrucknotscoringDataTable $dataTable, Request $request)
+    {
+        $id_planning = $request->id_planning  ?? DB::table('import_calendar')->latest('id')->value('id');
+        // Récupérer les camions uniques depuis ImportExcel
+        $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
+            ->distinct()
+            ->pluck('camion')
+            ->map(function ($camion) {
+                return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
+            })
+            ->unique()
+            ->toArray();
+        $importTrucks = array_map('trim', $importTrucks);
+
+        $scoringTrucks = Scoring::where('id_planning', $id_planning)->pluck('camion')->unique()->toArray();
+        
+        $matricules = array_map(function($entry) {
+            preg_match('/\b[0-9]{3,}[A-Z]+\b/', $entry, $matches);
+            return $matches[0] ?? $entry;
+        }, $scoringTrucks);
+
+        $common_matricules = array_intersect($importTrucks, $matricules);
+
+        $result = [];
+
+        foreach ($importTrucks as $value) {
+            if (!in_array($value, array_unique($common_matricules))) {
+                $result[] = $value;
+            }
+        }
+        
+        $missingTrucks = array_map(fn($immatriculation) => ['immatriculation' => $immatriculation], $result);
+        
+            
+        return $dataTable->with(['data' => $missingTrucks])->render('vehicules.list_vehicule');
     }
 
     /**
