@@ -121,16 +121,49 @@ class ChauffeurController extends AppBaseController
      */
     public function show($id)
     {
+        // Récupérer le chauffeur de base
         $chauffeur = $this->chauffeurRepository->find($id);
-        $chauffeur_update = ChauffeurUpdate::with('transporteur')->where('chauffeur_id',$id)->get();
+    
         if (empty($chauffeur)) {
             Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
-
             return redirect(route('chauffeurs.index'));
         }
-
-        return view('chauffeurs.show',compact('chauffeur','chauffeur_update'));
+    
+        // Récupérer les mises à jour triées par date d'installation décroissante
+        $chauffeur_updates = ChauffeurUpdate::with('related_transporteur')
+            ->where('chauffeur_id', $id)
+            ->orderByDesc('date_installation')
+            ->get();
+    
+        // Ajouter le chauffeur de base comme une ancienne mise à jour
+        $chauffeur_base_as_update = new ChauffeurUpdate([
+            'nom' => $chauffeur->nom,
+            'rfid' => $chauffeur->rfid,
+            'rfid_physique' => $chauffeur->rfid_physique,
+            'numero_badge' => $chauffeur->numero_badge,
+            'date_installation' => $chauffeur->created_at, // On suppose que le chauffeur de base a été créé à cette date
+            'transporteur_id' => $chauffeur->transporteur_id, // On suppose que le chauffeur de base a été créé à cette date
+        ]);
+    
+        // Ajouter le chauffeur de base à la liste des mises à jour
+        $chauffeur_updates->push($chauffeur_base_as_update);
+    
+        // Vérifier s'il existe des mises à jour
+        if (!$chauffeur_updates->isEmpty()) {
+            // Le chauffeur actuel est la dernière mise à jour
+            $chauffeur_actuel = $chauffeur_updates->first();
+            // Retirer la mise à jour actuelle de la liste des historiques
+            $chauffeur_updates->shift();
+        } else {
+            // Si aucune mise à jour, le chauffeur de base reste le chauffeur actuel
+            $chauffeur_actuel = $chauffeur;
+        }
+    
+        return view('chauffeurs.show', compact('chauffeur_actuel', 'chauffeur_updates'));
     }
+    
+
+
 
     /**
      * Show the form for editing the specified Chauffeur.

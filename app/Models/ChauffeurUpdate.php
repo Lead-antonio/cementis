@@ -10,7 +10,7 @@ class ChauffeurUpdate extends Model
     use HasFactory;
 
     public $table = 'chauffeur_updates';
-
+    
     public $fillable = [
         'id',
         'chauffeur_id',
@@ -25,6 +25,11 @@ class ChauffeurUpdate extends Model
 
 
     public function transporteur()
+    {
+        return $this->belongsTo(Transporteur::class, 'transporteur_id');
+    }
+
+    public function related_transporteur()
     {
         return $this->belongsTo(Transporteur::class, 'transporteur_id');
     }

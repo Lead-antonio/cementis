@@ -94,7 +94,8 @@
                             <tr>
                                 <td>RFID</td>
                                 <td>${ancien.rfid}</td>
-                                <td >${highlightIfChanged(ancien.rfid, nouveau.rfid)}</td>
+                                <td>${updateType == 2 || updateType == 3 ? '<span style="color: #FFA500; font-weight: 900;">En attente</span>' : highlightIfChanged(ancien.rfid, nouveau.rfid)}</td>
+
                             </tr>
                             <tr>
                                 <td>Numéro Badge</td>
