@@ -256,6 +256,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
      */
     public function validation_list(){
         $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur','validator','modifier'])
+        ->orderBy('id',"desc")
         ->paginate(10);
 
         return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
