@@ -25,11 +25,15 @@
                         <div class="card rounded-card mb-3">
                             <a class="text-decoration-none text-dark">
                                 <div class="card-body card-list">
-                                    <div class="number-circle">{{ $key + 1 }}</div>
+                                    {{-- <div class="number-circle">{{ $key + 1 }}</div> --}}
+                                    <i class="fa fa-edit text-primary icon-circle" style="font-size: 20px;"></i>
+                                    {{-- <div class="notification-icon" style="width: 40px; height: 40px; background-color: #e0e0e0; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+                                       
+                                    </div>   --}}
                                     <strong>Demande de validation {{ $item->chauffeur_update_type->name }} : {{ $item->chauffeur->nom }}</strong>
                                     <span class="float-right">
                                         @if ($item->validation == false)
-                                            <button type="button" class='btn btn-success saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
+                                            <button type="button" class='btn btn-primary saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
                                                     data-nouveau='@json($item)' 
                                                     style="border-radius: 72px;">
                                                 Validé
@@ -40,7 +44,7 @@
                                     </span>
 
                                     <div style="margin-top: 5px;padding-left:42px"> <!-- Placer la date un peu plus bas -->
-                                        <small> Demandeur : {{ $item->modifier->name ?? "" }} le {{ $item->created_at->format('Y-m-d') }} </small>
+                                        <small> Demandeur : {{ $item->modifier->name ?? "" }} le {{ $item->created_at->format('Y-m-d') }} à {{ $item->created_at->format('H:m') }} </small>
                                     </div>
                                 </div>
                             </a>
@@ -181,6 +185,20 @@
             });
         });
     </script>
+
+    <style>
+        .icon-circle {
+            width: 30px;
+            height: 30px;
+            color: #fff;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
     
 
 @endsection
