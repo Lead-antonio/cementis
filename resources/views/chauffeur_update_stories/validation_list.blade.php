@@ -18,19 +18,16 @@
         <div class="clearfix"></div>
 
         <div class="card">
-            <h4 style="padding-left: 72px;padding-top: 27px;">Historique de mise à jour chauffeur</h4>
+            <h4 style="padding-left: 70px;padding-top: 27px;">Historique de mise à jour chauffeur</h4>
             <div class="card-body p-0">
-                <div class="card-body" style="padding-left: 50px;padding-right:170px">
+                <div class="card-body" style="padding-left: 70px;padding-right:120px">
                     @foreach ($chauffeur_update as $key => $item)
                         <div class="card rounded-card mb-3">
                             <a class="text-decoration-none text-dark">
                                 <div class="card-body card-list">
                                     {{-- <div class="number-circle">{{ $key + 1 }}</div> --}}
                                     <i class="fa fa-edit text-primary icon-circle" style="font-size: 20px;"></i>
-                                    {{-- <div class="notification-icon" style="width: 40px; height: 40px; background-color: #e0e0e0; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
-                                       
-                                    </div>   --}}
-                                    <strong>Demande de validation {{ $item->chauffeur_update_type->name }} : {{ $item->chauffeur->nom }}</strong>
+                                     Demande de validation <span style="font-weight: 500"> {{ $item->chauffeur_update_type->name }} : {{ $item->chauffeur->nom }}</span> possedant RFID : <span style="font-weight: 500"> {{ $item->chauffeur->rfid }}</span>
                                     <span class="float-right">
                                         @if ($item->validation == false)
                                             <button type="button" class='btn btn-primary saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
@@ -43,7 +40,7 @@
                                         @endif
                                     </span>
 
-                                    <div style="margin-top: 5px;padding-left:42px"> <!-- Placer la date un peu plus bas -->
+                                    <div style="margin-top: 5px;    padding-left: 54px;"> <!-- Placer la date un peu plus bas -->
                                         <small> Demandeur : {{ $item->modifier->name ?? "" }} le {{ $item->created_at->format('Y-m-d') }} à {{ $item->created_at->format('H:m') }} </small>
                                     </div>
                                 </div>
@@ -188,8 +185,8 @@
 
     <style>
         .icon-circle {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             color: #fff;
             border-radius: 50%;
             display: inline-flex;
@@ -197,6 +194,7 @@
             align-items: center;
             font-weight: bold;
             margin-right: 10px;
+            background-color: #e0e0e0;
         }
     </style>
     
