@@ -48,9 +48,7 @@ class ParametreDataTable extends DataTable
                 'dom'       => 'Bfrtip',
                 'stateSave' => true,
                 'order'     => [[0, 'desc']],
-                 'language' => [
-                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/French.json'),
-                 ],
+                 'language' => __('datatables'),
             ]);
     }
 

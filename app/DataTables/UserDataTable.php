@@ -29,7 +29,8 @@ class UserDataTable extends DataTable
      */
     public function query(User $model)
     {
-        return $model->newQuery()->with('Attendances');
+        return $model->newQuery();
+        // ->with('Attendances')
     }
 
     /**
@@ -48,13 +49,9 @@ class UserDataTable extends DataTable
                 'stateSave' => false,
                 'order'     => [[0, 'desc']],
                 'buttons'   => [
-                    ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bcreate')],
-                    ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bexport')],
-                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bprint')],
-                    ['extend' => 'reset', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.breset')],
-                    ['extend' => 'reload', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.breload')],
+                    'excel', 'csv', 'pdf'
                 ],
-                'language' => __('datatables')
+                'language' => __('datatables'),
             ]);
     }
 
@@ -66,7 +63,7 @@ class UserDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'id' => ['searchable' => false],
+            // 'id' => ['searchable' => false],
             'name',
             'email',
             'status_online'=>['data'=>'status_online','orderable' => false, 'searchable' => false],

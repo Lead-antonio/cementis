@@ -48,12 +48,7 @@ class RoleDataTable extends DataTable
                 'stateSave' => false,
                 'order'     => [[0, 'desc']],
                 'buttons'   => [
-
-                    ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bcreate')],
-                    ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bexport')],
-                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bprint')],
-                    ['extend' => 'reset', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.breset')],
-                    ['extend' => 'reload', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.breload')],
+                    'excel', 'csv', 'pdf'
                 ],
                 'language' => __('datatables')
             ]);
@@ -67,7 +62,7 @@ class RoleDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'id' => ['searchable' => false],
+            // 'id' => ['searchable' => false],
             'name',
             'title',
             'guard_name',

@@ -9,9 +9,9 @@
             </div>
             <div class="col-sm-6">
                 @can('permissions.create')
-                <a class="btn btn-primary float-right" href="{{ route('permissions.create') }}">
-                    Add New
-                </a>
+                    <a class="btn btn-primary float-right" href="{{ route('permissions.create') }}">
+                        @lang('crud.add_new')
+                    </a>
                 @endcan
             </div>
         </div>

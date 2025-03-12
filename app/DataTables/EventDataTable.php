@@ -51,9 +51,7 @@ class EventDataTable extends DataTable
                 'buttons'   => [
                     'excel', 'csv', 'print',
                 ],
-                 'language' => [
-                   'url' => url('//cdn.datatables.net/plug-ins/1.10.12/i18n/French.json'),
-                 ],
+                 'language' => __('datatables'),
             ]);
     }
 

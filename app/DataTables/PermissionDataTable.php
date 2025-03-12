@@ -48,12 +48,7 @@ class PermissionDataTable extends DataTable
                 'stateSave' => false,
                 'order'     => [[0, 'desc']],
                 'buttons'   => [
-
-
-                    ['extend' => 'create', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bcreate')],
-                    ['extend' => 'export', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bexport')],
-                    ['extend' => 'print', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.bprint')],
-                    ['extend' => 'reset', 'className' => 'btn btn-default btn-sm no-corner','title' => __('datatables.breset')],
+                    'excel', 'csv', 'pdf',
                     [
                         'text' => '<i class="fas fa-shield-alt"></i> ' . 'Load from router',
                         'action' => "
@@ -84,7 +79,7 @@ class PermissionDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            'id' => ['searchable' => false],
+            // 'id' => ['searchable' => false],
             'name',
             'title',
             'guard_name',
