@@ -7,13 +7,14 @@
                 <div class="col-sm-6">
                    <h1>@lang('models/importcalendars.plural')</h1>
                 </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('import.affichage') }}">
-                         {{-- @lang('crud.add_new') --}}
-                         Import Excel
-                    </a>
-                </div>
+                @can('import.affichage')
+                    <div class="col-sm-6">
+                        <a class="btn btn-primary float-right"
+                        href="{{ route('import.affichage') }}">
+                            Import Excel
+                        </a>
+                    </div>
+                @endcan
             </div>
         </div>
     </section>

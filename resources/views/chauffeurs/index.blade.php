@@ -7,12 +7,14 @@
                 <div class="col-sm-6">
                  <h1>@lang('models/chauffeurs.plural')</h1>
                 </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('chauffeurs.create') }}">
-                       @lang('crud.add_new')
-                    </a>
-                </div>
+                @can('chauffeurs.create')    
+                    <div class="col-sm-6">
+                        <a class="btn btn-primary float-right"
+                        href="{{ route('chauffeurs.create') }}">
+                        @lang('crud.add_new')
+                        </a>
+                    </div>
+                @endcan
             </div>
         </div>
     </section>
