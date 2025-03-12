@@ -40,7 +40,7 @@
                                     </span>
 
                                     <div style="margin-top: 5px;padding-left:42px"> <!-- Placer la date un peu plus bas -->
-                                        <small>Date : {{ $item->created_at->format('Y-m-d') }}</small>
+                                        <small> Demandeur : {{ $item->modifier->name ?? "" }} le {{ $item->created_at->format('Y-m-d') }} </small>
                                     </div>
                                 </div>
                             </a>

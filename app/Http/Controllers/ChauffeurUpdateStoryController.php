@@ -19,6 +19,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Auth;
+
 
 use Response;
 
@@ -66,7 +68,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
     {
         $input = $request->all();
 
-        // dd($input);
+        $modifier_id = Auth::id(); 
 
         $input_ = [
             "chauffeur_update_type_id" => $request->chauffeur_update_type_id,
@@ -77,6 +79,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
             "contact" => $request->contact,
             "numero_badge" => $request->numero_badge,
             "chauffeur_id" => $request->chauffeur_id,
+            "modifier_id" => $modifier_id,
         ];
 
         $chauffeurUpdateStory = $this->chauffeurUpdateStoryRepository->create($input_);
@@ -206,11 +209,15 @@ class ChauffeurUpdateStoryController extends AppBaseController
         $chauffeur_update_id =  $request->id;
         $validation = $request->validation;
         $rfid_ = $request->rfid;
+        $validator_id = Auth::id(); 
 
         try{
             if($validation == true){
                 $chauffeur_update =  ChauffeurUpdateStory::find($chauffeur_update_id);
-                $chauffeur_update->update(['validation' => true]);
+                $chauffeur_update->update([
+                    'validation' => true,
+                    'validator_id' =>  $validator_id
+                ]);
 
                 if($rfid_ == null){
                     $rfid_ =  $chauffeur_update->rfid;
@@ -242,9 +249,14 @@ class ChauffeurUpdateStoryController extends AppBaseController
 
     }
 
-
+    /**
+     * Affichage de la liste des mise à jour chauffeur à valider 
+     * jonny
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function validation_list(){
-        $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur'])->paginate(10);
+        $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur','validator','modifier'])
+        ->paginate(10);
 
         return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
     }

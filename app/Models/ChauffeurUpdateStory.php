@@ -38,6 +38,8 @@ class ChauffeurUpdateStory extends Model
         'numero_badge',
         'rfid_physique',
         'validation',
+        'modifier_id',
+        'validator_id',
         'created_at'
     ];
 
@@ -81,6 +83,16 @@ class ChauffeurUpdateStory extends Model
     public function chauffeur_update_type()
     {
         return $this->belongsTo(ChauffeurUpdateType::class, 'chauffeur_update_type_id');
+    }
+
+    public function modifier()
+    {
+        return $this->belongsTo(User::class, 'modifier_id');
+    }
+    
+    public function validator()
+    {
+        return $this->belongsTo(User::class, 'validator_id');
     }
     
 }
