@@ -10,12 +10,14 @@
                 
                 <div class="col-sm-10">
                     <div class="row"> <!-- Ajout d'une row ici -->
-                        <div class="col-md-3 col-sm-6 mb-2 excel-button"> <!-- Ajustement des tailles -->
-                            <a id="export-link" class="btn btn-success w-100" 
-                                href="{{ route('export.excel.scoring', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
-                                <i class="fas fa-file-excel"></i> Excel
-                            </a>
-                        </div>
+                        @can('export.excel.scoring')    
+                            <div class="col-md-3 col-sm-6 mb-2 excel-button"> <!-- Ajustement des tailles -->
+                                <a id="export-link" class="btn btn-success w-100" 
+                                    href="{{ route('export.excel.scoring', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
+                                    <i class="fas fa-file-excel"></i> Excel
+                                </a>
+                            </div>
+                        @endcan
                 
                         <div class="col-md-3 col-sm-6 mb-2">
                             <select class="form-control" name="planning" id="planning">
