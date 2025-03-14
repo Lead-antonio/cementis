@@ -46,7 +46,7 @@ class checkCalendar extends Command
 
 
         $calendarService = new CalendarService();
-        $calendarService->checkCalendar($this, $planning);
+        $calendarService->checkTempsReposInfractions($this, $planning);
 
         $this->info('Process completed!');
     }

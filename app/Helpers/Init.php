@@ -12,6 +12,7 @@ use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
 use App\Models\Transporteur;
 use App\Models\Infraction;
+use App\Models\Importcalendar;
 
 if (!function_exists('fast_trans')) {
 
@@ -73,40 +74,65 @@ if (!function_exists('convertMinuteHeure')) {
 if(!function_exists('scoring')){
     function scoring($id_planning){
         $results = "";
+        $calendar = Importcalendar::where('id', $id_planning)->first();
         if($id_planning !== "" && $id_planning !== null){
+            // $results = DB::select("
+            //             SELECT 
+            //             c.nom AS driver,
+            //             c.id As driver_id,
+            //             t.id As transporteur_id,
+            //             t.nom AS transporteur,
+            //             i.event AS event,
+            //             i.vehicule AS camion,
+            //             COUNT(i.event) AS valeur, 
+            //             SUM(i.point) AS point,
+            //             SUM(
+            //                 CASE 
+            //                     WHEN i.duree_initial < i.duree_infraction THEN i.duree_infraction - i.duree_initial
+            //                     ELSE i.duree_initial - i.duree_infraction
+            //                 END
+            //             ) AS duree,
+            //             (SELECT SUM(i2.point) 
+            //             FROM infraction i2 
+            //             JOIN import_excel ie2 ON i2.calendar_id = ie2.id
+            //             WHERE i2.rfid = c.rfid 
+            //             AND i2.calendar_id IS NOT NULL 
+            //             AND ie2.import_calendar_id = $id_planning) AS total_point
+            //         FROM 
+            //             chauffeur c
+            //         LEFT JOIN
+            //             infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
+            //         LEFT JOIN
+            //             import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
+            //         LEFT JOIN
+            //             transporteur t ON c.transporteur_id = t.id
+            //         GROUP BY 
+            //             c.id, c.nom, i.event, c.rfid, t.nom, t.id, i.vehicule
+            // ");
             $results = DB::select("
                     SELECT 
-                    c.nom AS driver,
-                    c.id As driver_id,
-                    t.id As transporteur_id,
-                    t.nom AS transporteur,
-                    i.event AS event,
-                    i.vehicule AS camion,
-                    COUNT(i.event) AS valeur, 
-                    SUM(i.point) AS point,
-                    SUM(
-                        CASE 
-                            WHEN i.duree_initial < i.duree_infraction THEN i.duree_infraction - i.duree_initial
-                            ELSE i.duree_initial - i.duree_infraction
-                        END
-                    ) AS duree,
-                    (SELECT SUM(i2.point) 
-                    FROM infraction i2 
-                    JOIN import_excel ie2 ON i2.calendar_id = ie2.id
-                    WHERE i2.rfid = c.rfid 
-                    AND i2.calendar_id IS NOT NULL 
-                    AND ie2.import_calendar_id = $id_planning) AS total_point
-                FROM 
-                    chauffeur c
-                LEFT JOIN
-                    infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
-                LEFT JOIN
-                    import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
-                LEFT JOIN
-                    transporteur t ON c.transporteur_id = t.id
-                GROUP BY 
-                    c.id, c.nom, i.event, c.rfid, t.nom, t.id, i.vehicule
-        ");
+                        c.nom AS driver,
+                        c.id As driver_id,
+                        t.id As transporteur_id,
+                        t.nom AS transporteur,
+                        i.imei AS imei,
+                        (SELECT SUM(i2.point) 
+                        FROM infraction i2 
+                        JOIN import_excel ie2 ON i2.calendar_id = ie2.id
+                        WHERE i2.rfid = c.rfid 
+                        AND i2.calendar_id IS NOT NULL 
+                        AND ie2.import_calendar_id = $id_planning) AS total_point
+                    FROM 
+                        chauffeur c
+                    LEFT JOIN
+                        infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
+                    LEFT JOIN
+                        import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
+                    LEFT JOIN
+                        transporteur t ON c.transporteur_id = t.id
+                    GROUP BY 
+                        c.id, c.nom, c.rfid, t.nom, t.id, i.imei
+            ");
         }
         
         return $results;
@@ -2160,6 +2186,7 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
         $transporteur = Transporteur::where('id', $transporteurId)->first();
         // Formatage des dates au format YYYYMMDD
         $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
+        
         // $response = Http::timeout(300)->get($url);
         $response = Http::timeout(5000)->retry(3, 1000)->get($url);
         $data = $response->json();
@@ -2174,7 +2201,7 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
         foreach ($chunks as $chunk) {
             foreach ($chunk as $item) {
                 if (isset($chauffeur->rfid) && isset($item['params']['rfid']) && $item['params']['rfid'] === $chauffeur->rfid) {
-                    $plate_number = $item['plate_number'];
+                    $plate_number = $item['imei'];
                     break 2; // Quitter les deux boucles dès qu'une correspondance est trouvée
                 }
             }
@@ -2202,6 +2229,15 @@ if(!function_exists('checkTruckinCalendar')){
 
 
         return $exists ? true : false;
+    }
+}
+
+if(!function_exists('getTruckByImei')){
+    function getTruckByImei($imei){
+        $truck = Vehicule::where('imei', $imei)
+                     ->value('nom');
+
+        return $truck;
     }
 }
 

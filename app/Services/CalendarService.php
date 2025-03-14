@@ -75,6 +75,7 @@ class CalendarService
     //     }
     // }
 
+    // check Infraction Survitesse par rapoort au calendrier
     public function checkCalendar($console, $planning) {
         try {
             $startDate = new \DateTime($planning->date_debut);
@@ -137,6 +138,54 @@ class CalendarService
             Log::error('Erreur lors de la vérification du calendrier: ' . $e->getMessage());
         }
     }
+
+    // Check Infraction temps de repos
+    public function checkTempsReposInfractions($console, $planning)
+    {
+        try {
+            // Récupérer les calendriers disponibles liés au planning
+            $calendars = ImportExcel::where('import_calendar_id', $planning->id)->get();
+
+            // Vérifier qu'on a bien des calendriers avant de continuer
+            if ($calendars->isEmpty()) {
+                $console->info("Aucun calendrier trouvé pour ce planning.");
+                return;
+            }
+
+            $startDate = new \DateTime($planning->date_debut);
+            $endDate = clone $startDate;
+            // Définir la date de fin au dernier jour du mois
+            $endDate->modify('last day of this month')->setTime(23, 59, 59);
+
+            // Liste des infractions concernées
+            $restEvents = ['Temps de repos hebdomadaire', 'Temps de repos minimum après une journée de travail'];
+
+            // Récupérer toutes les infractions de type "Temps de repos"
+            $infractions = Infraction::whereIn('event', $restEvents)
+                                    ->whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                                    ->whereBetween('date_fin', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                                    ->whereNull('calendar_id') // Exclure celles qui ont déjà un calendar_id
+                                    ->get();
+
+            if ($infractions->isNotEmpty()) {
+                // Sélectionner un calendar_id aléatoire parmi ceux disponibles
+                $randomCalendar = $calendars->random();
+                $randomCalendarId = $randomCalendar->id;
+
+                // Mise à jour des infractions avec ce calendar_id
+                Infraction::whereIn('id', $infractions->pluck('id')->toArray())
+                    ->update(['calendar_id' => $randomCalendarId]);
+
+                $console->info(count($infractions) . " infractions de repos mises à jour avec l'ID de calendrier : $randomCalendarId");
+            } else {
+                $console->info("Aucune infraction de repos trouvée pour mise à jour.");
+            }
+        } catch (\Exception $e) {
+            // Gestion des erreurs
+            Log::error('Erreur lors de la vérification des infractions de repos : ' . $e->getMessage());
+        }
+    }
+
 
     /**
      * Antonio

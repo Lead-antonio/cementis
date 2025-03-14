@@ -34,7 +34,7 @@
             </select>
         </div>
 
-        <div class="row">
+        {{-- <div class="row">
             <!-- Transporteurs -->
             <div class="col-md-2">
                 <a href="{{ route('transporteurs.index') }}" class="text-decoration-none">
@@ -48,9 +48,6 @@
                                 <i class="nav-icon fas fa-city"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
@@ -68,9 +65,6 @@
                                 <i class="nav-icon fas fa-truck"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
@@ -88,9 +82,6 @@
                                 <i class="nav-icon fas fa-user"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
@@ -107,9 +98,6 @@
                                 <i class="nav-icon fas fa-user"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
@@ -126,9 +114,6 @@
                                 <i class="nav-icon fas fa-user"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
@@ -145,13 +130,131 @@
                                 <i class="nav-icon fas fa-truck"></i>
                             </div>
                         </div>
-                        {{-- <div class="card-footer card-footer-custom">
-                            <small>+15% depuis hier</small>
-                        </div> --}}
                     </div>
                 </a>
             </div>
+        </div> --}}
+        <div class="row">
+            <!-- Première ligne -->
+            <div class="col-md-3">
+                <a href="{{ route('transporteurs.index') }}" class="text-decoration-none">
+                    <div class="card card-custom transporteur">
+                        <div class="card-body card-body-transporteurs">
+                            <div>
+                                <h4 class="card-title-custom">Transporteurs</h4>
+                                <h3>{{$totalTransporteurs}}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-city"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
+            <div class="col-md-3">
+                <a href="{{ route('vehicules.index') }}" class="text-decoration-none">
+                    <div class="card card-custom vehicule">
+                        <div class="card-body card-body-vehicules">
+                            <div>
+                                <h4 class="card-title-custom">Véhicules</h4>
+                                <h3>{{ $totalVehicules }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-truck"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
+            <div class="col-md-3">
+                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
+                    <div class="card card-custom chauffeur">
+                        <div class="card-body card-body-chauffeurs">
+                            <div>
+                                <h4 class="card-title-custom">Chauffeurs</h4>
+                                <h3>{{ $totalChauffeurs }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
+                    <div class="card card-custom chauffeur">
+                        <div class="card-body card-body-chauffeurs">
+                            <div>
+                                <h4 class="card-title-custom">Véhicules dans le calendrier</h4>
+                                <h3>{{ $driver_in_calendar }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
         </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none">
+                    <div class="card card-custom scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de chauffeurs avec score</h4>
+                                <h3>{{ $driver_has_score }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!-- Deuxième ligne -->
+            <div class="col-md-4">
+                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none">
+                    <div class="card card-custom no-scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de véhicules sans score</h4>
+                                <h3>{{ $driver_not_has_score }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-user"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
+            
+        
+            <div class="col-md-4">
+                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none">
+                    <div class="card card-custom badge">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de badge dans le calendrier</h4>
+                                <h3>{{ $drivers_badge_in_calendars }}</h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        
+        </div>
+        
         
         <!-- /.row -->
         <div class="row">
@@ -606,17 +709,6 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
 </script>
 
 <style>
-    /* .badge {
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.375rem !important;
-} */
     .card-custom {
         border-radius: 10px;
         background: linear-gradient(145deg, #6e7bff, #5560ea);
@@ -633,33 +725,38 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
 
     .card-custom.chauffeur {
         background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        min-height: 94%;
+        /* min-height: 94%; */
     }
 
     .card-custom.vehicule {
         background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        min-height: 94%;
+        /* min-height: 94%; */
     }
 
     .card-custom.transporteur {
         background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        min-height: 94%;
+        /* min-height: 94%; */
     }
 
     .card-custom.scoring {
         background: linear-gradient(145deg, #000000, #ffffff);
-        min-height: 94%;
+        /* min-height: 94%; */
+    }
+
+    .card-custom.badge {
+        background: linear-gradient(145deg, #000000, #ffffff);
+        /* min-height: 94%; */
     }
 
     .card-custom.calendar {
         background: linear-gradient(145deg, #000000, #ffffff);
-        min-height: 94%;
+        /* min-height: 94%; */
     }
 
     .card-custom.no-scoring {
         background: linear-gradient(145deg, #000000, #ffffff);
         /* max-height: 86%; */
-        max-height: 94%;
+        /* max-height: 94%; */
     }
 
     .card-custom:hover {
@@ -670,7 +767,7 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     .card-body-custom {
         display: flex;
         justify-content: space-between;
-        flex-direction: column;
+        /* flex-direction: column; */
         align-items: center;
         flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
     }
