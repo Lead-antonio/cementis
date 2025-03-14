@@ -86,6 +86,7 @@ Route::post('/exportation-table', 'App\Http\Controllers\ExportController@exportT
 Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
 Route::post('chauffeur/updatetransporteur', 'App\Http\Controllers\ChauffeurController@update_tranporteur_id')->name('chauffeur.updatetransporteur');
+Route::post('chauffeur/deleteSending', 'App\Http\Controllers\ChauffeurController@delete_sending')->name('chauffeur.deleteSending');
 
 Route::post('chauffeur/filtre', 'App\Http\Controllers\TransporteurController@filterChauffeurs')->name('chauffeur.filtre');
 

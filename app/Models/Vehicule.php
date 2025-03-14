@@ -34,6 +34,7 @@ class Vehicule extends Model
         'nom',
         'id_transporteur',
         'description',
+        'description',
     ];
 
     /**

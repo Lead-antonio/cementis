@@ -11,6 +11,7 @@ use Exception;
 use Flash;
 use App\Http\Controllers\AppBaseController;
 use App\Mail\ChauffeurUpdateMail;
+use App\Models\Chauffeur;
 use App\Models\ChauffeurUpdate;
 use App\Models\ChauffeurUpdateStory;
 use App\Models\User;
@@ -90,17 +91,13 @@ class ChauffeurUpdateStoryController extends AppBaseController
         Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
         ->send(new ChauffeurUpdateMail($chauffeur_info));   
 
-
           // Envoyer une notification aux administrateurs
           $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'supper-admin');
         })->get();
 
-
-
         $chauffeur_info_ = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)->first();
       
-        
         Notification::send($admins, new UpdateChauffeurInfoNotification($chauffeur_info_->nom));
 
         Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
@@ -206,37 +203,79 @@ class ChauffeurUpdateStoryController extends AppBaseController
      */
     public function ValidationUpdateChauffeur(Request $request){
 
-        $chauffeur_update_id =  $request->id;
-        $validation = $request->validation;
-        $rfid_ = $request->rfid;
-        $validator_id = Auth::id(); 
-
         try{
+            
+            $chauffeur_update_id =  $request->id;
+            $validation = $request->validation;
+            $rfid_ = $request->rfid;
+            $rfid_physique = $request->rfidPhysique;
+            $validator_id = Auth::id(); 
+
             if($validation == true){
                 $chauffeur_update =  ChauffeurUpdateStory::find($chauffeur_update_id);
                 $chauffeur_update->update([
                     'validation' => true,
                     'validator_id' =>  $validator_id
                 ]);
-
-                if($rfid_ == null){
-                    $rfid_ =  $chauffeur_update->rfid;
-                }
                 
-                ChauffeurUpdate::create([
-                    'chauffeur_id' =>  $chauffeur_update->chauffeur_id,
-                    'rfid'=>  $rfid_,
-                    'nom' =>  $chauffeur_update->nom,
-                    'contact' =>  $chauffeur_update->contact,
-                    'transporteur_id' =>  $chauffeur_update->transporteur_id,
-                    'numero_badge'=>  $chauffeur_update->numero_badge,
-                    'rfid_physique'=>  $chauffeur_update->rfid_physique,
-                ]);
+                if($chauffeur_update->chauffeur_update_type_id < 4){
+                    if($rfid_ == null){
+                        $rfid_ =  $chauffeur_update->rfid;
+                    }
+                    
+                    ChauffeurUpdate::create([
+                        'chauffeur_id' =>  $chauffeur_update->chauffeur_id,
+                        'rfid'=>  $rfid_,
+                        'nom' =>  $chauffeur_update->nom,
+                        'contact' =>  $chauffeur_update->contact,
+                        'transporteur_id' =>  $chauffeur_update->transporteur_id,
+                        'numero_badge'=>  $chauffeur_update->numero_badge,
+                        'rfid_physique'=>  $chauffeur_update->rfid_physique,
+                    ]);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'La mise à jour a été validée avec succès.'
-                ]);
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'La mise à jour a été validée avec succès.'
+                    ]);
+                }
+
+                if($chauffeur_update->chauffeur_update_type_id == 4){
+                    $chauffeur_delete = Chauffeur::find($chauffeur_update->chauffeur_id);
+                    $chauffeur_delete->delete();
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Suppréssion du chauffeur validé'
+                    ]);
+                }
+
+                if($chauffeur_update->chauffeur_update_type_id == 5){
+
+                    $chauffeur_update->update([
+                        'validation' => true,
+                        'validator_id' =>  $validator_id,
+                        'rfid_physique' =>  $rfid_physique,
+                        'rfid' =>  $rfid_,
+                    ]);
+
+                    Chauffeur::create([
+                        'chauffeur_id' =>  $chauffeur_update->chauffeur_id,
+                        'rfid'=>  $rfid_,
+                        'nom' =>  $chauffeur_update->nom,
+                        'contact' =>  $chauffeur_update->contact,
+                        'transporteur_id' =>  $chauffeur_update->transporteur_id,
+                        'numero_badge'=>  $chauffeur_update->numero_badge,
+                        'rfid_physique'=>  $chauffeur_update->rfid_physique,
+                    ]);
+
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Création chauffeur validé'
+                    ]);
+
+                }
+
             }elseif($validation == false){
 
             }
@@ -257,7 +296,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
     public function validation_list(){
         $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur','validator','modifier'])
         ->orderBy('id',"desc")
-        ->paginate(10);
+        ->paginate(5);
 
         return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
     }

@@ -25,16 +25,26 @@
 </div>
 
 <!-- Rfid Field -->
-<div class="form-group col-sm-6">
+{{-- <div class="form-group col-sm-6">
     {!! Form::label('rfid', __('models/chauffeurs.fields.rfid').':', ['class' => 'required']) !!}
     {!! Form::text('rfid', null, ['class' => 'form-control','placeholder'=>'Rfid']) !!}
+</div> --}}
+
+<div class="form-group col-sm-6">
+    {!! Form::label('rfid_physique', __('models/chauffeurs.fields.rfid_physique').':') !!}
+    {!! Form::text('rfid_physique', null, ['class' => 'form-control','placeholder'=>'Rfid physique']) !!}
+</div>
+
+<div class="form-group col-sm-6">
+    {!! Form::label('numero_badge', __('models/chauffeurs.fields.numero_badge').':', ['class' => 'required']) !!}
+    {!! Form::text('numero_badge', null, ['class' => 'form-control','placeholder'=>'Numéro du badge']) !!}
 </div>
 
 <!-- Nom Field -->
 
 
 <!-- Contact Field -->
-{{-- <div class="form-group col-sm-6">
+<div class="form-group col-sm-6">
     {!! Form::label('contact', __('models/chauffeurs.fields.contact').':') !!}
-    {!! Form::text('contact', null, ['class' => 'form-control']) !!}
-</div> --}}
+    {!! Form::text('contact', null, ['class' => 'form-control','placeholder'=>'Numéro téléphone']) !!}
+</div>

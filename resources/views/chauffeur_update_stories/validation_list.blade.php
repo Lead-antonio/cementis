@@ -26,19 +26,47 @@
                             <a class="text-decoration-none text-dark">
                                 <div class="card-body card-list">
                                     {{-- <div class="number-circle">{{ $key + 1 }}</div> --}}
-                                    <i class="fa fa-edit text-primary icon-circle" style="font-size: 20px;"></i>
-                                     Demande de validation <span style="font-weight: 500"> {{ $item->chauffeur_update_type->name }} : {{ $item->chauffeur->nom }}</span> possedant RFID : <span style="font-weight: 500"> {{ $item->chauffeur->rfid }}</span>
-                                    <span class="float-right">
-                                        @if ($item->validation == false)
-                                            <button type="button" class='btn btn-primary saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
-                                                    data-nouveau='@json($item)' 
-                                                    style="border-radius: 72px;">
-                                                Validé
-                                            </button>
-                                        @else
-                                            <i class="fa fa-check"></i>
-                                        @endif
-                                    </span>
+
+                                    @php
+                                        $icon = "fa-edit text-primary";
+                                        if( $item->chauffeur_update_type_id == 4){
+                                            $icon = "fa-trash text-danger";
+                                        }
+                                        if( $item->chauffeur_update_type_id == 5){
+                                            $icon = "fa-plus text-primary";
+                                        }
+                                    @endphp
+
+                                    @if ($item->chauffeur_update_type_id == 5 )
+                                        <i class="fa {{ $icon }} icon-circle" style="font-size: 20px;"></i>
+                                        Demande de validation <span style="font-weight: 500"> {{ $item->chauffeur_update_type->name }} : {{ $item->nom ?? "" }}
+                                        <span class="float-right">
+                                            @if ($item->validation == false)
+                                                <button type="button" class='btn btn-primary saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
+                                                        data-nouveau='@json($item)' 
+                                                        style="border-radius: 72px;">
+                                                    Validé
+                                                </button>
+                                            @else
+                                                <i class="fa fa-check"></i>
+                                            @endif
+                                        </span>
+                                    @else
+                                        <i class="fa {{ $icon }} icon-circle" style="font-size: 20px;"></i>
+                                        Demande de validation <span style="font-weight: 500"> {{ $item->chauffeur_update_type->name }} : {{ $item->chauffeur->nom }}</span> possedant RFID : <span style="font-weight: 500"> {{ $item->chauffeur->rfid }}</span>
+                                        <span class="float-right">
+                                            @if ($item->validation == false)
+                                                <button type="button" class='btn btn-primary saveButton'  data-id="{{ $item->id }}"   data-ancien='@json($item->chauffeur)' 
+                                                        data-nouveau='@json($item)' 
+                                                        style="border-radius: 72px;">
+                                                    Validé
+                                                </button>
+                                            @else
+                                                <i class="fa fa-check"></i>
+                                            @endif
+                                        </span>
+                                    @endif
+                                    
 
                                     <div style="margin-top: 5px;    padding-left: 54px;"> <!-- Placer la date un peu plus bas -->
                                         <small> Demandeur : {{ $item->modifier->name ?? "" }} le {{ $item->created_at->format('Y-m-d') }} à {{ $item->created_at->format('H:m') }} </small>
@@ -72,50 +100,93 @@
                 const updateType = nouveau.chauffeur_update_type_id; // Type de mise à jour
     
                 // Créer un tableau pour afficher les anciennes et nouvelles infos
-                let infoTable = `
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Champs</th>
-                                <th>Ancienne Information</th>
-                                <th>Nouvelle Information</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Nom</td>
-                                <td>${ancien.nom}</td>
-                                <td>${highlightIfChanged(ancien.nom, nouveau.nom)}</td>
-                            </tr>
-                            <tr>
-                                <td>Contact</td>
-                                <td>${ancien.contact}</td>
-                                <td>${highlightIfChanged(ancien.contact, nouveau.contact)}</td>
-                            </tr>
-                            <tr>
-                                <td>RFID</td>
-                                <td>${ancien.rfid}</td>
-                                <td>${updateType == 2 || updateType == 3 ? '<span style="color: #FFA500; font-weight: 900;">En attente</span>' : highlightIfChanged(ancien.rfid, nouveau.rfid)}</td>
+                let infoTable = ``;
+                if (updateType == 2 || updateType == 3 || updateType == 1) { 
+                    infoTable = `
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Champs</th>
+                                    <th>Ancienne Information</th>
+                                    <th>Nouvelle Information</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nom</td>
+                                    <td>${ancien.nom}</td>
+                                    <td>${highlightIfChanged(ancien.nom, nouveau.nom)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Contact</td>
+                                    <td>${ancien.contact}</td>
+                                    <td>${highlightIfChanged(ancien.contact, nouveau.contact)}</td>
+                                </tr>
+                                <tr>
+                                    <td>RFID</td>
+                                    <td>${ancien.rfid}</td>
+                                    <td>${updateType == 2 || updateType == 3 ? '<span style="color: #FFA500; font-weight: 900;">En attente</span>' : highlightIfChanged(ancien.rfid, nouveau.rfid)}</td>
 
-                            </tr>
-                            <tr>
-                                <td>Numéro Badge</td>
-                                <td>${ancien.numero_badge}</td>
-                                <td>${highlightIfChanged(ancien.numero_badge, nouveau.numero_badge)}</td>
-                            </tr>
-                            <tr>
-                                <td>RFID Physique</td>
-                                <td>${ancien.rfid_physique}</td>
-                                <td>${highlightIfChanged(ancien.rfid_physique, nouveau.rfid_physique)}</td>
-                            </tr>
-                            <tr>
-                                <td>Transporteur</td>
-                                <td>${ancien.related_transporteur.nom}</td>
-                                <td>${highlightIfChanged(ancien.related_transporteur.nom, nouveau.transporteur.nom)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                `;
+                                </tr>
+                                <tr>
+                                    <td>Numéro Badge</td>
+                                    <td>${ancien.numero_badge}</td>
+                                    <td>${highlightIfChanged(ancien.numero_badge, nouveau.numero_badge)}</td>
+                                </tr>
+                                <tr>
+                                    <td>RFID Physique</td>
+                                    <td>${ancien.rfid_physique}</td>
+                                    <td>${highlightIfChanged(ancien.rfid_physique, nouveau.rfid_physique)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transporteur</td>
+                                    <td>${ancien.related_transporteur.nom}</td>
+                                    <td>${highlightIfChanged(ancien.related_transporteur.nom, nouveau.transporteur.nom)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                if (updateType == 5) { 
+                    infoTable = `
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Champs</th>
+                                    <th>Nouvelle Information</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nom</td>
+                                    <td>${nouveau.nom}</td>
+                                </tr>
+                                <tr>
+                                    <td>Contact</td>
+                                    <td>${ nouveau.contact}</td>
+                                </tr>
+                                <tr>
+                                    <td>RFID</td>
+                                    <td><span style="color: #FFA500; font-weight: 900;">En attente</span></td>
+
+                                </tr>
+                                <tr>
+                                    <td>Numéro Badge</td>
+                                    <td>${nouveau.numero_badge}</td>
+                                </tr>
+                                <tr>
+                                    <td>RFID Physique</td>
+                                    <td>${nouveau.rfid_physique ?? "<span style='color: #FFA500; font-weight: 900;'>En attente</span>"}</td>
+                                </tr>
+                                <tr>
+                                    <td>Transporteur</td>
+                                    <td>${nouveau.transporteur.nom}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `;
+                }
     
                 // Ajouter un champ de saisie pour le RFID selon le type de mise à jour
                 let rfidField = '';
@@ -127,6 +198,29 @@
                         </div>
                     `;
                 }
+
+                if (updateType == 5) { // 2: changement RFID, 3: changement transporteur
+                    if(nouveau.rfid_physique == null){
+                        rfidField = `
+                            <div style="margin-top: 10px;">
+                                <label for="rfidInput">Veuillez saisir le RFID :</label>
+                                <input type="number" id="rfidInput" class="swal2-input" placeholder="RFID" required>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label for="rfidphysiqueInput">Veuillez saisir le RFID PHYSIQUE:</label>
+                                <input type="number" id="rfidphysiqueInput" class="swal2-input" placeholder="RFID Physique" required>
+                            </div>
+                        `;
+                    }else{
+
+                        rfidField = `
+                            <div style="margin-top: 10px;">
+                                <label for="rfidInput">Veuillez saisir le RFID :</label>
+                                <input type="number" id="rfidInput" class="swal2-input" placeholder="RFID" required>
+                            </div>
+                        `;
+                    }
+                }
     
                 Swal.fire({
                     title: 'Confirmer la validation du' + nouveau.chauffeur_update_type.name,
@@ -137,7 +231,7 @@
                     cancelButtonText: 'Annuler',
                     width: '700px',
                     preConfirm: () => {
-                        if (updateType == 2 || updateType == 3) {
+                        if (updateType == 2 || updateType == 3 ) {
                             const rfidValue = document.getElementById('rfidInput').value.trim();
                             if (rfidValue === '') {
                                 Swal.showValidationMessage('Le champ RFID est requis.');
@@ -145,12 +239,35 @@
                             }
                             return { rfid: rfidValue }; // Retourne le RFID saisi
                         }
+
+                        if (updateType == 5 ) {
+                            const rfidValue = document.getElementById('rfidInput').value.trim();
+                            if (rfidValue === '') {
+                                Swal.showValidationMessage('Le champ RFID est requis.');
+                                return false; // Bloque la validation si le RFID est vide
+                            }
+                            return { rfid: rfidValue }; // Retourne le RFID saisi
+                        }
+                        if (updateType == 5 && nouveau.rfid_physique == null) {
+                            const rfidValue = document.getElementById('rfidInput').value.trim();
+                            const rfidPhysiqueValue = document.getElementById('rfidphysiqueInput').value.trim();
+                            if (rfidValue === '') {
+                                Swal.showValidationMessage('Le champ RFID est requis.');
+                                return false; // Bloque la validation si le RFID est vide
+                            }
+                            if (rfidPhysiqueValue === '') {
+                                Swal.showValidationMessage('Le champ RFID PHYSIQUE est requis.');
+                                return false; // Bloque la validation si le RFID est vide
+                            }
+                            return { rfid: rfidValue , rfidphysique:rfidPhysiqueValue  }; // Retourne le RFID saisi
+                        }
                         return true;
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const rfidValue = result.value?.rfid || null; // Récupérer le RFID si présent
-    
+                        const rfidPhysiqueValue = result.value?.rfidphysique || null; // Récupérer le RFID si présent
+
                         // Faire la requête AJAX pour valider
                         fetch("{{ route('chauffeurUpdateStorie.validation') }}", {
                             method: 'POST',
@@ -161,7 +278,9 @@
                             body: JSON.stringify({
                                 id: chauffeurId,
                                 validation: true,
-                                rfid: rfidValue // Ajouter le RFID si saisi
+                                chauffeur_update_type: updateType,
+                                rfid: rfidValue ,
+                                rfidPhysique: rfidPhysiqueValue ,
                             })
                         })
                         .then(response => response.json())

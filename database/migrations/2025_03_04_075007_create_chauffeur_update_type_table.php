@@ -17,6 +17,7 @@ class CreateChauffeurUpdateTypeTable extends Migration
         Schema::create('chauffeur_update_type', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->timestamps();
             $table->softDeletes();
         });
     }

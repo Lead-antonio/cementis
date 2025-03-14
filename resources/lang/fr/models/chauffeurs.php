@@ -7,6 +7,7 @@ return array (
   array (
     'id' => 'Id',
     'old_nom' => 'Ancien nom',
+    'nom' => 'nom',
     'new_nom' => 'Nouveau nom',
     'rfid' => 'Rfid',
     'contact' => 'Contact',
