@@ -73,6 +73,7 @@ class ImportExcelDataTable extends DataTable
             'name_importation' => new Column(['title' => __('models/importExcels.fields.name_importation'), 'data' => 'name_importation']),
             // 'rfid_chauffeur' => new Column(['title' => __('models/importExcels.fields.rfid_chauffeur'), 'data' => 'rfid_chauffeur']),
             'camion' => new Column(['title' => __('models/importExcels.fields.camion'), 'data' => 'camion']),
+            'badge_chauffeur' => new Column(['title' => __('models/importExcels.fields.badge_chauffeur'), 'data' => 'badge_chauffeur']),
             'date_debut' => new Column([
                 'title' => __('models/importExcels.fields.date_debut'), 'data' => 'date_debut',
                 'render' => 'function() {

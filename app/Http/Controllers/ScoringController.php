@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\ScoringDataTable;
+use App\DataTables\DriverHaveNotScoringDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateScoringRequest;
 use App\Http\Requests\UpdateScoringRequest;
@@ -16,6 +17,8 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use App\Models\Penalite;
 use App\Models\Scoring;
+use App\Models\Chauffeur;
+use App\Models\ChauffeurUpdate;
 use App\Models\ImportExcel;
 use App\Models\Importcalendar;
 use Maatwebsite\Excel\Facades\Excel;
@@ -111,20 +114,112 @@ class ScoringController extends AppBaseController
 
         $import_calendar = Importcalendar::all();
         $alphaciment_driver = 'oui';
-        $camionsImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
-        ->pluck('camion') // Récupère uniquement la colonne "camion"
+        $badge_calendars = ImportExcel::where('import_calendar_id', $selectedPlanning)
+        ->distinct()
+        ->pluck('badge_chauffeur') // Récupère uniquement la colonne "camion"
+        ->unique()
         ->toArray();
 
-        $query = Scoring::where('id_planning', $selectedPlanning);
-        $query->where(function ($q) use ($camionsImport) {
-            foreach ($camionsImport as $camion) {
-                $q->orWhere('camion', 'LIKE', "%{$camion}%");
-            }
+        // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
+        $scoringBadge = Scoring::where('id_planning', $selectedPlanning)
+        ->with('driver.latestUpdate') // Charger la dernière mise à jour des chauffeurs
+        ->get();
+
+        // Filtrer les Scoring en fonction des badges (mis à jour ou actuel)
+        $scoring = $scoringBadge->filter(function ($scoring) use ($badge_calendars) {
+            // Récupérer le badge du chauffeur (mettre à jour ou actuel)
+            $badge = $scoring->driver->latestUpdate ? $scoring->driver->latestUpdate->numero_badge : $scoring->driver->numero_badge;
+
+            // Vérifier si le badge du chauffeur est présent dans la liste des badges
+            return in_array(trim($badge), $badge_calendars);
         });
-        $scoring = $query->orderBy('point', 'desc')->get();
-        
+                
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
     }
+
+    // Antonio
+    // List of driver having a scoring
+    public function driver_have_not_scoring(DriverHaveNotScoringDataTable $dataTable, Request $request){
+        $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
+
+        $badge_calendars = ImportExcel::where('import_calendar_id', $selectedPlanning)
+        ->distinct()
+        ->pluck('badge_chauffeur')
+        ->unique()
+        ->toArray();
+
+        $badge_calendars = array_map('trim', $badge_calendars);
+
+        $scoringBadge = Scoring::where('id_planning', $selectedPlanning)
+            ->with('driver.latestUpdate')
+            ->get();
+
+        // Créer un tableau avec les badges des chauffeurs
+        $badges_scoring = $scoringBadge->map(function($scoring) {
+            if ($scoring->driver->latestUpdate) {
+                // Retourner le badge de la mise à jour, si elle existe
+                return $scoring->driver->latestUpdate->numero_badge;
+            }
+            
+            return $scoring->driver->numero_badge;
+        })->toArray();
+
+        // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
+        $badge_not_in_scoring = array_diff($badge_calendars, $badges_scoring);
+        $data = $this->checkBadgesExist($badge_not_in_scoring);
+        
+
+        return $dataTable->with(['data' => $data])->render('scorings.driver_have_not_scoring');
+    }
+
+    public function checkBadgesExist(array $badges) {
+        // Tableau pour stocker les résultats
+        $result = [];
+
+        // Vérifier chaque badge
+        foreach ($badges as $badge) {
+            // Chercher le chauffeur dans la table chauffeur
+            $chauffeur = Chauffeur::where('numero_badge', $badge)->first();
+
+            // Si le chauffeur est trouvé
+            if ($chauffeur) {
+                // Récupérer la dernière mise à jour du chauffeur s'il y en a une
+                $latestUpdate = $chauffeur->latestUpdate()->first(); // Chercher la dernière mise à jour
+
+                // Si une mise à jour existe
+                if ($latestUpdate) {
+                    $result[] = [
+                        'id' => $latestUpdate->chauffeur_id,
+                        'nom' => $latestUpdate->nom,
+                        'numero_badge' => $latestUpdate->numero_badge ?? $chauffeur->numero_badge,
+                        'observation' => 'Présent dans la base (chauffeur update)',
+                        'update' => true
+                    ];
+                } else {
+                    // Sinon, l'observation est basée sur le chauffeur directement
+                    $result[] = [
+                        'id' => $chauffeur->id,
+                        'nom' => $chauffeur->nom,
+                        'numero_badge' => $chauffeur->numero_badge,
+                        'observation' => 'Présent dans la base (chauffeur)',
+                        'update' => true,
+                    ];
+                }
+            } else {
+                // Si le chauffeur n'est pas trouvé, observation "pas dans la base"
+                $result[] = [
+                    'id' => null,
+                    'nom' => null,
+                    'numero_badge' => $badge,
+                    'observation' => 'Badge non identifié',
+                    'update' => false,
+                ];
+            }
+        }
+
+        return $result;
+    }
+    
 
     // Antonio
     // Comment on scoring card

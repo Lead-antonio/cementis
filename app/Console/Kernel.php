@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
         \App\Console\Commands\Calendar\CheckCalendar::class,
+        \App\Console\Commands\Calendar\CheckReposCalendar::class,
         \App\Console\Commands\Calendar\CheckDriverInCalendar::class,
         \App\Console\Commands\Infraction\CheckInfraction::class,
         \App\Console\Commands\Events\GetEvent::class,

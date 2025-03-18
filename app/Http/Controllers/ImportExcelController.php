@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DataTables\ImportExcelDataTable;
+use App\DataTables\BadgeDetailDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateImportExcelRequest;
 use App\Http\Requests\UpdateImportExcelRequest;
@@ -64,6 +65,24 @@ class ImportExcelController extends AppBaseController
         }
 
         return $importExcelDataTable->render('import_excels.index');
+    }
+
+
+    public function count_badge_in_calendar(BadgeDetailDataTable $dataTable, Request $request)
+    {
+        $id_planning = $request->id_planning  ?? DB::table('import_calendar')->latest('id')->value('id');
+
+        $drivers_badge_in_calendars = ImportExcel::where('import_calendar_id', $id_planning)
+            ->distinct()
+            ->pluck('badge_chauffeur')
+            ->filter()
+            ->unique()
+            ->toArray();
+
+        $badge_numbers = $drivers_badge_in_calendars;
+        $badge_numbers = array_map(fn($badge_chauffeur) => ['badge_chauffeur' => $badge_chauffeur], $badge_numbers);
+        // dd($badge_numbers); 
+        return $dataTable->with(['data' => $badge_numbers])->render('import_excels.badge_calendar');
     }
 
 

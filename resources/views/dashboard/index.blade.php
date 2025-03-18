@@ -185,12 +185,12 @@
             </div>
 
             <div class="col-md-3">
-                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
+                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none">
                     <div class="card card-custom chauffeur">
                         <div class="card-body card-body-chauffeurs">
                             <div>
                                 <h4 class="card-title-custom">Véhicules dans le calendrier</h4>
-                                <h3>{{ $driver_in_calendar }}</h3>
+                                <h3>{{ $truck_in_calendar }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -220,11 +220,11 @@
             </div>
             <!-- Deuxième ligne -->
             <div class="col-md-4">
-                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none">
+                <a href="{{ route('detail.driver-have-not-scoring') }}" class="text-decoration-none">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
-                                <h4 class="card-title-custom">Nombre de véhicules sans score</h4>
+                                <h4 class="card-title-custom">Nombre de chauffeur sans score</h4>
                                 <h3>{{ $driver_not_has_score }}</h3>
                             </div>
                             <div class="icon-container">
@@ -238,7 +238,7 @@
             
         
             <div class="col-md-4">
-                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none">
+                <a href="{{ route('detail.badge-calendar') }}" class="text-decoration-none">
                     <div class="card card-custom badge">
                         <div class="card-body card-body-custom">
                             <div>
@@ -455,9 +455,10 @@
     document.addEventListener("DOMContentLoaded", function() {
         let select = document.getElementById("planning");
         let links = {
-            "truck-not-having-scoring": "{{ route('detail.truck-have-not-scoring') }}",
-            "truck-having-scoring": "{{ route('detail.driver-has-scoring') }}",
+            "driver-not-having-scoring": "{{ route('detail.driver-have-not-scoring') }}",
+            "driver-having-scoring": "{{ route('detail.driver-has-scoring') }}",
             "truck-in-calendar": "{{ route('detail.truck-calendar') }}",
+            "badge-in-calendar": "{{ route('detail.badge-calendar') }}",
         };
 
         function updateLinks() {

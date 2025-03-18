@@ -83,9 +83,13 @@ class CalendarService
             $endDate = clone $startDate;
             // Définir la date de fin au dernier jour du mois
             $endDate->modify('last day of this month')->setTime(23, 59, 59);
+
+            // Liste des infractions concernées
+            $ExcluEvents = ['Temps de repos hebdomadaire', 'Temps de repos minimum après une journée de travail'];
     
             $calendars = ImportExcel::where('import_calendar_id', $planning->id)->get();
-            $infractions = Infraction::whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            $infractions = Infraction::whereNotIn('event', $ExcluEvents)
+                                     ->whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->whereBetween('date_fin', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->get();
     

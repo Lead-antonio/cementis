@@ -408,13 +408,11 @@ class ConduiteContinueService
             // Récupération des calendriers
             $calendars = ImportExcel::whereIn('camion', $truckNames)
                 ->where('import_calendar_id', $lastmonth)
-                ->where('date_fin', '<=', $lastDayTwoMonthsAgo)
                 ->orderBy('date_debut', 'asc') // ou 'desc' pour ordre décroissant
                 ->get();
-            
+        
             $data_infraction = [];
             $data_journeys = [];
-
 
             foreach($calendars as $calendar){
                 $imei = $truckData->get(trim($calendar->camion));

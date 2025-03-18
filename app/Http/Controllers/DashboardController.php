@@ -51,10 +51,10 @@ class DashboardController extends Controller
         $data['best_scoring'] = getAllGoodScoring($selectedPlanning);
         $data['bad_scoring'] = getAllBadScoring($selectedPlanning);
         
-        $data['driver_has_score'] = $this->count_truck_has_scoring($selectedPlanning);
-        $data['driver_not_has_score'] = $this->count_truck_not_has_scoring($selectedPlanning);  
+        $data['driver_has_score'] = $this->driver_has_scoring($selectedPlanning);
+        $data['driver_not_has_score'] = $this->driver_not_have_scoring($selectedPlanning);  
         $data['driver_not_fix'] = $this->driver_not_fix();
-        $data['driver_in_calendar'] = $this->count_truck_in_calendar($selectedPlanning);
+        $data['truck_in_calendar'] = $this->count_truck_in_calendar($selectedPlanning);
         $data['drivers_badge_in_calendars'] = $this->count_badge_number_in_calendar($selectedPlanning);
         
         if ($request->ajax()) {
@@ -126,7 +126,6 @@ class DashboardController extends Controller
     }
 
 
-    
     public function count_truck_in_calendar($id_planning)
     {
         $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
@@ -152,7 +151,60 @@ class DashboardController extends Controller
         return $repartitionChauffeurs;
     }
 
-    public function driver_has_scoring(){
+    public function driver_has_scoring($id_planning){
+         // Récupérer les camions uniques depuis ImportExcel
+         $badge_calendars = ImportExcel::where('import_calendar_id', $id_planning)
+         ->distinct()
+         ->pluck('badge_chauffeur')
+         ->unique()
+         ->toArray();
+
+        $badge_calendars = array_map('trim', $badge_calendars);
+        
+        $scoringBadge = Scoring::where('id_planning', $id_planning)
+            ->with('driver.latestUpdate')
+            ->get();
+
+        // Créer un tableau avec les badges des chauffeurs
+        $badges_scoring = $scoringBadge->map(function($scoring) {
+            return $scoring->driver->latestUpdate ? $scoring->driver->latestUpdate->numero_badge : $scoring->driver->numero_badge;
+        })->toArray();
+
+        $badge_has_scoring = array_intersect($badge_calendars, $badges_scoring);
+        
+
+        return count(array_unique($badge_has_scoring));
+    }
+
+    public function driver_not_have_scoring($id_planning){
+        // Récupérer les badges des chauffeurs depuis ImportExcel
+        $badge_calendars = ImportExcel::where('import_calendar_id', $id_planning)
+        ->distinct()
+        ->pluck('badge_chauffeur')
+        ->unique()
+        ->toArray();
+
+        $badge_calendars = array_map('trim', $badge_calendars);
+
+        $scoringBadge = Scoring::where('id_planning', $id_planning)
+            ->with('driver.latestUpdate')
+            ->get();
+
+        // Créer un tableau avec les badges des chauffeurs
+        $badges_scoring = $scoringBadge->map(function($scoring) {
+            if ($scoring->driver->latestUpdate) {
+                // Retourner le badge de la mise à jour, si elle existe
+                return $scoring->driver->latestUpdate->numero_badge;
+            }
+            
+            return $scoring->driver->numero_badge;
+        })->toArray();
+
+        // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
+        $badge_not_in_scoring = array_diff($badge_calendars, $badges_scoring);
+
+        // Compter et retourner le nombre de badges qui ne sont pas dans scoring
+        return count($badge_not_in_scoring);
 
     }
 
@@ -163,7 +215,7 @@ class DashboardController extends Controller
             ->filter()
             ->unique()
             ->toArray();
-            
+           
         return count($drivers_badge_in_calendars) ?? 0;
     }
 }

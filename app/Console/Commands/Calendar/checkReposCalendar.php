@@ -7,21 +7,21 @@ use App\Services\CalendarService;
 use App\Models\ImportCalendar;
 use Illuminate\Support\Facades\DB;
 
-class checkCalendar extends Command
+class checkReposCalendar extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'check:calendar';
+    protected $signature = 'check:repos-calendar';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Matching Event with calendar';
+    protected $description = 'Matching Event Repos with calendar';
 
     /**
      * Create a new command instance.
@@ -46,7 +46,7 @@ class checkCalendar extends Command
 
 
         $calendarService = new CalendarService();
-        $calendarService->checkCalendar($this, $planning);
+        $calendarService->checkTempsReposInfractions($this, $planning);
 
         $this->info('Process completed!');
     }
