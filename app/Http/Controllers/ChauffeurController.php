@@ -112,7 +112,7 @@ class ChauffeurController extends AppBaseController
      */
     public function store(Request $request)
     {
-            try{
+        try{
             // $input = $request->all();
 
             // $chauffeur = $this->chauffeurRepository->create($input);
@@ -138,12 +138,11 @@ class ChauffeurController extends AppBaseController
         
             Notification::send($admins, new CreateChauffeurInfoNotification($chauffeur_info_->modifier->name,$chauffeur_info_->nom));
 
-            Alert::success(__('messages.saved', ['model' => __('Votre demande de création a été envoyé')]));
-            // Session::put('success', 'success');
+            Alert::success('Succès', 'Votre demande de création a été envoyé!');
 
             return redirect(route('chauffeurs.index'));
         }catch(Exception $e){
-            Alert::error(__('messages.saved', ['model' => __('Erreur :' .$e->getMessage())]));
+            Alert::error('Erreur','Erreur :' . $e->getMessage());
             return redirect(route('chauffeurs.index'));
         }
     }
@@ -192,6 +191,7 @@ class ChauffeurController extends AppBaseController
             'numero_badge' => $chauffeur->numero_badge,
             'date_installation' => $chauffeur->created_at, // On suppose que le chauffeur de base a été créé à cette date
             'transporteur_id' => $chauffeur->transporteur_id, // On suppose que le chauffeur de base a été créé à cette date
+            'contact' => $chauffeur->contact, // On suppose que le chauffeur de base a été créé à cette date
         ]);
     
         // Ajouter le chauffeur de base à la liste des mises à jour
@@ -334,6 +334,7 @@ class ChauffeurController extends AppBaseController
 
     /**
      * Fonction qui recupere la demande de suppression d'un chauffeur 
+     * jonny
      *
      * @param int $id
      *
@@ -351,7 +352,7 @@ class ChauffeurController extends AppBaseController
 
         $modifier_id = Auth::id(); 
         $input_ = [
-            "chauffeur_update_type_id" => 5,
+            "chauffeur_update_type_id" => 4,
             "nom" => $chauffeur->nom,
             "rfid" =>  $chauffeur->rfid,
             "transporteur_id" => $chauffeur->transporteur_id,
@@ -369,8 +370,7 @@ class ChauffeurController extends AppBaseController
             ->with(['chauffeur', 'chauffeur.related_transporteur', 'chauffeur_update_type', 'transporteur', 'modifier'])
             ->get()
             ->toArray();
-        
-                    
+
         // Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
         //     ->send(new ChauffeurDeleteMail($chauffeur_info));   
 
@@ -383,7 +383,7 @@ class ChauffeurController extends AppBaseController
     
         Notification::send($admins, new DeleteChauffeurInfoNotification($chauffeur_info_->modifier->name,$chauffeur_info_->nom));
         
-        Alert::success(__('Votre demande de suppression a été envoyée.'));
+        Alert::success('Succés','Votre demande de suppression a été envoyée.');
 
         return redirect(route('chauffeurs.index'));
     }

@@ -31,12 +31,12 @@
     @endcan --}}
 
     @can('chauffeurs.destroy')    
-    @if(Auth::user()->hasRole("supper-admin"))
+    {{-- @if(Auth::user()->hasRole("supper-admin")) --}}
         <button type="button" class="btn btn-danger btn-xs" 
                 onclick="confirmDelete('{{ route('chauffeur.deleteSending') }}', {{ $id }})">
             <i class="fa fa-trash"></i>
         </button>
-    @endif
+    {{-- @endif --}}
 @endcan
 
 

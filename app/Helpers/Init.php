@@ -6,12 +6,17 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Event;
 use App\Models\Chauffeur;
+use App\Models\ChauffeurUpdateStory;
 use App\Models\Vehicule;
 use App\Models\Penalite;
 use App\Models\PenaliteChauffeur;
 use App\Models\GroupeEvent;
 use App\Models\Transporteur;
 use App\Models\Infraction;
+use App\Models\User;
+use App\Notifications\ValidationChauffeurNotification;
+use Illuminate\Support\Facades\Notification;
+
 
 if (!function_exists('fast_trans')) {
 
@@ -2245,3 +2250,18 @@ if(!function_exists('getInfractionWithmaximumPoint')){
 
 
 
+
+if (!function_exists('NotificationValidation')) {
+
+    function NotificationValidation($message,$modifier_id)
+    {
+        $admin = User::where('id',$modifier_id)->whereHas('roles', function ($query) {
+            $query->where('name', 'operator');
+        })->first();
+        
+        if($admin){
+            Notification::send($admin, new ValidationChauffeurNotification($message));
+        }
+        
+    }
+}

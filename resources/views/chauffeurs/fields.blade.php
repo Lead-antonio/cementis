@@ -37,7 +37,7 @@
 
 <div class="form-group col-sm-6">
     {!! Form::label('numero_badge', __('models/chauffeurs.fields.numero_badge').':', ['class' => 'required']) !!}
-    {!! Form::text('numero_badge', null, ['class' => 'form-control','placeholder'=>'Numéro du badge']) !!}
+    {!! Form::text('numero_badge', null, ['class' => 'form-control','placeholder'=>'Numéro du badge' ,'required'=> 'required']) !!}
 </div>
 
 <!-- Nom Field -->
@@ -46,5 +46,5 @@
 <!-- Contact Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('contact', __('models/chauffeurs.fields.contact').':') !!}
-    {!! Form::text('contact', null, ['class' => 'form-control','placeholder'=>'Numéro téléphone']) !!}
+    {!! Form::text('contact', null, ['class' => 'form-control','placeholder'=>'Numéro téléphone','required'=> 'required']) !!}
 </div>

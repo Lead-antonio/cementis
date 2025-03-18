@@ -30,7 +30,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         $selectedPlanning = $this->planning ?? DB::table('import_calendar')->latest('id')->value('id');
 
         // Définir la requête de base pour récupérer les scorings
-        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver', 'transporteur']);
+        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver','driver.latestUpdate', 'transporteur']);
 
         // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
         if ($this->alphaciment_driver !== null) {
@@ -52,12 +52,11 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                     }
                 }); // Exclure ces camions
             }
-
         }
         
         return $query->get()->map(function($scoring) {
             return [
-                'Chauffeur' => $scoring->driver->nom ?? '',
+                'Chauffeur' => optional($scoring->driver->latestUpdate)->nom ?? optional($scoring->driver)->nom ?? '',
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,

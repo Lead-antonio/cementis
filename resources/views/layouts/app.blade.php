@@ -71,8 +71,7 @@
                         🔔
                     </a>
 
-
-                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static" style="width: 646px;">
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static" style="width: 646px; max-height: 400px; overflow-y: auto;">
                         <div class="dropdown-header">Notifications</div>
                         @forelse (Auth::user()->unreadNotifications as $notification)
 
@@ -655,7 +654,11 @@
         }
     }
 
-
+    .dropdown-menu {
+        max-height: 400px; /* Ajuste la hauteur maximale selon ton besoin */
+        overflow-y: auto;  /* Active le scroll si le contenu dépasse la hauteur max */
+        width: 646px;      /* Garde la largeur actuelle */
+    }
    
     
  </style>

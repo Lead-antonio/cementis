@@ -64,7 +64,6 @@ class UserController extends AppBaseController
 
         $role_data = $request->get('role_data');
         $user->syncRoles($role_data);
-        Flash::success('User saved successfully.');
 
         return redirect(route('users.index'));
     }
