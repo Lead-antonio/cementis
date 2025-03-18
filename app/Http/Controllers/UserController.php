@@ -9,9 +9,10 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Repositories\UserRepository;
 use App\Repositories\RoleRepository;
-use Flash;
 use App\Http\Controllers\AppBaseController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Flash;
 use Response;
 
 class UserController extends AppBaseController
@@ -62,8 +63,19 @@ class UserController extends AppBaseController
         
         $user = $this->userRepository->create($input);
 
-        $role_data = $request->get('role_data');
-        $user->syncRoles($role_data);
+        // $role_data = $request->get('role_data');
+        // $user->syncRoles($role_data);
+        // Récupérer les IDs des rôles depuis la requête
+        $role_ids = $request->get('role_data', []);
+
+        // Insérer les rôles dans la table model_has_role
+        foreach ($role_ids as $role_id) {
+            DB::table('model_has_roles')->insert([
+                'role_id' => $role_id,
+                'model_type' => get_class($user),
+                'model_id' => $user->id,
+            ]);
+        }
 
         return redirect(route('users.index'));
     }
