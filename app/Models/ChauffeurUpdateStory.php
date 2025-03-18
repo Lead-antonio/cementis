@@ -19,6 +19,9 @@ class ChauffeurUpdateStory extends Model
 {
     use SoftDeletes;
 
+    const VALIDATION_EN_ATTENTE = 1;
+    const VALIDATION_VALIDEE = 2;
+    const VALIDATION_REFUSEE = 3;
 
     public $table = 'chauffeur_update_story';
     
@@ -56,8 +59,7 @@ class ChauffeurUpdateStory extends Model
         'numero_badge' => 'string',
         'rfid_physique' => 'string',
         'transporteur_id' => 'integer',
-        'validation' => 'boolean',
-
+        'validation' => 'integer',
     ];
 
     /**

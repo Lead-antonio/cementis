@@ -4,9 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateChauffeurUpdateTypeTable extends Migration
+class UpdateValidationColumnInChauffeurUpdateStory extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -14,11 +13,8 @@ class CreateChauffeurUpdateTypeTable extends Migration
      */
     public function up()
     {
-        Schema::create('chauffeur_update_type', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('chauffeur_update_story', function (Blueprint $table) {
+            $table->integer('validation')->default(1)->change();
         });
     }
 
@@ -29,6 +25,8 @@ class CreateChauffeurUpdateTypeTable extends Migration
      */
     public function down()
     {
-        Schema::drop('chauffeur_update_type');
+        Schema::table('chauffeur_update_story', function (Blueprint $table) {
+            $table->boolean('validation')->default(false)->change();
+        });
     }
 }
