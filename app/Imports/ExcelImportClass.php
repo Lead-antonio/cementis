@@ -53,6 +53,7 @@ class ExcelImportClass implements ToCollection
                 'sigdep_reel' => isset($values[4]) ? $values[4] : null,
                 'marche' => isset($values[5]) ? $values[5] : null,
                 'adresse_livraison' => isset($values[6]) ? $values[6] : null,
+                'badge_chauffeur' => isset($values[7]) ? $values[7] : null,
                 'import_calendar_id' => $this->import_calendar_id
             ]);
             

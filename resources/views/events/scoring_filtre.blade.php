@@ -32,11 +32,11 @@
                                 @endif
                             </td>
                             <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
-                            <td style="text-align: center;">{{  $item->camion  }}</td>
+                            <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td>
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
-                                    $isTruckinCalendarChecked = checkTruckinCalendar($selectedPlanning, $item->camion);
+                                    $isTruckinCalendarChecked = checkTruckinCalendar($selectedPlanning, getTruckByImei($item->camion));
                                     if ($isTruckinCalendarChecked) {
                                         $countCheckedTrucks++; // Incrémentation si le camion est présent dans le calendrier
                                     }

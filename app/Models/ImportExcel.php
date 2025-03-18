@@ -38,6 +38,7 @@ class ImportExcel extends Model
     public $fillable = [
         'name_importation',
         'rfid_chauffeur',
+        'badge_chauffeur',
         'camion',
         'date_debut',
         'date_fin',
@@ -59,6 +60,7 @@ class ImportExcel extends Model
         'id' => 'integer',
         'name_importation' => 'string',
         'rfid_chauffeur' => 'string',
+        'badge_chauffeur' => 'string',
         'camion' => 'string',
         'date_debut' => 'string',
         'date_fin' => 'string',

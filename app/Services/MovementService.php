@@ -256,38 +256,84 @@ class MovementService
                         foreach ($drive_and_stops['drives'] ?? [] as $drive) {
                             $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
                             $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
+                            $exists = DB::table('movement')
+                            ->where('imei', $truck->imei)
+                            ->where('rfid', $drive_and_stops['rfid'])
+                            ->where('start_date', $drive_start_date)
+                            ->where('end_date', $drive_end_date)
+                            ->where('start_hour', $drive_start_date->format('H:i:s'))
+                            ->where('end_hour', $drive_end_date->format('H:i:s'))
+                            ->where('type', 'DRIVE')
+                            ->exists();
+                            if (!$exists) {
+                                DB::table('movement')->insert([
+                                    'imei' => $truck->imei,
+                                    'rfid' => $drive_and_stops['rfid'],
+                                    'start_date' => $drive_start_date,
+                                    'end_date' => $drive_end_date,
+                                    'start_hour' => $drive_start_date->format('H:i:s'),
+                                    'end_hour' => $drive_end_date->format('H:i:s'),
+                                    'duration' => $utils->convertDurationToTime($drive['duration']),
+                                    'type' => 'DRIVE',
+                                    'created_at' => new \DateTime(),
+                                    'updated_at' => new \DateTime(),
+                                ]);
+                            }
 
-                            $insertData[] = [
-                                'imei' => $truck->imei,
-                                'rfid' => $drive_and_stops['rfid'],
-                                'start_date' => $drive_start_date->format('Y-m-d'),
-                                'end_date' => $drive_end_date->format('Y-m-d'),
-                                'start_hour' => $drive_start_date->format('H:i:s'),
-                                'end_hour' => $drive_end_date->format('H:i:s'),
-                                'duration' => $utils->convertDurationToTime($drive['duration']),
-                                'type' => 'DRIVE',
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ];
+                            // $insertData[] = [
+                            //     'imei' => $truck->imei,
+                            //     'rfid' => $drive_and_stops['rfid'],
+                            //     'start_date' => $drive_start_date->format('Y-m-d'),
+                            //     'end_date' => $drive_end_date->format('Y-m-d'),
+                            //     'start_hour' => $drive_start_date->format('H:i:s'),
+                            //     'end_hour' => $drive_end_date->format('H:i:s'),
+                            //     'duration' => $utils->convertDurationToTime($drive['duration']),
+                            //     'type' => 'DRIVE',
+                            //     'created_at' => now(),
+                            //     'updated_at' => now(),
+                            // ];
                         }
 
                         // Traitement des "stops"
                         foreach ($drive_and_stops['stops'] ?? [] as $stop) {
                             $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
                             $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
+                            $exists = DB::table('movement')
+                            ->where('imei', $truck->imei)
+                            ->where('rfid', $drive_and_stops['rfid'])
+                            ->where('start_date', $stop_start_date)
+                            ->where('end_date', $stop_end_date)
+                            ->where('start_hour', $stop_start_date->format('H:i:s'))
+                            ->where('end_hour', $stop_end_date->format('H:i:s'))
+                            ->where('type', 'STOP')
+                            ->exists();
+                            if (!$exists) {
+                                DB::table('movement')->insert([
+                                    'imei' => $truck->imei,
+                                    'rfid' => $drive_and_stops['rfid'],
+                                    'start_date' => $stop_start_date,
+                                    'end_date' => $stop_end_date,
+                                    'start_hour' => $stop_start_date->format('H:i:s'),
+                                    'end_hour' => $stop_end_date->format('H:i:s'),
+                                    'duration' => $utils->convertDurationToTime($stop['duration']),
+                                    'type' => 'STOP',
+                                    'created_at' => new \DateTime(),
+                                    'updated_at' => new \DateTime(),
+                                ]);
+                            }
 
-                            $insertData[] = [
-                                'imei' => $truck->imei,
-                                'rfid' => $drive_and_stops['rfid'],
-                                'start_date' => $stop_start_date->format('Y-m-d'),
-                                'end_date' => $stop_end_date->format('Y-m-d'),
-                                'start_hour' => $stop_start_date->format('H:i:s'),
-                                'end_hour' => $stop_end_date->format('H:i:s'),
-                                'duration' => $utils->convertDurationToTime($stop['duration']),
-                                'type' => 'STOP',
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ];
+                            // $insertData[] = [
+                            //     'imei' => $truck->imei,
+                            //     'rfid' => $drive_and_stops['rfid'],
+                            //     'start_date' => $stop_start_date->format('Y-m-d'),
+                            //     'end_date' => $stop_end_date->format('Y-m-d'),
+                            //     'start_hour' => $stop_start_date->format('H:i:s'),
+                            //     'end_hour' => $stop_end_date->format('H:i:s'),
+                            //     'duration' => $utils->convertDurationToTime($stop['duration']),
+                            //     'type' => 'STOP',
+                            //     'created_at' => now(),
+                            //     'updated_at' => now(),
+                            // ];
                         }
 
                     } catch (\Exception $e) {
@@ -297,9 +343,9 @@ class MovementService
             });
 
             // Insertion en batch une seule fois
-            if (!empty($insertData)) {
-                DB::table('movement')->insert($insertData);
-            }
+            // if (!empty($insertData)) {
+            //     DB::table('movement')->insert($insertData);
+            // }
 
             $console->info('Tous les mouvements ont été enregistrés avec succès.');
 

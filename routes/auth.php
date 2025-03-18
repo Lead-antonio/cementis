@@ -113,9 +113,13 @@ Route::get('/ajax/scoringdriver', 'App\Http\Controllers\ScoringController@Filter
 
 Route::get('/detail/driver-has-scoring', 'App\Http\Controllers\ScoringController@driver_has_scoring')->name('detail.driver-has-scoring');
 
+Route::get('/detail/driver-have-not-scoring', 'App\Http\Controllers\ScoringController@driver_have_not_scoring')->name('detail.driver-have-not-scoring');
+
 Route::get('/detail/truck-have-not-scoring', 'App\Http\Controllers\VehiculeController@count_driver_not_has_scoring')->name('detail.truck-have-not-scoring');
 
 Route::get('/detail/truck-calendar', 'App\Http\Controllers\VehiculeController@count_car_in_calendar')->name('detail.truck-calendar');
+
+Route::get('/detail/badge-calendar', 'App\Http\Controllers\ImportExcelController@count_badge_in_calendar')->name('detail.badge-calendar');
 
 Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 

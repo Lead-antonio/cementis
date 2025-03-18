@@ -8,6 +8,7 @@ return array (
     'id' => 'Id',
     'name_importation' => 'Nom',
     'rfid_chauffeur' => 'Chauffeur',
+    'badge_chauffeur' => 'Chauffeur badge',
     'camion' => 'Camion',
     'date_debut' => 'Date Debut',
     'date_fin' => 'Date Fin',
