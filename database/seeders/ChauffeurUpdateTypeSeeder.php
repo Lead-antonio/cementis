@@ -16,7 +16,7 @@ class ChauffeurUpdateTypeSeeder extends Seeder
     {
         $types = [
             ['name' => 'Changement RFID pour la même personne', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Changement propriétaire', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Changement propriétaire RFID', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Changement de transporteur', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Suppression', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Creation', 'created_at' => now(), 'updated_at' => now()],
