@@ -44,7 +44,7 @@ class ChauffeurDataTable extends DataTable
 
     public function query(Chauffeur $model)
     {
-        return $this->query->with(['related_transporteur','chauffeur_update'])->select('chauffeur.*');
+        return $this->query->with(['related_transporteur','chauffeur_update','latestUpdate'])->select('chauffeur.*');
     }
 
     /**
@@ -81,17 +81,6 @@ class ChauffeurDataTable extends DataTable
         return [
             // 'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
             'ancien nom' => new Column(['title' => __('models/chauffeurs.fields.old_nom'), 'data' => 'nom',]),
-            // 'name' => 'chauffeur_update.nom',
-            // 'render' => function () {
-            //     return "
-            //         function(data, type, row) {
-            //             if (row.chauffeur_update && row.chauffeur_update.length > 0) {
-            //                 return row.chauffeur_update[0].nom; // Affiche le nom du dernier vehicule_update
-            //             }
-            //             return data; // Affiche le nom original du véhicule
-            //         }
-            //     ";
-            // }
             'nouveau nom' => new Column(['title'=> __('models/chauffeurs.fields.new_nom'), 
                 'name' => 'chauffeur_update.nom',
                 'render' => function () {
@@ -105,20 +94,95 @@ class ChauffeurDataTable extends DataTable
                     ";
                 }
             ]),
-            'rfid' => new Column(['title' => __('models/chauffeurs.fields.rfid_physique'), 'data' => 'rfid_physique']),
-            'rfid_physique' => new Column(['title' => __('models/chauffeurs.fields.rfid'), 'data' => 'rfid']),
-            'numero_badge' => new Column(['title' => __('models/chauffeurs.fields.numero_badge'), 'data' => 'numero_badge']),
-            'transporteur_id' => new Column([
-                'title' => __('models/chauffeurs.fields.transporteur_id'), 'data' => 'related_transporteur.nom',
-                'render' =>'function() {
-                    if(full.transporteur_id){
-                        return full.related_transporteur.nom;
-                    }else{
-                        return "Chauffeur non défini";
-                    }
-                }',
+
+            // function(data, type, row) {
+            //     if (row.chauffeur_update && row.chauffeur_update.length > 0) {
+            //         return row.chauffeur_update[0].nom;
+            //     }
+            //     return '';
+            // }
+
+            
+
+            'transporteur' => new Column([
+                'title' => __('models/chauffeurs.fields.transporteur_id'),
+                'name' => 'latestUpdate.transporteur_id',
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latestUpdate && row.latestUpdate.related_transporteur) {
+                                return row.latestUpdate.related_transporteur.nom;
+                            }
+                            if (row.related_transporteur) {
+                                return row.related_transporteur.nom;
+                            }
+                            return 'Chauffeur non défini';
+                        }
+                    ";
+                }
             ]),
-            // 'contact' => new Column(['title' => __('models/chauffeurs.fields.contact'), 'data' => 'contact'])
+            
+
+            'rfid' => new Column([
+                'title' => __('models/chauffeurs.fields.rfid'),
+                'name' => 'latestUpdate.rfid',
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latestUpdate) {
+                                return row.latestUpdate.rfid;
+                            }
+                            return row.rfid;
+                        }
+                    ";
+                }
+            ]),
+    
+            'rfid_physique' => new Column([
+                'title' => __('models/chauffeurs.fields.rfid_physique'),
+                'name' => 'latestUpdate.rfid_physique',
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latestUpdate) {
+                                return row.latestUpdate.rfid_physique;
+                            }
+                            return row.rfid_physique;
+                        }
+                    ";
+                }
+            ]),
+    
+            'numero_badge' => new Column([
+                'title' => __('models/chauffeurs.fields.numero_badge'),
+                'name' => 'latestUpdate.numero_badge',
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latestUpdate) {
+                                return row.latestUpdate.numero_badge;
+                            }
+                            return row.numero_badge;
+                        }
+                    ";
+                }
+            ]),
+    
+            // 'contact' => new Column([
+            //     'title' => __('models/chauffeurs.fields.contact'),
+            //     'name' => 'latestUpdate.contact',
+            //     'render' => function () {
+            //         return "
+            //             function(data, type, row) {
+            //                 if (row.latestUpdate) {
+            //                     return row.latestUpdate.contact;
+            //                 }
+            //                 return row.contact;
+            //             }
+            //         ";
+            //     }
+            // ]),
+    
         ];
     }
 

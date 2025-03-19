@@ -78,19 +78,21 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 ->where('transporteur_id', $transporteur->id)
                 ->first();
 
-                // $updateData = [];
+                $updateData = [];
 
-                // if (is_null($existsInChauffeur->rfid_physique)) {
-                //     $updateData['rfid_physique'] = $row['rfid_physique'];
-                // }
-            
-                // if (is_null($existsInChauffeur->numero_badge)) {
-                //     $updateData['numero_badge'] = $row['numero_badge'];
-                // }
-            
-                // if (!empty($updateData)) {
-                //     $existsInChauffeur->update($updateData);
-                // }
+                if($existsInChauffeur){
+                    if (is_null($existsInChauffeur->rfid_physique)) {
+                        $updateData['rfid_physique'] = $row['rfid_physique'];
+                    }
+                
+                    if (is_null($existsInChauffeur->numero_badge)) {
+                        $updateData['numero_badge'] = $row['numero_badge'];
+                    }
+                
+                    if (!empty($updateData)) {
+                        $existsInChauffeur->update($updateData);
+                    }
+                }
 
                 if ($existsInChauffeur) {
                     // Ajouter une erreur et ignorer l'insertion
