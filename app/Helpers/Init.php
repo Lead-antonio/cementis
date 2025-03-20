@@ -344,20 +344,42 @@ if(!function_exists('TotalScoringbyDriver')){
 if(!function_exists('getAllGoodScoring')){
     function getAllGoodScoring($lastmonth){
         
+        // $topMinScores = DB::table('scoring as s')
+        // ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
+        // ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
+        // ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
+        // ->leftJoin('chauffeur_updates as cu', function ($join) {
+        //     $join->on('c.id', '=', 'cu.chauffeur_id')
+        //         ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
+        // })
+        // ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
+        // ->whereColumn('ie.import_calendar_id', 's.id_planning')
+        // ->where('s.id_planning', $lastmonth) // Filtre par id_planning
+        // ->select('t.nom AS transporteur' ,DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
+        // 'c.nom as driver_link', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
+        // ->groupBy('s.driver_id', 's.camion', 'c.nom','cu.nom', 't.nom')
+        // ->orderBy('point', 'asc')
+        // ->limit(3)
+        // ->get();
+
         $topMinScores = DB::table('scoring as s')
-        ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
         ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
         ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
         ->leftJoin('chauffeur_updates as cu', function ($join) {
             $join->on('c.id', '=', 'cu.chauffeur_id')
-                ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
+                 ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
         })
         ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        ->whereColumn('ie.import_calendar_id', 's.id_planning')
-        ->where('s.id_planning', $lastmonth) // Filtre par id_planning
-        ->select('t.nom AS transporteur' ,DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
-        'c.nom as driver_link', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
-        ->groupBy('s.driver_id', 's.camion', 'c.nom','cu.nom', 't.nom')
+        ->where('s.id_planning', $lastmonth)  // Filtre par id_planning
+        ->select(
+            't.nom AS transporteur',
+            DB::raw('COALESCE(cu.nom, c.nom) AS driver'),
+            'c.nom as driver_link',
+            's.driver_id',
+            's.camion',
+            DB::raw('MAX(s.point) AS point')
+        )
+        ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
         ->orderBy('point', 'asc')
         ->limit(3)
         ->get();
@@ -382,29 +404,50 @@ if(!function_exists('getAllBadScoring')){
         // ->limit(3)
         // ->get();
 
+        // $topMaxScores = DB::table('scoring as s')
+        //     ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
+        //     ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
+        //     ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
+        //     ->leftJoin('chauffeur_updates as cu', function ($join) {
+        //         $join->on('c.id', '=', 'cu.chauffeur_id')
+        //             ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
+        //     })
+        //     ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
+        //     ->whereColumn('ie.import_calendar_id', 's.id_planning')
+        //     ->where('s.id_planning', $lastmonth)
+        //     ->select(
+        //         't.nom AS transporteur',
+        //          DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
+        //         'c.nom as driver_link',
+        //         's.driver_id',
+        //         's.camion',
+        //         DB::raw('MAX(s.point) AS point')
+        //     )
+        //     ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
+        //     ->orderBy('point', 'desc')
+        //     ->limit(3)
+        //     ->get();
         $topMaxScores = DB::table('scoring as s')
-            ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
-            ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-            ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-            ->leftJoin('chauffeur_updates as cu', function ($join) {
-                $join->on('c.id', '=', 'cu.chauffeur_id')
-                    ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
-            })
-            ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-            ->whereColumn('ie.import_calendar_id', 's.id_planning')
-            ->where('s.id_planning', $lastmonth)
-            ->select(
-                't.nom AS transporteur',
-                 DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
-                'c.nom as driver_link',
-                's.driver_id',
-                's.camion',
-                DB::raw('MAX(s.point) AS point')
-            )
-            ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
-            ->orderBy('point', 'desc')
-            ->limit(3)
-            ->get();
+        ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
+        ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
+        ->leftJoin('chauffeur_updates as cu', function ($join) {
+            $join->on('c.id', '=', 'cu.chauffeur_id')
+                 ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
+        })
+        ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
+        ->where('s.id_planning', $lastmonth)  // Filtre par id_planning
+        ->select(
+            't.nom AS transporteur',
+            DB::raw('COALESCE(cu.nom, c.nom) AS driver'),
+            'c.nom as driver_link',
+            's.driver_id',
+            's.camion',
+            DB::raw('MAX(s.point) AS point')
+        )
+        ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
+        ->orderBy('point', 'desc')
+        ->limit(3)
+        ->get();
         
         
         return $topMaxScores;
