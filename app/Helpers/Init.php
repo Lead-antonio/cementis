@@ -2268,11 +2268,20 @@ if(!function_exists('checkTruckinCalendar')){
             // Prendre le camion tel quel (cas des immatriculations normales)
             $immatriculation = $camion;
         }
-        // $exists = ImportExcel::where('import_calendar_id', $id_planning)
-        //                   ->where('camion', $camion)
-        //                   ->exists();
         $exists = ImportExcel::where('import_calendar_id', $id_planning)
                      ->where('camion', 'LIKE', '%'. $immatriculation .'%') // Recherche en début de chaîne
+                     ->exists();
+
+
+        return $exists ? true : false;
+    }
+}
+
+if(!function_exists('checkBadgeinCalendar')){
+    function checkBadgeinCalendar($id_planning, $badge){
+        $badge = trim($badge);
+        $exists = ImportExcel::where('import_calendar_id', $id_planning)
+                     ->where('badge_chauffeur', $badge)
                      ->exists();
 
 
