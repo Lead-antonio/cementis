@@ -95,15 +95,6 @@ class ChauffeurDataTable extends DataTable
                 }
             ]),
 
-            // function(data, type, row) {
-            //     if (row.chauffeur_update && row.chauffeur_update.length > 0) {
-            //         return row.chauffeur_update[0].nom;
-            //     }
-            //     return '';
-            // }
-
-            
-
             'transporteur' => new Column([
                 'title' => __('models/chauffeurs.fields.transporteur_id'),
                 'name' => 'latestUpdate.transporteur_id',

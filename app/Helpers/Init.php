@@ -2259,6 +2259,8 @@ if (!function_exists('getPlateNumberByRfidAndTransporteur()')) {
     }
 }
 
+
+
 if(!function_exists('checkTruckinCalendar')){
     function checkTruckinCalendar($id_planning, $camion){
         if (strpos($camion, ' - ') !== false) {
@@ -2352,4 +2354,203 @@ if (!function_exists('NotificationValidation')) {
         }
         
     }
+}
+
+
+if (!function_exists('getImeibyPlateNumber()')) {
+
+    function getImeibyPlateNumber()
+    {
+        set_time_limit(2000);
+    
+        // Récupérer les données de ImportExcel
+        $importExcelData = ImportExcel::all(); 
+    
+        // URL de l'API
+        $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
+        
+        // Récupérer les données de l'API avec timeout et retry
+        $response = Http::timeout(5000)->retry(3, 1000)->get($url);
+        $apiData = $response->json();
+        
+        // Vérification si les données sont valides
+        if (!$apiData || !is_array($apiData)) {
+            return response()->json(['error' => 'Données API invalides'], 500);
+        }
+    
+        // Création d'une collection pour faciliter la recherche
+        $apiCollection = collect($apiData)->keyBy('plate_number');
+        
+        $imei_platenumber = [];
+        // Mettre à jour les données ImportExcel
+        foreach ($importExcelData as $row) {
+            $plateNumber = $row->camion; // Assure-toi que cette colonne correspond bien à l'immatriculation du camion
+    
+            // Vérifier si l'immatriculation existe dans les données de l'API
+            if ($apiCollection->has($plateNumber)) {
+                $imei = $apiCollection[$plateNumber]['imei'] ?? null;
+    
+                //Mise à jour uniquement si un IMEI est trouvé
+                if ($imei) {
+                    $imei_platenumber [] = [
+                        'camion' => $plateNumber,
+                        'imei' => $imei,
+                    ];
+                    $row->update(['imei' => $imei]);
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Mise à jour des IMEI terminée']);
+    }
+}
+
+
+if (!function_exists('updateDatebeginAndEndByImei()')) {
+
+    /**
+     * Fonction qui update le date debut et fin de chaque calendrier en récuperant la date debut lié à l'évenement
+     * @param mixed $calendar
+     * @return Illuminate\Http\JsonResponse|mixed
+     */
+    function updateDatebeginAndEndByImei($calendar) {
+
+        try{
+            $date_debut = $calendar->date_debut;
+            $date_fin = $calendar->date_fin;
+            $date_debut_parse = Carbon::parse($calendar->date_debut)->format('YmdHis');
+            $date_fin_parse = Carbon::parse($calendar->date_fin)->format('YmdHis');
+            $imei = $calendar->imei;
+            $delais_route = $calendar->delais_route; // Délais en jours (peut être décimal)
+            
+            $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_EVENTS,{$imei},{$date_debut_parse},{$date_fin_parse}";
+            $response = Http::timeout(600)->get($url);
+            $data = $response->json();
+            
+            // Liste des événements à comparer
+            $evenements = ['Sortie Ibity (Usine , Ibity)', 'Sortie Tamatave (TAMATAVE)', 'Sortie usine Tanjombato (Usine , Tanjombato)'];
+            // Initialisation de la nouvelle date de début
+            $nouvelle_date_debut = $date_debut;
+            
+            if(!is_null($data)){
+                foreach ($data as $data_all) {
+                    $eventType = $data_all[1] ?? null; // Deuxième élément (événement)
+                    $eventDate = $data_all[4] ?? null; // Cinquième élément (date)
+            
+                    if ($eventType && in_array($eventType, $evenements) && $eventDate) {
+                        // Comparer avec la date actuelle
+                        if ($eventDate != $date_debut) { 
+                            $nouvelle_date_debut = $eventDate;
+                            break; // On prend la première occurrence trouvée
+                        }
+                    }
+                }
+            
+                // Si la date a changé, on met à jour
+                if ($nouvelle_date_debut) {
+                    // Calcul de la nouvelle date de fin
+                    $nouvelle_date_debut_carbon = Carbon::parse($nouvelle_date_debut);
+
+                    // Conversion du délai en heures et minutes
+                    $heures_a_ajouter = floor($delais_route * 24); // Partie entière en heures
+                    $minutes_a_ajouter = ($delais_route * 24 - $heures_a_ajouter) * 60; // Partie décimale en minutes
+
+                    // Ajouter les heures et minutes
+                    $nouvelle_date_fin = $nouvelle_date_debut_carbon->copy()
+                        ->addHours($heures_a_ajouter)
+                        ->addMinutes($minutes_a_ajouter);
+
+                    // Mise à jour des valeurs dans $calendar
+                    $calendar->date_debut = $nouvelle_date_debut;
+                    $calendar->date_fin = $nouvelle_date_fin;
+
+                    // Sauvegarde dans la base de données
+                    $calendar->save();
+                }
+            }
+        }catch(Exception $e){
+            return response()->json(['message' => 'Erreur ' .   $e->getMessage()]);
+        }
+    }
+}
+
+
+
+if (!function_exists('SaveVehiculeFromCalendar()')) {
+
+    /**
+     * 
+     * @param mixed $calendar
+     * @return Illuminate\Http\JsonResponse|mixed
+     */
+    function SaveVehiculeFromCalendar() {
+        try{
+            set_time_limit(2000);
+        
+            // Récupérer les données de ImportExcel
+            $importExcelData = ImportExcel::all(); 
+        
+            // URL de l'API
+            $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
+            
+            // Récupérer les données de l'API avec timeout et retry
+            $response = Http::timeout(5000)->retry(3, 1000)->get($url);
+            $apiData = $response->json();
+            
+            // Vérification si les données sont valides
+            if (!$apiData || !is_array($apiData)) {
+                return response()->json(['error' => 'Données API invalides'], 500);
+            }
+        
+            // Création d'une collection pour faciliter la recherche
+            $apiCollection = collect($apiData)->keyBy('plate_number');
+            
+            $imei_platenumber = [];
+            // Mettre à jour les données ImportExcel
+            foreach ($importExcelData as $row) {
+                $plateNumber = $row->camion; // Assure-toi que cette colonne correspond bien à l'immatriculation du camion
+        
+                // Vérifier si l'immatriculation existe dans les données de l'API
+                if ($apiCollection->has($plateNumber)) {
+                    $imei = (string) $apiCollection[$plateNumber]['imei'] ?? null;
+                    $transporteur_name = $apiCollection[$plateNumber]['group_name'] ?? null;
+
+                    echo "vehicule : "  . $plateNumber . " imei : " . $imei . " transporteur : " . $transporteur_name ."\n"; 
+                    if (!is_null($transporteur_name)) {
+                        $transporteur = Transporteur::firstOrCreate(
+                            ['nom' =>  $transporteur_name],
+                        );
+                    } else {
+                        $transporteur = Transporteur::find($transporteur_name);
+                    }
+
+                    if($transporteur){
+                        $existingVehicule =  Vehicule::where('imei', $imei )->first() ;
+                        //Mise à jour uniquement si un IMEI est trouvé
+                        if (!$existingVehicule) {
+                            $vehicule = Vehicule::create([
+                                'imei' =>  $imei,
+                                'nom' => $row->camion,
+                                'description' => $row['description'],
+                                'id_transporteur' => $transporteur->id
+                            ]);
+                        } 
+                    }else{
+                        echo "Transporteur null pour le vehicule : ". $plateNumber . "\n" ;
+                    }
+                    
+                }
+            }
+
+            return response()->json(['message' => 'Mise à jour des IMEI terminée']);
+        }catch(Exception $e){
+            \Log::error('Erreur dans SaveVehiculeFromCalendar', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
 }
