@@ -55,8 +55,19 @@ class InstallationImport implements ToCollection, WithHeadingRow
             }
 
             // Vérification : au moins l'un des deux (RFID ou IMEI) doit être présent
-            if (empty($row['rfid']) && empty($row['imei'])) {
-                $this->addError("Ligne N° {$numero_ligne}: RFID et IMEI sont tous les deux vides, l'enregistrement est ignoré.");
+            // if (empty($row['rfid']) && empty($row['imei'])) {
+            //     $this->addError("Ligne N° {$numero_ligne}: RFID et IMEI sont tous les deux vides, l'enregistrement est ignoré.");
+            //     $this->errorCount++;
+            //     continue;
+            // }
+            if (empty($row['rfid'])) {
+                $this->addError("Ligne N° {$numero_ligne}: RFID du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
+                $this->errorCount++;
+                continue;
+            }
+            
+            if (empty($row['numero_badge'])) {
+                $this->addError("Ligne N° {$numero_ligne}: Numéro badge du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
                 $this->errorCount++;
                 continue;
             }
@@ -137,40 +148,40 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 }
             }
            
-            if ($existingVehicule) {
+            // if ($existingVehicule) {
 
-                // Vérifier si les mêmes données existent déjà dans Vehicule
-                $existsInVehicule = Vehicule::where('imei', (string) $row['imei'])
-                    ->where('nom', $row['immatriculation'])
-                    ->where('id_transporteur', $transporteur->id)
-                    ->first();
+            //     // Vérifier si les mêmes données existent déjà dans Vehicule
+            //     $existsInVehicule = Vehicule::where('imei', (string) $row['imei'])
+            //         ->where('nom', $row['immatriculation'])
+            //         ->where('id_transporteur', $transporteur->id)
+            //         ->first();
             
-                if ($existsInVehicule) {
-                    // Ajouter une erreur et ignorer l'insertion
-                    $this->addError("Ligne N° {$numero_ligne} : Les informations du véhicule avec l'IMEI [{$row['imei']}] et l'immatriculation [{$row['immatriculation']}] existent déjà dans la table Vehicule.");
-                    $this->errorCount++;
-                } else {
-                    // Vérifier si les mêmes données existent déjà dans VehiculeUpdate
-                    $existingVehiculeUpdate = VehiculeUpdate::where('vehicule_id', $existingVehicule->id)
-                        ->where('imei', (string) $row['imei'])
-                        ->where('nom', $row['immatriculation'])
-                        ->first();
+            //     if ($existsInVehicule) {
+            //         // Ajouter une erreur et ignorer l'insertion
+            //         $this->addError("Ligne N° {$numero_ligne} : Les informations du véhicule avec l'IMEI [{$row['imei']}] et l'immatriculation [{$row['immatriculation']}] existent déjà dans la table Vehicule.");
+            //         $this->errorCount++;
+            //     } else {
+            //         // Vérifier si les mêmes données existent déjà dans VehiculeUpdate
+            //         $existingVehiculeUpdate = VehiculeUpdate::where('vehicule_id', $existingVehicule->id)
+            //             ->where('imei', (string) $row['imei'])
+            //             ->where('nom', $row['immatriculation'])
+            //             ->first();
             
-                    if (empty($existingVehiculeUpdate)) {
-                        // Insérer dans VehiculeUpdate si non trouvé
-                        VehiculeUpdate::create([
-                            'vehicule_id' => $existingVehicule->id,
-                            'imei' => (string) $row['imei'],
-                            'nom' => $row['immatriculation'],
-                            'id_transporteur' => $transporteur->id,
-                            'date_installation' => $dateInstallation,
-                        ]);
+            //         if (empty($existingVehiculeUpdate)) {
+            //             // Insérer dans VehiculeUpdate si non trouvé
+            //             VehiculeUpdate::create([
+            //                 'vehicule_id' => $existingVehicule->id,
+            //                 'imei' => (string) $row['imei'],
+            //                 'nom' => $row['immatriculation'],
+            //                 'id_transporteur' => $transporteur->id,
+            //                 'date_installation' => $dateInstallation,
+            //             ]);
             
-                        $this->addError("Ligne N° {$numero_ligne} : IMEI [{$row['imei']}] est déjà attribué à {$existingVehicule->nom}. Nouveau véhicule attribué à cet IMEI : {$row['immatriculation']}.");
-                        $this->errorCount++;
-                    }
-                }
-            }
+            //             $this->addError("Ligne N° {$numero_ligne} : IMEI [{$row['imei']}] est déjà attribué à {$existingVehicule->nom}. Nouveau véhicule attribué à cet IMEI : {$row['immatriculation']}.");
+            //             $this->errorCount++;
+            //         }
+            //     }
+            // }
 
             // Insérer le chauffeur si inexistant et RFID non vide
             if (!$existingChauffeur && !empty($row['rfid'])) {
@@ -187,18 +198,16 @@ class InstallationImport implements ToCollection, WithHeadingRow
             }
 
             // Insérer le véhicule si inexistant et IMEI non vide
-            if (!$existingVehicule && !empty($row['imei'])) {
-                $vehicule = Vehicule::create([
-                    'imei' => (string) $row['imei'],
-                    'nom' => $row['immatriculation'],
-                    'description' => $row['description'],
-                    'id_transporteur' => $transporteur->id,
-                    'rfid_physique' =>  $row['rfid_physique'],
-                    'numero_badge' =>  $row['numero_badge'],
-                ]);
-            } else {
-                $vehicule = $existingVehicule;
-            }
+            // if (!$existingVehicule && !empty($row['imei'])) {
+            //     $vehicule = Vehicule::create([
+            //         'imei' => (string) $row['imei'],
+            //         'nom' => $row['immatriculation'],
+            //         'description' => $row['description'],
+            //         'id_transporteur' => $transporteur->id,
+            //     ]);
+            // } else {
+            //     $vehicule = $existingVehicule;
+            // }
 
             // Insérer ou récupérer l'installateur
             $installateur = Installateur::firstOrCreate(
@@ -206,16 +215,14 @@ class InstallationImport implements ToCollection, WithHeadingRow
                 ['obs' => ""]
             );
 
-            // Insérer l'installation si un véhicule a été créé ou existe déjà
-            if ($vehicule) {
-                $installation = Installation::create([
-                    'date_installation' =>  $dateInstallation,
-                    'vehicule_id' => $vehicule->id,
-                    'installateur_id' => $installateur->id,
-                ]);
-            }
-
-            
+            // // Insérer l'installation si un véhicule a été créé ou existe déjà
+            // if ($vehicule) {
+            //     $installation = Installation::create([
+            //         'date_installation' =>  $dateInstallation,
+            //         'vehicule_id' => $vehicule->id,
+            //         'installateur_id' => $installateur->id,
+            //     ]);
+            // }
 
             // Insérer les données dans ImportInstallation
             ImportInstallation::create([
