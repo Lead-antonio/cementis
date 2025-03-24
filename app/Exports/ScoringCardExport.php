@@ -35,30 +35,46 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
         if ($this->alphaciment_driver !== null) {
             // Récupérer la liste des camions du ImportExcel en fonction du planning sélectionné
-            $camionsImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
-                                ->pluck('camion') // Récupère uniquement la colonne "camion"
+            $badgesImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
+                                ->pluck('badge_chauffeur') // Récupère uniquement la colonne "camion"
                                 ->toArray();
 
+            // if ($this->alphaciment_driver === "oui") {
+            //     $query->where(function ($q) use ($camionsImport) {
+            //         foreach ($camionsImport as $camion) {
+            //             $q->orWhere('camion', 'LIKE', "%{$camion}%");
+            //         }
+            //     }); // Ne garder que les camions présents dans ImportExcel
+            // } elseif ($this->alphaciment_driver === "non") {
+            //     $query->where(function ($q) use ($camionsImport) {
+            //         foreach ($camionsImport as $camion) {
+            //             $q->where('camion', 'NOT LIKE', "%{$camion}%");
+            //         }
+            //     }); // Exclure ces camions
+            // }
             if ($this->alphaciment_driver === "oui") {
-                $query->where(function ($q) use ($camionsImport) {
-                    foreach ($camionsImport as $camion) {
-                        $q->orWhere('camion', 'LIKE', "%{$camion}%");
-                    }
-                }); // Ne garder que les camions présents dans ImportExcel
+                $query->whereHas('driver', function($q) use ($badgesImport) {
+                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
+                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latestUpdate
+                    })
+                    ->orWhereIn('numero_badge', $badgesImport);
+                });
             } elseif ($this->alphaciment_driver === "non") {
-                $query->where(function ($q) use ($camionsImport) {
-                    foreach ($camionsImport as $camion) {
-                        $q->where('camion', 'NOT LIKE', "%{$camion}%");
-                    }
-                }); // Exclure ces camions
+                $query->whereHas('driver', function($q) use ($badgesImport) {
+                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
+                        $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
+                    })
+                    ->orWhereNotIn('numero_badge', $badgesImport);
+                });
             }
         }
         
-        return $query->get()->map(function($scoring) {
+        return $query->orderBy('point', 'desc')->get()->map(function($scoring) {
             return [
                 'Chauffeur' => optional($scoring->driver->latestUpdate)->nom ?? optional($scoring->driver)->nom ?? '',
+                'Badge' => optional($scoring->driver->latestUpdate)->numero_badge ?? optional($scoring->driver)->numero_badge ?? '',
                 'Transporteur' => $scoring->transporteur->nom ?? '',
-                'Camion' => $scoring->camion,
+                'Camion' => getTruckByImei($scoring->camion),
                 'Scoring' => $scoring->point,
                 'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning),
                 'Commentaire' => $scoring->comment
@@ -74,6 +90,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
     {
         return [
             'Chauffeur',
+            'Badge',
             'Transporteur',
             'Camion',
             'Scoring',

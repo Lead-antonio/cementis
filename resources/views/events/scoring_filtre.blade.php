@@ -6,6 +6,7 @@
                 <thead>
                     <tr>
                         <th style="text-align: center;background-color: darkgray;">Chauffeur</th>
+                        <th style="text-align: center;background-color: darkgray;">N° Badge</th>
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
                         <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
@@ -16,6 +17,7 @@
                 <tbody>
                     @php
                         $countCheckedTrucks = 0;
+                        $chauffeurBadge = 0;
                     @endphp
                     @foreach ($scoring as $item)
                         <tr>
@@ -31,12 +33,23 @@
                                     <span>Chauffeur sans nom</span>
                                 @endif
                             </td>
+                            <td style="text-align: center">
+                                @if(!empty($item->driver))
+                                @php
+                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                @endphp
+                                        {{ $chauffeur->numero_badge }}
+                                @else
+                                    <span>Chauffeur sans nom</span>
+                                @endif
+                            </td>
                             <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
                             <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td>
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
-                                    $isTruckinCalendarChecked = checkTruckinCalendar($selectedPlanning, getTruckByImei($item->camion));
+                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                    $isTruckinCalendarChecked = checkBadgeinCalendar($selectedPlanning, $chauffeur->numero_badge);
                                     if ($isTruckinCalendarChecked) {
                                         $countCheckedTrucks++; // Incrémentation si le camion est présent dans le calendrier
                                     }
@@ -58,7 +71,7 @@
                         </tr>
                     @endforeach
                 </tbody>
-                {{-- <p>Nombre de camions dans le calendrier : {{ $countCheckedTrucks }}</p> --}}
+                {{-- <p>Nombre de chauffeur avec badge : {{ $chauffeurBadge }}</p> --}}
             </table>
             {{-- <div class="d-flex justify-content-end" style="margin: 0% 2% 1% 0%;">
                 <button type="submit" class="btn btn-primary" onclick="submitForm()">Enregistrer les commentaires</button>
@@ -99,8 +112,8 @@
 
                     // Sort the rows by the values in the "Mai" column
                     rows.sort((a, b) => {
-                        const aMai = parseFloat(a.cells[3].textContent);
-                        const bMai = parseFloat(b.cells[3].textContent);
+                        const aMai = parseFloat(a.cells[4].textContent);
+                        const bMai = parseFloat(b.cells[4].textContent);
                         return ascending ? aMai - bMai : bMai - aMai;
                     });
 
@@ -289,8 +302,8 @@
 
                 // Trie les lignes du tableau en fonction des valeurs de la colonne "Mai"
                 rows.sort((a, b) => {
-                    const aMai = parseFloat(a.cells[3].textContent);
-                    const bMai = parseFloat(b.cells[3].textContent);
+                    const aMai = parseFloat(a.cells[4].textContent);
+                    const bMai = parseFloat(b.cells[4].textContent);
                     return ascending ? aMai - bMai : bMai - aMai;
                 });
 
