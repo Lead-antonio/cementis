@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Chauffeur;
+use App\Models\ChauffeurUpdate;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Column;
@@ -19,39 +20,79 @@ class ChauffeurDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
-        return $dataTable->addColumn('action', 'chauffeurs.datatables_actions');
+        return $dataTable->addColumn('action', 'chauffeurs.datatables_actions')
+            ->filterColumn('rfid', function ($query, $keyword) {
+                $matchingRfid = ChauffeurUpdate::whereRaw("LOWER(rfid) LIKE ?", ["%{$keyword}%"])
+                    ->pluck('rfid')
+                    ->toArray();
+
+                $query->where(function ($q) use ($keyword, $matchingRfid) {
+                    $q->where('chauffeur.rfid', 'like', "%{$keyword}%")
+                    ->orWhereIn('latest_update.rfid', $matchingRfid);
+                });
+            })
+            ->filterColumn('rfid_physique', function ($query, $keyword) {
+                $matchingRfid_physique = ChauffeurUpdate::whereRaw("LOWER(rfid_physique) LIKE ?", ["%{$keyword}%"])
+                    ->pluck('rfid_physique')
+                    ->toArray();
+
+                $query->where(function ($q) use ($keyword, $matchingRfid_physique) {
+                    $q->where('chauffeur.rfid_physique', 'like', "%{$keyword}%")
+                    ->orWhereIn('latest_update.rfid_physique', $matchingRfid_physique);
+                });
+            })
+            ->filterColumn('numero_badge', function ($query, $keyword) {
+                $matchingBadges = ChauffeurUpdate::whereRaw("LOWER(numero_badge) LIKE ?", ["%{$keyword}%"])
+                    ->pluck('numero_badge')
+                    ->toArray();
+
+                $query->where(function ($q) use ($keyword, $matchingBadges) {
+                    $q->where('chauffeur.numero_badge', 'like', "%{$keyword}%")
+                    ->orWhereIn('latest_update.numero_badge', $matchingBadges);
+                });
+            });
+
     }
-
-    // Modifie le DataTable pour accepter la requête personnalisée
-    public function withQuery($query)
-    {
-        $this->query = $query;
-        return $this;
-    }
-
-
-    /**
-     * Get query source of dataTable.
-     *
-     * @param \App\Models\Chauffeur $model
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    // public function query(Chauffeur $model)
-    // {
-    //     return $model->newQuery()->with(['related_transporteur','chauffeur_update'])
-    //     ->select('chauffeur.*');
-    // }
 
     public function query(Chauffeur $model)
     {
-        return $this->query->with(['related_transporteur','chauffeur_update','latestUpdate'])
-        ->leftJoin('validations', function ($join) {
-            $join->on('chauffeur.id', '=', 'validations.model_id')
-                 ->where('validations.model_type', '=', Chauffeur::class);
-                //  ->where('validations.status', '=', 'pending');
-        })
-        ->select('chauffeur.*', 'validations.status as validation_status');
+        return $model->newQuery()
+            // Sélectionner les colonnes du chauffeur
+            ->select(
+                'chauffeur.id', 
+                'chauffeur.nom', 
+                'chauffeur.rfid', 
+                'chauffeur.rfid_physique', 
+                'chauffeur.numero_badge', 
+                'chauffeur.deleted_at', 
+
+                // Sélectionner les colonnes de la mise à jour du chauffeur (latest_update)
+                'latest_update.id as latest_update_id', 
+                'latest_update.nom as latest_update_nom', 
+                'latest_update.rfid as latest_update_rfid', 
+                'latest_update.rfid_physique as latest_update_rfid_physique', 
+                'latest_update.numero_badge as latest_update_numero_badge',
+
+                // Joindre les informations du transporteur associé à la mise à jour du chauffeur
+                'latest_update.transporteur_id as latest_update_transporteur_id',
+                'updated_transporteur.nom as latest_update_transporteur_nom',
+
+                'chauffeur.transporteur_id as chauffeur_transporteur_id',
+                'chauffeur_transporteur.nom as chauffeur_transporteur_nom'
+            )
+            // Jointure avec la table chauffeur_updates pour obtenir la dernière mise à jour du chauffeur
+            ->leftJoin('chauffeur_updates as latest_update', 'latest_update.chauffeur_id', '=', 'chauffeur.id')
+            
+            // Si vous voulez seulement la dernière mise à jour, vous pouvez filtrer ici si nécessaire
+            // Par exemple, en récupérant la mise à jour la plus récente
+            ->leftJoin('transporteur as updated_transporteur', 'updated_transporteur.id', '=', 'latest_update.transporteur_id')
+
+            // Jointure avec le transporteur associé au chauffeur (le transporteur du chauffeur lui-même)
+            ->leftJoin('transporteur as chauffeur_transporteur', 'chauffeur_transporteur.id', '=', 'chauffeur.transporteur_id')->
+            with(['related_transporteur', 'latest_update']);
     }
+
+
 
     /**
      * Optional method if you want to use html builder.
@@ -77,6 +118,7 @@ class ChauffeurDataTable extends DataTable
             ]);
     }
 
+
     /**
      * Get columns.
      *
@@ -85,17 +127,27 @@ class ChauffeurDataTable extends DataTable
     protected function getColumns()
     {
         return [
-            // 'id' => new Column(['title' => __('models/chauffeurs.fields.id'), 'data' => 'id']),
-            'ancien nom' => new Column(['title' => __('models/chauffeurs.fields.old_nom'), 'data' => 'nom',]),
-            'nouveau nom' => new Column(['title'=> __('models/chauffeurs.fields.new_nom'), 
-                'name' => 'chauffeur_update.nom',
+            'ancien_nom' => new Column([
+                'title' => __('models/chauffeurs.fields.old_nom'),
+                'data' => 'nom',  // Nom actuel du chauffeur
+                'searchable' => true,
                 'render' => function () {
                     return "
                         function(data, type, row) {
-                            if (row.chauffeur_update && row.chauffeur_update.length > 0) {
-                                return row.chauffeur_update[0].nom;
-                            }
-                            return '';
+                            return row.nom; 
+                        }
+                    ";
+                }
+            ]),
+
+            'nouveau_nom' => new Column([
+                'title' => __('models/chauffeurs.fields.new_nom'),
+                'data' => 'nom', // Nom mis à jour
+                'searchable' => true,
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            return row.latest_update_nom ? row.latest_update_nom : '';  
                         }
                     ";
                 }
@@ -103,108 +155,78 @@ class ChauffeurDataTable extends DataTable
 
             'transporteur' => new Column([
                 'title' => __('models/chauffeurs.fields.transporteur_id'),
-                'name' => 'latestUpdate.transporteur_id',
+                'data' => 'related_transporteur.nom',
+                'searchable' => true,
                 'render' => function () {
                     return "
                         function(data, type, row) {
-                            if (row.latestUpdate && row.latestUpdate.related_transporteur) {
-                                return row.latestUpdate.related_transporteur.nom;
+                            if (row.latest_update_transporteur_nom) {
+                                return row.latest_update_transporteur_nom;  
                             }
-                            if (row.related_transporteur) {
-                                return row.related_transporteur.nom;
+                            else {
+                                return row.chauffeur_transporteur_nom;
                             }
-                            return 'Chauffeur non défini';
                         }
                     ";
                 }
             ]),
-            
 
             'rfid' => new Column([
                 'title' => __('models/chauffeurs.fields.rfid'),
-                'name' => 'latestUpdate.rfid',
+                'data' => 'rfid',  // RFID de la dernière mise à jour
+                'searchable' => true,
                 'render' => function () {
                     return "
-                        function(data, type, row) {
-                            if (row.latestUpdate) {
-                                return row.latestUpdate.rfid;
+                        function(data, type, row) {  
+                            if (row.latest_update_rfid) {
+                                return row.latest_update_rfid;  
                             }
-                            return row.rfid;
-                        }
-                    ";
-                }
-            ]),
-    
-            'rfid_physique' => new Column([
-                'title' => __('models/chauffeurs.fields.rfid_physique'),
-                'name' => 'latestUpdate.rfid_physique',
-                'render' => function () {
-                    return "
-                        function(data, type, row) {
-                            if (row.latestUpdate) {
-                                return row.latestUpdate.rfid_physique;
-                            }
-                            return row.rfid_physique;
-                        }
-                    ";
-                }
-            ]),
-    
-            'numero_badge' => new Column([
-                'title' => __('models/chauffeurs.fields.numero_badge'),
-                'name' => 'latestUpdate.numero_badge',
-                'render' => function () {
-                    return "
-                        function(data, type, row) {
-                            if (row.latestUpdate) {
-                                return row.latestUpdate.numero_badge;
-                            }
-                            return row.numero_badge;
+                            else {
+                                return row.rfid;
+                            } 
                         }
                     ";
                 }
             ]),
 
-            'Statut' => new Column([
-                'title' => 'Statut',
-                'data' => 'validation_status',
-                'name' => 'validations.status', // Permet à DataTables de retrouver la colonne
+            'rfid_physique' => new Column([
+                'title' => __('models/chauffeurs.fields.rfid_physique'),
+                'data' => 'rfid_physique',  // RFID physique de la dernière mise à jour
+                'searchable' => true,
                 'render' => function () {
                     return "
                         function(data, type, row) {
-                            console.log(data);
-                            if (data === 'pending') {
-                                return '<span class=\"badge badge-warning\">En attente</span>';
-                            } else if (data === 'approved') {
-                                return '<span class=\"badge badge-success\">Validé</span>';
-                            } else if (data === 'rejected') {
-                                return '<span class=\"badge badge-danger\">Refuser</span>';
+                            if (row.latest_update_rfid_physique) {
+                                return row.latest_update_rfid_physique;  
                             }
-                            return '<span class=\"badge badge-secondary\">Aucun</span>';
+                            else {
+                                return row.rfid_physique;
+                            } 
                         }
                     ";
                 }
             ]),
-            
-            
-    
-            // 'contact' => new Column([
-            //     'title' => __('models/chauffeurs.fields.contact'),
-            //     'name' => 'latestUpdate.contact',
-            //     'render' => function () {
-            //         return "
-            //             function(data, type, row) {
-            //                 if (row.latestUpdate) {
-            //                     return row.latestUpdate.contact;
-            //                 }
-            //                 return row.contact;
-            //             }
-            //         ";
-            //     }
-            // ]),
-    
+
+            'numero_badge' => new Column([
+                'title' => __('models/chauffeurs.fields.numero_badge'),
+                'data' => 'numero_badge', // Pas de référence à "full.related_calendar.camion"
+                'searchable' => true,
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latest_update_numero_badge) {
+                                return row.latest_update_numero_badge;  
+                            }
+                            else {
+                                return row.numero_badge;
+                            }
+                        }
+                    ";
+                }
+            ]),
         ];
     }
+
 
     /**
      * Get filename for export.

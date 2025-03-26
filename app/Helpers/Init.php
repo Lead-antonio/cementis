@@ -2428,7 +2428,7 @@ if (!function_exists('updateDatebeginAndEndByImei()')) {
             $data = $response->json();
             
             // Liste des événements à comparer
-            $evenements = ['Sortie Ibity (Usine , Ibity)', 'Sortie Port Tamatave', 'Sortie usine Tanjombato (Usine , Tanjombato)'];
+            $evenements = ['Sortie Ibity (Usine , Ibity)', 'Sortie Port Tamatave (Port TAMATAVE)', 'Sortie usine Tanjombato (Usine , Tanjombato)'];
             // Initialisation de la nouvelle date de début
             $nouvelle_date_debut = $date_debut;
             

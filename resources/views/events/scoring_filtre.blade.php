@@ -24,7 +24,7 @@
                             <td style="text-align: center;">
                                 @if(!empty($item->driver))
                                 @php
-                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                    $chauffeur = $item->driver->latest_update ?? $item->driver;
                                 @endphp
                                     <a href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">
                                         {{ $chauffeur->nom }}
@@ -36,7 +36,7 @@
                             <td style="text-align: center">
                                 @if(!empty($item->driver))
                                 @php
-                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                    $chauffeur = $item->driver->latest_update ?? $item->driver;
                                 @endphp
                                         {{ $chauffeur->numero_badge }}
                                 @else
@@ -48,7 +48,7 @@
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
-                                    $chauffeur = $item->driver->latestUpdate ?? $item->driver;
+                                    $chauffeur = $item->driver->latest_update ?? $item->driver;
                                     $isTruckinCalendarChecked = checkBadgeinCalendar($selectedPlanning, $chauffeur->numero_badge);
                                     if ($isTruckinCalendarChecked) {
                                         $countCheckedTrucks++; // Incrémentation si le camion est présent dans le calendrier

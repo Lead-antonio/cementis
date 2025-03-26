@@ -71,16 +71,21 @@ class VehiculeDataTable extends DataTable
         'imei' => new Column(['title' => __('models/vehicules.fields.imei'), 'data' => 'imei']),
         'installation' => new Column(['title' => __('models/vehicules.fields.date_installation'), 
         'render' => 'function() {
-            const dateObject = new Date(full.installation[0].date_installation);
-            if (isNaN(dateObject.getTime())) {
-                return data; 
+            const formattedDate = "";
+
+            if(full.installation[0]){
+                const dateObject = new Date(full.installation[0].date_installation);
+                if (isNaN(dateObject.getTime())) {
+                    return data; 
+                }
+                const year = dateObject.getFullYear();
+                const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+                const day = String(dateObject.getDate()).padStart(2, "0");
+                const hours = String(dateObject.getHours()).padStart(2, "0");
+                const minutes = String(dateObject.getMinutes()).padStart(2, "0");
+                const formattedDate = `${day}/${month}/${year}`;
             }
-            const year = dateObject.getFullYear();
-            const month = String(dateObject.getMonth() + 1).padStart(2, "0");
-            const day = String(dateObject.getDate()).padStart(2, "0");
-            const hours = String(dateObject.getHours()).padStart(2, "0");
-            const minutes = String(dateObject.getMinutes()).padStart(2, "0");
-            const formattedDate = `${day}/${month}/${year}`;
+            
             return formattedDate;
         }'
     

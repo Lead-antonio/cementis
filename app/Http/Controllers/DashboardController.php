@@ -162,13 +162,21 @@ class DashboardController extends Controller
         $badge_calendars = array_map('trim', $badge_calendars);
         
         $scoringBadge = Scoring::where('id_planning', $id_planning)
-            ->with('driver.latestUpdate')
+            ->with('driver.latest_update')
             ->get();
 
         // Créer un tableau avec les badges des chauffeurs
+        // $badges_scoring = $scoringBadge->map(function($scoring) {
+        //     return $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
+        // })->toArray();
         $badges_scoring = $scoringBadge->map(function($scoring) {
-            return $scoring->driver->latestUpdate ? $scoring->driver->latestUpdate->numero_badge : $scoring->driver->numero_badge;
+            if ($scoring->driver && $scoring->driver->latest_update) {
+                return $scoring->driver->latest_update->numero_badge;
+            }
+            // Handle case where there is no driver or latest_update
+            return $scoring->driver ? $scoring->driver->numero_badge : null; // or some other default value
         })->toArray();
+
 
         $badge_has_scoring = array_intersect($badge_calendars, $badges_scoring);
         
@@ -187,17 +195,17 @@ class DashboardController extends Controller
         $badge_calendars = array_map('trim', $badge_calendars);
 
         $scoringBadge = Scoring::where('id_planning', $id_planning)
-            ->with('driver.latestUpdate')
+            ->with('driver.latest_update')
             ->get();
 
         // Créer un tableau avec les badges des chauffeurs
         $badges_scoring = $scoringBadge->map(function($scoring) {
-            if ($scoring->driver->latestUpdate) {
+            if ($scoring->driver && $scoring->driver->latest_update) {
                 // Retourner le badge de la mise à jour, si elle existe
-                return $scoring->driver->latestUpdate->numero_badge;
+                return $scoring->driver->latest_update->numero_badge;
             }
             
-            return $scoring->driver->numero_badge;
+            return $scoring->driver ? $scoring->driver->numero_badge : null;
         })->toArray();
 
         // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
