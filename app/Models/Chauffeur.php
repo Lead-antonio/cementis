@@ -67,9 +67,9 @@ class Chauffeur extends Model
         return $this->hasMany(ChauffeurUpdate::class,'chauffeur_id');
     }
 
-    public function latestUpdate()
+    public function latest_update()
     {
-        return $this->hasOne(ChauffeurUpdate::class, 'chauffeur_id')->latest();
+        return $this->hasOne(ChauffeurUpdate::class, 'chauffeur_id')->latest()->with('related_transporteur');
     }
 
 

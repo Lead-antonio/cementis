@@ -76,7 +76,7 @@ class ScoringController extends AppBaseController
         
         $data = [];
 
-        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver', 'driver.latestUpdate']);;
+        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver', 'driver.latest_update']);;
 
         // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
         if ($alphaciment_driver !== null) {
@@ -108,14 +108,14 @@ class ScoringController extends AppBaseController
             
             if ($alphaciment_driver === "oui") {
                 $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
-                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latestUpdate
+                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
+                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latest_update
                     })
                     ->orWhereIn('numero_badge', $badgesImport);
                 });
             } elseif ($alphaciment_driver === "non") {
                 $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
+                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
                         $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
                     })
                     ->orWhereNotIn('numero_badge', $badgesImport);
@@ -143,13 +143,13 @@ class ScoringController extends AppBaseController
 
         // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
         $scoringBadge = Scoring::where('id_planning', $selectedPlanning)
-        ->with('driver.latestUpdate') // Charger la dernière mise à jour des chauffeurs
+        ->with('driver.latest_update') // Charger la dernière mise à jour des chauffeurs
         ->get();
 
         // Filtrer les Scoring en fonction des badges (mis à jour ou actuel)
         $scoring = $scoringBadge->filter(function ($scoring) use ($badge_calendars) {
             // Récupérer le badge du chauffeur (mettre à jour ou actuel)
-            $badge = $scoring->driver->latestUpdate ? $scoring->driver->latestUpdate->numero_badge : $scoring->driver->numero_badge;
+            $badge = $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
 
             // Vérifier si le badge du chauffeur est présent dans la liste des badges
             return in_array(trim($badge), $badge_calendars);
@@ -172,14 +172,14 @@ class ScoringController extends AppBaseController
         $badge_calendars = array_map('trim', $badge_calendars);
 
         $scoringBadge = Scoring::where('id_planning', $selectedPlanning)
-            ->with('driver.latestUpdate')
+            ->with('driver.latest_update')
             ->get();
 
         // Créer un tableau avec les badges des chauffeurs
         $badges_scoring = $scoringBadge->map(function($scoring) {
-            if ($scoring->driver->latestUpdate) {
+            if ($scoring->driver->latest_update) {
                 // Retourner le badge de la mise à jour, si elle existe
-                return $scoring->driver->latestUpdate->numero_badge;
+                return $scoring->driver->latest_update->numero_badge;
             }
             
             return $scoring->driver->numero_badge;
@@ -205,14 +205,14 @@ class ScoringController extends AppBaseController
             // Si le chauffeur est trouvé
             if ($chauffeur) {
                 // Récupérer la dernière mise à jour du chauffeur s'il y en a une
-                $latestUpdate = $chauffeur->latestUpdate()->first(); // Chercher la dernière mise à jour
+                $latest_update = $chauffeur->latest_update()->first(); // Chercher la dernière mise à jour
 
                 // Si une mise à jour existe
-                if ($latestUpdate) {
+                if ($latest_update) {
                     $result[] = [
-                        'id' => $latestUpdate->chauffeur_id,
-                        'nom' => $latestUpdate->nom,
-                        'numero_badge' => $latestUpdate->numero_badge ?? $chauffeur->numero_badge,
+                        'id' => $latest_update->chauffeur_id,
+                        'nom' => $latest_update->nom,
+                        'numero_badge' => $latest_update->numero_badge ?? $chauffeur->numero_badge,
                         'observation' => 'Présent dans la base (chauffeur update)',
                         'update' => true
                     ];

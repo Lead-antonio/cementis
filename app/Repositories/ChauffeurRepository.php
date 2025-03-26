@@ -24,7 +24,7 @@ class ChauffeurRepository extends BaseRepository
         'numero_badge',
         'rfid_physique',
         'chauffeur_update.nom',
-        'latestUpdate.numero_badge',
+        'latest_update.numero_badge',
         'related_transporteur.nom',
     ];
 

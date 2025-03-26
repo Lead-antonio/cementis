@@ -45,6 +45,6 @@
 
 <!-- Contact Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('contact', __('models/chauffeurs.fields.contact').':') !!}
+    {!! Form::label('contact', __('models/chauffeurs.fields.contact').':', ['class' => 'required']) !!}
     {!! Form::text('contact', null, ['class' => 'form-control','placeholder'=>'Numéro téléphone','required'=> 'required']) !!}
 </div>

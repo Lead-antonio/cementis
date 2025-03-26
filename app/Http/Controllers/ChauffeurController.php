@@ -48,12 +48,13 @@ class ChauffeurController extends AppBaseController
      */
     public function index(ChauffeurDataTable $chauffeurDataTable,  Request $request)
     {
-        $query = Chauffeur::query()->with(['related_transporteur', 'chauffeur_update']);
+        // $query = Chauffeur::query();
 
         // Si le paramètre 'non_fixe' est présent, filtre les chauffeurs
         if ($request->input('non_fixe') == 1) {
             $query->where('chauffeur.nom', 'chauffeur non fixe');
         }
+
         
         if(Session::has('success')){
             Alert::success(__('messages.saved', ['model' => __('models/chauffeurs.singular')]));
@@ -69,8 +70,8 @@ class ChauffeurController extends AppBaseController
             Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
             Session::forget('deleted');
         }
-        // return $chauffeurDataTable->render('chauffeurs.index');
-        return $chauffeurDataTable->withQuery($query)->render('chauffeurs.index');
+        return $chauffeurDataTable->render('chauffeurs.index');
+        // return $chauffeurDataTable->withQuery($query)->render('chauffeurs.index');
     }
 
     /**

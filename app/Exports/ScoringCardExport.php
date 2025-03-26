@@ -30,7 +30,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         $selectedPlanning = $this->planning ?? DB::table('import_calendar')->latest('id')->value('id');
 
         // Définir la requête de base pour récupérer les scorings
-        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver','driver.latestUpdate', 'transporteur']);
+        $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver','driver.latest_update', 'transporteur']);
 
         // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
         if ($this->alphaciment_driver !== null) {
@@ -54,14 +54,14 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             // }
             if ($this->alphaciment_driver === "oui") {
                 $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
-                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latestUpdate
+                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
+                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latest_update
                     })
                     ->orWhereIn('numero_badge', $badgesImport);
                 });
             } elseif ($this->alphaciment_driver === "non") {
                 $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latestUpdate', function($query) use ($badgesImport) {
+                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
                         $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
                     })
                     ->orWhereNotIn('numero_badge', $badgesImport);
@@ -71,8 +71,8 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         
         return $query->orderBy('point', 'desc')->get()->map(function($scoring) {
             return [
-                'Chauffeur' => optional($scoring->driver->latestUpdate)->nom ?? optional($scoring->driver)->nom ?? '',
-                'Badge' => optional($scoring->driver->latestUpdate)->numero_badge ?? optional($scoring->driver)->numero_badge ?? '',
+                'Chauffeur' => optional($scoring->driver->latest_update)->nom ?? optional($scoring->driver)->nom ?? '',
+                'Badge' => optional($scoring->driver->latest_update)->numero_badge ?? optional($scoring->driver)->numero_badge ?? '',
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => getTruckByImei($scoring->camion),
                 'Scoring' => $scoring->point,
