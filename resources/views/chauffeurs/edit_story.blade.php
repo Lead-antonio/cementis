@@ -62,15 +62,11 @@
                                 {{-- Champ caché pour garantir l'envoi de la valeur même si le select est désactivé --}}
                                 {!! Form::hidden('hidden_transporteur_id', $chauffeur->transporteur_id, ['id' => 'hidden_transporteur_id']) !!}
                             </div>
-                            
-
-                            
 
                             <div class="form-group col-sm-6">
                                 {!! Form::label('rfid_physique', 'RFID Physique:') !!}
                                 {!! Form::text('rfid_physique', $chauffeur->rfid_physique, ['class' => 'form-control']) !!}
                             </div>
-
 
                             <div class="form-group col-sm-6">
                                 {!! Form::label('contact', 'Contact:') !!}

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 
 
 /**
@@ -19,13 +20,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Chauffeur extends Model
 {
-    use SoftDeletes;
-
 
     public $table = 'chauffeur';
     
     protected $dates = ['deleted_at'];
-
 
     public $fillable = [
         'id',
@@ -34,7 +32,7 @@ class Chauffeur extends Model
         'contact',
         'transporteur_id',
         'numero_badge',
-        'rfid_physique',
+        'rfid_physique'
     ];
 
     /**
@@ -72,6 +70,10 @@ class Chauffeur extends Model
         return $this->hasOne(ChauffeurUpdate::class, 'chauffeur_id')->latest();
     }
 
+    public function validation()
+    {
+        return $this->hasOne(Validation::class, 'model_id')->where('model_type', self::class);
+    }
 
 
     /**

@@ -12,14 +12,17 @@ class UpdateChauffeurInfoNotification extends Notification
     use Queueable;
 
     protected $chauffeur;
+    protected $user_request;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($chauffeur)
+    public function __construct($chauffeur,$user_request)
     {
         $this->chauffeur = $chauffeur;
+        $this->user_request = $user_request;
     }
 
     /**
@@ -42,7 +45,7 @@ class UpdateChauffeurInfoNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'message' => "Demande de mise à jour sur l'information du chauffeur ". $this->chauffeur,
+            'message' => $this->user_request .  " demande la mise à jour du chauffeur ". $this->chauffeur,
             'url' => route('chauffeurUpdateStorie.validation_list'),
         ];
     }

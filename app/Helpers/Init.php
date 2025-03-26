@@ -2389,7 +2389,7 @@ if (!function_exists('getImeibyPlateNumber()')) {
             // Vérifier si l'immatriculation existe dans les données de l'API
             if ($apiCollection->has($plateNumber)) {
                 $imei = $apiCollection[$plateNumber]['imei'] ?? null;
-    
+                
                 //Mise à jour uniquement si un IMEI est trouvé
                 if ($imei) {
                     $imei_platenumber [] = [
@@ -2428,7 +2428,7 @@ if (!function_exists('updateDatebeginAndEndByImei()')) {
             $data = $response->json();
             
             // Liste des événements à comparer
-            $evenements = ['Sortie Ibity (Usine , Ibity)', 'Sortie Tamatave (TAMATAVE)', 'Sortie usine Tanjombato (Usine , Tanjombato)'];
+            $evenements = ['Sortie Ibity (Usine , Ibity)', 'Sortie Port Tamatave', 'Sortie usine Tanjombato (Usine , Tanjombato)'];
             // Initialisation de la nouvelle date de début
             $nouvelle_date_debut = $date_debut;
             

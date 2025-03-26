@@ -44,7 +44,13 @@ class ChauffeurDataTable extends DataTable
 
     public function query(Chauffeur $model)
     {
-        return $this->query->with(['related_transporteur','chauffeur_update','latestUpdate'])->select('chauffeur.*');
+        return $this->query->with(['related_transporteur','chauffeur_update','latestUpdate'])
+        ->leftJoin('validations', function ($join) {
+            $join->on('chauffeur.id', '=', 'validations.model_id')
+                 ->where('validations.model_type', '=', Chauffeur::class);
+                //  ->where('validations.status', '=', 'pending');
+        })
+        ->select('chauffeur.*', 'validations.status as validation_status');
     }
 
     /**
@@ -158,6 +164,29 @@ class ChauffeurDataTable extends DataTable
                     ";
                 }
             ]),
+
+            'Statut' => new Column([
+                'title' => 'Statut',
+                'data' => 'validation_status',
+                'name' => 'validations.status', // Permet à DataTables de retrouver la colonne
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            console.log(data);
+                            if (data === 'pending') {
+                                return '<span class=\"badge badge-warning\">En attente</span>';
+                            } else if (data === 'approved') {
+                                return '<span class=\"badge badge-success\">Validé</span>';
+                            } else if (data === 'rejected') {
+                                return '<span class=\"badge badge-danger\">Refuser</span>';
+                            }
+                            return '<span class=\"badge badge-secondary\">Aucun</span>';
+                        }
+                    ";
+                }
+            ]),
+            
+            
     
             // 'contact' => new Column([
             //     'title' => __('models/chauffeurs.fields.contact'),

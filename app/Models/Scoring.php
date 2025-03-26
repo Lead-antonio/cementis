@@ -68,6 +68,11 @@ class Scoring extends Model
         return $this->belongsTo(Chauffeur::class, 'driver_id');
     }
 
+    // public function driver_latest()
+    // {
+    //     return $this->belongsTo(ChauffeurUpdate::class, 'driver_id');
+    // }
+
     public function transporteur()
     {
         return $this->belongsTo(Transporteur::class, 'transporteur_id');
