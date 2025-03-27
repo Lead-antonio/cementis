@@ -6,7 +6,8 @@
                 <thead>
                     <tr>
                         <th style="text-align: center;background-color: darkgray;">Chauffeur</th>
-                        <th style="text-align: center;background-color: darkgray;">N° Badge</th>
+                        <th style="text-align: center;background-color: darkgray;">N° chauffeur sur RFID</th>
+                        <th style="text-align: center;background-color: darkgray;">N° chauffeur Calendrier</th>
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
                         <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
@@ -43,6 +44,7 @@
                                     <span>Chauffeur sans nom</span>
                                 @endif
                             </td>
+                            <td style="text-align: center">{{ getBadgeCalendarByTruck($selectedPlanning,$item->camion) }}</td>
                             <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
                             <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td>
                             <td style="text-align: center;" class="
@@ -112,8 +114,8 @@
 
                     // Sort the rows by the values in the "Mai" column
                     rows.sort((a, b) => {
-                        const aMai = parseFloat(a.cells[4].textContent);
-                        const bMai = parseFloat(b.cells[4].textContent);
+                        const aMai = parseFloat(a.cells[5].textContent);
+                        const bMai = parseFloat(b.cells[5].textContent);
                         return ascending ? aMai - bMai : bMai - aMai;
                     });
 
@@ -302,8 +304,8 @@
 
                 // Trie les lignes du tableau en fonction des valeurs de la colonne "Mai"
                 rows.sort((a, b) => {
-                    const aMai = parseFloat(a.cells[4].textContent);
-                    const bMai = parseFloat(b.cells[4].textContent);
+                    const aMai = parseFloat(a.cells[5].textContent);
+                    const bMai = parseFloat(b.cells[5].textContent);
                     return ascending ? aMai - bMai : bMai - aMai;
                 });
 

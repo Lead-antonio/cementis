@@ -60,17 +60,17 @@ class InstallationImport implements ToCollection, WithHeadingRow
             //     $this->errorCount++;
             //     continue;
             // }
-            if (empty($row['rfid'])) {
-                $this->addError("Ligne N° {$numero_ligne}: RFID du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
-                $this->errorCount++;
-                continue;
-            }
+            // if (empty($row['rfid'])) {
+            //     $this->addError("Ligne N° {$numero_ligne}: RFID du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
+            //     $this->errorCount++;
+            //     continue;
+            // }
             
-            if (empty($row['numero_badge'])) {
-                $this->addError("Ligne N° {$numero_ligne}: Numéro badge du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
-                $this->errorCount++;
-                continue;
-            }
+            // if (empty($row['numero_badge'])) {
+            //     $this->addError("Ligne N° {$numero_ligne}: Numéro badge du chauffeur : " . $row['nom'] ."  est vide, l'enregistrement est ignoré.");
+            //     $this->errorCount++;
+            //     continue;
+            // }
 
             // Vérifier l'existence du chauffeur et du véhicule
             $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->first() : null;
@@ -184,7 +184,8 @@ class InstallationImport implements ToCollection, WithHeadingRow
             // }
 
             // Insérer le chauffeur si inexistant et RFID non vide
-            if (!$existingChauffeur && !empty($row['rfid'])) {
+            // if (!$existingChauffeur && !empty($row['rfid'])) {
+            if (!$existingChauffeur) {
                 $chauffeur = Chauffeur::create([
                     'rfid' => $row['rfid'],
                     'nom' => $row['nom'],

@@ -183,10 +183,20 @@ class ScoringController extends AppBaseController
             }
             
             return $scoring->driver->numero_badge;
-        })->toArray();
+        })->unique()->toArray();
 
         // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
-        $badge_not_in_scoring = array_diff($badge_calendars, $badges_scoring);
+        // $badge_not_in_scoring = array_diff($badge_calendars, $badges_scoring);
+        $badge_not_in_scoring = [];
+
+        // Vérifier si chaque badge de $badge_calendars est dans les $scoringBadges
+        foreach ($badge_calendars as $badge) {
+            if (!in_array(trim($badge), $badges_scoring)) {
+                // Si le badge n'est pas dans les scoringBadges, on l'ajoute à la liste
+                $badge_not_in_scoring[] = $badge;
+            }
+        }
+        
         $data = $this->checkBadgesExist($badge_not_in_scoring);
         
 

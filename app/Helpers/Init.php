@@ -2300,6 +2300,20 @@ if(!function_exists('getTruckByImei')){
     }
 }
 
+if(!function_exists('getBadgeCalendarByTruck')){
+    function getBadgeCalendarByTruck($id_planning, $imei){
+        $truck = Vehicule::where('imei', $imei)
+                     ->value('nom');
+        
+        $numero_badge =  ImportExcel::where('import_calendar_id', $id_planning)
+        ->where('camion', $truck)
+        ->pluck('badge_chauffeur')
+        ->first();
+
+        return $numero_badge;
+    }
+}
+
 if(!function_exists('getInfractionWithmaximumPoint')){
     function getInfractionWithmaximumPoint($id_driver, $id_planning){
         // Créer la sous-requête
