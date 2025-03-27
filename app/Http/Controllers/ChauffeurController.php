@@ -20,6 +20,7 @@ use App\Models\ChauffeurUpdate;
 use App\Models\ChauffeurUpdateStory;
 use App\Models\ChauffeurUpdateType;
 use App\Models\User;
+use App\Models\Validation;
 use App\Notifications\CreateChauffeurInfoNotification;
 use App\Notifications\DeleteChauffeurInfoNotification;
 use App\Notifications\UpdateChauffeurInfoNotification;
@@ -114,30 +115,36 @@ class ChauffeurController extends AppBaseController
     public function store(Request $request)
     {
         try{
-            // $input = $request->all();
-
-            // $chauffeur = $this->chauffeurRepository->create($input);
 
             $modifier_id = Auth::id(); 
-            $input_ = [
-                "chauffeur_update_type_id" => 5,
+            $validated = [
                 "nom" => $request->nom,
                 "transporteur_id" => $request->transporteur_id,
                 "rfid_physique" => $request->rfid_physique,
                 "contact" => $request->contact,
                 "numero_badge" => $request->numero_badge,
-                "modifier_id" => $modifier_id,
             ];
 
-            $chauffeurUpdateStory = ChauffeurUpdateStory::create($input_);
+            $chauffeur =  Chauffeur::create($validated);
 
-            $chauffeur_info_ = ChauffeurUpdateStory::with('modifier')->where('id',$chauffeurUpdateStory->id)->first();
+            $validation =  Validation::create([
+                'operator_id' => auth()->id(),
+                'model_type' => Chauffeur::class,
+                'model_id' => $chauffeur->id,
+                'modifications' => $validated,
+                'status' => 'pending',
+                'action_type' => 'create',
+            ]);
+
+            // $chauffeurUpdateStory = ChauffeurUpdateStory::create($input_);
+
+            // $chauffeur_info_ = ChauffeurUpdateStory::with('modifier')->where('id',$chauffeurUpdateStory->id)->first();
 
             $admins = User::whereHas('roles', function ($query) {
                 $query->where('name', 'supper-admin');
             })->get();
         
-            Notification::send($admins, new CreateChauffeurInfoNotification($chauffeur_info_->modifier->name,$chauffeur_info_->nom));
+            Notification::send($admins, new CreateChauffeurInfoNotification($validation->operator->name,$chauffeur->nom));
 
             Alert::success('Succès', 'Votre demande de création a été envoyé!');
 
@@ -249,7 +256,7 @@ class ChauffeurController extends AppBaseController
         $transporteur = Transporteur::pluck('nom', 'id');
         $action = "edit";
         $chauffeurUpdateTypes = ChauffeurUpdateType::where('id','<',4)->pluck('name', 'id'); // Récupère les types d'update
-
+        
         // if (empty($chauffeur)) {
         //     Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
 
@@ -344,7 +351,7 @@ class ChauffeurController extends AppBaseController
     public function delete_sending(Request $request)
     {
         $id = $request->input('chauffeur_id'); // Récupère l'ID envoyé en POST
-        $chauffeur = $this->chauffeurRepository->find($id);
+        $chauffeur = Chauffeur::findOrFail($id);
 
         if (empty($chauffeur)) {
             Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
@@ -353,40 +360,88 @@ class ChauffeurController extends AppBaseController
 
         $modifier_id = Auth::id(); 
         $input_ = [
-            "chauffeur_update_type_id" => 4,
+            "id" => $chauffeur->id,
             "nom" => $chauffeur->nom,
             "rfid" =>  $chauffeur->rfid,
             "transporteur_id" => $chauffeur->transporteur_id,
             "rfid_physique" => $chauffeur->rfid_physique,
             "contact" => $chauffeur->contact,
             "numero_badge" => $chauffeur->numero_badge,
-            "chauffeur_id" => $chauffeur->id,
-            "modifier_id" => $modifier_id,
         ];
 
-        $chauffeurUpdateStory = ChauffeurUpdateStory::create($input_);
 
+        // Créer une demande de suppression dans la table `validations`
+        $validation = Validation::create([
+            'operator_id' => auth()->id(),
+            'model_type' => Chauffeur::class,
+            'model_id' => $chauffeur->id,
+            'modifications' => $input_ , // Pas de modification, juste une suppression
+            'status' => 'pending',
+            'action_type' => 'delete',
+        ]);
 
-        $chauffeur_info = ChauffeurUpdateStory::where('id', $chauffeurUpdateStory->id)
-            ->with(['chauffeur', 'chauffeur.related_transporteur', 'chauffeur_update_type', 'transporteur', 'modifier'])
-            ->get()
-            ->toArray();
+        $demande_info = Validation::with('operator')->find($validation->id);
 
-        // Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
-        //     ->send(new ChauffeurDeleteMail($chauffeur_info));   
-
-        $chauffeur_info_ = ChauffeurUpdateStory::with('modifier')->where('id',$chauffeurUpdateStory->id)->first();
-         
         // Envoyer une notification aux administrateurs
         $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'supper-admin');
         })->get();
     
-        Notification::send($admins, new DeleteChauffeurInfoNotification($chauffeur_info_->modifier->name,$chauffeur_info_->nom));
+        Notification::send($admins, new DeleteChauffeurInfoNotification($demande_info->operator->name,$chauffeur->nom));
         
         Alert::success('Succés','Votre demande de suppression a été envoyée.');
 
         return redirect(route('chauffeurs.index'));
+
     }
+
+
+    // public function delete_sending(Request $request)
+    // {
+    //     $id = $request->input('chauffeur_id'); // Récupère l'ID envoyé en POST
+    //     $chauffeur = $this->chauffeurRepository->find($id);
+
+    //     if (empty($chauffeur)) {
+    //         Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
+    //         return redirect(route('chauffeurs.index'));
+    //     }
+
+    //     $modifier_id = Auth::id(); 
+    //     $input_ = [
+    //         "chauffeur_update_type_id" => 4,
+    //         "nom" => $chauffeur->nom,
+    //         "rfid" =>  $chauffeur->rfid,
+    //         "transporteur_id" => $chauffeur->transporteur_id,
+    //         "rfid_physique" => $chauffeur->rfid_physique,
+    //         "contact" => $chauffeur->contact,
+    //         "numero_badge" => $chauffeur->numero_badge,
+    //         "chauffeur_id" => $chauffeur->id,
+    //         "modifier_id" => $modifier_id,
+    //     ];
+
+    //     $chauffeurUpdateStory = ChauffeurUpdateStory::create($input_);
+
+
+    //     $chauffeur_info = ChauffeurUpdateStory::where('id', $chauffeurUpdateStory->id)
+    //         ->with(['chauffeur', 'chauffeur.related_transporteur', 'chauffeur_update_type', 'transporteur', 'modifier'])
+    //         ->get()
+    //         ->toArray();
+
+    //     // Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
+    //     //     ->send(new ChauffeurDeleteMail($chauffeur_info));   
+
+    //     $chauffeur_info_ = ChauffeurUpdateStory::with('modifier')->where('id',$chauffeurUpdateStory->id)->first();
+         
+    //     // Envoyer une notification aux administrateurs
+    //     $admins = User::whereHas('roles', function ($query) {
+    //         $query->where('name', 'supper-admin');
+    //     })->get();
+    
+    //     Notification::send($admins, new DeleteChauffeurInfoNotification($chauffeur_info_->modifier->name,$chauffeur_info_->nom));
+        
+    //     Alert::success('Succés','Votre demande de suppression a été envoyée.');
+
+    //     return redirect(route('chauffeurs.index'));
+    // }
 
 }

@@ -10,11 +10,7 @@ use Illuminate\Notifications\Notification;
 class ValidationChauffeurNotification extends Notification
 {
     use Queueable;
- 
-    protected $chauffeur;
-    protected $user_request;
-    protected $type_demande;
-    protected $validation_type;
+
     protected $message;
     /**
      * Create a new notification instance.

@@ -2389,7 +2389,7 @@ if (!function_exists('getImeibyPlateNumber()')) {
             // Vérifier si l'immatriculation existe dans les données de l'API
             if ($apiCollection->has($plateNumber)) {
                 $imei = $apiCollection[$plateNumber]['imei'] ?? null;
-    
+                
                 //Mise à jour uniquement si un IMEI est trouvé
                 if ($imei) {
                     $imei_platenumber [] = [

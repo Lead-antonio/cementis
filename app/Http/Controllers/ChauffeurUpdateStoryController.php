@@ -14,7 +14,10 @@ use App\Mail\ChauffeurUpdateMail;
 use App\Models\Chauffeur;
 use App\Models\ChauffeurUpdate;
 use App\Models\ChauffeurUpdateStory;
+use App\Models\ChauffeurUpdateType;
+use App\Models\Transporteur;
 use App\Models\User;
+use App\Models\Validation;
 use App\Notifications\UpdateChauffeurInfoNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -71,35 +74,42 @@ class ChauffeurUpdateStoryController extends AppBaseController
         $input = $request->all();
 
         $modifier_id = Auth::id(); 
+        $chauffeur = Chauffeur::find($request->chauffeur_id);
 
-        $input_ = [
-            "chauffeur_update_type_id" => $request->chauffeur_update_type_id,
+        $tranporteur = Transporteur::find($request->hidden_transporteur_id);
+        $modifications = [
             "nom" => $request->nom,
             "rfid" =>  $request->rfid,
             "transporteur_id" => $request->hidden_transporteur_id,
             "rfid_physique" => $request->rfid_physique,
             "contact" => $request->contact,
             "numero_badge" => $request->numero_badge,
-            "chauffeur_id" => $request->chauffeur_id,
-            "modifier_id" => $modifier_id,
+            "transporteur" => $tranporteur->nom,
         ];
 
-        $chauffeurUpdateStory = $this->chauffeurUpdateStoryRepository->create($input_);
-
-        $chauffeur_info = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)
-        ->with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur'])->get()->toArray();
-            
-        // Mail::to("harilovajohnny@gmail.com") // Remplacez par l'email du destinataire
-        // ->send(new ChauffeurUpdateMail($chauffeur_info));   
+        $update_type = ChauffeurUpdateType::find( $request->chauffeur_update_type_id);
+        // Stocker la demande de validation
+        Validation::create([
+            'operator_id' => auth()->id(),
+            'model_type' => Chauffeur::class,
+            'model_id' => $chauffeur->id,
+            'modifications' => $modifications,
+            'status' => 'pending',
+            'action_type' => 'update',
+            'observation' => $update_type->name,
+        ]);
+    
+        // $chauffeur_info = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)
+        // ->with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur'])->get()->toArray();  
 
           // Envoyer une notification aux administrateurs
         $admins = User::whereHas('roles', function ($query) {
             $query->where('name', 'supper-admin');
         })->get();
 
-        $chauffeur_info_ = ChauffeurUpdateStory::where('id',$chauffeurUpdateStory->id)->first();
-      
-        Notification::send($admins, new UpdateChauffeurInfoNotification($chauffeur_info_->nom));
+        $modifier = User::find(auth()->id());
+        
+        Notification::send($admins, new UpdateChauffeurInfoNotification($modifier->name,$chauffeur->nom));
 
         Alert::success('Succés','Votre demande de mise à jour a été envoyée!');
         
@@ -327,7 +337,6 @@ class ChauffeurUpdateStoryController extends AppBaseController
                 'message' => 'Erreur : ' . $e->getMessage()
             ]);
         }
-
     }
 
     /**
@@ -335,12 +344,30 @@ class ChauffeurUpdateStoryController extends AppBaseController
      * jonny
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function validation_list(){
-        $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur','validator','modifier'])
-        ->orderBy('id',"desc")
-        ->paginate(5);
+    // public function validation_list(){
+    //     $chauffeur_update = ChauffeurUpdateStory::with(['chauffeur','chauffeur.related_transporteur','chauffeur_update_type','transporteur','validator','modifier'])
+    //     ->orderBy('id',"desc")
+    //     ->paginate(5);
 
-        return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
+    //     return view('chauffeur_update_stories.validation_list',compact('chauffeur_update'));
+    // }
+
+
+    public function validation_list()
+    {
+        $validations = Validation::with([ 'model' => function ($query) {
+            // Vérifier si le modèle est un Chauffeur ou un Véhicule et charger les relations correspondantes
+            $query->with('related_transporteur');
+        },
+        'operator', 'admin']) // Joindre les informations nécessaires
+            // ->where('status', 'pending') // Seulement les validations en attente
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // Pagination
+
+        return view('chauffeur_update_stories.validation_list', compact('validations'));
     }
+
+
+    
 
 }

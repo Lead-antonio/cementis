@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\Chauffeur;
 use App\Models\ChauffeurUpdate;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Services\DataTable;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Column;
@@ -56,7 +57,16 @@ class ChauffeurDataTable extends DataTable
 
     public function query(Chauffeur $model)
     {
+
+        $latestValidationSubquery = DB::table('validations as v')
+        ->select('v.model_id', 'v.status')
+        ->where('v.model_type', Chauffeur::class)
+        ->orderByDesc('v.created_at') // Trier par la dernière validation
+        ->limit(1);
+
+
         return $model->newQuery()
+        
             // Sélectionner les colonnes du chauffeur
             ->select(
                 'chauffeur.id', 
@@ -78,7 +88,8 @@ class ChauffeurDataTable extends DataTable
                 'updated_transporteur.nom as latest_update_transporteur_nom',
 
                 'chauffeur.transporteur_id as chauffeur_transporteur_id',
-                'chauffeur_transporteur.nom as chauffeur_transporteur_nom'
+                'chauffeur_transporteur.nom as chauffeur_transporteur_nom',
+                'validations.status as validation_status'
             )
             // Jointure avec la table chauffeur_updates pour obtenir la dernière mise à jour du chauffeur
             ->leftJoin('chauffeur_updates as latest_update', 'latest_update.chauffeur_id', '=', 'chauffeur.id')
@@ -88,7 +99,18 @@ class ChauffeurDataTable extends DataTable
             ->leftJoin('transporteur as updated_transporteur', 'updated_transporteur.id', '=', 'latest_update.transporteur_id')
 
             // Jointure avec le transporteur associé au chauffeur (le transporteur du chauffeur lui-même)
-            ->leftJoin('transporteur as chauffeur_transporteur', 'chauffeur_transporteur.id', '=', 'chauffeur.transporteur_id')->
+            ->leftJoin('transporteur as chauffeur_transporteur', 'chauffeur_transporteur.id', '=', 'chauffeur.transporteur_id')
+            // ->leftJoin('validations', function ($join) {
+            //     $join->on('chauffeur.id', '=', 'validations.model_id')
+            //          ->where('validations.model_type', '=', Chauffeur::class);
+            //         //  ->where('validations.status', '=', 'pending');
+            // })->
+
+            ->leftJoin('validations', function ($join) {
+                $join->on('chauffeur.id', '=', 'validations.model_id')
+                     ->where('validations.model_type', '=', Chauffeur::class)
+                     ->whereRaw('validations.created_at = (SELECT MAX(created_at) FROM validations WHERE model_id = chauffeur.id AND model_type = ?)', [Chauffeur::class]);
+            })->
             with(['related_transporteur', 'latest_update']);
     }
 
@@ -224,6 +246,30 @@ class ChauffeurDataTable extends DataTable
                     ";
                 }
             ]),
+
+
+            'Statut' => new Column([
+                'title' => 'Statut',
+                'data' => 'validation_status', // Doit correspondre à l'alias défini dans la requête
+                'name' => 'validations.status', // Pour la recherche et le tri
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            console.log(data);
+                            if (data === 'pending') {
+                                return '<span class=\"badge badge-warning\">En attente validation</span>';
+                            } else if (data === 'approved') {
+                                return '<span class=\"badge badge-success\">Validé</span>';
+                            } else if (data === 'rejected') {
+                                return '<span class=\"badge badge-danger\">Refusé</span>';
+                            }
+                            return '<span class=\"badge badge-success\">Validé</span>';
+                        }
+                    ";
+                }
+            ]),
+            
+
         ];
     }
 
