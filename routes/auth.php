@@ -175,3 +175,5 @@ Route::resource('chauffeurUpdateStories', App\Http\Controllers\ChauffeurUpdateSt
 
 Route::post('/chauffeurUpdateStorie/validation', 'App\Http\Controllers\ChauffeurUpdateStoryController@ValidationUpdateChauffeur')->name('chauffeurUpdateStorie.validation');
 Route::get('/chauffeurUpdateStorie/validation_list', 'App\Http\Controllers\ChauffeurUpdateStoryController@validation_list')->name('chauffeurUpdateStorie.validation_list');
+
+Route::post('/validationRequest/validation', 'App\Http\Controllers\ValidationController@ValidationRequestChauffeur')->name('validationRequest.creation');
