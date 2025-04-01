@@ -58,7 +58,12 @@ class GenerateScoring extends Command
                 foreach ($results as $result) {
                     $driver = $result->driver;
                     // $event = $result->event;
-                    $camion = $result->imei;
+                    $badge_calendar = $result->badge_calendar;
+                    $badge_rfid = $result->badge_rfid;
+                    $rfid_infraction = $result->rfid_infraction;
+                    $rfid_chauffeur = $result->rfid_chauffeur;
+                    $camion = $result->camion;
+                    $imei = $result->imei;
                     $transporteur = $result->transporteur;
                     $total_point = $result->total_point;
 
@@ -87,6 +92,11 @@ class GenerateScoring extends Command
                             'transporteur_id' => $result->transporteur_id,
                             'driver' => $driver,
                             'transporteur' => $transporteur,
+                            'badge_rfid' => $badge_rfid,
+                            'badge_calendar' => $badge_calendar,
+                            'rfid_chauffeur' => $rfid_chauffeur,
+                            'rfid_infraction' => $rfid_infraction,
+                            'imei' => $imei,
                             'camion' => $camion,
                             'comment' => '',
                             'distance' => 0,
@@ -128,6 +138,11 @@ class GenerateScoring extends Command
                         'driver_id' => $item['driver_id'],
                         'transporteur_id' => $item['transporteur_id'],
                         'camion' => $item['camion'],
+                        'badge_rfid' => $item['badge_rfid'],
+                        'badge_calendar' => $item['badge_calendar'],
+                        'rfid_chauffeur' => $item['rfid_chauffeur'],
+                        'rfid_infraction' => $item['rfid_infraction'],
+                        'imei' => $item['imei'],
                         'comment' => $item['comment'],
                         'distance' => $item['distance'],
                         'point' => $item['point'],

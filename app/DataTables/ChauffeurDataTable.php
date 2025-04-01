@@ -51,7 +51,34 @@ class ChauffeurDataTable extends DataTable
                     $q->where('chauffeur.numero_badge', 'like', "%{$keyword}%")
                     ->orWhereIn('latest_update.numero_badge', $matchingBadges);
                 });
+            })
+            ->filterColumn('validation_status', function ($query, $keyword) {
+                // Convertir le mot-clé en minuscule pour éviter toute distinction de casse
+                $keyword = strtolower($keyword);
+            
+                // Définir le mapping des statuts pour la comparaison
+                $statusMapping = [
+                    'en attente validation' => 'pending',
+                    'validé' => 'approved',
+                    'refusé' => 'rejected',
+                ];
+            
+                // Vérifiez si le mot-clé correspond à un statut lisible dans le mapping
+                $statusFilter = array_search($keyword, array_map('strtolower', $statusMapping));
+            
+                // Si une correspondance a été trouvée, appliquez le filtre sur le statut
+                if ($statusFilter !== false) {
+                    $query->whereHas('validation', function ($query) use ($statusFilter) {
+                        $query->where('status', $statusFilter);  // Appliquez le filtre sur le statut
+                    });
+                } else {
+                    // Si aucune correspondance n'a été trouvée, appliquez un filtre générique (si nécessaire)
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('validations.status', 'like', "%{$keyword}%");
+                    });
+                }
             });
+            
 
     }
 
@@ -111,7 +138,7 @@ class ChauffeurDataTable extends DataTable
                      ->where('validations.model_type', '=', Chauffeur::class)
                      ->whereRaw('validations.created_at = (SELECT MAX(created_at) FROM validations WHERE model_id = chauffeur.id AND model_type = ?)', [Chauffeur::class]);
             })->
-            with(['related_transporteur', 'latest_update']);
+            with(['related_transporteur', 'latest_update', 'validation']);
     }
 
 

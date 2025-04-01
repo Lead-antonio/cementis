@@ -5,9 +5,10 @@
             <table id="scoringTable" class="table table-bordered" width="100%">
                 <thead>
                     <tr>
-                        <th style="text-align: center;background-color: darkgray;">Chauffeur</th>
-                        <th style="text-align: center;background-color: darkgray;">N° chauffeur sur RFID</th>
-                        <th style="text-align: center;background-color: darkgray;">N° chauffeur Calendrier</th>
+                        <th style="text-align: center;background-color: darkgray;">Chauffeur dans le calendrier</th>
+                        <th style="text-align: center;background-color: darkgray;">N° badge dans le calendrier</th>
+                        <th style="text-align: center;background-color: darkgray;">Chauffeur dans l'infraction</th>
+                        <th style="text-align: center;background-color: darkgray;">N° badge sur RFID</th>
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
                         <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
@@ -24,9 +25,9 @@
                         <tr>
                             <td style="text-align: center;">
                                 @if(!empty($item->driver))
-                                @php
-                                    $chauffeur = $item->driver->latest_update ?? $item->driver;
-                                @endphp
+                                    @php
+                                        $chauffeur = $item->driver->latest_update ?? $item->driver;
+                                    @endphp
                                     <a href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">
                                         {{ $chauffeur->nom }}
                                     </a>
@@ -34,19 +35,32 @@
                                     <span>Chauffeur sans nom</span>
                                 @endif
                             </td>
+                            <td style="text-align: center">{{ $item->badge_calendar }}</td>
+                            <td>
+                                @php
+                                    $chauffeur_rfid = getDriverByRFID( false , $item->rfid_chauffeur );
+                                @endphp
+                                @if (!empty($chauffeur_rfid))
+                                    <a href="{{ route('driver.detail.scoring', ['chauffeur' => $chauffeur_rfid, 'id_planning'  => $selectedPlanning]) }}">
+                                        {{ $chauffeur_rfid }}
+                                    </a>
+                                @endif
+                            </td>
                             <td style="text-align: center">
-                                @if(!empty($item->driver))
+                                {{-- @if(!empty($item->driver))
                                 @php
                                     $chauffeur = $item->driver->latest_update ?? $item->driver;
                                 @endphp
                                         {{ $chauffeur->numero_badge }}
                                 @else
                                     <span>Chauffeur sans nom</span>
-                                @endif
+                                @endif --}}
+                                {{getDriverByRFID( true , $item->rfid_chauffeur )}}
                             </td>
-                            <td style="text-align: center">{{ getBadgeCalendarByTruck($selectedPlanning,$item->camion) }}</td>
+                            {{-- <td style="text-align: center">{{ getBadgeCalendarByTruck($selectedPlanning,$item->camion) }}</td> --}}
                             <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
-                            <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td>
+                            <td style="text-align: center;">{{  $item->camion  }}</td>
+                            {{-- <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td> --}}
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
@@ -114,8 +128,8 @@
 
                     // Sort the rows by the values in the "Mai" column
                     rows.sort((a, b) => {
-                        const aMai = parseFloat(a.cells[5].textContent);
-                        const bMai = parseFloat(b.cells[5].textContent);
+                        const aMai = parseFloat(a.cells[6].textContent);
+                        const bMai = parseFloat(b.cells[6].textContent);
                         return ascending ? aMai - bMai : bMai - aMai;
                     });
 
@@ -304,8 +318,8 @@
 
                 // Trie les lignes du tableau en fonction des valeurs de la colonne "Mai"
                 rows.sort((a, b) => {
-                    const aMai = parseFloat(a.cells[5].textContent);
-                    const bMai = parseFloat(b.cells[5].textContent);
+                    const aMai = parseFloat(a.cells[6].textContent);
+                    const bMai = parseFloat(b.cells[6].textContent);
                     return ascending ? aMai - bMai : bMai - aMai;
                 });
 

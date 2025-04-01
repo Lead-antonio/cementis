@@ -36,7 +36,12 @@ class Scoring extends Model
         'camion',
         'comment',
         'distance',
-        'point'
+        'point',
+        'badge_rfid',
+        'badge_calendar',
+        'imei',
+        'rfid_infraction',
+        'rfid_chauffeur'
     ];
 
     /**
@@ -51,7 +56,12 @@ class Scoring extends Model
         'transporteur_id' => 'integer',
         'camion' => 'string',
         'distance' => 'decimal:2',
-        'point' => 'decimal:2'
+        'point' => 'decimal:2',
+        'badge_rfid' => 'string',
+        'badge_calendar' => 'string',
+        'imei' => 'string',
+        'rfid_infraction'=> 'string',
+        'rfid_chauffeur'=> 'string'
     ];
 
     /**

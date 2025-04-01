@@ -75,6 +75,21 @@ if (!function_exists('convertMinuteHeure')) {
     }
 }
 
+if (!function_exists('getDriverByRFID')){
+    function getDriverByRFID($badge, $rfid){
+        if(!empty($rfid)){
+            $name = Chauffeur::where('rfid', $rfid)->first();
+            if($badge){
+                return $name->numero_badge ?? '';
+            }else{
+                return $name->nom ?? '';
+            }
+        }else{
+            return '';
+        }
+    }
+}
+
 
 if(!function_exists('scoring')){
     function scoring($id_planning){
@@ -114,30 +129,59 @@ if(!function_exists('scoring')){
             //         GROUP BY 
             //             c.id, c.nom, i.event, c.rfid, t.nom, t.id, i.vehicule
             // ");
+
             $results = DB::select("
                     SELECT 
-                        c.nom AS driver,
-                        c.id As driver_id,
-                        t.id As transporteur_id,
-                        t.nom AS transporteur,
-                        i.imei AS imei,
-                        (SELECT SUM(i2.point) 
-                        FROM infraction i2 
-                        JOIN import_excel ie2 ON i2.calendar_id = ie2.id
-                        WHERE i2.rfid = c.rfid 
-                        AND i2.calendar_id IS NOT NULL 
-                        AND ie2.import_calendar_id = $id_planning) AS total_point
+                        ie.badge_chauffeur AS badge_calendar,
+                        c.numero_badge AS badge_rfid,
+                        ie.camion AS camion,
+                        i.imei,
+                        c.nom AS driver,                    
+                        c.id AS driver_id,                       
+                        t.id AS transporteur_id,                
+                        t.nom AS transporteur,   
+                        i.rfid AS rfid_infraction,
+                        c.rfid AS rfid_chauffeur,                
+                        COALESCE(SUM(i.point), 0) AS total_point
                     FROM 
                         chauffeur c
+                    LEFT JOIN 
+                        import_excel ie ON c.numero_badge = ie.badge_chauffeur  
+                    LEFT JOIN 
+                        infraction i ON ie.id = i.calendar_id 
+                    LEFT JOIN 
+                        transporteur t ON c.transporteur_id = t.id 
                     LEFT JOIN
-                        infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
-                    LEFT JOIN
-                        import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
-                    LEFT JOIN
-                        transporteur t ON c.transporteur_id = t.id
-                    GROUP BY 
-                        c.id, c.nom, c.rfid, t.nom, t.id, i.imei
+                        import_calendar ic ON ie.import_calendar_id = ic.id 
+                    WHERE
+                        ie.import_calendar_id = $id_planning
+                    GROUP BY
+                        c.id, c.nom, i.imei,i.rfid,c.rfid,ie.badge_chauffeur, c.numero_badge, t.id, t.nom, ie.camion         
             ");
+            // $results = DB::select("
+            //         SELECT 
+            //             c.nom AS driver,
+            //             c.id As driver_id,
+            //             t.id As transporteur_id,
+            //             t.nom AS transporteur,
+            //             i.imei AS imei,
+            //             (SELECT SUM(i2.point) 
+            //             FROM infraction i2 
+            //             JOIN import_excel ie2 ON i2.calendar_id = ie2.id
+            //             WHERE i2.rfid = c.rfid 
+            //             AND i2.calendar_id IS NOT NULL 
+            //             AND ie2.import_calendar_id = $id_planning) AS total_point
+            //         FROM 
+            //             chauffeur c
+            //         LEFT JOIN
+            //             infraction i ON c.rfid = i.rfid AND i.calendar_id IS NOT NULL
+            //         LEFT JOIN
+            //             import_excel ie ON i.calendar_id = ie.id AND ie.import_calendar_id = $id_planning
+            //         LEFT JOIN
+            //             transporteur t ON c.transporteur_id = t.id
+            //         GROUP BY 
+            //             c.id, c.nom, c.rfid, t.nom, t.id, i.imei
+            // ");
         }
         
         return $results;
