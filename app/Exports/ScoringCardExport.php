@@ -71,10 +71,12 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         
         return $query->orderBy('point', 'desc')->get()->map(function($scoring) {
             return [
-                'Chauffeur' => optional($scoring->driver->latest_update)->nom ?? optional($scoring->driver)->nom ?? '',
-                'Badge' => optional($scoring->driver->latest_update)->numero_badge ?? optional($scoring->driver)->numero_badge ?? '',
+                'Chauffeur sur le calendrier' => optional($scoring->driver->latest_update)->nom ?? optional($scoring->driver)->nom ?? '',
+                'N° badge sur le calendrier' => $scoring->badge_calendar,
+                'Chauffeur sur l\'infraction' => getDriverByRFID( false , $scoring->rfid_chauffeur),
+                'N° badge sur RFID' => getDriverByRFID( true , $scoring->rfid_chauffeur ),
                 'Transporteur' => $scoring->transporteur->nom ?? '',
-                'Camion' => getTruckByImei($scoring->camion),
+                'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,
                 'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning),
                 'Commentaire' => $scoring->comment
@@ -89,8 +91,10 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
     public function headings(): array
     {
         return [
-            'Chauffeur',
-            'Badge',
+            'Chauffeur sur le calendrier',
+            'N° badge sur le calendrier',
+            'Chauffeur sur l\'infraction',
+            'N° badge sur RFID',
             'Transporteur',
             'Camion',
             'Scoring',
