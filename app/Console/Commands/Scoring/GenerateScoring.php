@@ -60,7 +60,7 @@ class GenerateScoring extends Command
                     // $event = $result->event;
                     $badge_calendar = $result->badge_calendar;
                     $badge_rfid = $result->badge_rfid;
-                    $rfid_infraction = $result->rfid_infraction;
+                    // $rfid_infraction = $result->rfid_infraction;
                     $rfid_chauffeur = $result->rfid_chauffeur;
                     $camion = $result->camion;
                     $imei = $result->imei;
@@ -95,7 +95,7 @@ class GenerateScoring extends Command
                             'badge_rfid' => $badge_rfid,
                             'badge_calendar' => $badge_calendar,
                             'rfid_chauffeur' => $rfid_chauffeur,
-                            'rfid_infraction' => $rfid_infraction,
+                            // 'rfid_infraction' => $rfid_infraction,
                             'imei' => $imei,
                             'camion' => $camion,
                             'comment' => '',
@@ -141,7 +141,7 @@ class GenerateScoring extends Command
                         'badge_rfid' => $item['badge_rfid'],
                         'badge_calendar' => $item['badge_calendar'],
                         'rfid_chauffeur' => $item['rfid_chauffeur'],
-                        'rfid_infraction' => $item['rfid_infraction'],
+                        // 'rfid_infraction' => $item['rfid_infraction'],
                         'imei' => $item['imei'],
                         'comment' => $item['comment'],
                         'distance' => $item['distance'],

@@ -142,18 +142,18 @@ class ScoringController extends AppBaseController
         ->toArray();
 
         // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
-        $scoringBadge = Scoring::where('id_planning', $selectedPlanning)
+        $scoring = Scoring::where('id_planning', $selectedPlanning)
         ->with('driver.latest_update') // Charger la dernière mise à jour des chauffeurs
         ->get();
 
         // Filtrer les Scoring en fonction des badges (mis à jour ou actuel)
-        $scoring = $scoringBadge->filter(function ($scoring) use ($badge_calendars) {
-            // Récupérer le badge du chauffeur (mettre à jour ou actuel)
-            $badge = $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
+        // $scoring = $scoringBadge->filter(function ($scoring) use ($badge_calendars) {
+        //     // Récupérer le badge du chauffeur (mettre à jour ou actuel)
+        //     $badge = $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
 
-            // Vérifier si le badge du chauffeur est présent dans la liste des badges
-            return in_array(trim($badge), $badge_calendars);
-        });
+        //     // Vérifier si le badge du chauffeur est présent dans la liste des badges
+        //     return in_array(trim($badge), $badge_calendars);
+        // });
                 
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
     }
@@ -177,12 +177,13 @@ class ScoringController extends AppBaseController
 
         // Créer un tableau avec les badges des chauffeurs
         $badges_scoring = $scoringBadge->map(function($scoring) {
-            if ($scoring->driver->latest_update) {
-                // Retourner le badge de la mise à jour, si elle existe
-                return $scoring->driver->latest_update->numero_badge;
-            }
+            // if ($scoring->driver->latest_update) {
+            //     // Retourner le badge de la mise à jour, si elle existe
+            //     return $scoring->driver->latest_update->numero_badge;
+            // }
             
-            return $scoring->driver->numero_badge;
+            // return $scoring->driver->numero_badge;
+            return $scoring->badge_calendar;
         })->unique()->toArray();
 
         // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring

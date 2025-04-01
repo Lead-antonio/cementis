@@ -129,26 +129,37 @@ if(!function_exists('scoring')){
             //         GROUP BY 
             //             c.id, c.nom, i.event, c.rfid, t.nom, t.id, i.vehicule
             // ");
-
+            
+                            //   import_excel ie ON c.numero_badge = ie.badge_chauffeur  
             $results = DB::select("
                     SELECT 
                         ie.badge_chauffeur AS badge_calendar,
                         c.numero_badge AS badge_rfid,
                         ie.camion AS camion,
-                        i.imei,
+                        ie.imei AS imei,
                         c.nom AS driver,                    
                         c.id AS driver_id,                       
                         t.id AS transporteur_id,                
                         t.nom AS transporteur,   
-                        i.rfid AS rfid_infraction,
                         c.rfid AS rfid_chauffeur,                
-                        COALESCE(SUM(i.point), 0) AS total_point
+                        (SELECT COALESCE(SUM(i2.point), 0)  
+                         FROM infraction i2 
+                         JOIN import_excel ie2 ON i2.calendar_id = ie2.id
+                         WHERE i2.rfid = c.rfid 
+                         AND i2.calendar_id IS NOT NULL 
+                         AND ie2.import_calendar_id = $id_planning) AS total_point
                     FROM 
                         chauffeur c
                     LEFT JOIN 
-                        import_excel ie ON c.numero_badge = ie.badge_chauffeur  
+                    chauffeur_updates cu ON cu.chauffeur_id = c.id 
+                                        AND cu.id = (
+                                            SELECT MAX(cu2.id) 
+                                            FROM chauffeur_updates cu2 
+                                            WHERE cu2.chauffeur_id = c.id
+                                        )
                     LEFT JOIN 
-                        infraction i ON ie.id = i.calendar_id 
+                        import_excel ie ON c.numero_badge = ie.badge_chauffeur  
+                              OR (ie.badge_chauffeur IS NOT NULL AND cu.numero_badge = ie.badge_chauffeur)
                     LEFT JOIN 
                         transporteur t ON c.transporteur_id = t.id 
                     LEFT JOIN
@@ -156,7 +167,7 @@ if(!function_exists('scoring')){
                     WHERE
                         ie.import_calendar_id = $id_planning
                     GROUP BY
-                        c.id, c.nom, i.imei,i.rfid,c.rfid,ie.badge_chauffeur, c.numero_badge, t.id, t.nom, ie.camion         
+                        c.id, c.nom,c.rfid,ie.badge_chauffeur, ie.imei, c.numero_badge, t.id, t.nom, ie.camion       
             ");
             // $results = DB::select("
             //         SELECT 

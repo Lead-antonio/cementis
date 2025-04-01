@@ -73,8 +73,8 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             return [
                 'Chauffeur sur le calendrier' => optional($scoring->driver->latest_update)->nom ?? optional($scoring->driver)->nom ?? '',
                 'N° badge sur le calendrier' => $scoring->badge_calendar,
-                'Chauffeur sur l\'infraction' => getDriverByRFID( false , $scoring->rfid_chauffeur),
-                'N° badge sur RFID' => getDriverByRFID( true , $scoring->rfid_chauffeur ),
+                // 'Chauffeur sur l\'infraction' => getDriverByRFID( false , $scoring->rfid_chauffeur),
+                // 'N° badge sur RFID' => getDriverByRFID( true , $scoring->rfid_chauffeur ),
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,
@@ -93,8 +93,8 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         return [
             'Chauffeur sur le calendrier',
             'N° badge sur le calendrier',
-            'Chauffeur sur l\'infraction',
-            'N° badge sur RFID',
+            // 'Chauffeur sur l\'infraction',
+            // 'N° badge sur RFID',
             'Transporteur',
             'Camion',
             'Scoring',

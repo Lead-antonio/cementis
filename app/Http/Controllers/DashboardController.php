@@ -181,7 +181,7 @@ class DashboardController extends Controller
         $badge_has_scoring = array_intersect($badge_calendars, $badges_scoring);
         
 
-        return count(array_unique($badge_has_scoring));
+        return count($scoringBadge);
     }
 
     public function driver_not_have_scoring($id_planning){
@@ -199,17 +199,21 @@ class DashboardController extends Controller
             ->get();
 
         // Créer un tableau avec les badges des chauffeurs
-        $badges_scoring = $scoringBadge->map(function($scoring) {
-            if ($scoring->driver && $scoring->driver->latest_update) {
-                // Retourner le badge de la mise à jour, si elle existe
-                return $scoring->driver->latest_update->numero_badge;
-            }
+        // $badges_scoring = $scoringBadge->map(function($scoring) {
+        //     if ($scoring->driver && $scoring->driver->latest_update) {
+        //         // Retourner le badge de la mise à jour, si elle existe
+        //         return $scoring->driver->latest_update->numero_badge;
+        //     }
             
-            return $scoring->driver ? $scoring->driver->numero_badge : null;
+        //     return $scoring->driver ? $scoring->driver->numero_badge : null;
+        // })->toArray();
+        $badges_scoring = $scoringBadge->map(function($scoring) {
+            return $scoring->badge_calendar;
         })->toArray();
+        // dd($badges_scoring);
 
         // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
-        $badge_not_in_scoring = array_diff($badge_calendars, $badges_scoring);
+        $badge_not_in_scoring = array_diff($badge_calendars,$badges_scoring);
 
         // Compter et retourner le nombre de badges qui ne sont pas dans scoring
         return count($badge_not_in_scoring);
