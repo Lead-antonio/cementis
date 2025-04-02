@@ -7,8 +7,8 @@
                     <tr>
                         <th style="text-align: center;background-color: darkgray;">Chauffeur dans le calendrier</th>
                         <th style="text-align: center;background-color: darkgray;">N° badge dans le calendrier</th>
-                        {{-- <th style="text-align: center;background-color: darkgray;">Chauffeur dans l'infraction</th>
-                        <th style="text-align: center;background-color: darkgray;">N° badge sur RFID</th> --}}
+                        <th style="text-align: center;background-color: darkgray;">Chauffeur dans l'infraction</th>
+                        <th style="text-align: center;background-color: darkgray;">N° badge sur RFID</th>
                         <th style="text-align: center;background-color: darkgray;">Transporteur</th>
                         <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
                         <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
@@ -36,40 +36,28 @@
                                 @endif
                             </td>
                             <td style="text-align: center">{{ $item->badge_calendar }}</td>
-                            {{-- <td>
-                                @php
-                                    $chauffeur_rfid = getDriverByRFID( false , $item->rfid_chauffeur );
-                                @endphp
-                                @if (!empty($chauffeur_rfid))
-                                    <a href="{{ route('driver.detail.scoring', ['chauffeur' => $chauffeur_rfid, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $chauffeur_rfid }}
-                                    </a>
-                                @endif
-                            </td> --}}
-                            {{-- <td style="text-align: center"> --}}
-                                {{-- {{getDriverByRFID( true , $item->rfid_chauffeur )}} --}}
-                                {{-- @if(!empty($item->driver))
-                                @php
-                                $chauffeur = $item->driver->latest_update ?? $item->driver;
-                                @endphp
-                                {{ $chauffeur->numero_badge }}
-                                @else
-                                <span>Chauffeur sans nom</span>
-                                @endif --}}
-                            {{-- </td> --}}
+                            <td style="text-align: center">{{ getDriverByRFID(false, $item->rfid_chauffeur)}}</td>
+                            <td style="text-align: center">{{ $item->badge_rfid }}</td>
                             {{-- <td style="text-align: center">{{ getBadgeCalendarByTruck($selectedPlanning,$item->camion) }}</td> --}}
-                            <td style="text-align: center;">{{ $item->transporteur->nom }}</td>
+                            <td style="text-align: center;">
+                                @if (!empty($item->transporteur))
+                                   {{ $item->transporteur->nom }}
+                                @else
+                                    
+                                @endif
+                            </td>
                             <td style="text-align: center;">{{  $item->camion  }}</td>
                             {{-- <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td> --}}
                             <td style="text-align: center;" class="
                                 @php
                                     $score = round($item->point, 2);
-                                    $chauffeur = $item->driver->latest_update ?? $item->driver;
-                                    $isTruckinCalendarChecked = checkBadgeinCalendar($selectedPlanning, $chauffeur->numero_badge);
-                                    if ($isTruckinCalendarChecked) {
-                                        $countCheckedTrucks++; // Incrémentation si le camion est présent dans le calendrier
-                                    }
-                                    if($score == 0 && $isTruckinCalendarChecked){
+                                    // $chauffeur = $item->driver->latest_update ?? $item->driver;
+                                    // $isTruckinCalendarChecked = checkBadgeinCalendar($selectedPlanning, $chauffeur->numero_badge);
+                                    // if ($isTruckinCalendarChecked) {
+                                    //     $countCheckedTrucks++;
+                                    // }
+                                    // if($score == 0 && $isTruckinCalendarChecked){
+                                    if($score == 0){
                                         echo 'scoring-green';
                                     } elseif ($score > 0 && $score <= 2) {
                                         echo 'scoring-green';
@@ -82,7 +70,11 @@
                                     }
                                 @endphp
                             ">{{ round($item->point, 2) }}</td>
-                            <td>{{ getInfractionWithmaximumPoint($item->driver->id, $selectedPlanning )}}</td>
+                            <td>
+                                @if (!empty($item->driver))
+                                     {{ getInfractionWithmaximumPoint($item->driver->id, $selectedPlanning )}}
+                                @endif
+                            </td>
                             <td style="text-align: center;"><textarea class="form-control" name="commentaire[{{ $item->id }}]" id="" cols="30" rows="2 ">{{ $item->comment }}</textarea></td>
                         </tr>
                     @endforeach

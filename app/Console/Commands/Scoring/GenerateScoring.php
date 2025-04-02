@@ -56,18 +56,18 @@ class GenerateScoring extends Command
             
             if ($results) {
                 foreach ($results as $result) {
-                    $driver = $result->driver;
+                    // $driver = $result->driver;
                     // $event = $result->event;
                     $badge_calendar = $result->badge_calendar;
-                    $badge_rfid = $result->badge_rfid;
+                    $badge_rfid = $result->badge_conducteur;
                     // $rfid_infraction = $result->rfid_infraction;
-                    $rfid_chauffeur = $result->rfid_chauffeur;
+                    $rfid_calendar = $result->rfid_calendar;
                     $camion = $result->camion;
-                    $imei = $result->imei;
-                    $transporteur = $result->transporteur;
+                    $imei = $result->imei_calendar;
+                    // $transporteur = $result->transporteur;
                     $total_point = $result->total_point;
 
-                    if (!isset($data[$driver])) {
+                    // if (!isset($data[$driver])) {
                         // $data[$driver] = [
                         //     'transporteur' => $transporteur,
                         //     'total_point' => $total_point,
@@ -90,11 +90,11 @@ class GenerateScoring extends Command
                             'id_planning' => $selectedPlanning,
                             'driver_id' => $result->driver_id,
                             'transporteur_id' => $result->transporteur_id,
-                            'driver' => $driver,
-                            'transporteur' => $transporteur,
+                            // 'driver' => $driver,
+                            // 'transporteur' => $transporteur,
                             'badge_rfid' => $badge_rfid,
                             'badge_calendar' => $badge_calendar,
-                            'rfid_chauffeur' => $rfid_chauffeur,
+                            'rfid_chauffeur' => $rfid_calendar,
                             // 'rfid_infraction' => $rfid_infraction,
                             'imei' => $imei,
                             'camion' => $camion,
@@ -103,7 +103,7 @@ class GenerateScoring extends Command
                             'point' => ($total_point !== null) ? $total_point : 0
                             // 'point' => ($distance != 0) ? ($total_point / $distance) * 100 : 0
                         ];
-                    }
+                    // }
 
                     // $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
                 }
@@ -118,21 +118,21 @@ class GenerateScoring extends Command
 
     public function saveScoring($data){
         foreach($data as $item){
-            $existingScoring = Scoring::where('id_planning', $item['id_planning'])
-                    ->where('driver_id', $item['driver_id'])
-                    ->where('transporteur_id', $item['transporteur_id'])
-                    ->first();
+            // $existingScoring = Scoring::where('id_planning', $item['id_planning'])
+            //         ->where('driver_id', $item['driver_id'])
+            //         ->where('transporteur_id', $item['transporteur_id'])
+            //         ->first();
     
-            if ($existingScoring) {
-                if (empty($existingScoring->camion)) {
-                    $existingScoring->camion = getPlateNumberByRfidAndTransporteur($existingScoring->driver_id, $existingScoring->transporteur_id);
-                    $existingScoring->save();
-                }
-            }else{
-                if (empty($item['camion'])) {
-                    $item['camion'] = getPlateNumberByRfidAndTransporteur($item['driver_id'], $item['transporteur_id']);
-                }
-                if(!empty($item['camion'])){
+            // if ($existingScoring) {
+            //     if (empty($existingScoring->camion)) {
+            //         $existingScoring->camion = getPlateNumberByRfidAndTransporteur($existingScoring->driver_id, $existingScoring->transporteur_id);
+            //         $existingScoring->save();
+            //     }
+            // }else{
+            //     if (empty($item['camion'])) {
+            //         $item['camion'] = getPlateNumberByRfidAndTransporteur($item['driver_id'], $item['transporteur_id']);
+            //     }
+            //     if(!empty($item['camion'])){
                     Scoring::create([
                         'id_planning' => $item['id_planning'],
                         'driver_id' => $item['driver_id'],
@@ -147,8 +147,8 @@ class GenerateScoring extends Command
                         'distance' => $item['distance'],
                         'point' => $item['point'],
                     ]);
-                }
-            }
+        //         }
+        //     }
         }
     }
 }
