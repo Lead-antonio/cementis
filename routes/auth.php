@@ -123,6 +123,8 @@ Route::get('/detail/badge-calendar', 'App\Http\Controllers\ImportExcelController
 
 Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
+Route::get('/truck/detail/scoring/{vehicule}/{id_planning}', 'App\Http\Controllers\ScoringController@truck_detail_scoring')->name('truck.detail.scoring');
+
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
 Route::get('/chauffeurs/edit_story/{id}', 'App\Http\Controllers\ChauffeurController@edit_story')->name('chauffeurs.edit_story');
 

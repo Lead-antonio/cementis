@@ -90,6 +90,29 @@ if (!function_exists('getDriverByRFID')){
     }
 }
 
+if (!function_exists('getDriverByBadge')){
+    function getDriverByBadge($badge, $rfid){
+        $driver = Chauffeur::where('numero_badge', $badge)->first();
+        if(empty($driver)){
+            $result = [
+                'driver_id' => null,
+                'name' => null,
+                'transporteur_id' => null,
+                'commentaire' => "Chauffeur inexistant pour l'RFID : ".$rfid, 
+            ];
+        }
+        else{
+            $result = [
+                'driver_id' => $driver->id,
+                'name' => $driver->nom,
+                'transporteur_id' => $driver->transporteur_id, 
+            ];
+        }
+
+        return $result;
+    }
+}
+
 
 if(!function_exists('scoring')){
     function scoring($id_planning){
@@ -207,7 +230,7 @@ if(!function_exists('scoring')){
                 FROM 
                     import_excel i 
                 LEFT JOIN 
-                    infraction inf ON i.rfid_chauffeur = inf.rfid AND i.imei = inf.imei AND i.id = inf.calendar_id 
+                    infraction inf ON (i.rfid_chauffeur = inf.rfid AND i.imei = inf.imei AND i.id = inf.calendar_id) OR  (i.imei = inf.imei AND i.id = inf.calendar_id)
                 LEFT JOIN 
                     chauffeur ch on i.rfid_chauffeur = ch.rfid  
                 LEFT JOIN 
@@ -225,36 +248,10 @@ if(!function_exists('scoring')){
 }
 
 
-
-if (!function_exists('tabScoringCard')) {
-    function tabScoringCard($driver, $id_planning)
+// Detail driver scoring
+if (!function_exists('driver_detail_scoring_card')) {
+    function driver_detail_scoring_card($driver, $id_planning)
     {
-        // $results = DB::table('infraction as i')
-        // ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-        // ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-        // ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        // ->select(
-        //     'ch.nom as driver',
-        //     'ch.rfid as rfid',
-        //     't.nom as transporteur_nom',
-        //     'i.event as infraction',
-        //     'i.date_debut',
-        //     'i.heure_debut',
-        //     'i.date_fin',
-        //     'i.heure_fin',
-        //     'i.insuffisance',
-        //     'i.duree_infraction',
-        //     'i.duree_initial',
-        //     'i.odometer',
-        //     'i.gps_debut',
-        //     'i.distance',
-        //     'i.distance_calendar',
-        //     'i.point'
-        // )
-        // ->where('ch.nom', $driver)
-        // ->where('ie.import_calendar_id', $id_planning)
-        // ->get();
-
         $results = DB::table('infraction as i')
             ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
             ->leftJoin(DB::raw('(SELECT chauffeur_id, nom AS updated_nom, transporteur_id AS updated_transporteur_id, updated_at
@@ -292,6 +289,45 @@ if (!function_exists('tabScoringCard')) {
     }
 
 }
+
+// Detail driver scoring
+if (!function_exists('truck_detail_scoring_card')) {
+    function truck_detail_scoring_card($immatricule, $id_planning)
+    {
+        $imei = ImportExcel::where('camion', $immatricule)->pluck('imei')->first();
+        $results = DB::table('infraction as i')
+            ->join('vehicule as v', 'i.imei', '=', 'v.imei')
+            ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+            ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
+            ->select(
+                'i.rfid',
+                'i.imei',
+                'v.nom as camion',
+                't.nom as transporteur_nom',
+                'i.event as infraction',
+                'i.date_debut',
+                'i.heure_debut',
+                'i.date_fin',
+                'i.heure_fin',
+                'i.insuffisance',
+                'i.duree_infraction',
+                'i.duree_initial',
+                'i.odometer',
+                'i.gps_debut',
+                'i.distance',
+                'i.distance_calendar',
+                'i.point'
+            )
+            ->where('v.imei', $imei)
+            ->where('ie.import_calendar_id', 1)
+            ->get();
+
+
+        return $results;
+    }
+
+}
+
 
 
 if (!function_exists('tabScoringCard_new')) {

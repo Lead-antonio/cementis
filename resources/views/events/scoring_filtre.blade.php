@@ -32,7 +32,7 @@
                                         {{ $chauffeur->nom }}
                                     </a>
                                 @else
-                                    <span>Chauffeur sans nom</span>
+                                    <span>Chauffeur inexistant pour le numéro de badge : {{$item->badge_calendar}}</span>
                                 @endif
                             </td>
                             <td style="text-align: center">{{ $item->badge_calendar }}</td>
@@ -46,7 +46,11 @@
                                     
                                 @endif
                             </td>
-                            <td style="text-align: center;">{{  $item->camion  }}</td>
+                            <td style="text-align: center;">
+                                <a href="{{ route('truck.detail.scoring', ['vehicule' => $item->camion, 'id_planning'  => $selectedPlanning]) }}">
+                                    {{  $item->camion  }}
+                                </a>
+                            </td>
                             {{-- <td style="text-align: center;">{{  getTruckByImei($item->camion)  }}</td> --}}
                             <td style="text-align: center;" class="
                                 @php

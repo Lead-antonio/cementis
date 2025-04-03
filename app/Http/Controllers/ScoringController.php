@@ -299,9 +299,17 @@ class ScoringController extends AppBaseController
     // Antonio
     // Detail of driver scoring
     public function driver_detail_scoring($chauffeur, $id_planning){
-        $scoring = tabScoringCard($chauffeur, $id_planning);
+        $scoring = driver_detail_scoring_card($chauffeur, $id_planning);
         
-        return view('events.table_scoring', compact('scoring', 'id_planning', 'chauffeur'));
+        return view('events.driver_scoring', compact('scoring', 'id_planning', 'chauffeur'));
+    }
+
+    // Antonio
+    // Detail of driver scoring
+    public function truck_detail_scoring($immatricule, $id_planning){
+        $scoring = truck_detail_scoring_card($immatricule, $id_planning);
+        
+        return view('events.truck_scoring', compact('scoring', 'id_planning', 'immatricule'));
     }
 
 
