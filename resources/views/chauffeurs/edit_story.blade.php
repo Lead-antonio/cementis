@@ -4,8 +4,14 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-12">
+                <div class="col-sm-6">
                       <h1>@lang('models/chauffeurs.singular')</h1>
+                </div>
+                <div class="col-sm-6">
+                    <a class="btn btn-primary float-right"
+                       href="{{ route('chauffeurs.index') }}">
+                         @lang('crud.back')
+                    </a>
                 </div>
             </div>
         </div>
@@ -13,13 +19,14 @@
 
     <div class="content px-3">
 
+        
         @include('adminlte-templates::common.errors')
 
         <div class="card">
             <div class="card-body">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" >Modifier les informations du chauffeur et ajouter un commentaire</h5>
+                        <h5 class="modal-title" >Modifier les informations du chauffeur</h5>
                         
                     </div>
                     {!! Form::open(['route' => 'chauffeurUpdateStories.store', 'method' => 'post']) !!}

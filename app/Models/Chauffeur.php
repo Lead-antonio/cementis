@@ -82,6 +82,6 @@ class Chauffeur extends Model
      * @var array
      */
     public static $rules = [
-        'rfid' => 'required|unique:chauffeur,rfid'
+        // 'rfid' => 'required|unique:chauffeur,rfid'
     ];
 }

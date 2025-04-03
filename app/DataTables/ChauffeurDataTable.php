@@ -65,7 +65,7 @@ class ChauffeurDataTable extends DataTable
             
                 // Vérifiez si le mot-clé correspond à un statut lisible dans le mapping
                 $statusFilter = array_search($keyword, array_map('strtolower', $statusMapping));
-            
+                
                 // Si une correspondance a été trouvée, appliquez le filtre sur le statut
                 if ($statusFilter !== false) {
                     $query->whereHas('validation', function ($query) use ($statusFilter) {
@@ -119,8 +119,10 @@ class ChauffeurDataTable extends DataTable
                 'validations.status as validation_status'
             )
             // Jointure avec la table chauffeur_updates pour obtenir la dernière mise à jour du chauffeur
-            ->leftJoin('chauffeur_updates as latest_update', 'latest_update.chauffeur_id', '=', 'chauffeur.id')
-            
+            // ->leftJoin('chauffeur_updates as latest_update', 'latest_update.chauffeur_id', '=', 'chauffeur.id')
+            ->leftJoin('chauffeur_updates as latest_update', function ($join) {
+                $join->on('latest_update.id', '=', DB::raw('(SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = chauffeur.id)'));
+            })
             // Si vous voulez seulement la dernière mise à jour, vous pouvez filtrer ici si nécessaire
             // Par exemple, en récupérant la mise à jour la plus récente
             ->leftJoin('transporteur as updated_transporteur', 'updated_transporteur.id', '=', 'latest_update.transporteur_id')

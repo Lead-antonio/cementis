@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Validation;
+
 class ValidationService
 {
     public static function requestValidation($operatorId, $model, $newData)
@@ -26,4 +28,7 @@ class ValidationService
             'status'      => 'pending',
         ]);
     }
+
+
+    
 }
