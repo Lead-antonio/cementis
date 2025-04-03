@@ -25,10 +25,12 @@
 </div>
 
 <!-- Rfid Field -->
-{{-- <div class="form-group col-sm-6">
-    {!! Form::label('rfid', __('models/chauffeurs.fields.rfid').':', ['class' => 'required']) !!}
-    {!! Form::text('rfid', null, ['class' => 'form-control','placeholder'=>'Rfid']) !!}
-</div> --}}
+@if(auth()->user()->role == 'supper-admin')
+    <div class="form-group col-sm-6">
+        {!! Form::label('rfid', __('models/chauffeurs.fields.rfid').':', ['class' => 'required']) !!}
+        {!! Form::text('rfid', null, ['class' => 'form-control','placeholder'=>'Rfid']) !!}
+    </div>
+@endif
 
 <div class="form-group col-sm-6">
     {!! Form::label('rfid_physique', __('models/chauffeurs.fields.rfid_physique').':') !!}

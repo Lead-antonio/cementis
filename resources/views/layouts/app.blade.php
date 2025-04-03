@@ -64,8 +64,9 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         @if(Auth::user()->unreadNotifications->count() > 0)
-                            <span class="position-absolute translate-middle badge rounded-pill bg-danger" style="margin: -13% 0% 0% 16%;">
-                                {{ Auth::user()->unreadNotifications->count() }}
+                            <span id="notif-badge" class="position-absolute translate-middle badge rounded-pill bg-danger" style="margin: -13% 0% 0% 16%; 
+                                        display: {{ Auth::user()->unreadNotifications->count() > 0 ? 'inline' : 'none' }};">
+                                    {{ Auth::user()->unreadNotifications->count() }}
                             </span>
                         @endif
                         🔔
@@ -73,7 +74,7 @@
 
                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown" data-bs-popper="static" style="width: 646px; max-height: 400px; overflow-y: auto;">
                         <div class="dropdown-header">Notifications</div>
-                        @forelse (Auth::user()->unreadNotifications as $notification)
+                        @forelse (Auth::user()->notifications as $notification)
 
                             <div class="d-flex align-items-start p-3" style="border-radius: 5px; background-color: #f8f9fa; margin-bottom: 5px;">
                                 <!-- Icône de notification agrandie -->
@@ -94,13 +95,13 @@
                             <span class="dropdown-item text-muted">Aucune notification</span>
                         @endforelse
                         <li><hr class="dropdown-divider"></li>
-                        <li>
+                        {{-- <li>
                             <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
                             </form>
-                        </li>
+                        </li> --}}
                     </ul>
 
                 
@@ -288,6 +289,8 @@
         }, 10000);
 
 
+
+
         // document.addEventListener("DOMContentLoaded", function() {
         //     document.getElementById('select-all').addEventListener('change', function () {
         //         var selectAllCheckbox = this; // Stockez une référence à la case à cocher "Sélectionner tout"
@@ -415,7 +418,7 @@
             // Mettez à jour le contenu de la table avec les données filtrées
             var tbody = document.querySelector('.table tbody');
             tbody.innerHTML = '';
-
+            
             data.forEach(function (chauffeur) {
                 var row = `<tr>
                     <td><input type="checkbox" class="select-checkbox" name="selected_chauffeurs[]" value="${chauffeur.id}"></td>
@@ -427,6 +430,32 @@
             });
         }
 
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("notificationsDropdown").addEventListener("click", function() {
+                // Envoyer la requête AJAX pour marquer les notifications comme lues
+
+                let badge = document.getElementById("notif-badge");
+                if (badge && badge.style.display !== "none") {
+                // Envoyer la requête AJAX pour marquer comme lues
+                fetch("{{ route('notifications.markAllAsRead') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json",
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Masquer seulement le badge, sans toucher la liste des notifications
+                        badge.style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Erreur lors du marquage des notifications :", error));
+            }
+
+            });
+        });
         
 
     </script>
@@ -462,15 +491,15 @@
                 });
 
                 dropdownMenu.append('<li><hr class="dropdown-divider"></li>');
-                dropdownMenu.append(`
-                    <li>
-                        <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
-                        </form>
-                    </li>
-                `);
+                // dropdownMenu.append(`
+                //     <li>
+                //         <form action="{{ route('notifications.markAllAsRead') }}" method="POST">
+                //             @csrf
+                //             @method('PATCH')
+                //             <button type="submit" class="dropdown-item text-center text-primary">Tout marquer comme lu</button>
+                //         </form>
+                //     </li>
+                // `);
             } else {
                 dropdownMenu.append('<li><a class="dropdown-item text-muted">Aucune notification</a></li>');
             }
