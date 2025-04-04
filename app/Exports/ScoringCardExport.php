@@ -70,15 +70,24 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         }
         
         return $query->orderBy('point', 'desc')->get()->map(function($scoring) {
+            $conducteur = getDriverByRFID(false, $scoring->rfid_chauffeur);
+            if (!empty($conducteur)) {
+                $chauffeurInfraction = $conducteur;
+            } elseif (empty($scoring->rfid_chauffeur)) {
+                $chauffeurInfraction = 'Pas de RFID et IMEI pour le véhicule';
+            } else {
+                $chauffeurInfraction = 'Chauffeur inexistant pour le RFID dans infraction : ' . $scoring->rfid_chauffeur;
+            }
             return [
-                'Chauffeur sur le calendrier' => optional($scoring->driver->latest_update)->nom ?? optional($scoring->driver)->nom ?? '',
+                'Chauffeur sur le calendrier' => getDriverByNumberBadge($scoring->badge_calendar) ?? 'Chauffeur inexistant pour le numéro de badge :' . $scoring->badge_calendar,
                 'N° badge sur le calendrier' => $scoring->badge_calendar,
                 // 'Chauffeur sur l\'infraction' => getDriverByRFID( false , $scoring->rfid_chauffeur),
-                // 'N° badge sur RFID' => getDriverByRFID( true , $scoring->rfid_chauffeur ),
+                'Chauffeur sur l\'infraction' => $chauffeurInfraction,
+                'N° badge sur RFID' => $scoring->badge_rfid,
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,
-                'Infraction le plus fréquent' => getInfractionWithmaximumPoint($scoring->driver_id, $this->planning),
+                'Infraction le plus fréquent' => getDriverInfractionWithmaximumPoint($scoring->driver_id, $scoring->imei, $this->planning),
                 'Commentaire' => $scoring->comment
             ];
         });

@@ -39,10 +39,10 @@ class UpdateDatebeginCalendarCommand extends Command
     public function handle()
     {
         getImeibyPlateNumber();
-        // $importExcelData = ImportExcel::get(); 
-        // foreach($importExcelData as $data){
-        //     updateDatebeginAndEndByImei($data);
-        // }
+        $importExcelData = ImportExcel::get(); 
+        foreach($importExcelData as $data){
+            updateDatebeginAndEndByImei($data);
+        }
 
         $this->info('Process completed!');
     }

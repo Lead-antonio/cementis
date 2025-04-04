@@ -113,6 +113,21 @@ if (!function_exists('getDriverByBadge')){
     }
 }
 
+use App\Models\ChauffeurUpdate;
+if (!function_exists('getDriverByNumberBadge')){
+    function getDriverByNumberBadge($badge){
+        $driver = Chauffeur::where('numero_badge', $badge)->first();
+        if(empty($driver)){
+            $driver = ChauffeurUpdate::where('numero_badge', $badge)->first();
+            if(empty($driver)){
+                return NULL;
+            }
+        }
+
+        return $driver->nom;
+    }
+}
+
 
 if(!function_exists('scoring')){
     function scoring($id_planning){
@@ -222,7 +237,7 @@ if(!function_exists('scoring')){
                     ch.nom ,
                     trans.id as transporteur_id,
                     i.camion,
-                    ch.numero_badge badge_conducteur,
+                    ch.numero_badge AS badge_conducteur,
                     i.badge_chauffeur AS badge_calendar,
                     i.rfid_chauffeur AS rfid_calendar,
                     i.imei AS imei_calendar,
@@ -2430,8 +2445,8 @@ if(!function_exists('getBadgeCalendarByTruck')){
     }
 }
 
-if(!function_exists('getInfractionWithmaximumPoint')){
-    function getInfractionWithmaximumPoint($id_driver, $id_planning){
+if(!function_exists('getDriverInfractionWithmaximumPoint')){
+    function getDriverInfractionWithmaximumPoint($id_driver, $imei, $id_planning){
         // Créer la sous-requête
         $subquery = DB::table('infraction as i')
         ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
@@ -2460,6 +2475,67 @@ if(!function_exists('getInfractionWithmaximumPoint')){
         if ($result) {
             // Traiter les résultats obtenus
             // return $result->infraction . " avec un total de " . $result->point;
+            return $result->infraction;
+        } else {
+            $query = DB::table('infraction as i')
+                ->join('vehicule as v', 'i.imei', '=', 'v.imei')
+                ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+                ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
+                ->select(
+                    'v.imei as imei',
+                    't.nom as transporteur_nom',
+                    'i.event as infraction',
+                    DB::raw('SUM(i.point) as total_point')
+                )
+                ->where('v.imei', $imei)
+                ->where('ie.import_calendar_id', $id_planning)
+                ->groupBy('v.imei', 't.nom', 'i.event');
+
+
+            // Utiliser selectSub pour la requête principale
+            $result2 = DB::table(DB::raw("({$query->toSql()}) as query"))
+            ->mergeBindings($query) // Merge bindings from the subquery
+            ->select('query.imei', 'query.transporteur_nom', 'query.infraction', 'query.total_point as point')
+            ->orderBy('query.total_point', 'desc')
+            ->limit(1)
+            ->first();
+
+            if($result2){
+                return $result2->infraction;
+            }
+        }
+    }
+}
+
+
+if(!function_exists('getTruckInfractionWithmaximumPoint')){
+    function getTruckInfractionWithmaximumPoint($imei, $id_planning){
+        // Créer la sous-requête
+        $subquery = DB::table('infraction as i')
+            ->join('vehicule as v', 'i.imei', '=', 'v.imei')
+            ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
+            ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
+            ->select(
+                'v.imei as imei',
+                't.nom as transporteur_nom',
+                'i.event as infraction',
+                DB::raw('SUM(i.point) as total_point')
+            )
+            ->where('v.imei', $imei)
+            ->where('ie.import_calendar_id', $id_planning)
+            ->groupBy('v.imei', 't.nom', 'i.event');
+
+
+        // Utiliser selectSub pour la requête principale
+        $result = DB::table(DB::raw("({$subquery->toSql()}) as subquery"))
+        ->mergeBindings($subquery) // Merge bindings from the subquery
+        ->select('subquery.imei', 'subquery.transporteur_nom', 'subquery.infraction', 'subquery.total_point as point')
+        ->orderBy('subquery.total_point', 'desc')
+        ->limit(1)
+        ->first();
+
+        if ($result) {
+            // Traiter les résultats obtenus
             return $result->infraction;
         } else {
             // Aucun résultat trouvé, gérer le cas où il n'y a pas de données

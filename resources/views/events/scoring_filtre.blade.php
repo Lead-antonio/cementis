@@ -24,19 +24,39 @@
                     @foreach ($scoring as $item)
                         <tr>
                             <td style="text-align: center;">
-                                @if(!empty($item->driver))
+                                @php
+                                    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
+                                @endphp
+                                {{-- @if(!empty($item->driver) && empty($chauffeur_calendar))
                                     @php
                                         $chauffeur = $item->driver->latest_update ?? $item->driver;
                                     @endphp
                                     <a href="{{ route('driver.detail.scoring', ['chauffeur' => $item->driver->nom, 'id_planning'  => $selectedPlanning]) }}">
                                         {{ $chauffeur->nom }}
+                                    </a> --}}
+                                @if (!empty($chauffeur_calendar))
+                                    <a href="{{ route('driver.detail.scoring', ['chauffeur' => $chauffeur_calendar, 'id_planning'  => $selectedPlanning]) }}">
+                                        {{ $chauffeur_calendar}}
                                     </a>
                                 @else
                                     <span>Chauffeur inexistant pour le numéro de badge : {{$item->badge_calendar}}</span>
                                 @endif
                             </td>
                             <td style="text-align: center">{{ $item->badge_calendar }}</td>
-                            <td style="text-align: center">{{ getDriverByRFID(false, $item->rfid_chauffeur)}}</td>
+                            <td style="text-align: center">
+                                @php
+                                    $conducteur = getDriverByRFID(false, $item->rfid_chauffeur);
+                                @endphp
+                                @if (!empty($conducteur))
+                                    <a href="{{ route('driver.detail.scoring', ['chauffeur' => $conducteur, 'id_planning'  => $selectedPlanning]) }}">
+                                        {{ $conducteur}}
+                                    </a>
+                                @elseif (empty($item->rfid_chauffeur))
+                                    <span>Pas de RFID et  IMEI pour le véhicule</span>
+                                @else
+                                    <span>Chauffeur inexistant pour le RFID dans infraction : {{$item->rfid_chauffeur}}</span>
+                                @endif
+                            </td>
                             <td style="text-align: center">{{ $item->badge_rfid }}</td>
                             {{-- <td style="text-align: center">{{ getBadgeCalendarByTruck($selectedPlanning,$item->camion) }}</td> --}}
                             <td style="text-align: center;">
@@ -76,7 +96,9 @@
                             ">{{ round($item->point, 2) }}</td>
                             <td>
                                 @if (!empty($item->driver))
-                                     {{ getInfractionWithmaximumPoint($item->driver->id, $selectedPlanning )}}
+                                    {{getDriverInfractionWithmaximumPoint($item->driver->id, $item->imei, $selectedPlanning)}}
+                                @else
+                                    {{getTruckInfractionWithmaximumPoint($item->imei, $selectedPlanning)}}
                                 @endif
                             </td>
                             <td style="text-align: center;"><textarea class="form-control" name="commentaire[{{ $item->id }}]" id="" cols="30" rows="2 ">{{ $item->comment }}</textarea></td>
