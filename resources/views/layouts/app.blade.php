@@ -284,7 +284,6 @@
             $.get("{{url('/checkOnline')}}", function($rs) {
                 if ($('#user_online').length)
                     $('#user_online').html($rs);
-                console.log($rs);
             })
         }, 10000);
 
@@ -436,23 +435,24 @@
 
                 let badge = document.getElementById("notif-badge");
                 if (badge && badge.style.display !== "none") {
-                // Envoyer la requête AJAX pour marquer comme lues
-                fetch("{{ route('notifications.markAllAsRead') }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Content-Type": "application/json",
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Masquer seulement le badge, sans toucher la liste des notifications
-                        badge.style.display = "none";
-                    }
-                })
-                .catch(error => console.error("Erreur lors du marquage des notifications :", error));
-            }
+                    console.log('tafiditra');
+                    // Envoyer la requête AJAX pour marquer comme lues
+                    fetch("{{ route('notifications.markAsRead') }}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Content-Type": "application/json",
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Masquer seulement le badge, sans toucher la liste des notifications
+                            badge.style.display = "none";
+                        }
+                    })
+                    .catch(error => console.error("Erreur lors du marquage des notifications :", error));
+                }
 
             });
         });

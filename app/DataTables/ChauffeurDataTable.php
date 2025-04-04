@@ -78,18 +78,10 @@ class ChauffeurDataTable extends DataTable
                     });
                 }
             });
-            
-
     }
 
     public function query(Chauffeur $model)
     {
-
-        $latestValidationSubquery = DB::table('validations as v')
-        ->select('v.model_id', 'v.status')
-        ->where('v.model_type', Chauffeur::class)
-        ->orderByDesc('v.created_at') // Trier par la dernière validation
-        ->limit(1);
 
 
         return $model->newQuery()
@@ -102,6 +94,7 @@ class ChauffeurDataTable extends DataTable
                 'chauffeur.rfid_physique', 
                 'chauffeur.numero_badge', 
                 'chauffeur.deleted_at', 
+                'chauffeur.contact', 
 
                 // Sélectionner les colonnes de la mise à jour du chauffeur (latest_update)
                 'latest_update.id as latest_update_id', 
@@ -109,6 +102,7 @@ class ChauffeurDataTable extends DataTable
                 'latest_update.rfid as latest_update_rfid', 
                 'latest_update.rfid_physique as latest_update_rfid_physique', 
                 'latest_update.numero_badge as latest_update_numero_badge',
+                'latest_update.contact as latest_update_contact',
 
                 // Joindre les informations du transporteur associé à la mise à jour du chauffeur
                 'latest_update.transporteur_id as latest_update_transporteur_id',
@@ -129,12 +123,7 @@ class ChauffeurDataTable extends DataTable
 
             // Jointure avec le transporteur associé au chauffeur (le transporteur du chauffeur lui-même)
             ->leftJoin('transporteur as chauffeur_transporteur', 'chauffeur_transporteur.id', '=', 'chauffeur.transporteur_id')
-            // ->leftJoin('validations', function ($join) {
-            //     $join->on('chauffeur.id', '=', 'validations.model_id')
-            //          ->where('validations.model_type', '=', Chauffeur::class);
-            //         //  ->where('validations.status', '=', 'pending');
-            // })->
-
+    
             ->leftJoin('validations', function ($join) {
                 $join->on('chauffeur.id', '=', 'validations.model_id')
                      ->where('validations.model_type', '=', Chauffeur::class)
@@ -206,7 +195,8 @@ class ChauffeurDataTable extends DataTable
 
             'transporteur' => new Column([
                 'title' => __('models/chauffeurs.fields.transporteur_id'),
-                'data' => 'related_transporteur.nom',
+                'data' => 'chauffeur_transporteur_nom',
+                'name' => 'related_transporteur.nom',
                 'searchable' => true,
                 'render' => function () {
                     return "
@@ -276,6 +266,23 @@ class ChauffeurDataTable extends DataTable
                 }
             ]),
 
+            'contact' => new Column([
+                'title' => __('models/chauffeurs.fields.contact'),
+                'data' => 'contact', // Pas de référence à "full.related_calendar.camion"
+                'searchable' => true,
+                'render' => function () {
+                    return "
+                        function(data, type, row) {
+                            if (row.latest_update_contact) {
+                                return row.latest_update_contact;  
+                            }
+                            else {
+                                return row.contact;
+                            }
+                        }
+                    ";
+                }
+            ]),
 
             'Statut' => new Column([
                 'title' => 'Statut',
@@ -284,7 +291,6 @@ class ChauffeurDataTable extends DataTable
                 'render' => function () {
                     return "
                         function(data, type, row) {
-                            console.log(data);
                             if (data === 'pending') {
                                 return '<span class=\"badge badge-warning\">En attente validation</span>';
                             } else if (data === 'approved') {
@@ -297,7 +303,6 @@ class ChauffeurDataTable extends DataTable
                     ";
                 }
             ]),
-            
 
         ];
     }
