@@ -116,7 +116,6 @@ class ChauffeurController extends AppBaseController
     {
         try{
 
-            $modifier_id = Auth::id(); 
             $validated = [
                 "nom" => $request->nom,
                 "transporteur_id" => $request->transporteur_id,
@@ -124,6 +123,19 @@ class ChauffeurController extends AppBaseController
                 "contact" => $request->contact,
                 "numero_badge" => $request->numero_badge,
             ];
+ 
+            // Vérifier si une demande de création avec les mêmes données est déjà en attente
+            $existingValidation = Validation::where('model_type', Chauffeur::class)
+                ->where('status', 'pending')
+                ->where('action_type', 'create')
+                ->whereJsonContains('modifications', $validated) // Vérification du JSON stocké
+                ->latest('created_at')
+                ->first();
+
+            if ($existingValidation) {
+                Alert::warning('Erreur', 'Une demande de création pour  ce chauffeur  '. $request->nom .'  est déjà en attente.');
+                return redirect()->back()->withInput(); // Retourner sur le formulaire avec les données saisies
+            }
 
             $chauffeur =  Chauffeur::create($validated);
 
@@ -135,10 +147,6 @@ class ChauffeurController extends AppBaseController
                 'status' => 'pending',
                 'action_type' => 'create',
             ]);
-
-            // $chauffeurUpdateStory = ChauffeurUpdateStory::create($input_);
-
-            // $chauffeur_info_ = ChauffeurUpdateStory::with('modifier')->where('id',$chauffeurUpdateStory->id)->first();
 
             $admins = User::whereHas('roles', function ($query) {
                 $query->where('name', 'supper-admin');
@@ -350,48 +358,64 @@ class ChauffeurController extends AppBaseController
      */
     public function delete_sending(Request $request)
     {
-        $id = $request->input('chauffeur_id'); // Récupère l'ID envoyé en POST
-        $chauffeur = Chauffeur::findOrFail($id);
+        try{
+            $id = $request->input('chauffeur_id'); // Récupère l'ID envoyé en POST
+            $chauffeur = Chauffeur::findOrFail($id);
 
-        if (empty($chauffeur)) {
-            Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
+            if (empty($chauffeur)) {
+                Alert::error(__('messages.not_found', ['model' => __('models/chauffeurs.singular')]));
+                return redirect(route('chauffeurs.index'));
+            }
+
+            // Vérifier si une demande de création avec les mêmes données est déjà en attente
+            $existingValidation = Validation::where('model_type', Chauffeur::class)
+            ->where('status', 'pending')
+            ->where('model_id', $chauffeur->id)
+            ->latest('created_at')
+            ->first();
+            
+            if ($existingValidation) {
+                return response()->json(['error' => 'Une demande est encore en attente de validation pour ce chauffeur :' . $chauffeur->nom  ], 500);
+            }
+
+            $modifier_id = Auth::id(); 
+            $input_ = [
+                "id" => $chauffeur->id,
+                "nom" => $chauffeur->nom,
+                "rfid" =>  $chauffeur->rfid,
+                "transporteur_id" => $chauffeur->transporteur_id,
+                "rfid_physique" => $chauffeur->rfid_physique,
+                "contact" => $chauffeur->contact,
+                "numero_badge" => $chauffeur->numero_badge,
+            ];
+
+
+            // Créer une demande de suppression dans la table `validations`
+            $validation = Validation::create([
+                'operator_id' => auth()->id(),
+                'model_type' => Chauffeur::class,
+                'model_id' => $chauffeur->id,
+                'modifications' => $input_ , // Pas de modification, juste une suppression
+                'status' => 'pending',
+                'action_type' => 'delete',
+            ]); 
+
+            $demande_info = Validation::with('operator')->find($validation->id);
+
+            // Envoyer une notification aux administrateurs
+            $admins = User::whereHas('roles', function ($query) {
+                $query->where('name', 'supper-admin');
+            })->get();
+        
+            Notification::send($admins, new DeleteChauffeurInfoNotification($demande_info->operator->name,$chauffeur->nom));
+            
+            Alert::success('Succés','Votre demande de suppression a été envoyée.');
+
+            return redirect(route('chauffeurs.index'));
+        }catch(Exception $e){
+            Alert::error('Erreur',$e->getMessage());
             return redirect(route('chauffeurs.index'));
         }
-
-        $modifier_id = Auth::id(); 
-        $input_ = [
-            "id" => $chauffeur->id,
-            "nom" => $chauffeur->nom,
-            "rfid" =>  $chauffeur->rfid,
-            "transporteur_id" => $chauffeur->transporteur_id,
-            "rfid_physique" => $chauffeur->rfid_physique,
-            "contact" => $chauffeur->contact,
-            "numero_badge" => $chauffeur->numero_badge,
-        ];
-
-
-        // Créer une demande de suppression dans la table `validations`
-        $validation = Validation::create([
-            'operator_id' => auth()->id(),
-            'model_type' => Chauffeur::class,
-            'model_id' => $chauffeur->id,
-            'modifications' => $input_ , // Pas de modification, juste une suppression
-            'status' => 'pending',
-            'action_type' => 'delete',
-        ]);
-
-        $demande_info = Validation::with('operator')->find($validation->id);
-
-        // Envoyer une notification aux administrateurs
-        $admins = User::whereHas('roles', function ($query) {
-            $query->where('name', 'supper-admin');
-        })->get();
-    
-        Notification::send($admins, new DeleteChauffeurInfoNotification($demande_info->operator->name,$chauffeur->nom));
-        
-        Alert::success('Succés','Votre demande de suppression a été envoyée.');
-
-        return redirect(route('chauffeurs.index'));
 
     }
 

@@ -1,4 +1,5 @@
 {!! Form::open(['route' => ['chauffeurs.destroy', $id], 'method' => 'delete']) !!}
+
 <div class='btn-group'>
     @can('chauffeurs.show')    
         <a href="{{ route('chauffeurs.show', $id) }}" class='btn btn-primary btn-xs'>
@@ -63,6 +64,7 @@
                         chauffeur_id: chauffeurId
                     },
                     success: function(response) {
+                        
                         Swal.fire(
                             'Envoyé!',
                             'Votre demande de suppression a été envoyée.',
@@ -71,12 +73,20 @@
                             location.reload(); // Rafraîchir la page après la suppression
                         });
                     },
-                    error: function(xhr) {
-                        Swal.fire(
-                            'Erreur!',
-                            'Un problème est survenu, veuillez réessayer.',
-                            'error'
-                        );
+                    error: function(response) {
+                        if(response.responseJSON.error){
+                            Swal.fire(
+                                'Attention!',
+                                response.responseJSON.error,
+                                'error'
+                            );
+                        }else{
+                            Swal.fire(
+                                'Erreur!',
+                                'Un problème est survenu, veuillez réessayer.',
+                                'error'
+                            );
+                        }
                     }
                 });
             }

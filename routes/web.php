@@ -71,7 +71,7 @@ Route::post('/process/{step}/run', function ($step) {
 })->name('process.run');
 
 
-Route::patch('/notifications/read-all', function (Request $request) {
+Route::post('/notifications/read-all', function (Request $request) {
     Auth::user()->unreadNotifications->markAsRead();
     return redirect()->back();
 })->name('notifications.markAllAsRead');

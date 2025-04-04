@@ -76,6 +76,15 @@ class ChauffeurUpdateStoryController extends AppBaseController
         $modifier_id = Auth::id(); 
         $chauffeur = Chauffeur::find($request->chauffeur_id);
 
+        $validation = Validation::where('model_id',$chauffeur->id)
+                        ->where('model_type',Chauffeur::class)->where('status','pending')
+                        ->latest('created_at')->first();
+        
+        if($validation){
+            Alert::warning('Attention', 'Une demande est encore en attente de validation pour ce chauffeur');
+            return redirect()->back();
+        }
+        
         $tranporteur = Transporteur::find($request->hidden_transporteur_id);
         $modifications = [
             "nom" => $request->nom,
@@ -84,7 +93,7 @@ class ChauffeurUpdateStoryController extends AppBaseController
             "rfid_physique" => $request->rfid_physique,
             "contact" => $request->contact,
             "numero_badge" => $request->numero_badge,
-            "transporteur" => $tranporteur->nom,
+            "transporteur" => $tranporteur->nom
         ];
 
         $update_type = ChauffeurUpdateType::find( $request->chauffeur_update_type_id);
@@ -110,7 +119,6 @@ class ChauffeurUpdateStoryController extends AppBaseController
         $modifier = User::find(auth()->id());
         
         Notification::send($admins, new UpdateChauffeurInfoNotification($modifier->name,$chauffeur->nom));
-
         Alert::success('Succés','Votre demande de mise à jour a été envoyée!');
         
         return redirect(route('chauffeurs.index'));
@@ -146,8 +154,8 @@ class ChauffeurUpdateStoryController extends AppBaseController
     public function edit($id)
     {
         $chauffeurUpdateStory = $this->chauffeurUpdateStoryRepository->find($id);
-
-        if (empty($chauffeurUpdateStory)) {
+        
+        if (empty($chauffeurUpdateStory)) { 
             Flash::error(__('messages.not_found', ['model' => __('models/chauffeurUpdateStories.singular')]));
 
             return redirect(route('chauffeurUpdateStories.index'));
@@ -235,7 +243,6 @@ class ChauffeurUpdateStoryController extends AppBaseController
                     if($rfid_ == null){
                         $rfid_ =  $chauffeur_update->rfid;
                     }
-                    
                     
                     ChauffeurUpdate::create([
                         'chauffeur_id' =>  $chauffeur_update->chauffeur_id,
@@ -353,6 +360,10 @@ class ChauffeurUpdateStoryController extends AppBaseController
     // }
 
 
+    /**
+     * /jonny
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
     public function validation_list()
     {
         $validations = Validation::with([ 'model' => function ($query) {
