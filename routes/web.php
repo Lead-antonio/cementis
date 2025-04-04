@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RotationController;
 use App\Http\Controllers\WebhookController;
 use App\Jobs\RunStepScoringCommandJob;
@@ -73,7 +74,7 @@ Route::post('/process/{step}/run', function ($step) {
 
 Route::post('/notifications/read-all', function (Request $request) {
     Auth::user()->unreadNotifications->markAsRead();
-    return redirect()->back();
+    return response()->json(['success' => true]);
 })->name('notifications.markAllAsRead');
 
 Route::get('/notifications/fetch', function () {
@@ -87,3 +88,7 @@ Route::get('/notifications/fetch', function () {
         }),
     ]);
 })->name('notifications.fetch');
+
+
+Route::post('/notifications/read', [NotificationController::class, 'markAsRead'])
+    ->name('notifications.markAsRead');

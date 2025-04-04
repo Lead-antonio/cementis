@@ -84,7 +84,6 @@
             $.get("{{url('/checkOnline')}}", function($rs) {
                 if ($('#user_online').length)
                     $('#user_online').html($rs);
-                console.log($rs);
             })
         }, 10000);
     </script>
