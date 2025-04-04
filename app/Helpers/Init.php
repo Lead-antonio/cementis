@@ -2733,7 +2733,7 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
                         $transporteur = Transporteur::find($transporteur_name);
                     }
 
-                    if($transporteur){
+                    // if($transporteur){
                         $existingVehicule =  Vehicule::where('imei', $imei )->first() ;
                         //Mise à jour uniquement si un IMEI est trouvé
                         if (!$existingVehicule) {
@@ -2741,12 +2741,12 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
                                 'imei' =>  $imei,
                                 'nom' => $row->camion,
                                 'description' => $row['description'],
-                                'id_transporteur' => $transporteur->id
+                                'id_transporteur' => $transporteur->id ?? NULL
                             ]);
                         } 
-                    }else{
-                        echo "Transporteur null pour le vehicule : ". $plateNumber . "\n" ;
-                    }
+                    // }else{
+                    //     echo "Transporteur null pour le vehicule : ". $plateNumber . "\n" ;
+                    // }
                     
                 }
             }
