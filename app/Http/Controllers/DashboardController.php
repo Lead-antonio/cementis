@@ -161,27 +161,38 @@ class DashboardController extends Controller
 
         $badge_calendars = array_map('trim', $badge_calendars);
         
-        $scoringBadge = Scoring::where('id_planning', $id_planning)
-            ->with('driver.latest_update')
-            ->get();
+        // $scoringBadge = Scoring::where('id_planning', $id_planning)
+        //     ->with('driver.latest_update')
+        //     ->get();
 
+        $scoringBadge = Scoring::where('id_planning', $id_planning)
+            ->pluck('badge_calendar')->toArray();
+        
         // Créer un tableau avec les badges des chauffeurs
         // $badges_scoring = $scoringBadge->map(function($scoring) {
         //     return $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
         // })->toArray();
-        $badges_scoring = $scoringBadge->map(function($scoring) {
-            if ($scoring->driver && $scoring->driver->latest_update) {
-                return $scoring->driver->latest_update->numero_badge;
+        // $badges_scoring = $scoringBadge->map(function($scoring) {
+        //     if ($scoring->driver && $scoring->driver->latest_update) {
+        //         return $scoring->driver->latest_update->numero_badge;
+        //     }
+        //     // Handle case where there is no driver or latest_update
+        //     return $scoring->driver ? $scoring->driver->numero_badge : null; // or some other default value
+        // })->toArray();
+
+
+        // $badge_has_scoring = array_intersect($scoringBadge, $badge_calendars);
+        $compteur = 0;
+
+        foreach ($badge_calendars as $badge) {
+            if (in_array($badge, $scoringBadge)) {
+                $compteur++;
             }
-            // Handle case where there is no driver or latest_update
-            return $scoring->driver ? $scoring->driver->numero_badge : null; // or some other default value
-        })->toArray();
+        }
 
-
-        $badge_has_scoring = array_intersect($badge_calendars, $badges_scoring);
         
 
-        return count($scoringBadge);
+        return $compteur;
     }
 
     public function driver_not_have_scoring($id_planning){
@@ -210,10 +221,11 @@ class DashboardController extends Controller
         $badges_scoring = $scoringBadge->map(function($scoring) {
             return $scoring->badge_calendar;
         })->toArray();
-        // dd($badges_scoring);
+        // dd($badges_scoring, $badge_calendars);
 
         // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
-        $badge_not_in_scoring = array_diff($badge_calendars,$badges_scoring);
+        $badge_not_in_scoring = array_diff($badges_scoring, $badge_calendars);
+        
 
         // Compter et retourner le nombre de badges qui ne sont pas dans scoring
         return count($badge_not_in_scoring);

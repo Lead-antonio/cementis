@@ -285,12 +285,13 @@ class ScoringController extends AppBaseController
 
     // Antonio
     // Export excel detail of driver score
-    public function export_excel_driver_Scoring($chauffeur, $id_planning)
+    public function export_excel_driver_Scoring($imei, $badge, $id_planning)
     {
         try {
-            $scoring = tabScoringCard_new($chauffeur, $id_planning);
-            $distance_total = getDistanceTotalDriverInCalendar($chauffeur, $id_planning);
-            return Excel::download(new ScoringExport($scoring, $distance_total ), 'scoring.xlsx');
+            // $scoring = tabScoringCard_new($chauffeur, $id_planning);
+            $scoring = driver_detail_scoring_card($imei, $badge, $id_planning);
+            // $distance_total = getDistanceTotalDriverInCalendar($chauffeur, $id_planning);
+            return Excel::download(new ScoringExport($scoring), 'scoring.xlsx');
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -298,10 +299,10 @@ class ScoringController extends AppBaseController
 
     // Antonio
     // Detail of driver scoring
-    public function driver_detail_scoring($chauffeur, $id_planning){
-        $scoring = driver_detail_scoring_card($chauffeur, $id_planning);
+    public function driver_detail_scoring($imei, $badge, $id_planning){
+        $scoring = driver_detail_scoring_card($imei, $badge, $id_planning);
         
-        return view('events.driver_scoring', compact('scoring', 'id_planning', 'chauffeur'));
+        return view('events.driver_scoring', compact('scoring', 'id_planning', 'imei', 'badge'));
     }
 
     // Antonio

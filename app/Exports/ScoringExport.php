@@ -21,10 +21,14 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     protected $distance_totale;
     protected $totals = [];
 
-    public function __construct($scoring, $distance_totale)
+    // public function __construct($scoring, $distance_totale)
+    // {
+    //     $this->scoring = $scoring;
+    //     $this->distance_totale = $distance_totale;
+    // }
+    public function __construct($scoring)
     {
         $this->scoring = $scoring;
-        $this->distance_totale = $distance_totale;
     }
 
     public function collection()
@@ -38,11 +42,11 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'Chauffeur',
             'Transporteur',
             'Événements',
-            'Date de l\'évènement',
+            'Date début',
+            'Date fin',
             'Durée(s)',
             'Coordonnées GPS',
             'Point de pénalité',
-            'Distance total',
             'Scoring Card'
         ];
     }
@@ -65,34 +69,34 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     {
         // dd($row);
         // Calculate and update totals
-        $driver = $row->driver;
+        $driver = getDriverByNumberBadge($row->badge_calendar);
 
-        $this->totals[$driver]['penalty_point'] = ($this->totals[$driver]['penalty_point'] ?? 0) + $row->penalty_point;
+        $this->totals[$driver]['point'] = ($this->totals[$driver]['point'] ?? 0) + $row->point;
 
         // Vérifier si la distance est déjà présente dans le tableau des valeurs uniques
-        if (!in_array($row->distance_calendar, $this->totals[$driver][   'unique_distances'] ?? [])) {
-            // Si elle n'est pas présente, l'ajouter à la totalité et au tableau des valeurs uniques
-            $this->totals[$driver]['distance_calendar'] = ($this->totals[$driver]['distance_calendar'] ?? 0) + $row->distance_calendar;
-            $this->totals[$driver]['unique_distances'][] = $row->distance_calendar;
-        }
+        // if (!in_array($row->distance_calendar, $this->totals[$driver][   'unique_distances'] ?? [])) {
+        //     // Si elle n'est pas présente, l'ajouter à la totalité et au tableau des valeurs uniques
+        //     $this->totals[$driver]['distance_calendar'] = ($this->totals[$driver]['distance_calendar'] ?? 0) + $row->distance_calendar;
+        //     $this->totals[$driver]['unique_distances'][] = $row->distance_calendar;
+        // }
 
-        $scoringCard = $driver === 'Total :' ? number_format(($this->totals[$driver]['penalty_point'] != 0 ? ($this->totals[$driver]['penalty_point'] / $this->totals[$driver]['distance']) * 100 : 0), 2) : '';
-        $coordinates = '';
+        $scoringCard = $driver === 'Total :' ? number_format(($this->totals[$driver]['point']), 2) : 0;
+        $coordinates = $row->gps_debut;
 
-        if (!is_null($row->latitude) && !is_null($row->longitude)) {
-            $coordinates = $row->latitude . ', ' . $row->longitude;
-        }
+        // if (!is_null($row->latitude) && !is_null($row->longitude)) {
+        //     $coordinates = $row->latitude . ', ' . $row->longitude;
+        // }
         
         return [
-            $row->driver,
-            $row->transporteur_nom,
-            $row->event,
-            \Carbon\Carbon::parse($row->date_event)->format('d-m-Y H:i:s'),
-            $row->duree,
+            getDriverByNumberBadge($row->badge_calendar),
+            get_transporteur($row->imei, $row->camion),
+            $row->infraction,
+            \Carbon\Carbon::parse($row->date_debut . ' ' . $row->heure_debut)->format('d-m-Y H:i:s'),
+            \Carbon\Carbon::parse($row->date_fin . ' ' . $row->heure_fin)->format('d-m-Y H:i:s'),
+            $row->duree_infraction,
             $coordinates,
             //$row->distance,
-            $row->penalty_point,
-            //$row->distance_calendar . ' Km',
+            $row->point,
             $scoringCard
         ];
     }
@@ -102,17 +106,15 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $totals = [];
 
         foreach ($scoring as $result) {
-            $driver = $result->driver;
+            $driver = getDriverByNumberBadge($row->badge_calendar);
 
             if (!isset($totals[$driver])) {
                 $totals[$driver] = [
-                    'penalty_point' => 0,
-                    'distance_calendar' => 0,
+                    'point' => 0,
                 ];
             }
 
-            $totals[$driver]['penalty_point'] += $result->penalty_point;
-            $totals[$driver]['distance_calendar'] += $result->distance_calendar;
+            $totals[$driver]['point'] += $result->point;
         }
 
         return $totals;
@@ -155,39 +157,48 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
             // Insérer une nouvelle ligne après la dernière ligne de données pour ce chauffeur
             $insertRow = $lastDataRow + 1;
     
-            $scoringCard = 0; // Valeur par défaut
-
-            if ($this->distance_totale != 0) {
-                $scoringCard = number_format(($total['penalty_point'] != 0 ? ($total['penalty_point'] / $this->distance_totale) * 100 : 0), 2);
-            }
+            // $scoringCard = 0; // Valeur par défaut
+            $scoringCard = number_format(($total['point']), 2);
+            // if ($this->distance_totale != 0) {
+            //     $scoringCard = number_format(($total['point'] != 0 ? ($total['penalty_point'] / $this->distance_totale) * 100 : 0), 2);
+            // }
             
             $event->sheet->insertNewRowBefore($insertRow, 1);
     
             $event->sheet->setCellValue('A' . $insertRow, $driver); // Chauffeur
             $event->sheet->setCellValue('B' . $insertRow, ''); // Transporteur
             $event->sheet->setCellValue('C' . $insertRow, 'Total :'); // Événements
-            $event->sheet->setCellValue('D' . $insertRow, ''); // Date de l'évènement
-            $event->sheet->setCellValue('E' . $insertRow, ''); // Durée(s)
-            $event->sheet->setCellValue('F' . $insertRow, ''); // Coordonnées GPS
-            //$event->sheet->setCellValue('G' . $insertRow, ''); // Coordonnées GPS
-            $event->sheet->setCellValue('G' . $insertRow, $total['penalty_point']); // Point de pénalité
-            $event->sheet->setCellValue('H' . $insertRow, $this->distance_totale . ' Km'); // Distance parcourue
+            $event->sheet->setCellValue('D' . $insertRow, ''); // Date début
+            $event->sheet->setCellValue('E' . $insertRow, ''); // Date fin
+            $event->sheet->setCellValue('F' . $insertRow, ''); // Durée
+            $event->sheet->setCellValue('G' . $insertRow, ''); // Coordonnées
+            $event->sheet->setCellValue('H' . $insertRow, $total['point']); // Point de pénalité
+            // $event->sheet->setCellValue('I' . $insertRow, '0 Km');
             $event->sheet->setCellValue('I' . $insertRow, $scoringCard); // Scoring Card
+
     
             // Appliquer le style vert à la cellule contenant le total de point de pénalité
-            $event->sheet->getStyle('G' . $insertRow)->applyFromArray([
-                'font' => ['bold' => true],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '00FF00']]
-            ]);
+            // $event->sheet->getStyle('H' . $insertRow)->applyFromArray([
+            //     'font' => ['bold' => true],
+            //     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '00FF00']]
+            // ]);
     
             // Appliquer le style orange à la cellule contenant le total de distance parcourue
-            $event->sheet->getStyle('H' . $insertRow)->applyFromArray([
-                'font' => ['bold' => true],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFA500']] 
-            ]);
+            // $event->sheet->getStyle('I' . $insertRow)->applyFromArray([
+            //     'font' => ['bold' => true],
+            //     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFA500']] 
+            // ]);
     
             // Appliquer le style bleu à la cellule contenant le total du scoring card
-            $fillColor = ['argb' => 'FF6495ED']; // ARGB pour Blue
+            if ($scoringCard <= 2) {
+                $fillColor = ['argb' => 'FF00FF00']; // Vert
+            } elseif ($scoringCard > 2 && $scoringCard <= 5) {
+                $fillColor = ['argb' => 'FFFFFF00']; // Jaune
+            } elseif ($scoringCard > 5 && $scoringCard <= 10) {
+                $fillColor = ['argb' => 'FFFFA500']; // Orange
+            } else {
+                $fillColor = ['argb' => 'FFFF0000']; // Rouge
+            }
 
             $event->sheet->getStyle('I' . $insertRow)->applyFromArray([
                 'font' => ['bold' => true],

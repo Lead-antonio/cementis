@@ -60,22 +60,23 @@ class GenerateScoring extends Command
                     // $driver = $result->driver;
                     // $event = $result->event;
                     $badge_calendar = $result->badge_calendar;
-                    $badge_rfid = $result->badge_conducteur;
-                    // $rfid_infraction = $result->rfid_infraction;
+                    $badge_rfid = get_driver_by_rfid($result->rfid_conducteur);
+                    $rfid_infraction = $result->rfid_conducteur;
                     $rfid_calendar = $result->rfid_calendar;
                     $camion = $result->camion;
-                    $imei = $result->imei_calendar;
+                    $imei = $result->imei;
+                    $transporteur_id = get_transporteur_by_imei($result->imei, $result->camion);
                     // $transporteur = $result->transporteur;
                     $total_point = $result->total_point;
-                    if(empty($result->driver_id) && empty($result->transporteur_id) && empty($result->badge_conducteur)){
-                        $driver = getDriverByBadge($result->badge_calendar, $result->rfid_calendar);
-                        if($driver['driver_id'] == NULL && $driver['transporteur_id'] == NULL && $driver['commentaire'] != NULL){
-                            $comment = $driver['commentaire'];
-                        }else{
-                            $result->driver_id = $driver['driver_id'];
-                            $result->transporteur_id = $driver['transporteur_id'];
-                        }
-                    }
+                    // if(empty($result->driver_id) && empty($result->transporteur_id) && empty($result->badge_conducteur)){
+                    //     $driver = getDriverByBadge($result->badge_calendar, $result->rfid_calendar);
+                    //     if($driver['driver_id'] == NULL && $driver['transporteur_id'] == NULL && $driver['commentaire'] != NULL){
+                    //         $comment = $driver['commentaire'];
+                    //     }else{
+                    //         $result->driver_id = $driver['driver_id'];
+                    //         $result->transporteur_id = $driver['transporteur_id'];
+                    //     }
+                    // }
 
                     // if (!isset($data[$driver])) {
                         // $data[$driver] = [
@@ -98,14 +99,14 @@ class GenerateScoring extends Command
 
                         $createScoring[] = [
                             'id_planning' => $selectedPlanning,
-                            'driver_id' => $result->driver_id,
-                            'transporteur_id' => $result->transporteur_id,
+                            // 'driver_id' => $result->driver_id,
+                            'transporteur_id' => $transporteur_id,
                             // 'driver' => $driver,
                             // 'transporteur' => $transporteur,
                             'badge_rfid' => $badge_rfid,
                             'badge_calendar' => $badge_calendar,
                             'rfid_chauffeur' => $rfid_calendar,
-                            // 'rfid_infraction' => $rfid_infraction,
+                            'rfid_infraction' => $rfid_infraction,
                             'imei' => $imei,
                             'camion' => $camion,
                             'comment' => $comment,
@@ -119,7 +120,6 @@ class GenerateScoring extends Command
                     // $data[$driver][$event] = ['valeur' => $result->valeur, 'duree' => $result->duree, 'point' => $result->point];
                 }
             }
-
             // Sauvegarder le scoring
             $this->saveScoring($createScoring);
         }
@@ -151,13 +151,13 @@ class GenerateScoring extends Command
             // }
                     Scoring::create([
                         'id_planning' => $item['id_planning'],
-                        'driver_id' => $item['driver_id'],
+                        // 'driver_id' => $item['driver_id'],
                         'transporteur_id' => $item['transporteur_id'],
                         'camion' => $item['camion'],
                         'badge_rfid' => $item['badge_rfid'],
                         'badge_calendar' => $item['badge_calendar'],
                         'rfid_chauffeur' => $item['rfid_chauffeur'],
-                        // 'rfid_infraction' => $item['rfid_infraction'],
+                        'rfid_infraction' => $item['rfid_infraction'],
                         'imei' => $item['imei'],
                         'comment' => $item['comment'],
                         'distance' => $item['distance'],

@@ -88,6 +88,7 @@ hold-transition login-page
         return true; // Permettre la soumission du formulaire
     }
 </script>
+
 <style>
      #overlay {
         display: none;
@@ -195,5 +196,5 @@ hold-transition login-page
         }
     }
 </style>
-<!-- /.login-box -->
+
 @endsection

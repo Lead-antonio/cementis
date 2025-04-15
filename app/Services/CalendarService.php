@@ -88,10 +88,14 @@ class CalendarService
             $ExcluEvents = ['Temps de repos hebdomadaire', 'Temps de repos minimum après une journée de travail'];
     
             $calendars = ImportExcel::where('import_calendar_id', $planning->id)->get();
-            $infractions = Infraction::whereNotIn('event', $ExcluEvents)
-                                     ->whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            // $infractions = Infraction::whereNotIn('event', $ExcluEvents)
+            //                          ->whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            //                          ->whereBetween('date_fin', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            //                          ->get();
+            $infractions = Infraction::whereBetween('date_debut', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->whereBetween('date_fin', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
                                      ->get();
+    
     
             $console->withProgressBar($calendars, function($calendar) use ($infractions) {
                 $dateDebut = new \DateTime($calendar->date_debut);

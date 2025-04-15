@@ -99,7 +99,7 @@ Route::get('events/scoring', 'App\Http\Controllers\EventController@viewScoring')
 
 Route::get('/event/routes', 'App\Http\Controllers\EventController@getRoutes')->name('event.routes');
 
-Route::get('/export/excel/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@export_excel_driver_Scoring')->name('export.excel.detail.scoring');
+Route::get('/export/excel/detail/scoring/{imei}/{badge}/{id_planning}', 'App\Http\Controllers\ScoringController@export_excel_driver_Scoring')->name('export.excel.detail.scoring');
 
 Route::get('/export/excel/scoring', 'App\Http\Controllers\ScoringController@export_excel_scoring_card')->name('export.excel.scoring');
 
@@ -121,7 +121,7 @@ Route::get('/detail/truck-calendar', 'App\Http\Controllers\VehiculeController@co
 
 Route::get('/detail/badge-calendar', 'App\Http\Controllers\ImportExcelController@count_badge_in_calendar')->name('detail.badge-calendar');
 
-Route::get('/driver/detail/scoring/{chauffeur}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
+Route::get('/driver/detail/scoring/{imei}/{badge}/{id_planning}', 'App\Http\Controllers\ScoringController@driver_detail_scoring')->name('driver.detail.scoring');
 
 Route::get('/truck/detail/scoring/{vehicule}/{id_planning}', 'App\Http\Controllers\ScoringController@truck_detail_scoring')->name('truck.detail.scoring');
 

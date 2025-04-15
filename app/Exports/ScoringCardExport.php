@@ -102,8 +102,8 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
         return [
             'Chauffeur sur le calendrier',
             'N° badge sur le calendrier',
-            // 'Chauffeur sur l\'infraction',
-            // 'N° badge sur RFID',
+            'Chauffeur sur l\'infraction',
+            'N° badge sur RFID',
             'Transporteur',
             'Camion',
             'Scoring',
