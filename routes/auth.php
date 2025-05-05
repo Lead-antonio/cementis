@@ -70,6 +70,8 @@ Route::get('/import-liste', 'App\Http\Controllers\ImportExcelController@liste_im
 
 Route::get('import-excels/detail/{id}', 'App\Http\Controllers\ImportExcelController@detail_liste_importation')->name('import_excels.detail_liste_importation');
 
+Route::get('incident_vehicule/detail/{id}', 'App\Http\Controllers\IncidentVehiculeCoordonneeController@detail_liste_coordonnee')->name('incident_vehicule.detail');
+
 Route::resource('importcalendars', App\Http\Controllers\ImportcalendarController::class);
 
 Route::get('/import-installation-affichage', 'App\Http\Controllers\ImportInstallationController@affichageImportation')->name('import.installation.affichage');
@@ -182,3 +184,14 @@ Route::get('/chauffeurUpdateStorie/validation_list', 'App\Http\Controllers\Chauf
 Route::post('/validationRequest/validation', 'App\Http\Controllers\ValidationController@ValidationRequestChauffeur')->name('validationRequest.creation');
 
 Route::get('/incident/index', 'App\Http\Controllers\IncidentController@index')->name('incident.index');
+
+Route::resource('incidentVehicules', App\Http\Controllers\IncidentVehiculeController::class);
+
+
+Route::resource('incidentVehicules', App\Http\Controllers\IncidentVehiculeController::class);
+
+
+Route::resource('incidentVehicules', App\Http\Controllers\IncidentVehiculeController::class);
+
+
+Route::resource('incidentVehiculeCoordonnees', App\Http\Controllers\IncidentVehiculeCoordonneeController::class);
