@@ -343,3 +343,13 @@
     </li>
 @endcan
 
+
+@can('chauffeurUpdateStorie.validation_list')    
+    <li class="nav-item">
+        <a href="{{ route('incident.index') }}"
+        class="nav-link {{ Request::is('admin/chauffeurUpdateStorie*') ? 'active' : '' }}">
+        <i class="nav-icon fa fa-list"></i>
+            <p>Rapport d'incident</p>
+        </a>
+    </li>
+@endcan
