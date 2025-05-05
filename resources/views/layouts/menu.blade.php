@@ -227,6 +227,26 @@
                     </a>
                 </li>
             @endcan
+
+            @can('incidentVehicules.index')   
+                <li class="nav-item">
+                    <a href="{{ route('incidentVehicules.index') }}"
+                    class="nav-link {{ Request::is('incidentVehicules*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-car-crash"></i>
+                        <p>@lang('models/incidentVehicules.plural')</p>
+                    </a>
+                </li>
+            @endcan
+            @can('incidentVehiculeCoordonnees.index')   
+                <li class="nav-item">
+                    <a href="{{ route('incidentVehiculeCoordonnees.index') }}"
+                    class="nav-link {{ Request::is('incidentVehiculeCoordonnees*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-map-marker"></i>   
+                    <p>@lang('models/incidentVehiculeCoordonnees.plural')</p>
+                    </a>
+                </li>
+            @endcan
+
         </ul>
     </li>
 @endcanany

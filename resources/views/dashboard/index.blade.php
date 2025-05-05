@@ -515,7 +515,6 @@
     var labels = vehicules.map(t => t.nom);
     var vehiculesData = vehicules.map(t => t.vehicule_count);
 
-
     var vehiculeChart  = new Chart(ctx, {
         type: 'bar',
         data: {

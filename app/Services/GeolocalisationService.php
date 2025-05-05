@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\IncidentVehicule;
+use App\Models\IncidentVehiculeCoordonnee;
+use App\Models\Vehicule;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -252,4 +255,79 @@ class GeolocalisationService
         }
 
     }
+
+
+
+    /**
+     * jonny
+     * enregistrer les coordonnées et du vehicule entre deux date dans un incident
+     *
+     * @param string $imei_vehicule
+     * @param \Carbon\Carbon $start_date
+     * @param \Carbon\Carbon $end_date
+     */
+    public function getCoordonnateCarIncident($imei_vehicule, $start_date, $end_date)
+    {
+    
+        // Formatage des dates au format YYYYMMDDHHMMSS
+        $formattedStartDate = $start_date->format('YmdHis');
+        $formattedEndDate = $end_date->format('YmdHis');
+
+        // $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE,{$imei_vehicule},{$formattedStartDate},{$formattedEndDate},20";
+        $url = "https://www.m-tectracking.mg/api/api.php?api=user&key=5D0AAC5FACB8D4A2BC6A7DB859F2230A&cmd=OBJECT_GET_ROUTE,865135060229281,20250428064820,202504290648100,1";
+        
+        try {
+            $response = $this->makeRequest($url);
+            $data = json_decode($response, true);
+
+            // Vérifier si $data est null ou ne contient pas la clé 'route'
+            if (!isset($data['route']) || !is_array($data['route'])) {
+                return null;
+            }
+    
+            $incident_vehicule = IncidentVehicule::where('date_debut',$start_date)
+                            ->where('date_fin',$end_date)->where('imei_vehicule',$imei_vehicule)->first();
+            
+            if(!$incident_vehicule){
+
+                $vehicule_id = Vehicule::where('imei',$imei_vehicule)->first('id');
+
+                $incident_vehicule = IncidentVehicule::create([
+                    'imei_vehicule' => $imei_vehicule,
+                    'date_debut' => $start_date,
+                    'date_fin' => $end_date,
+                    'vehicule_id' => $vehicule_id ?? null,
+                    'distance_parcourue'  => $data['route_length'] ,
+                    'vitesse_maximale' => $data['top_speed'],
+                    'vitesse_moyenne' => $data['avg_speed'],
+                    'duree_arret' => $data['stops_duration_time'],
+                    'duree_repos' => null,
+                    'duree_conduite' => $data['drives_duration_time'],   
+                    'duree_travail' =>  $data['drives_duration_time'] +  $data['stops_duration_time']
+                ]);
+
+                foreach ($data['route'] as $item) {
+
+                    IncidentVehiculeCoordonnee::create([
+                        'incident_vehicule_id' => $incident_vehicule->id,
+                        'latitude'  => $item[1] ,
+                        'longitude'  =>  $item[2],
+                        'date_heure'  =>  $item[0],
+                        'vitesse' => $item[5]
+                    ]);
+                    // Vérifier si l'RFID et l'odomètre sont présents dans les données
+                }
+            }
+            
+        } catch (\Exception $e) {
+
+            $erreur =  "erreur enregistrement coordonnees  :"  . $e->getMessage();
+            echo $erreur; 
+            // Gérer les erreurs de requête HTTP
+            // Vous pouvez enregistrer le message d'erreur ou retourner des valeurs par défaut
+        }
+    
+    }
+
+
 }
