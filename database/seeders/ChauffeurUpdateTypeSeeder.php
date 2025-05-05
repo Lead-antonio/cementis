@@ -21,7 +21,6 @@ class ChauffeurUpdateTypeSeeder extends Seeder
             ['name' => 'Suppression', 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Creation', 'created_at' => now(), 'updated_at' => now()],
         ];
-
         DB::table('chauffeur_update_type')->insertOrIgnore($types);
     }
 }
