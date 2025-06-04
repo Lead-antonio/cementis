@@ -370,10 +370,10 @@ class MovementService
             $query->select(DB::raw(1))
                   ->from('movement')
                   ->whereRaw('movement.imei = vehicule.imei')
-                  ->whereMonth('movement.start_date', 1)
-                  ->whereMonth('movement.end_date', 1);
+                  ->whereMonth('movement.start_date', 4)
+                  ->whereMonth('movement.end_date', 4);
         })->get();
-        
+
         try {
             $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $utils, $date_start_month, $date_end_month, &$insertData) {
                 try {

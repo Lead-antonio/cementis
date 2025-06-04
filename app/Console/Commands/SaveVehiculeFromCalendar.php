@@ -40,6 +40,5 @@ class SaveVehiculeFromCalendar extends Command
     public function handle()
     {
         SaveVehiculeFromCalendar();
-      
     }
 }

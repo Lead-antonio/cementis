@@ -77,7 +77,9 @@
                             @foreach ($scoring as $result)
                                 <tr class="driver-row">
                                     <td style="text-align: center">{{ $result->camion }}</td>
-                                    <td style="text-align: center">{{ $result->rfid_conducteur ?? $result->rfid_infraction }}</td>
+                                    <td>
+                                        {{ isset($result->rfid_conducteur) ? $result->rfid_conducteur : (isset($result->rfid_infraction) ? $result->rfid_infraction : 'Pas de RFID dans calendrier et infraction') }}
+                                    </td>
                                     <td style="text-align: center">{{ get_transporteur($result->imei, $result->camion) }}</td>
                                     <td style="text-align: center">{{ trim($result->infraction) }}</td>
                                     <td style="text-align: center">{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>
@@ -215,7 +217,9 @@
                                 @foreach ($scoring as $result)
                                     <tr>
                                         <td>{{ $result->camion }}</td>
-                                        <td>{{ $result->rfid_conducteur ?? $result->rfid_infraction }}</td>
+                                        <td>
+                                        {{ isset($result->rfid_conducteur) ? $result->rfid_conducteur : (isset($result->rfid_infraction) ? $result->rfid_infraction : 'Pas de RFID dans calendrier et infraction') }}
+                                        </td>
                                         <td>{{ get_transporteur($result->imei, $result->camion) }}</td>
                                         <td>{{ trim($result->infraction) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($result->date_debut.' '.$result->heure_debut)->format('d-m-Y H:i:s') }}</td>

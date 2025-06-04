@@ -27,12 +27,14 @@
                                 @php
                                     $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
                                 @endphp
-                                @if (isset($item) && ( !empty($item->imei) && !empty($item->badge_calendar) ))
+                                @if (!empty($item->imei) && !empty($item->badge_calendar))
                                     <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $chauffeur_calendar}}
+                                        {{ $chauffeur_calendar }}
                                     </a>
+                                @elseif ($chauffeur_calendar)
+                                    <small class="text-muted"> {{ $chauffeur_calendar }}</small>
                                 @else
-                                    <span>Chauffeur inexistant pour le numéro de badge : {{$item->badge_calendar}}</span>
+                                    <small class="text-muted">Chauffeur inexistant pour le badge : {{$item->badge_calendar}}</small>
                                 @endif
                             </td>
                             <td style="text-align: center">{{ $item->badge_calendar }}</td>
@@ -127,10 +129,12 @@
                                 @php
                                     $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
                                 @endphp
-                                @if (!empty($item->imei) && !empty($item->badge_calendar))
+                                @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($chauffeur_calendar))
                                     <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
                                         {{ $chauffeur_calendar }}
                                     </a>
+                                @elseif ($chauffeur_calendar)
+                                    <small class="text-muted"> {{ $chauffeur_calendar }}</small>
                                 @else
                                     <small class="text-muted">Chauffeur inexistant pour le badge : {{$item->badge_calendar}}</small>
                                 @endif
@@ -140,13 +144,13 @@
                                 @php
                                     $conducteur = getDriverByRFID(false, $item->rfid_chauffeur);
                                 @endphp
-                                @if (!empty($item->imei) && !empty($item->badge_calendar))
+                                @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($conducteur))
                                     <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
                                         {{ $conducteur }}
                                     </a>
                                 @elseif (empty($item->rfid_chauffeur))
                                     <small class="text-muted">Pas de RFID ni IMEI</small>
-                                @else
+                                @elseif (is_null($conducteur))
                                     <small class="text-muted">Chauffeur inexistant pour RFID : {{$item->rfid_chauffeur}}</small>
                                 @endif
                             </td>

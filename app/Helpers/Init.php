@@ -80,12 +80,12 @@ if (!function_exists('getDriverByRFID')){
         if(!empty($rfid)){
             $name = Chauffeur::where('rfid', $rfid)->first();
             if($badge){
-                return $name->numero_badge ?? '';
+                return $name->numero_badge ?? null;
             }else{
-                return $name->nom ?? '';
+                return $name->nom ?? null;
             }
         }else{
-            return '';
+            return null;
         }
     }
 }
@@ -109,12 +109,12 @@ if (!function_exists('get_transporteur_by_imei')){
         if(!empty($imei)){
             $truck = Vehicule::where('imei', $imei)->first();
             if($truck){
-                return $truck->id_transporteur ?? '';
+                return $truck->id_transporteur ?? null;
             }
         }else{
             $truck = Vehicule::where('nom', $camion)->first();
             if($truck){
-                return $truck->id_transporteur ?? '';
+                return $truck->id_transporteur ?? null;
             }
         }
     }
@@ -166,7 +166,7 @@ if (!function_exists('getDriverByNumberBadge')){
         if(empty($driver)){
             $driver = ChauffeurUpdate::where('numero_badge', $badge)->first();
             if(empty($driver)){
-                return NULL;
+                return null;
             }
         }
 
@@ -303,6 +303,25 @@ if(!function_exists('scoring')){
             //     ORDER BY total_point DESC; 
             // ");
 
+            // $results = DB::select("
+            //     SELECT 
+            //         c.badge_chauffeur as badge_calendar,
+            //         c.imei,
+            //         c.camion,
+            //         c.rfid_chauffeur AS rfid_calendar,
+            //         i.rfid AS rfid_conducteur,
+            //         COALESCE(SUM(i.point), 0) AS total_point 
+            //     FROM 
+            //         import_excel c 
+            //     LEFT JOIN 
+            //         infraction i ON i.imei = c.imei AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+            //     WHERE
+            //         c.import_calendar_id = $id_planning
+            //     GROUP BY 
+            //         c.badge_chauffeur, c.imei
+            //     ORDER BY 
+            //         total_point DESC;
+            // ");
             $results = DB::select("
                 SELECT 
                     c.badge_chauffeur as badge_calendar,
@@ -314,7 +333,7 @@ if(!function_exists('scoring')){
                 FROM 
                     import_excel c 
                 LEFT JOIN 
-                    infraction i ON i.imei = c.imei AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+                    infraction i ON i.imei = c.imei AND CONCAT(i.date_debut, ' ', i.heure_debut) <= c.date_fin AND CONCAT(i.date_fin, ' ', i.heure_fin) >= c.date_debut
                 WHERE
                     c.import_calendar_id = $id_planning
                 GROUP BY 
@@ -364,11 +383,38 @@ if (!function_exists('driver_detail_scoring_card')) {
         //     ->where('ch.nom', $driver) // Vérifie si le nom mis à jour ou celui d'origine correspond
         //     ->where('ie.import_calendar_id', $id_planning)
         //     ->get();
+        // $resultats = DB::table('import_excel as c')
+        //     ->leftJoin('infraction as i', function ($join) {
+        //         $join->on('i.imei', '=', 'c.imei')
+        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+        //     })
+        //     ->select(
+        //         'c.badge_chauffeur AS badge_calendar',
+        //         'i.imei',
+        //         'c.camion',
+        //         'c.rfid_chauffeur AS rfid_calendar',
+        //         'i.event AS infraction',
+        //         'i.date_debut AS date_debut',
+        //         'i.heure_debut AS heure_debut',
+        //         'i.date_fin AS date_fin',
+        //         'i.heure_debut AS heure_fin',
+        //         'i.rfid AS rfid_conducteur',
+        //         'i.gps_debut',
+        //         'i.gps_fin',
+        //         'i.duree_infraction',
+        //         'i.insuffisance',
+        //         'i.point AS point'
+        //     )
+        //     ->where('c.import_calendar_id', $id_planning)
+        //     ->where('c.badge_chauffeur', $badge)
+        //     ->where('i.imei', $imei)
+        //     ->get();
         $resultats = DB::table('import_excel as c')
             ->leftJoin('infraction as i', function ($join) {
                 $join->on('i.imei', '=', 'c.imei')
-                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) <= c.date_fin")
+                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) >= c.date_debut");
             })
             ->select(
                 'c.badge_chauffeur AS badge_calendar',
@@ -2742,7 +2788,13 @@ if (!function_exists('getImeibyPlateNumber()')) {
         }
     
         // Création d'une collection pour faciliter la recherche
-        $apiCollection = collect($apiData)->keyBy('plate_number');
+        // $apiCollection = collect($apiData)->keyBy('plate_number');
+        $apiCollection = collect($apiData)
+            ->map(function ($item) {
+                $item['plate_number'] = trim($item['plate_number']);
+                return $item;
+            })
+            ->keyBy('plate_number');
         
         $imei_platenumber = [];
         // Mettre à jour les données ImportExcel
@@ -2869,16 +2921,22 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
             }
         
             // Création d'une collection pour faciliter la recherche
-            $apiCollection = collect($apiData)->keyBy('plate_number');
-            
+            // $apiCollection = collect($apiData)->keyBy('plate_number');
+            $apiCollection = collect($apiData)
+            ->map(function ($item) {
+                $item['plate_number'] = trim($item['plate_number']);
+                return $item;
+            })
+            ->keyBy('plate_number');
+                    
             $imei_platenumber = [];
             // Mettre à jour les données ImportExcel
             foreach ($importExcelData as $row) {
                 $plateNumber = $row->camion; // Assure-toi que cette colonne correspond bien à l'immatriculation du camion
-        
                 // Vérifier si l'immatriculation existe dans les données de l'API
                 if ($apiCollection->has($plateNumber)) {
                     $imei = (string) $apiCollection[$plateNumber]['imei'] ?? null;
+                    
                     $transporteur_name = $apiCollection[$plateNumber]['group_name'] ?? null;
 
 
@@ -2900,11 +2958,10 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
                                 'description' => $row['description'],
                                 'id_transporteur' => $transporteur->id ?? NULL
                             ]);
-                        } 
+                        }
                     // }else{
                     //     echo "Transporteur null pour le vehicule : ". $plateNumber . "\n" ;
-                    // }
-                    
+                    // }        
                 }
             }
 
