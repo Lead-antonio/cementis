@@ -36,10 +36,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $structuredData = [];
+        $selectedPlanning = $request->selectedPlanning ?? DB::table('import_calendar')->latest('id')->value('id');
         $totalVehicules = Vehicule::count();
         $totalTransporteurs = Transporteur::count();
-        $totalChauffeurs = Chauffeur::count();
-        $selectedPlanning = $request->selectedPlanning ?? DB::table('import_calendar')->latest('id')->value('id');
+        $totalChauffeurs = Chauffeur::where('id_planning', $selectedPlanning)->count();
         $data = $this->dashboardRepository->GetData();
         $data['import_calendar'] = $import_calendar = Importcalendar::all();
         $data['selectedPlanning'] = $selectedPlanning;
@@ -61,7 +61,11 @@ class DashboardController extends Controller
             return response()->json([
                 'driver_has_score' => $data['driver_has_score'],
                 'driver_not_has_score' => $data['driver_not_has_score'],
-                'driver_in_calendar' => $data['driver_in_calendar'],
+                'driver_not_has_score' => $data['driver_not_has_score'],
+                'truck_in_calendar' => $data['truck_in_calendar'],
+                'total_chauffeur' => $data['totalChauffeurs'],
+                // 'driver_in_calendar' => $data['driver_in_calendar'],
+                'drivers_badge_in_calendars' => $data['drivers_badge_in_calendars'],
                 'best_scoring' => view('dashboard.best_scoring', ['best_scoring' => $data['best_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
                 'bad_scoring' => view('dashboard.bad_scoring', ['bad_scoring' => $data['bad_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
                 

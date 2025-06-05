@@ -174,7 +174,7 @@
                         <div class="card-body card-body-chauffeurs">
                             <div>
                                 <h4 class="card-title-custom">Chauffeurs</h4>
-                                <h3>{{ $totalChauffeurs }}</h3>
+                                <h3 id="total_chauffeur">{{ $totalChauffeurs }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -190,7 +190,7 @@
                         <div class="card-body card-body-chauffeurs">
                             <div>
                                 <h4 class="card-title-custom">Véhicules dans le calendrier</h4>
-                                <h3>{{ $truck_in_calendar }}</h3>
+                                <h3 id="truck_in_calendar">{{ $truck_in_calendar }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -209,7 +209,7 @@
                         <div class="card-body card-body-custom">
                             <div>
                                 <h4 class="card-title-custom">Nombre de chauffeurs avec score</h4>
-                                <h3>{{ $driver_has_score }}</h3>
+                                <h3 id="driver_has_score">{{ $driver_has_score }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -225,7 +225,7 @@
                         <div class="card-body card-body-custom">
                             <div>
                                 <h4 class="card-title-custom">Nombre de chauffeur sans score</h4>
-                                <h3>{{ $driver_not_has_score }}</h3>
+                                <h3 id="driver_not_has_score">{{ $driver_not_has_score }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-user"></i>
@@ -243,7 +243,7 @@
                         <div class="card-body card-body-custom">
                             <div>
                                 <h4 class="card-title-custom">Nombre de badge dans le calendrier</h4>
-                                <h3>{{ $drivers_badge_in_calendars }}</h3>
+                                <h3 id="badge_numbers_in_calendars">{{ $drivers_badge_in_calendars }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-chart-line"></i>
@@ -402,10 +402,12 @@
                     type: "GET",
                     data: { selectedPlanning: selectedPlanning },
                     success: function (response) {
-                        console.log("RESPONSE :", response);
                         // Mettre à jour les données dynamiquement (exemple)
                         $('#driver_has_score').text(response.driver_has_score);
                         $('#driver_not_has_score').text(response.driver_not_has_score);
+                        $('#truck_in_calendar').text(response.truck_in_calendar);
+                        $('#total_chauffeur').text(response.total_chauffeur);
+                        $('#badge_numbers_in_calendars').text(response.drivers_badge_in_calendars);
                         $('#driver_in_calendar').text(response.driver_in_calendar);
                         $('#best_scoring_container').html(response.best_scoring);
                         $('#bad_scoring_container').html(response.bad_scoring);

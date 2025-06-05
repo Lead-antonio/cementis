@@ -127,7 +127,7 @@
                         <tr>
                             <td>
                                 @php
-                                    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
+                                    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar, $selectedPlanning);
                                 @endphp
                                 @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($chauffeur_calendar))
                                     <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
@@ -142,7 +142,7 @@
                             <td>{{ $item->badge_calendar }}</td>
                             <td>
                                 @php
-                                    $conducteur = getDriverByRFID(false, $item->rfid_chauffeur);
+                                    $conducteur = getDriverByRFID(false, $item->rfid_chauffeur, $selectedPlanning);
                                 @endphp
                                 @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($conducteur))
                                     <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">

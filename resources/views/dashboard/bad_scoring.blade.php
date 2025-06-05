@@ -3,7 +3,7 @@
 @endphp
 @foreach ($bad_scoring as $key => $item)
 @php
-    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
+    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar, $selectedPlanning);
 @endphp
     <div class="card rounded-card">
         @if (!empty($item->imei) && !empty($item->badge_calendar))

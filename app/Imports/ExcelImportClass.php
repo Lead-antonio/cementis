@@ -44,18 +44,29 @@ class ExcelImportClass implements ToCollection
                 continue; // Passe à la ligne suivante
             }
 
-            ImportExcel::create([
-                'name_importation' => $this->name_file_excel,
-                'camion' => $values[0],
-                'date_debut' => isset($values[1]) ? $this->convertExcelDateToCarbon($values[1]) : null,
-                'date_fin' => isset($values[2]) ? $this->convertExcelDateToCarbon($values[2]) : null,
-                'delais_route' => isset($values[3]) ? floatval($values[3]) : null,
-                'sigdep_reel' => isset($values[4]) ? $values[4] : null,
-                'marche' => isset($values[5]) ? $values[5] : null,
-                'adresse_livraison' => isset($values[6]) ? $values[6] : null,
-                'badge_chauffeur' => isset($values[7]) ? $values[7] : null,
-                'import_calendar_id' => $this->import_calendar_id
-            ]);
+            $exists = ImportExcel::where('camion', $values[0])
+                ->whereDate('date_debut', $this->convertExcelDateToCarbon($values[1])->toDateString())
+                ->whereDate('date_fin', $this->convertExcelDateToCarbon($values[2])->toDateString())
+                ->where('camion', $values[0])
+                ->where('badge_chauffeur', $values[7])
+                ->where('sigdep_reel', $values[4])
+                ->where('import_calendar_id', $this->import_calendar_id)
+                ->exists();
+
+            if (!$exists) {
+                ImportExcel::create([
+                    'name_importation' => $this->name_file_excel,
+                    'camion' => $values[0],
+                    'date_debut' => isset($values[1]) ? $this->convertExcelDateToCarbon($values[1]) : null,
+                    'date_fin' => isset($values[2]) ? $this->convertExcelDateToCarbon($values[2]) : null,
+                    'delais_route' => isset($values[3]) ? floatval($values[3]) : null,
+                    'sigdep_reel' => isset($values[4]) ? $values[4] : null,
+                    'marche' => isset($values[5]) ? $values[5] : null,
+                    'adresse_livraison' => isset($values[6]) ? $values[6] : null,
+                    'badge_chauffeur' => isset($values[7]) ? $values[7] : null,
+                    'import_calendar_id' => $this->import_calendar_id
+                ]);
+            }
             
         }
     }

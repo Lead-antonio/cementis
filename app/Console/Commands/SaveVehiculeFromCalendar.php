@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Services\GeolocalisationService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class SaveVehiculeFromCalendar extends Command
 {
@@ -39,6 +40,7 @@ class SaveVehiculeFromCalendar extends Command
      */
     public function handle()
     {
-        SaveVehiculeFromCalendar();
+        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
+        SaveVehiculeFromCalendar($selectedPlanning);
     }
 }

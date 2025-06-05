@@ -200,7 +200,7 @@
                         @if (!$scoring->isEmpty())
                             @foreach ($scoring as $result)
                                 @php
-                                    $chauffeur_calendar = getDriverByNumberBadge($result->badge_calendar);
+                                    $chauffeur_calendar = getDriverByNumberBadge($result->badge_calendar, $id_planning);
                                 @endphp
                                 <tr>
                                     <td>{{ $chauffeur_calendar }}</td>

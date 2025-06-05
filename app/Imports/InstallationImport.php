@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\DB;
 
 
 class InstallationImport implements ToCollection, WithHeadingRow
@@ -40,6 +41,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         foreach ($rows as $index => $row) {
             $numero_ligne = $index + 2;
 
@@ -73,7 +75,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
             // }
 
             // Vérifier l'existence du chauffeur et du véhicule
-            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->first() : null;
+            $existingChauffeur = !empty($row['rfid']) ? Chauffeur::where('rfid', $row['rfid'])->where('id_planning', $selectedPlanning)->first() : null;
             $existingVehicule = !empty($row['imei']) ? Vehicule::where('imei', (string) $row['imei'])->first() : null;
 
             // Si les deux existent, on saute la ligne
@@ -193,6 +195,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     'numero_badge' =>  $row['numero_badge'],
                     'contact' => (string) $row['chauffeur_telephone'],
                     'transporteur_id' => $transporteur->id,
+                    'id_planning' => $selectedPlanning
                 ]);
             } else {
                 $chauffeur = $existingChauffeur;

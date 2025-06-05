@@ -20,7 +20,9 @@ class CreateChauffeurTable extends Migration
             $table->string('nom');
             $table->string('contact')->nullable();
             $table->unsignedInteger('transporteur_id')->nullable();
+            $table->unsignedInteger('id_planning')->nullable();
             $table->foreign('transporteur_id')->references('id')->on('transporteur'); 
+            $table->foreign('id_planning')->references('id')->on('import_calendar'); 
             $table->timestamps();
             $table->softDeletes();
         });
