@@ -113,6 +113,8 @@ Route::get('/ajax/scoring', 'App\Http\Controllers\ScoringController@filter_scori
 
 Route::get('/ajax/scoringdriver', 'App\Http\Controllers\ScoringController@FilterByTruckInCalendar')->name('ajax.scoringdriver');
 
+Route::get('/detail/driver-match-rfid', 'App\Http\Controllers\ScoringController@driver_match_rfid')->name('detail.driver-match-rfid');
+
 Route::get('/detail/driver-has-scoring', 'App\Http\Controllers\ScoringController@driver_has_scoring')->name('detail.driver-has-scoring');
 
 Route::get('/detail/driver-have-not-scoring', 'App\Http\Controllers\ScoringController@driver_have_not_scoring')->name('detail.driver-have-not-scoring');

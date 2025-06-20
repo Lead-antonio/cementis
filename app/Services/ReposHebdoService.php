@@ -137,6 +137,8 @@ class ReposHebdoService
             $condition = (24 * 3600);
             $start_date_time = new \DateTime($week['start']);
             $end_date_time = new \DateTime($week['end']);
+            $infraction_start_date = new \DateTime($week['moov_start_date']);
+            $infraction_end_date = new \DateTime($week['moov_end_date']);
             $penaliteService = new PenaliteService();
 
             $result = [];
@@ -158,10 +160,14 @@ class ReposHebdoService
                     'odometer' => 0,
                     'duree_infraction' => $max_stop_duration,
                     'duree_initial' => $condition,
-                    'date_debut' => $start_date_time->format('Y-m-d'),
-                    'date_fin' => $end_date_time->format('Y-m-d'),
-                    'heure_debut' => $start_date_time->format('H:i:s'),
-                    'heure_fin' => $end_date_time->format('H:i:s'),
+                    'date_debut' => $infraction_start_date->format('Y-m-d'),
+                    'date_fin' => $infraction_end_date->format('Y-m-d'),
+                    'heure_debut' => $infraction_start_date->format('H:i:s'),
+                    'heure_fin' => $infraction_end_date->format('H:i:s'),
+                    'week_date_start' => $start_date_time->format('Y-m-d'),
+                    'week_date_end' => $end_date_time->format('Y-m-d'),
+                    'week_time_start' => $start_date_time->format('H:i:s'),
+                    'week_time_end' => $end_date_time->format('H:i:s'),
                     'point' => $point, // Points calculés
                     'insuffisance' => ($condition - $max_stop_duration) // Différence en secondes
                 ];

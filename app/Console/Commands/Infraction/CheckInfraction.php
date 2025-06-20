@@ -4,6 +4,7 @@ namespace App\Console\Commands\Infraction;
 
 use Illuminate\Console\Command;
 use App\Services\InfractionService;
+use App\Services\MovementService;
 use App\Services\TruckService;
 use Illuminate\Support\Facades\DB;
 
@@ -48,9 +49,11 @@ class CheckInfraction extends Command
  
         $endDate = new \DateTime($lastmonth->date_fin);
 
-        $infractionService = new InfractionService();
-        $infractionService->saveInfraction($this, $startDate, $endDate);
-
+        // $infractionService = new InfractionService();
+        // $infractionService->saveInfraction($this, $startDate, $endDate);
+        $movementService = new MovementService();
+        $rep = $movementService->getMaxStopInJourney("865135060353990", "2025-04-02 18:08:27", "2025-04-03 18:08:27");
+        dd($rep);
         $this->info('Process completed!');
     }
 }

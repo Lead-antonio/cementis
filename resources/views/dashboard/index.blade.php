@@ -202,8 +202,8 @@
         
         </div>
         
-        <div class="row mt-3">
-            <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-3">
                 <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none">
                     <div class="card card-custom scoring">
                         <div class="card-body card-body-custom">
@@ -219,7 +219,7 @@
                 </a>
             </div>
             <!-- Deuxième ligne -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <a href="{{ route('detail.driver-have-not-scoring') }}" class="text-decoration-none">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
@@ -234,16 +234,34 @@
                     </div>
                 </a>
             </div>
-        
-            
-        
-            <div class="col-md-4">
+
+            <div class="col-md-3">
                 <a href="{{ route('detail.badge-calendar') }}" class="text-decoration-none">
-                    <div class="card card-custom badge">
+                    <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
                                 <h4 class="card-title-custom">Nombre de badge dans le calendrier</h4>
-                                <h3 id="badge_numbers_in_calendars">{{ $drivers_badge_in_calendars }}</h3>
+                                <h3 id="badge_numbers_in_calendars">
+                                    {{ $drivers_badge_in_calendars }}
+                                </h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fas fa-id-badge"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a href="{{ route('detail.driver-match-rfid') }}" class="text-decoration-none">
+                    <div class="card card-custom no-scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Taux d'utilisation RFID</h4>
+                                <h3 id="driver_match_rfid">
+                                    {{ $match_rfid->match_percentage !== null ? $match_rfid->match_percentage . ' %' : 0 }}
+                                </h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-chart-line"></i>
@@ -411,6 +429,9 @@
                         $('#driver_in_calendar').text(response.driver_in_calendar);
                         $('#best_scoring_container').html(response.best_scoring);
                         $('#bad_scoring_container').html(response.bad_scoring);
+                        let percentage = response.match_rfid.match_percentage;
+                        let displayValue = (percentage !== null && percentage !== undefined) ? percentage + ' %' : '0';
+                        $('#driver_match_rfid').html(displayValue);
                         // Autres mises à jour selon tes données
                         $('#overlay').hide();
                         $('#loader').hide();

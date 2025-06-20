@@ -377,9 +377,95 @@ class CalendarService
      * @param string imei
      * return array journeys
      */ 
-    public static function splitWorkJouney($imei, $start_date, $end_date){
+    // public static function splitWorkJouney($imei, $start_date, $end_date){
+    //     $mouvementService = new MovementService();
+    //     $continueService = new ConduiteContinueService();
+    //     $truckService = new TruckService();
+    //     $utils = new Utils();
+
+    //     $journeys = [];
+
+    //     $immatricule = $truckService->getTruckPlateNumberByImei($imei);
+    //     $movements_monthly = $mouvementService->getAllMovementByJourney($imei, $start_date, $end_date);
+    //     $calendarStartDate = $start_date;
+    //     $calendarEndDate = $end_date;
+
+    //     // 2. Prendre la première date du mouvement DRIVE comme point de départ de la première journée
+    //     $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+    //     $imei = $firstDriveMovement['imei'];
+    //     $rfid = $firstDriveMovement['rfid'];
+
+    //     if ($firstDriveMovement) {
+    //         $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
+    //     } else {
+    //         // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
+    //         return $journeys;
+    //     }
+
+    //     // 3. Diviser le calendrier par périodes de 24 heures
+    //     while ($currentJourneyStart < $calendarEndDate) {
+    //         // Par défaut, la fin de la journée est +24 heures
+    //         $currentJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
+    //         $longestStopDuration = 0;
+    //         $nextJourneyStart = null;
+
+            
+    //         // Filtrer les mouvements dans la période actuelle (de $currentJourneyStart à $currentJourneyEnd)
+    //         $currentDayMovements = collect($movements_monthly)->filter(function ($movement) use ($currentJourneyStart, $currentJourneyEnd) {
+    //             $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+    //             return $movementDate >= $currentJourneyStart && $movementDate < $currentJourneyEnd;
+    //         });
+
+    //         foreach ($currentDayMovements as $movement) {
+    //             if ($movement['type'] === 'STOP') {
+    //                 $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+    //                 $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
+    //                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
+    
+    //                 // Calculer si l'arrêt est pendant le jour ou la nuit
+    //                 $isDayTimeStop = $utils->isNightPeriod($stopStart->format('H:i:s'), $stopEnd->format('H:i:s'));
+    //                 if($stopStart >= $currentJourneyStart && $stopEnd <= $currentJourneyEnd){
+    //                     // Arrêt prolongé en journée (8 heures ou plus)
+    //                     if ($isDayTimeStop && ($stopDuration >= 10 * 3600)) {
+    //                         $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
+    //                         $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
+    //                         break;
+    //                     }
+    //                     // Arrêt prolongé pendant la nuit (10 heures ou plus)
+    //                     elseif (!$isDayTimeStop && ($stopDuration >= 8 * 3600)) {
+    //                         $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
+    //                         $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         // Ajouter cette journée à la liste des journées
+    //         $journeys[] = [
+    //             'imei' => $imei,
+    //             'rfid' => $rfid,
+    //             'camion' => $immatricule,
+    //             'max_stop_duration' => $stopDuration,
+    //             'start' => $currentJourneyStart->format('Y-m-d H:i:s'),
+    //             'end' => $currentJourneyEnd->format('Y-m-d H:i:s'),
+    //         ];
+    //         // Passer à la journée suivante (ajouter 24 heures)
+    //         $currentJourneyStart = $nextJourneyStart ? $nextJourneyStart : $currentJourneyEnd;
+    //     }
+
+    //     if (!empty($journeys)) {
+    //         $lastJourneyIndex = count($journeys) - 1;
+    //         if($journeys[$lastJourneyIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')){
+    //             $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+    //         }
+    //     }
+
+    //     return $journeys;
+    // }
+    public static function splitWorkJouney($imei, $start_date, $end_date) 
+    {
         $mouvementService = new MovementService();
-        $continueService = new ConduiteContinueService();
         $truckService = new TruckService();
         $utils = new Utils();
 
@@ -387,31 +473,21 @@ class CalendarService
 
         $immatricule = $truckService->getTruckPlateNumberByImei($imei);
         $movements_monthly = $mouvementService->getAllMovementByJourney($imei, $start_date, $end_date);
-
         $calendarStartDate = $start_date;
         $calendarEndDate = $end_date;
 
-        // 2. Prendre la première date du mouvement DRIVE comme point de départ de la première journée
         $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+        if (!$firstDriveMovement) return $journeys;
+
         $imei = $firstDriveMovement['imei'];
         $rfid = $firstDriveMovement['rfid'];
+        $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']);
 
-        if ($firstDriveMovement) {
-            $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
-        } else {
-            // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
-            return $journeys;
-        }
-
-        // 3. Diviser le calendrier par périodes de 24 heures
         while ($currentJourneyStart < $calendarEndDate) {
-            // Par défaut, la fin de la journée est +24 heures
             $currentJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
             $longestStopDuration = 0;
             $nextJourneyStart = null;
 
-            
-            // Filtrer les mouvements dans la période actuelle (de $currentJourneyStart à $currentJourneyEnd)
             $currentDayMovements = collect($movements_monthly)->filter(function ($movement) use ($currentJourneyStart, $currentJourneyEnd) {
                 $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
                 return $movementDate >= $currentJourneyStart && $movementDate < $currentJourneyEnd;
@@ -421,49 +497,52 @@ class CalendarService
                 if ($movement['type'] === 'STOP') {
                     $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
                     $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
-                    $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
-                    
-    
-                    // Calculer si l'arrêt est pendant le jour ou la nuit
-                    $isDayTimeStop = $utils->isNightPeriod($stopStart->format('H:i:s'), $stopEnd->format('H:i:s'));
-                    
-    
-                    // Arrêt prolongé en journée (8 heures ou plus)
-                    if ($isDayTimeStop && $stopDuration >= 10 * 3600) {
-                        $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
-                        $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
+                    $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+
+                    // STOP doit être totalement dans la journée ET finir avant la fin
+                    if (
+                        $stopStart >= $currentJourneyStart &&
+                        $stopEnd <= $currentJourneyEnd &&
+                        $stopDuration >= 8 * 3600
+                    ) {
+                        // $currentJourneyEnd = $stopStart;
+                        $nextJourneyStart = $stopEnd;
+                        $longestStopDuration = $stopDuration;
                         break;
                     }
-                    // Arrêt prolongé pendant la nuit (10 heures ou plus)
-                    elseif (!$isDayTimeStop && $stopDuration >= 8 * 3600) {
-                        $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
-                        $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
-                        break;
+
+                    // Mémoriser la durée max des STOP même non valides
+                    if ($stopStart >= $currentJourneyStart && $stopEnd <= $currentJourneyEnd) {
+                        if ($stopDuration > $longestStopDuration) {
+                            $longestStopDuration = $stopDuration;
+                        }
                     }
                 }
             }
 
-            // Ajouter cette journée à la liste des journées
             $journeys[] = [
                 'imei' => $imei,
                 'rfid' => $rfid,
                 'camion' => $immatricule,
+                'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
                 'start' => $currentJourneyStart->format('Y-m-d H:i:s'),
                 'end' => $currentJourneyEnd->format('Y-m-d H:i:s'),
             ];
-            // Passer à la journée suivante (ajouter 24 heures)
-            $currentJourneyStart = $nextJourneyStart ? $nextJourneyStart : $currentJourneyEnd;
+
+            $currentJourneyStart = $nextJourneyStart ?: $currentJourneyEnd;
         }
 
+        // Ajuster la dernière journée si elle dépasse la fin
         if (!empty($journeys)) {
-            $lastJourneyIndex = count($journeys) - 1;
-            if($journeys[$lastJourneyIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')){
-                $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+            $lastIndex = count($journeys) - 1;
+            if ($journeys[$lastIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')) {
+                $journeys[$lastIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
             }
         }
 
         return $journeys;
     }
+
 
         /**
      * Antonio
@@ -637,6 +716,8 @@ class CalendarService
                 // Par défaut, la fin de la semaine est +168 heures
                 $currentWeekEnd = (clone $currentWeekStart)->modify('+168 hours');
                 $longestStopDuration = 0;
+                $start_date_max_duration = null;
+                $end_date_max_duration = null;
                 $nextWeekStart = null;
 
                 // Filtrer les mouvements dans la semaine actuelle (de $currentWeekStart à $currentWeekEnd)
@@ -651,16 +732,20 @@ class CalendarService
                         $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
                         $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
 
-                        // Calculer la durée maximale d'arrêt pendant cette semaine
-                        if ($stopDuration > $longestStopDuration) {
-                            $longestStopDuration = $stopDuration;
-                        }
+                        if ($stopStart >= $currentWeekStart && $stopEnd <= $currentWeekEnd) {
+                            // Calculer la durée maximale d'arrêt pendant cette semaine
+                            if ($stopDuration > $longestStopDuration) {
+                                $start_date_max_duration = $stopStart;
+                                $end_date_max_duration = $stopEnd;
+                                $longestStopDuration = $stopDuration;
+                            }
 
-                        // Calculer si l'arrêt est supérieur à 24 heures
-                        if ($stopDuration >= 24 * 3600) {
-                            $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
-                            $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
-                            break;
+                            // Calculer si l'arrêt est supérieur à 24 heures
+                            if ($stopDuration >= 24 * 3600) {
+                                $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
+                                $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
+                                break;
+                            }
                         }
                     }
                 }
@@ -673,6 +758,8 @@ class CalendarService
                         'imei' => $imei,
                         'rfid' => $rfid,
                         'camion' => $immatricule,
+                        'moov_start_date' => $start_date_max_duration->format('Y-m-d H:i:s'),
+                        'moov_end_date' => $end_date_max_duration->format('Y-m-d H:i:s'),
                         'start' => $currentWeekStart->format('Y-m-d H:i:s'),
                         'end' => $currentWeekEnd->format('Y-m-d H:i:s'),
                         'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
@@ -718,9 +805,9 @@ class CalendarService
             
             foreach ($all_trucks as $truck) {
                 $weeks = self::splitWorkWeekly($truck->imei, $start_date, $end_date);
+                // $weeks = self::splitWorkWeekly("865135060353990", $start_date, $end_date);
                 $all_week = array_merge($all_week, $weeks);
             }
-
             return $all_week;
 
         } catch (\Exception $e) {
@@ -732,6 +819,54 @@ class CalendarService
             // Retourner un message d'erreur
             return response()->json(['error' => 'Une erreur est survenue lors du traitement des semaines de travail.'], 500);
         }
+    }
+
+
+    public static function CleanCalendar($planning){
+        try{
+            $idsToDelete = DB::table('import_excel')
+                ->select('id')
+                ->whereRaw('(camion, badge_chauffeur, date_debut, date_fin) NOT IN (
+                    SELECT camion, badge_chauffeur, date_debut, MAX(date_fin)
+                    FROM import_excel
+                    GROUP BY camion, date_debut, badge_chauffeur
+                )')
+                ->where('import_calendar_id', $planning->id)
+                ->pluck('id');
+                
+            // Si rien à supprimer, on sort
+            if ($idsToDelete->isEmpty()) {
+                Log::info("CleanCalendar: Aucun doublon à supprimer pour import_calendar_id = $planning->id.");
+                return [
+                    'status' => 'success',
+                    'message' => 'Aucun doublon trouvé à supprimer.',
+                    'deleted_count' => 0
+                ];
+            }
+
+            // Étape 2 : Supprimer les doublons
+            $deleted = DB::table('import_excel')
+                ->whereIn('id', $idsToDelete)
+                ->delete();
+
+            Log::info("CleanCalendar: $deleted doublon(s) supprimé(s) pour import_calendar_id = $planning->id.");
+
+            return [
+                'status' => 'success',
+                'message' => "$deleted doublon(s) supprimé(s).",
+                'deleted_count' => $deleted
+            ];
+        }catch (\Exception $e) {
+            // Gestion des erreurs
+            Log::error("CleanCalendar: Erreur lors du nettoyage - " . $e->getMessage());
+
+            return [
+                'status' => 'error',
+                'message' => 'Erreur lors de la suppression des doublons.',
+                'error' => $e->getMessage()
+            ];
+        }
+
     }
 
 

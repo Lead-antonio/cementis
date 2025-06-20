@@ -176,40 +176,144 @@ if (!function_exists('getDriverByNumberBadge')){
 
 
 if(!function_exists('scoring')){
+    // function scoring($id_planning){
+    //     $results = "";
+    //     $calendar = Importcalendar::where('id', $id_planning)->first();
+    //     if($id_planning !== "" && $id_planning !== null){
+    //         $results = DB::select("
+    //             SELECT 
+    //                 c.badge_chauffeur as badge_calendar,
+    //                 c.imei,
+    //                 c.camion,
+    //                 c.rfid_chauffeur AS rfid_calendar,
+    //                 i.rfid AS rfid_conducteur,
+    //                 COALESCE(SUM(i.point), 0) AS total_point 
+    //             FROM 
+    //                 (
+    //                     SELECT DISTINCT
+    //                         badge_chauffeur,
+    //                         imei,
+    //                         camion,
+    //                         rfid_chauffeur,
+    //                         date_debut,
+    //                         date_fin
+    //                     FROM 
+    //                         import_excel
+    //                     WHERE 
+    //                         import_calendar_id = $id_planning
+    //                 ) c
+    //             LEFT JOIN 
+    //                 infraction i 
+    //                 ON i.imei = c.imei 
+    //                 AND (
+    //                         ( 
+    //                             i.event != 'Temps de repos hebdomadaire'
+    //                             AND
+    //                             CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut 
+    //                             AND 
+    //                             CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+    //                         )
+    //                         OR 
+    //                         i.event = 'Temps de repos hebdomadaire'
+    //                     )
+    //             GROUP BY 
+    //                 c.badge_chauffeur, c.imei
+    //             ORDER BY 
+    //                 total_point DESC;
+    //         ");
+    //     }
+    //     return $results;
+    // }
     function scoring($id_planning){
         $results = "";
         $calendar = Importcalendar::where('id', $id_planning)->first();
         if($id_planning !== "" && $id_planning !== null){
             // $results = DB::select("
             //     SELECT 
-            //         c.badge_chauffeur as badge_calendar,
-            //         c.imei,
-            //         c.camion,
-            //         c.rfid_chauffeur AS rfid_calendar,
-            //         i.rfid AS rfid_conducteur,
-            //         COALESCE(SUM(i.point), 0) AS total_point 
-            //     FROM 
-            //         import_excel c 
-            //     LEFT JOIN 
-            //         infraction i ON i.imei = c.imei AND CONCAT(i.date_debut, ' ', i.heure_debut) <= c.date_fin AND CONCAT(i.date_fin, ' ', i.heure_fin) >= c.date_debut
-            //     WHERE
-            //         c.import_calendar_id = $id_planning
+            //         final.badge_calendar,
+            //         final.imei,
+            //         final.camion,
+            //         final.rfid_calendar,
+            //         final.rfid_conducteur,
+            //         SUM(final.point) AS total_point
+            //     FROM (
+            //         -- 1. Infractions normales (dans la plage de dates du planning)
+            //         SELECT 
+            //             c.badge_chauffeur AS badge_calendar,
+            //             c.imei,
+            //             c.camion,
+            //             c.rfid_chauffeur AS rfid_calendar,
+            //             i.rfid AS rfid_conducteur,
+            //             i.point
+            //         FROM (
+            //             SELECT DISTINCT
+            //                 badge_chauffeur,
+            //                 imei,
+            //                 camion,
+            //                 rfid_chauffeur,
+            //                 date_debut,
+            //                 date_fin
+            //             FROM import_excel
+            //             WHERE import_calendar_id = $id_planning
+            //         ) c
+            //         JOIN infraction i 
+            //             ON i.imei = c.imei
+            //             AND i.event != 'Temps de repos hebdomadaire'
+            //             AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut
+            //             AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+
+            //         UNION ALL
+
+            //         -- 2. Repos hebdo (pas de contrainte de date)
+            //         SELECT 
+            //             c.badge_chauffeur AS badge_calendar,
+            //             c.imei,
+            //             c.camion,
+            //             c.rfid_chauffeur AS rfid_calendar,
+            //             i.rfid AS rfid_conducteur,
+            //             i.point
+            //         FROM (
+            //             SELECT DISTINCT
+            //                 badge_chauffeur,
+            //                 imei,
+            //                 camion,
+            //                 rfid_chauffeur
+            //             FROM import_excel
+            //             WHERE import_calendar_id = $id_planning
+            //         ) c
+            //         JOIN (
+            //             SELECT DISTINCT id, imei, rfid, point
+            //             FROM infraction
+            //             WHERE event = 'Temps de repos hebdomadaire'
+            //         ) i ON i.imei = c.imei
+            //     ) AS final
             //     GROUP BY 
-            //         c.badge_chauffeur, c.imei
+            //         final.badge_calendar,
+            //         final.imei,
+            //         final.camion,
+            //         final.rfid_calendar,
+            //         final.rfid_conducteur
             //     ORDER BY 
             //         total_point DESC;
             // ");
-
             $results = DB::select("
                 SELECT 
-                    c.badge_chauffeur as badge_calendar,
-                    c.imei,
-                    c.camion,
-                    c.rfid_chauffeur AS rfid_calendar,
-                    i.rfid AS rfid_conducteur,
-                    COALESCE(SUM(i.point), 0) AS total_point 
-                FROM 
-                    (
+                    final.badge_calendar,
+                    final.imei,
+                    final.camion,
+                    final.rfid_calendar,
+                    final.rfid_conducteur,
+                    SUM(final.point) AS total_point
+                FROM (
+                    
+                    SELECT 
+                        c.badge_chauffeur AS badge_calendar,
+                        c.imei,
+                        c.camion,
+                        c.rfid_chauffeur AS rfid_calendar,
+                        i.rfid AS rfid_conducteur,
+                        COALESCE(SUM(i.point), 0) AS point
+                    FROM (
                         SELECT DISTINCT
                             badge_chauffeur,
                             imei,
@@ -217,15 +321,49 @@ if(!function_exists('scoring')){
                             rfid_chauffeur,
                             date_debut,
                             date_fin
-                        FROM 
-                            import_excel
-                        WHERE 
-                            import_calendar_id = $id_planning
+                        FROM import_excel
+                        WHERE import_calendar_id = $id_planning
                     ) c
-                LEFT JOIN 
-                    infraction i ON i.imei = c.imei AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+                    LEFT JOIN infraction i 
+                        ON i.imei = c.imei
+                        AND i.event != 'Temps de repos hebdomadaire'
+                        AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut
+                        AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
+                    GROUP BY 
+                        c.badge_chauffeur,
+                        c.imei
+                    
+                    UNION ALL
+
+                    
+                    SELECT 
+                        c.badge_chauffeur AS badge_calendar,
+                        c.imei,
+                        c.camion,
+                        c.rfid_chauffeur AS rfid_calendar,
+                        i.rfid AS rfid_conducteur,
+                        COALESCE(SUM(i.point), 0) AS point
+                    FROM (
+                        SELECT DISTINCT
+                            badge_chauffeur,
+                            imei,
+                            camion,
+                            rfid_chauffeur
+                        FROM import_excel
+                        WHERE import_calendar_id = $id_planning
+                    ) c
+                    LEFT JOIN (
+                        SELECT DISTINCT id, imei, rfid, point
+                        FROM infraction
+                        WHERE event = 'Temps de repos hebdomadaire'
+                    ) i ON i.imei = c.imei
+                    GROUP BY 
+                        c.badge_chauffeur,
+                        c.imei
+                ) AS final
                 GROUP BY 
-                    c.badge_chauffeur, c.imei
+                    final.badge_calendar,
+                    final.imei
                 ORDER BY 
                     total_point DESC;
             ");
@@ -237,67 +375,108 @@ if(!function_exists('scoring')){
 
 // Detail driver scoring
 if (!function_exists('driver_detail_scoring_card')) {
+    // function driver_detail_scoring_card($imei, $badge, $id_planning)
+    // {
+    //     $resultats = DB::table('import_excel as c')
+    //         ->leftJoin('infraction as i', function ($join) {
+    //             $join->on('i.imei', '=', 'c.imei')
+    //                 ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+    //                 ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+    //         })
+    //         ->select(
+    //             'c.badge_chauffeur AS badge_calendar',
+    //             'i.imei',
+    //             'c.camion',
+    //             'c.rfid_chauffeur AS rfid_calendar',
+    //             'i.event AS infraction',
+    //             'i.date_debut AS date_debut',
+    //             'i.heure_debut AS heure_debut',
+    //             'i.date_fin AS date_fin',
+    //             'i.heure_fin AS heure_fin',
+    //             'i.rfid AS rfid_conducteur',
+    //             'i.gps_debut',
+    //             'i.gps_fin',
+    //             'i.duree_infraction',
+    //             'i.insuffisance',
+    //             'i.point AS point'
+    //         )
+    //         ->where('c.import_calendar_id', $id_planning)
+    //         ->where('c.badge_chauffeur', $badge)
+    //         ->where('i.imei', $imei)
+    //         ->get();
+        
+    //     return $resultats;
+    // }
     function driver_detail_scoring_card($imei, $badge, $id_planning)
     {
-        $resultats = DB::table('import_excel as c')
-            ->leftJoin('infraction as i', function ($join) {
-                $join->on('i.imei', '=', 'c.imei')
-                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
-            })
-            ->select(
+        $normalInfractions = DB::table('import_excel as c')
+            ->select([
                 'c.badge_chauffeur AS badge_calendar',
                 'i.imei',
                 'c.camion',
                 'c.rfid_chauffeur AS rfid_calendar',
-                'i.event AS infraction',
-                'i.date_debut AS date_debut',
-                'i.heure_debut AS heure_debut',
-                'i.date_fin AS date_fin',
-                'i.heure_debut AS heure_fin',
                 'i.rfid AS rfid_conducteur',
+                'i.event AS infraction',
+                'i.date_debut',
+                'i.heure_debut',
+                'i.date_fin',
+                'i.heure_fin',
                 'i.gps_debut',
                 'i.gps_fin',
                 'i.duree_infraction',
                 'i.insuffisance',
-                'i.point AS point'
+                'i.point',
+            ])
+            ->join('infraction as i', function ($join) {
+                $join->on('i.imei', '=', 'c.imei')
+                    ->where('i.event', '!=', 'Temps de repos hebdomadaire')
+                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+            })
+            ->where('c.import_calendar_id', $id_planning)
+            ->where('c.badge_chauffeur', $badge)
+            ->where('c.imei', $imei);
+            // ->distinct();
+
+        // --- Partie 2 : repos hebdomadaire
+        $reposHebdo = DB::table('import_excel as c')
+            ->select([
+                'c.badge_chauffeur AS badge_calendar',
+                'i.imei',
+                'c.camion',
+                'c.rfid_chauffeur AS rfid_calendar',
+                'i.rfid AS rfid_conducteur',
+                'i.event AS infraction',
+                'i.date_debut',
+                'i.heure_debut',
+                'i.date_fin',
+                'i.heure_fin',
+                'i.gps_debut',
+                'i.gps_fin',
+                'i.duree_infraction',
+                'i.insuffisance',
+                'i.point',
+            ])
+            ->joinSub(
+                DB::table('infraction')
+                    ->select(
+                        DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
+                    )
+                    ->where('event', 'Temps de repos hebdomadaire')
+                    ->where('imei', $imei),
+                'i',
+                'i.imei',
+                '=',
+                'c.imei'
             )
             ->where('c.import_calendar_id', $id_planning)
             ->where('c.badge_chauffeur', $badge)
-            ->where('i.imei', $imei)
+            ->where('c.imei', $imei)
+            ->distinct();
+        $resultats = $normalInfractions
+            ->unionAll($reposHebdo)
             ->get();
-        // $importExcelSub = DB::table('import_excel')
-        //     ->select('badge_chauffeur', 'imei', 'camion', 'rfid_chauffeur', 'date_debut', 'date_fin')
-        //     ->where('import_calendar_id', $id_planning)
-        //     ->where('badge_chauffeur', $badge)
-        //     ->where('imei', $imei)
-        //     ->distinct();
-
-        // $resultats = DB::table(DB::raw("({$importExcelSub->toSql()}) as c"))
-        //     ->mergeBindings($importExcelSub) // pour garder les bindings du where
-        //     ->leftJoin('infraction as i', function ($join) {
-        //         $join->on('i.imei', '=', 'c.imei')
-        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) <= c.date_fin")
-        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) >= c.date_debut");
-        //     })
-        //     ->select(
-        //         'c.badge_chauffeur AS badge_calendar',
-        //         'i.imei',
-        //         'c.camion',
-        //         'c.rfid_chauffeur AS rfid_calendar',
-        //         'i.event AS infraction',
-        //         'i.date_debut AS date_debut',
-        //         'i.heure_debut AS heure_debut',
-        //         'i.date_fin AS date_fin',
-        //         'i.heure_debut AS heure_fin',
-        //         'i.rfid AS rfid_conducteur',
-        //         'i.gps_debut',
-        //         'i.gps_fin',
-        //         'i.duree_infraction',
-        //         'i.insuffisance',
-        //         'i.point AS point'
-        //     )
-        //     ->get();
+                
         return $resultats;
     }
 
@@ -305,60 +484,106 @@ if (!function_exists('driver_detail_scoring_card')) {
 
 // Detail driver scoring
 if (!function_exists('truck_detail_scoring_card')) {
+    // function truck_detail_scoring_card($immatricule, $id_planning)
+    // {
+    //     $imei = ImportExcel::where('camion', $immatricule)->pluck('imei')->first();
+    //     $resultats = DB::table('import_excel as c')
+    //         ->leftJoin('infraction as i', function ($join) {
+    //             $join->on('i.imei', '=', 'c.imei')
+    //                 ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+    //                 ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+    //         })
+    //         ->select(
+    //             'c.badge_chauffeur AS badge_calendar',
+    //             'i.imei',
+    //             'c.camion',
+    //             'c.rfid_chauffeur AS rfid_calendar',
+    //             'i.event AS infraction',
+    //             'i.date_debut AS date_debut',
+    //             'i.heure_debut AS heure_debut',
+    //             'i.date_fin AS date_fin',
+    //             'i.heure_fin AS heure_fin',
+    //             'i.rfid AS rfid_conducteur',
+    //             'i.gps_debut',
+    //             'i.gps_fin',
+    //             'i.duree_infraction',
+    //             'i.insuffisance',
+    //             'i.point AS point'
+    //         )
+    //         ->where('c.import_calendar_id', $id_planning)
+    //         ->where('i.imei', $imei)
+    //         ->get();
+
+
+    //     return $resultats;
+    // }
     function truck_detail_scoring_card($immatricule, $id_planning)
     {
         $imei = ImportExcel::where('camion', $immatricule)->pluck('imei')->first();
-        // $results = DB::table('infraction as i')
-        //     ->join('vehicule as v', 'i.imei', '=', 'v.imei')
-        //     ->join('import_excel as ie', 'i.calendar_id', '=', 'ie.id')
-        //     ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
-        //     ->select(
-        //         'i.rfid',
-        //         'i.imei',
-        //         'v.nom as camion',
-        //         't.nom as transporteur_nom',
-        //         'i.event as infraction',
-        //         'i.date_debut',
-        //         'i.heure_debut',
-        //         'i.date_fin',
-        //         'i.heure_fin',
-        //         'i.insuffisance',
-        //         'i.duree_infraction',
-        //         'i.duree_initial',
-        //         'i.odometer',
-        //         'i.gps_debut',
-        //         'i.distance',
-        //         'i.distance_calendar',
-        //         'i.point'
-        //     )
-        //     ->where('v.imei', $imei)
-        //     ->where('ie.import_calendar_id', 1)
-        //     ->get();
-        $resultats = DB::table('import_excel as c')
-            ->leftJoin('infraction as i', function ($join) {
-                $join->on('i.imei', '=', 'c.imei')
-                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
-            })
-            ->select(
+        $normalInfractions = DB::table('import_excel as c')
+            ->select([
                 'c.badge_chauffeur AS badge_calendar',
                 'i.imei',
                 'c.camion',
                 'c.rfid_chauffeur AS rfid_calendar',
-                'i.event AS infraction',
-                'i.date_debut AS date_debut',
-                'i.heure_debut AS heure_debut',
-                'i.date_fin AS date_fin',
-                'i.heure_debut AS heure_fin',
                 'i.rfid AS rfid_conducteur',
+                'i.event AS infraction',
+                'i.date_debut',
+                'i.heure_debut',
+                'i.date_fin',
+                'i.heure_fin',
                 'i.gps_debut',
                 'i.gps_fin',
                 'i.duree_infraction',
                 'i.insuffisance',
-                'i.point AS point'
+                'i.point',
+            ])
+            ->join('infraction as i', function ($join) {
+                $join->on('i.imei', '=', 'c.imei')
+                    ->where('i.event', '!=', 'Temps de repos hebdomadaire')
+                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+            })
+            ->where('c.import_calendar_id', $id_planning)
+            ->where('c.imei', $imei)
+            ->distinct();
+
+        // --- Partie 2 : repos hebdomadaire
+        $reposHebdo = DB::table('import_excel as c')
+            ->select([
+                'c.badge_chauffeur AS badge_calendar',
+                'i.imei',
+                'c.camion',
+                'c.rfid_chauffeur AS rfid_calendar',
+                'i.rfid AS rfid_conducteur',
+                'i.event AS infraction',
+                'i.date_debut',
+                'i.heure_debut',
+                'i.date_fin',
+                'i.heure_fin',
+                'i.gps_debut',
+                'i.gps_fin',
+                'i.duree_infraction',
+                'i.insuffisance',
+                'i.point',
+            ])
+            ->joinSub(
+                DB::table('infraction')
+                    ->select(
+                        DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
+                    )
+                    ->where('event', 'Temps de repos hebdomadaire')
+                    ->where('imei', $imei),
+                'i',
+                'i.imei',
+                '=',
+                'c.imei'
             )
             ->where('c.import_calendar_id', $id_planning)
-            ->where('i.imei', $imei)
+            ->where('c.imei', $imei)
+            ->distinct();
+        $resultats = $normalInfractions
+            ->unionAll($reposHebdo)
             ->get();
 
 

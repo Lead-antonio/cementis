@@ -69,8 +69,8 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             }
         }
         
-        return $query->orderBy('point', 'desc')->get()->map(function($scoring) {
-            $conducteur = getDriverByRFID(false, $scoring->rfid_chauffeur);
+        return $query->orderBy('point', 'desc')->get()->map(function($scoring, $selectedPlanning) {
+            $conducteur = getDriverByRFID(false, $scoring->rfid_chauffeur, $selectedPlanning);
             if (!empty($conducteur)) {
                 $chauffeurInfraction = $conducteur;
             } elseif (empty($scoring->rfid_chauffeur)) {
@@ -79,7 +79,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                 $chauffeurInfraction = 'Chauffeur inexistant pour le RFID dans infraction : ' . $scoring->rfid_chauffeur;
             }
             return [
-                'Chauffeur sur le calendrier' => getDriverByNumberBadge($scoring->badge_calendar) ?? 'Chauffeur inexistant pour le numéro de badge :' . $scoring->badge_calendar,
+                'Chauffeur sur le calendrier' => getDriverByNumberBadge($scoring->badge_calendar, $selectedPlanning) ?? 'Chauffeur inexistant pour le numéro de badge :' . $scoring->badge_calendar,
                 'N° badge sur le calendrier' => $scoring->badge_calendar,
                 // 'Chauffeur sur l\'infraction' => getDriverByRFID( false , $scoring->rfid_chauffeur),
                 'Chauffeur sur l\'infraction' => $chauffeurInfraction,

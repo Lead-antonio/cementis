@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Overspeed\CheckOverspeed::class,
         \App\Console\Commands\Scoring\GenerateScoring::class,
         \App\Console\Commands\CheckDriverNotFix\CheckDriverNotFix::class,
+        \App\Console\Commands\Calendar\CleanCalendarCommand::class,
     ];
 
     

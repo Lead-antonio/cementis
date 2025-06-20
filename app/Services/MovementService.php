@@ -542,42 +542,54 @@ class MovementService
      * @param string end_date_time
      * return array
      */
-    public function getMaxStopInJourney($imei, $startDateTime, $endDateTime){    
+    // public function getMaxStopInJourney($imei, $startDateTime, $endDateTime){    
+    //     try {
+    //         // Requête pour obtenir la durée maximale
+    //         $maxDurationSubQuery = Movement::where('type', 'STOP')
+    //         ->whereBetween('start_date', [$startDateTime, $endDateTime])
+    //         ->whereBetween('end_date', [$startDateTime, $endDateTime])
+    //         ->where('imei', $imei)
+    //         ->max('duration');
+
+    //         // Vérifier si la durée maximale a été trouvée
+    //         if ($maxDurationSubQuery !== null) {
+    //             // Requête pour obtenir le mouvement ayant la durée maximale
+    //             $movement = Movement::where('type', 'STOP')
+    //                 ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
+    //                 ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
+    //                 ->where('imei', $imei)
+    //                 ->where('duration', '=', $maxDurationSubQuery)  // Comparer avec la durée maximale
+    //                 ->first();
+
+    //             // Vérifier si un mouvement a été trouvé
+    //             if ($movement) {
+    //                 return $movement->toArray();  // Si un mouvement est trouvé, le convertir en tableau
+    //             }
+    //         }
+
+    //         // Si aucun mouvement n'est trouvé ou si aucune durée maximale n'est trouvée
+    //         return null;
+
+    //     } catch (Exception $e) {
+    //         // Gestion des erreurs
+    //         Log::error("Erreur lors de la récupération du mouvment ayant le max duration stop pendant une journée : " . $e->getMessage());
+    //         return 0;
+    //     }
+    // }
+    public function getMaxStopInJourney($imei, $startDateTime, $endDateTime)
+    {
         try {
-            // Requête pour obtenir la durée maximale
-            // $maxDurationSubQuery  = Movement::where('type', 'STOP')
-            // ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
-            // ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
-            // ->where('imei', $imei)
-            // ->max('duration');
-            $maxDurationSubQuery = Movement::where('type', 'STOP')
-            ->whereBetween('start_date', [$startDateTime, $endDateTime])
-            ->whereBetween('end_date', [$startDateTime, $endDateTime])
-            ->where('imei', $imei)
-            ->max('duration');
+            $movement = Movement::where('type', 'STOP')
+                ->where('imei', $imei)
+                ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
+                ->whereRaw("CONCAT(end_date, ' ', end_hour) <= ?", [$endDateTime])
+                ->orderByDesc('duration')
+                ->first();
 
-            // Vérifier si la durée maximale a été trouvée
-            if ($maxDurationSubQuery !== null) {
-                // Requête pour obtenir le mouvement ayant la durée maximale
-                $movement = Movement::where('type', 'STOP')
-                    ->whereRaw("CONCAT(start_date, ' ', start_hour) >= ?", [$startDateTime])
-                    ->whereRaw("CONCAT(start_date, ' ', start_hour) <= ?", [$endDateTime])
-                    ->where('imei', $imei)
-                    ->where('duration', '=', $maxDurationSubQuery)  // Comparer avec la durée maximale
-                    ->first();
-
-                // Vérifier si un mouvement a été trouvé
-                if ($movement) {
-                    return $movement->toArray();  // Si un mouvement est trouvé, le convertir en tableau
-                }
-            }
-
-            // Si aucun mouvement n'est trouvé ou si aucune durée maximale n'est trouvée
-            return null;
+            return $movement ? $movement->toArray() : null;
 
         } catch (Exception $e) {
-            // Gestion des erreurs
-            Log::error("Erreur lors de la récupération du mouvment ayant le max duration stop pendant une journée : " . $e->getMessage());
+            Log::error("Erreur lors de la récupération du mouvement STOP avec durée maximale : " . $e->getMessage());
             return 0;
         }
     }

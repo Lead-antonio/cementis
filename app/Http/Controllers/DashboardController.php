@@ -50,6 +50,8 @@ class DashboardController extends Controller
 
         $data['best_scoring'] = getAllGoodScoring($selectedPlanning);
         $data['bad_scoring'] = getAllBadScoring($selectedPlanning);
+        // dd($this->getRfidMatchingStats($selectedPlanning));
+        $data['match_rfid'] = $this->getRfidMatchingStats($selectedPlanning);
         
         $data['driver_has_score'] = $this->driver_has_scoring($selectedPlanning);
         $data['driver_not_has_score'] = $this->driver_not_have_scoring($selectedPlanning);  
@@ -64,6 +66,7 @@ class DashboardController extends Controller
                 'driver_not_has_score' => $data['driver_not_has_score'],
                 'truck_in_calendar' => $data['truck_in_calendar'],
                 'total_chauffeur' => $data['totalChauffeurs'],
+                'match_rfid' => $data['match_rfid'],
                 // 'driver_in_calendar' => $data['driver_in_calendar'],
                 'drivers_badge_in_calendars' => $data['drivers_badge_in_calendars'],
                 'best_scoring' => view('dashboard.best_scoring', ['best_scoring' => $data['best_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
@@ -127,6 +130,39 @@ class DashboardController extends Controller
         }
 
         return count(array_unique($result));
+    }
+
+    public function getRfidMatchingStats($id_planning){
+        return DB::table('scoring')
+            ->where('id_planning', $id_planning)
+            ->selectRaw('
+                COUNT(*) AS total_rows,
+                SUM(CASE 
+                        WHEN badge_rfid = badge_calendar 
+                        THEN 1 ELSE 0 
+                    END) AS match_count,
+                SUM(CASE 
+                        WHEN badge_rfid != badge_calendar 
+                            OR badge_rfid IS NULL 
+                            OR badge_calendar IS NULL 
+                        THEN 1 ELSE 0 
+                    END) AS non_match_count,
+                ROUND(
+                    100.0 * SUM(CASE 
+                        WHEN badge_rfid = badge_calendar 
+                        THEN 1 ELSE 0 
+                    END) / COUNT(*), 2
+                ) AS match_percentage,
+                ROUND(
+                    100.0 * SUM(CASE 
+                        WHEN badge_rfid != badge_calendar 
+                            OR badge_rfid IS NULL 
+                            OR badge_calendar IS NULL 
+                        THEN 1 ELSE 0 
+                    END) / COUNT(*), 2
+                ) AS non_match_percentage
+            ')
+            ->first();
     }
 
 

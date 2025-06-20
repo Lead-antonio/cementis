@@ -29,6 +29,10 @@ class CreateInfractionTable extends Migration
             $table->string('date_fin')->nullable();
             $table->string('heure_debut')->nullable();
             $table->string('heure_fin')->nullable();
+            $table->string('week_date_start')->nullable();
+            $table->string('week_date_end')->nullable();
+            $table->string('week_time_start')->nullable();
+            $table->string('week_time_end')->nullable();
             $table->string('gps_debut')->nullable();
             $table->string('gps_fin')->nullable();
             $table->decimal('point')->nullable();

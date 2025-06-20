@@ -88,47 +88,47 @@ class ReposJournalierService
     {
         try {
             // Vérification des données nécessaires
-            if (!isset($movement['duration'], $movement['start_hour'], $movement['imei'], $movement['rfid'])) {
-                throw new Exception("Données manquantes dans le mouvement.");
+            if(isset($movement)){
+                $utils = new Utils();
+                $continueService = new ConduiteContinueService();
+                $truckService = new TruckService();
+                $penaliteService = new PenaliteService();
+    
+                $condition = (8 * 3600) + 600;
+    
+                $result = [];
+                $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
+                // Convertir la durée du STOP en secondes
+                $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+    
+                // Vérifier si la durée du STOP est inférieure à la condition requise
+                if ($stopDuration < $condition) {
+                    $event = "Temps de repos minimum après une journée de travail";
+                    $point = $penaliteService->getPointPenaliteByEventType($event);
+                    
+                    $result  = [
+                        'imei' => $movement['imei'],
+                        'rfid' => $movement['rfid'],
+                        'event' => $event,
+                        'vehicule' => $immatricule,
+                        'distance' => 0,
+                        'distance_calendar' => 0,
+                        'odometer' => 0,
+                        'duree_infraction' => $stopDuration,
+                        'duree_initial' => $condition,
+                        'date_debut' => $movement['start_date'],
+                        'date_fin' => $movement['end_date'],
+                        'heure_debut' => $movement['start_hour'],
+                        'heure_fin' => $movement['end_hour'],
+                        'point' => $point, // Points calculés
+                        'insuffisance' => ($condition - $stopDuration) // Différence en secondes
+                    ];
+                }
+                return $result;
+            }else {
+                return null;
             }
 
-            $utils = new Utils();
-            $continueService = new ConduiteContinueService();
-            $truckService = new TruckService();
-            $penaliteService = new PenaliteService();
-
-            $condition = (8 * 3600) + 600;
-
-            $result = [];
-            $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
-            // Convertir la durée du STOP en secondes
-            $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
-
-            // Vérifier si la durée du STOP est inférieure à la condition requise
-            if ($stopDuration < $condition) {
-                $event = "Temps de repos minimum après une journée de travail";
-                $point = $penaliteService->getPointPenaliteByEventType($event);
-                
-                $result  = [
-                    'imei' => $movement['imei'],
-                    'rfid' => $movement['rfid'],
-                    'event' => $event,
-                    'vehicule' => $immatricule,
-                    'distance' => 0,
-                    'distance_calendar' => 0,
-                    'odometer' => 0,
-                    'duree_infraction' => $stopDuration,
-                    'duree_initial' => $condition,
-                    'date_debut' => $movement['start_date'],
-                    'date_fin' => $movement['end_date'],
-                    'heure_debut' => $movement['start_hour'],
-                    'heure_fin' => $movement['end_hour'],
-                    'point' => $point, // Points calculés
-                    'insuffisance' => ($condition - $stopDuration) // Différence en secondes
-                ];
-            }
-
-            return $result;
 
         } catch (Exception $e) {
             // Enregistre l'erreur dans les logs
@@ -154,12 +154,11 @@ class ReposJournalierService
             // $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
             foreach($all_trucks as $truck){
                 $imei = $truck->imei;
-
+                // $imei = "865135060353990";
+                
                 $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
-                // dd($all_journey);
                 if(is_array($all_journey)){
                     $journeyCount = count($all_journey);
-
                     $console->withProgressBar($journeyCount, function($progressBar) use ($all_journey, $mouvementService, $repos_journalier_service, &$data_infraction, $imei) {
                         foreach($all_journey as $journey){    
                             $max_stop_movement = $mouvementService->getMaxStopInJourney($imei, $journey['start'], $journey['end']);
@@ -175,7 +174,7 @@ class ReposJournalierService
                 }else{
                     // Si $all_journey n'est pas un tableau, afficher une erreur
                     $console->error("Erreur: " . print_r($all_journey, true));
-                    continue;
+                    // continue;
                 }
             }
             if (!empty($data_infraction)) {

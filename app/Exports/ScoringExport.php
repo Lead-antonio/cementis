@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithEvents
 {
     protected $scoring;
+    protected $id_planning;
     protected $distance_totale;
     protected $totals = [];
 
@@ -26,9 +27,10 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     //     $this->scoring = $scoring;
     //     $this->distance_totale = $distance_totale;
     // }
-    public function __construct($scoring)
+    public function __construct($scoring, $id_planning)
     {
         $this->scoring = $scoring;
+        $this->id_planning = $id_planning;
     }
 
     public function collection()
@@ -69,7 +71,7 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
     {
         // dd($row);
         // Calculate and update totals
-        $driver = getDriverByNumberBadge($row->badge_calendar);
+        $driver = getDriverByNumberBadge($row->badge_calendar, $this->id_planning);
 
         $this->totals[$driver]['point'] = ($this->totals[$driver]['point'] ?? 0) + $row->point;
 
@@ -88,7 +90,7 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
         // }
         
         return [
-            getDriverByNumberBadge($row->badge_calendar),
+            getDriverByNumberBadge($row->badge_calendar, $this->id_planning),
             get_transporteur($row->imei, $row->camion),
             $row->infraction,
             \Carbon\Carbon::parse($row->date_debut . ' ' . $row->heure_debut)->format('d-m-Y H:i:s'),
@@ -106,7 +108,7 @@ class ScoringExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $totals = [];
 
         foreach ($scoring as $result) {
-            $driver = getDriverByNumberBadge($row->badge_calendar);
+            $driver = getDriverByNumberBadge($row->badge_calendar, $this->id_planning);
 
             if (!isset($totals[$driver])) {
                 $totals[$driver] = [

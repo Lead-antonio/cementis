@@ -129,6 +129,24 @@ class ScoringController extends AppBaseController
     }
 
     // Antonio
+    // List of driver having a rfid martching with rfid infraction
+    public function driver_match_rfid(Request $request){
+        $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
+
+        $import_calendar = Importcalendar::all();
+        $alphaciment_driver = 'oui';
+
+        // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
+        $scoring = Scoring::where('id_planning', $selectedPlanning)
+        ->whereColumn('badge_rfid', 'badge_calendar')
+        ->with('driver.latest_update')
+        ->get();
+        
+                
+        return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
+    }
+
+    // Antonio
     // List of driver having a scoring
     public function driver_has_scoring(Request $request){
         $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
@@ -291,7 +309,7 @@ class ScoringController extends AppBaseController
             // $scoring = tabScoringCard_new($chauffeur, $id_planning);
             $scoring = driver_detail_scoring_card($imei, $badge, $id_planning);
             // $distance_total = getDistanceTotalDriverInCalendar($chauffeur, $id_planning);
-            return Excel::download(new ScoringExport($scoring), 'scoring.xlsx');
+            return Excel::download(new ScoringExport($scoring, $id_planning), 'scoring.xlsx');
         } catch (\Throwable $th) {
             throw $th;
         }
