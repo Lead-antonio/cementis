@@ -20,6 +20,8 @@ use App\Models\ChauffeurUpdate;
 use App\Models\ChauffeurUpdateStory;
 use App\Models\ChauffeurUpdateType;
 use App\Models\User;
+use App\Models\Importcalendar;
+use Illuminate\Support\Facades\DB;
 use App\Models\Validation;
 use App\Notifications\CreateChauffeurInfoNotification;
 use App\Notifications\DeleteChauffeurInfoNotification;
@@ -50,6 +52,8 @@ class ChauffeurController extends AppBaseController
     public function index(ChauffeurDataTable $chauffeurDataTable,  Request $request)
     {
         // $query = Chauffeur::query();
+        $plannings = Importcalendar::all();
+        $selected_planning =  DB::table('import_calendar')->latest('id')->first();
 
         // Si le paramètre 'non_fixe' est présent, filtre les chauffeurs
         if ($request->input('non_fixe') == 1) {
@@ -71,7 +75,7 @@ class ChauffeurController extends AppBaseController
             Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
             Session::forget('deleted');
         }
-        return $chauffeurDataTable->render('chauffeurs.index');
+        return $chauffeurDataTable->render('chauffeurs.index', compact('plannings', 'selected_planning'));
         // return $chauffeurDataTable->withQuery($query)->render('chauffeurs.index');
     }
 

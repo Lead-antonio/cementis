@@ -7,4 +7,11 @@
 @push('third_party_scripts')
     @include('layouts.datatables_js')
     {!! $dataTable->scripts() !!}
+    <script>
+        $(document).ready(function () {
+            $('#filter-planning').on('change', function () {
+                $('#chauffeur-table').DataTable().ajax.reload();
+            });
+        });
+    </script>
 @endpush

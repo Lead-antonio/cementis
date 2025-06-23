@@ -84,7 +84,7 @@ class ChauffeurDataTable extends DataTable
     {
 
 
-        return $model->newQuery()
+        $query =  $model->newQuery()
         
             // Sélectionner les colonnes du chauffeur
             ->select(
@@ -130,6 +130,12 @@ class ChauffeurDataTable extends DataTable
                      ->whereRaw('validations.created_at = (SELECT MAX(created_at) FROM validations WHERE model_id = chauffeur.id AND model_type = ?)', [Chauffeur::class]);
             })->
             with(['related_transporteur', 'latest_update', 'validation']);
+        
+            if ($planningId = request()->get('planning_id')) {
+                $query->where('id_planning', $planningId);
+            }
+
+            return $query;
     }
 
 
@@ -141,8 +147,11 @@ class ChauffeurDataTable extends DataTable
     public function html()
     {
         return $this->builder()
+            ->setTableId('chauffeur-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->minifiedAjax('', null, [
+            'planning_id' => '$("#filter-planning").val()',
+            ])
             ->addAction(['width' => '120px', 'printable' => false, 'title' => __('crud.action')])
             ->parameters([
                 'dom'       => 'Bfrtip',
