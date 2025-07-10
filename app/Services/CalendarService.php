@@ -377,9 +377,9 @@ class CalendarService
      * @param string imei
      * return array journeys
      */ 
-    // public static function splitWorkJouney($imei, $start_date, $end_date){
+    // public static function splitWorkJouney($imei, $start_date, $end_date) 
+    // {
     //     $mouvementService = new MovementService();
-    //     $continueService = new ConduiteContinueService();
     //     $truckService = new TruckService();
     //     $utils = new Utils();
 
@@ -390,27 +390,18 @@ class CalendarService
     //     $calendarStartDate = $start_date;
     //     $calendarEndDate = $end_date;
 
-    //     // 2. Prendre la première date du mouvement DRIVE comme point de départ de la première journée
     //     $firstDriveMovement = collect($movements_monthly)->firstWhere('type', 'DRIVE');
+    //     if (!$firstDriveMovement) return $journeys;
+
     //     $imei = $firstDriveMovement['imei'];
     //     $rfid = $firstDriveMovement['rfid'];
+    //     $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']);
 
-    //     if ($firstDriveMovement) {
-    //         $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']); // DateTime du premier DRIVE
-    //     } else {
-    //         // Si aucun mouvement DRIVE n'est trouvé, retourner un tableau vide ou lever une exception
-    //         return $journeys;
-    //     }
-
-    //     // 3. Diviser le calendrier par périodes de 24 heures
     //     while ($currentJourneyStart < $calendarEndDate) {
-    //         // Par défaut, la fin de la journée est +24 heures
     //         $currentJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
     //         $longestStopDuration = 0;
     //         $nextJourneyStart = null;
 
-            
-    //         // Filtrer les mouvements dans la période actuelle (de $currentJourneyStart à $currentJourneyEnd)
     //         $currentDayMovements = collect($movements_monthly)->filter(function ($movement) use ($currentJourneyStart, $currentJourneyEnd) {
     //             $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
     //             return $movementDate >= $currentJourneyStart && $movementDate < $currentJourneyEnd;
@@ -420,44 +411,46 @@ class CalendarService
     //             if ($movement['type'] === 'STOP') {
     //                 $stopStart = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
     //                 $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
-    //                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
-    
-    //                 // Calculer si l'arrêt est pendant le jour ou la nuit
-    //                 $isDayTimeStop = $utils->isNightPeriod($stopStart->format('H:i:s'), $stopEnd->format('H:i:s'));
-    //                 if($stopStart >= $currentJourneyStart && $stopEnd <= $currentJourneyEnd){
-    //                     // Arrêt prolongé en journée (8 heures ou plus)
-    //                     if ($isDayTimeStop && ($stopDuration >= 10 * 3600)) {
-    //                         $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
-    //                         $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
-    //                         break;
-    //                     }
-    //                     // Arrêt prolongé pendant la nuit (10 heures ou plus)
-    //                     elseif (!$isDayTimeStop && ($stopDuration >= 8 * 3600)) {
-    //                         $currentJourneyEnd = $stopStart; // Terminer la journée à l'heure de début de l'arrêt
-    //                         $nextJourneyStart = $stopEnd; // La prochaine journée commencera après l'arrêt
-    //                         break;
+    //                 $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+
+    //                 // STOP doit être totalement dans la journée ET finir avant la fin
+    //                 if (
+    //                     $stopStart >= $currentJourneyStart &&
+    //                     $stopEnd <= $currentJourneyEnd &&
+    //                     $stopDuration >= 8 * 3600
+    //                 ) {
+    //                     // $currentJourneyEnd = $stopStart;
+    //                     $nextJourneyStart = $stopEnd;
+    //                     $longestStopDuration = $stopDuration;
+    //                     break;
+    //                 }
+
+    //                 // Mémoriser la durée max des STOP même non valides
+    //                 if ($stopStart >= $currentJourneyStart && $stopEnd <= $currentJourneyEnd) {
+    //                     if ($stopDuration > $longestStopDuration) {
+    //                         $longestStopDuration = $stopDuration;
     //                     }
     //                 }
     //             }
     //         }
 
-    //         // Ajouter cette journée à la liste des journées
     //         $journeys[] = [
     //             'imei' => $imei,
     //             'rfid' => $rfid,
     //             'camion' => $immatricule,
-    //             'max_stop_duration' => $stopDuration,
+    //             'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
     //             'start' => $currentJourneyStart->format('Y-m-d H:i:s'),
     //             'end' => $currentJourneyEnd->format('Y-m-d H:i:s'),
     //         ];
-    //         // Passer à la journée suivante (ajouter 24 heures)
-    //         $currentJourneyStart = $nextJourneyStart ? $nextJourneyStart : $currentJourneyEnd;
+
+    //         $currentJourneyStart = $nextJourneyStart ?: $currentJourneyEnd;
     //     }
 
+    //     // Ajuster la dernière journée si elle dépasse la fin
     //     if (!empty($journeys)) {
-    //         $lastJourneyIndex = count($journeys) - 1;
-    //         if($journeys[$lastJourneyIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')){
-    //             $journeys[$lastJourneyIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
+    //         $lastIndex = count($journeys) - 1;
+    //         if ($journeys[$lastIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')) {
+    //             $journeys[$lastIndex]['end'] = $calendarEndDate->format('Y-m-d H:i:s');
     //         }
     //     }
 
@@ -482,14 +475,18 @@ class CalendarService
         $imei = $firstDriveMovement['imei'];
         $rfid = $firstDriveMovement['rfid'];
         $currentJourneyStart = new \DateTime($firstDriveMovement['start_date'] . ' ' . $firstDriveMovement['start_hour']);
-
+    
         while ($currentJourneyStart < $calendarEndDate) {
-            $currentJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
+            $defaultJourneyEnd = (clone $currentJourneyStart)->modify('+24 hours');
+            $currentJourneyEnd = clone $defaultJourneyEnd;
             $longestStopDuration = 0;
             $nextJourneyStart = null;
+            $start_date_max = null;
+            $end_date_max = null;
 
             $currentDayMovements = collect($movements_monthly)->filter(function ($movement) use ($currentJourneyStart, $currentJourneyEnd) {
                 $movementDate = new \DateTime($movement['start_date'] . ' ' . $movement['start_hour']);
+                // $end = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
                 return $movementDate >= $currentJourneyStart && $movementDate < $currentJourneyEnd;
             });
 
@@ -499,21 +496,28 @@ class CalendarService
                     $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
                     $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
 
-                    // STOP doit être totalement dans la journée ET finir avant la fin
+                    $hoursSinceStart = ($stopStart->getTimestamp() - $currentJourneyStart->getTimestamp()) / 3600;
+
+                    // Cas où le STOP est valide : >= 8h et commence dans les 16 premières heures
                     if (
-                        $stopStart >= $currentJourneyStart &&
-                        $stopEnd <= $currentJourneyEnd &&
-                        $stopDuration >= 8 * 3600
+                        $stopStart <= $currentJourneyEnd &&
+                        $stopEnd >= $currentJourneyStart &&
+                        $stopDuration >= 8 * 3600 &&
+                        $hoursSinceStart <= 16
                     ) {
-                        // $currentJourneyEnd = $stopStart;
+                        $currentJourneyEnd = $stopEnd;
                         $nextJourneyStart = $stopEnd;
+                        $start_date_max = $stopStart;
+                        $end_date_max = $stopEnd;
                         $longestStopDuration = $stopDuration;
-                        break;
+                        break; // premier STOP valide trouvé
                     }
 
-                    // Mémoriser la durée max des STOP même non valides
+                    // Suivi du plus long STOP même s'il n'est pas valide
                     if ($stopStart >= $currentJourneyStart && $stopEnd <= $currentJourneyEnd) {
                         if ($stopDuration > $longestStopDuration) {
+                            $start_date_max = $stopStart;
+                            $end_date_max = $stopEnd;
                             $longestStopDuration = $stopDuration;
                         }
                     }
@@ -524,15 +528,17 @@ class CalendarService
                 'imei' => $imei,
                 'rfid' => $rfid,
                 'camion' => $immatricule,
+                'moov_start_date' => $start_date_max ? $start_date_max->format('Y-m-d H:i:s') : null,
+                'moov_end_date' => $end_date_max ? $end_date_max->format('Y-m-d H:i:s') : null,
                 'max_stop_duration' => $utils->convertDurationSecondsToTimeFormat($longestStopDuration),
                 'start' => $currentJourneyStart->format('Y-m-d H:i:s'),
                 'end' => $currentJourneyEnd->format('Y-m-d H:i:s'),
             ];
 
-            $currentJourneyStart = $nextJourneyStart ?: $currentJourneyEnd;
+            $currentJourneyStart = $nextJourneyStart ?? $defaultJourneyEnd;
         }
 
-        // Ajuster la dernière journée si elle dépasse la fin
+        // Ajustement de la dernière journée
         if (!empty($journeys)) {
             $lastIndex = count($journeys) - 1;
             if ($journeys[$lastIndex]['end'] > $calendarEndDate->format('Y-m-d H:i:s')) {
@@ -542,6 +548,8 @@ class CalendarService
 
         return $journeys;
     }
+
+
 
 
         /**
@@ -555,12 +563,13 @@ class CalendarService
     public static function getAllWorkJouneys($imei, $start_date, $end_date , $console = null)
     {
         try {
-            $all_week = [];
+            $all_days = [];
             
-            $weeks = self::splitWorkJouney($imei, $start_date, $end_date);
+            $days = self::splitWorkJouney($imei, $start_date, $end_date);
 
-            $all_week = array_merge($all_week, $weeks);
-            return $all_week;
+            $all_days = array_merge($all_days, $days);
+            // dd($all_days);
+            return $all_days;
 
         } catch (\Exception $e) {
             // En cas d'exception, affichage dans la console si $console est défini
@@ -732,7 +741,7 @@ class CalendarService
                         $stopEnd = new \DateTime($movement['end_date'] . ' ' . $movement['end_hour']);
                         $stopDuration = $utils->convertTimeToSeconds($movement['duration']); // Durée en secondes
 
-                        if ($stopStart >= $currentWeekStart && $stopEnd <= $currentWeekEnd) {
+                        if ($stopStart <= $currentWeekEnd && $stopEnd >= $currentWeekStart) {
                             // Calculer la durée maximale d'arrêt pendant cette semaine
                             if ($stopDuration > $longestStopDuration) {
                                 $start_date_max_duration = $stopStart;
@@ -740,8 +749,10 @@ class CalendarService
                                 $longestStopDuration = $stopDuration;
                             }
 
+                            $hoursSinceWeekStart = ($stopStart->getTimestamp() - $currentWeekStart->getTimestamp()) / 3600;
+
                             // Calculer si l'arrêt est supérieur à 24 heures
-                            if ($stopDuration >= 24 * 3600) {
+                            if ($stopDuration >= 24 * 3600 && $hoursSinceWeekStart <= 144) {
                                 $currentWeekEnd = $stopEnd; // Terminer la semaine à l'heure de début de l'arrêt
                                 $nextWeekStart = $stopEnd; // La prochaine semaine commencera après l'arrêt
                                 break;
@@ -802,10 +813,10 @@ class CalendarService
         try {
             $all_trucks = Vehicule::all();
             $all_week = [];
-            
+            // dd($start_date, $end_date);
             foreach ($all_trucks as $truck) {
                 $weeks = self::splitWorkWeekly($truck->imei, $start_date, $end_date);
-                // $weeks = self::splitWorkWeekly("865135060353990", $start_date, $end_date);
+                // $weeks = self::splitWorkWeekly("865135060650254", $start_date, $end_date);
                 $all_week = array_merge($all_week, $weeks);
             }
             return $all_week;

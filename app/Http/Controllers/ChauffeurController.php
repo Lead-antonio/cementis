@@ -119,13 +119,14 @@ class ChauffeurController extends AppBaseController
     public function store(Request $request)
     {
         try{
-
+            $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
             $validated = [
                 "nom" => $request->nom,
                 "transporteur_id" => $request->transporteur_id,
                 "rfid_physique" => $request->rfid_physique,
                 "contact" => $request->contact,
                 "numero_badge" => $request->numero_badge,
+                "id_planning" => $selectedPlanning,
             ];
  
             // Vérifier si une demande de création avec les mêmes données est déjà en attente

@@ -162,12 +162,12 @@ if (!function_exists('getDriverByBadge')){
 use App\Models\ChauffeurUpdate;
 if (!function_exists('getDriverByNumberBadge')){
     function getDriverByNumberBadge($badge, $id_planning){
-        $driver = Chauffeur::where('numero_badge', $badge)->where('id_planning', $id_planning)->first();
+        $driver = Chauffeur::where('numero_badge', trim($badge))->where('id_planning', $id_planning)->first();
         if(empty($driver)){
-            $driver = ChauffeurUpdate::where('numero_badge', $badge)->first();
-            if(empty($driver)){
+            // $driver = ChauffeurUpdate::where('numero_badge', $badge)->first();
+            // if(empty($driver)){
                 return null;
-            }
+            // }
         }
 
         return $driver->nom;
@@ -227,6 +227,7 @@ if(!function_exists('scoring')){
     function scoring($id_planning){
         $results = "";
         $calendar = Importcalendar::where('id', $id_planning)->first();
+        $month = Carbon::parse($calendar->date_debut)->format('m');
         if($id_planning !== "" && $id_planning !== null){
             // $results = DB::select("
             //     SELECT 
@@ -355,7 +356,9 @@ if(!function_exists('scoring')){
                     LEFT JOIN (
                         SELECT DISTINCT id, imei, rfid, point
                         FROM infraction
-                        WHERE event = 'Temps de repos hebdomadaire'
+                        WHERE event = 'Temps de repos hebdomadaire' 
+                        AND MONTH(date_debut) = $month AND MONTH(date_fin)= $month
+
                     ) i ON i.imei = c.imei
                     GROUP BY 
                         c.badge_chauffeur,
@@ -409,6 +412,9 @@ if (!function_exists('driver_detail_scoring_card')) {
     // }
     function driver_detail_scoring_card($imei, $badge, $id_planning)
     {
+        $calendar = Importcalendar::where('id', $id_planning)->first();
+        $month = Carbon::parse($calendar->date_debut)->format('m');
+
         $normalInfractions = DB::table('import_excel as c')
             ->select([
                 'c.badge_chauffeur AS badge_calendar',
@@ -463,6 +469,8 @@ if (!function_exists('driver_detail_scoring_card')) {
                         DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
                     )
                     ->where('event', 'Temps de repos hebdomadaire')
+                    ->whereMonth('date_debut', '=', $month)
+                    ->whereMonth('date_fin', '=', $month)
                     ->where('imei', $imei),
                 'i',
                 'i.imei',
@@ -519,6 +527,8 @@ if (!function_exists('truck_detail_scoring_card')) {
     // }
     function truck_detail_scoring_card($immatricule, $id_planning)
     {
+        $calendar = Importcalendar::where('id', $id_planning)->first();
+        $month = Carbon::parse($calendar->date_debut)->format('m');
         $imei = ImportExcel::where('camion', $immatricule)->pluck('imei')->first();
         $normalInfractions = DB::table('import_excel as c')
             ->select([
@@ -573,6 +583,8 @@ if (!function_exists('truck_detail_scoring_card')) {
                         DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
                     )
                     ->where('event', 'Temps de repos hebdomadaire')
+                    ->whereMonth('date_debut', '=', $month)
+                    ->whereMonth('date_fin', '=', $month)
                     ->where('imei', $imei),
                 'i',
                 'i.imei',
@@ -2736,25 +2748,63 @@ if(!function_exists('getBadgeCalendarByTruck')){
 if(!function_exists('getDriverInfractionWithmaximumPoint')){
     function getDriverInfractionWithmaximumPoint($id_driver, $imei, $id_planning){
         // Créer la sous-requête
-        $subquery = DB::table('infraction as i')
-        ->leftJoin('import_excel as ie', function ($join) {
-                $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
+        // $subquery = DB::table('infraction as i')
+        // ->leftJoin('import_excel as ie', function ($join) {
+        //         $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
+        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
+        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
+        //     })
+        // ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+        // ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+        // ->select(
+        //     'ch.nom as driver',
+        //     'ch.id as driver_id',
+        //     'ch.rfid as rfid',
+        //     't.nom as transporteur_nom',
+        //     'i.event as infraction',
+        //     DB::raw('SUM(i.point) as total_point')
+        // )
+        // ->where('ch.id', $id_driver)
+        // ->where('ie.import_calendar_id', $id_planning)
+        // ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+        $query1 = DB::table('infraction as i')
+            ->leftJoin('import_excel as ie', function ($join) {
+                $join->on('i.imei', '=', 'ie.imei')
                     ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
                     ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
             })
-        ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-        ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        ->select(
-            'ch.nom as driver',
-            'ch.id as driver_id',
-            'ch.rfid as rfid',
-            't.nom as transporteur_nom',
-            'i.event as infraction',
-            DB::raw('SUM(i.point) as total_point')
-        )
-        ->where('ch.id', $id_driver)
-        ->where('ie.import_calendar_id', $id_planning)
-        ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+            ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+            ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+            ->select(
+                'ch.nom as driver',
+                'ch.id as driver_id',
+                'ch.rfid as rfid',
+                't.nom as transporteur_nom',
+                'i.event as infraction',
+                DB::raw('SUM(i.point) as total_point')
+            )
+            ->where('ch.id', $id_driver)
+            ->where('ie.import_calendar_id', $id_planning)
+            ->where('i.event', '!=', 'temps de repos hebdomadaire')
+            ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+
+        $query2 = DB::table('infraction as i')
+            ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
+            ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
+            ->select(
+                'ch.nom as driver',
+                'ch.id as driver_id',
+                'ch.rfid as rfid',
+                't.nom as transporteur_nom',
+                'i.event as infraction',
+                DB::raw('SUM(i.point) as total_point')
+            )
+            ->where('ch.id', $id_driver)
+            ->where('i.event', 'temps de repos hebdomadaire')
+            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', 6)
+            ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+
+        $subquery = $query1->union($query2);
 
         // Utiliser selectSub pour la requête principale
         $result = DB::table(DB::raw("({$subquery->toSql()}) as subquery"))
@@ -2769,32 +2819,7 @@ if(!function_exists('getDriverInfractionWithmaximumPoint')){
             // return $result->infraction . " avec un total de " . $result->point;
             return $result->infraction;
         } else {
-            $query = DB::table('infraction as i')
-                ->leftJoin('import_excel as ie', function ($join) {
-                    $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
-                        ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
-                        ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
-                })
-                ->join('vehicule as v', 'i.imei', '=', 'v.imei')
-                ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
-                ->select(
-                    'v.imei as imei',
-                    't.nom as transporteur_nom',
-                    'i.event as infraction',
-                    DB::raw('SUM(i.point) as total_point')
-                )
-                ->where('v.imei', $imei)
-                ->where('ie.import_calendar_id', $id_planning)
-                ->groupBy('v.imei', 't.nom', 'i.event');
-
-
-            // Utiliser selectSub pour la requête principale
-            $result2 = DB::table(DB::raw("({$query->toSql()}) as query"))
-            ->mergeBindings($query) // Merge bindings from the subquery
-            ->select('query.imei', 'query.transporteur_nom', 'query.infraction', 'query.total_point as point')
-            ->orderBy('query.total_point', 'desc')
-            ->limit(1)
-            ->first();
+            $results2 =  getTruckInfractionWithmaximumPoint($imei, $id_planning);
 
             if($result2){
                 return $result2->infraction;
@@ -2807,9 +2832,26 @@ if(!function_exists('getDriverInfractionWithmaximumPoint')){
 if(!function_exists('getTruckInfractionWithmaximumPoint')){
     function getTruckInfractionWithmaximumPoint($imei, $id_planning){
         // Créer la sous-requête
-        $subquery = DB::table('infraction as i')
+        // $subquery = DB::table('infraction as i')
+        //     ->leftJoin('import_excel as ie', function ($join) {
+        //         $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
+        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
+        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
+        //     })
+        //     ->join('vehicule as v', 'i.imei', '=', 'v.imei')
+        //     ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
+        //     ->select(
+        //         'v.imei as imei',
+        //         't.nom as transporteur_nom',
+        //         'i.event as infraction',
+        //         DB::raw('SUM(i.point) as total_point')
+        //     )
+        //     ->where('v.imei', $imei)
+        //     ->where('ie.import_calendar_id', $id_planning)
+        //     ->groupBy('v.imei', 't.nom', 'i.event');
+        $query1 = DB::table('infraction as i')
             ->leftJoin('import_excel as ie', function ($join) {
-                $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
+                $join->on('i.imei', '=', 'ie.imei')
                     ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
                     ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
             })
@@ -2823,7 +2865,24 @@ if(!function_exists('getTruckInfractionWithmaximumPoint')){
             )
             ->where('v.imei', $imei)
             ->where('ie.import_calendar_id', $id_planning)
+            ->where('i.event', '!=', 'temps de repos hebdomadaire')
             ->groupBy('v.imei', 't.nom', 'i.event');
+        
+        $query2 = DB::table('infraction as i')
+            ->join('vehicule as v', 'i.imei', '=', 'v.imei')
+            ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
+            ->select(
+                'v.imei as imei',
+                't.nom as transporteur_nom',
+                'i.event as infraction',
+                DB::raw('SUM(i.point) as total_point')
+            )
+            ->where('v.imei', $imei)
+            ->where('i.event', 'temps de repos hebdomadaire')
+            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', 6)
+            ->groupBy('v.imei', 't.nom', 'i.event');
+        
+        $subquery = $query1->union($query2);
 
 
         // Utiliser selectSub pour la requête principale

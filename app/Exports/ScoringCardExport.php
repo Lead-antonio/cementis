@@ -28,7 +28,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
     {
         // Utiliser l'ID de planning passé, ou le plus récent si non spécifié
         $selectedPlanning = $this->planning ?? DB::table('import_calendar')->latest('id')->value('id');
-
+        
         // Définir la requête de base pour récupérer les scorings
         $query = Scoring::where('id_planning', $selectedPlanning)->with(['driver','driver.latest_update', 'transporteur']);
 
@@ -52,24 +52,24 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             //         }
             //     }); // Exclure ces camions
             // }
-            if ($this->alphaciment_driver === "oui") {
-                $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
-                        $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latest_update
-                    })
-                    ->orWhereIn('numero_badge', $badgesImport);
-                });
-            } elseif ($this->alphaciment_driver === "non") {
-                $query->whereHas('driver', function($q) use ($badgesImport) {
-                    $q->whereHas('latest_update', function($query) use ($badgesImport) {
-                        $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
-                    })
-                    ->orWhereNotIn('numero_badge', $badgesImport);
-                });
-            }
+            // if ($this->alphaciment_driver === "oui") {
+            //     $query->whereHas('driver', function($q) use ($badgesImport) {
+            //         $q->whereHas('latest_update', function($query) use ($badgesImport) {
+            //             $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latest_update
+            //         })
+            //         ->orWhereIn('numero_badge', $badgesImport);
+            //     });
+            // } elseif ($this->alphaciment_driver === "non") {
+            //     $query->whereHas('driver', function($q) use ($badgesImport) {
+            //         $q->whereHas('latest_update', function($query) use ($badgesImport) {
+            //             $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
+            //         })
+            //         ->orWhereNotIn('numero_badge', $badgesImport);
+            //     });
+            // }
         }
         
-        return $query->orderBy('point', 'desc')->get()->map(function($scoring, $selectedPlanning) {
+        return $query->orderBy('point', 'desc')->get()->map(function($scoring) use ($selectedPlanning) {
             $conducteur = getDriverByRFID(false, $scoring->rfid_chauffeur, $selectedPlanning);
             if (!empty($conducteur)) {
                 $chauffeurInfraction = $conducteur;
@@ -87,7 +87,7 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,
-                'Infraction le plus fréquent' => getDriverInfractionWithmaximumPoint($scoring->driver_id, $scoring->imei, $this->planning),
+                'Infraction le plus fréquent' => !empty($scoring->driver) ? getDriverInfractionWithmaximumPoint($scoring->driver->id, $scoring->imei, $this->planning) : getTruckInfractionWithmaximumPoint($scoring->imei, $this->planning),
                 'Commentaire' => $scoring->comment
             ];
         });

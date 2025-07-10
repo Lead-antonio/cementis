@@ -93,13 +93,17 @@ class ReposJournalierService
                 $continueService = new ConduiteContinueService();
                 $truckService = new TruckService();
                 $penaliteService = new PenaliteService();
+                $start_date_time = new \DateTime($movement['start']);
+                $end_date_time = new \DateTime($movement['end']);
+                $infraction_start_date = new \DateTime($movement['moov_start_date']);
+                $infraction_end_date = new \DateTime($movement['moov_end_date']);
     
                 $condition = (8 * 3600) + 600;
     
                 $result = [];
-                $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
+                // $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
                 // Convertir la durée du STOP en secondes
-                $stopDuration = $utils->convertTimeToSeconds($movement['duration']);
+                $stopDuration = $utils->convertTimeToSeconds($movement['max_stop_duration']);
     
                 // Vérifier si la durée du STOP est inférieure à la condition requise
                 if ($stopDuration < $condition) {
@@ -110,16 +114,20 @@ class ReposJournalierService
                         'imei' => $movement['imei'],
                         'rfid' => $movement['rfid'],
                         'event' => $event,
-                        'vehicule' => $immatricule,
+                        'vehicule' => $movement['camion'],
                         'distance' => 0,
                         'distance_calendar' => 0,
                         'odometer' => 0,
                         'duree_infraction' => $stopDuration,
                         'duree_initial' => $condition,
-                        'date_debut' => $movement['start_date'],
-                        'date_fin' => $movement['end_date'],
-                        'heure_debut' => $movement['start_hour'],
-                        'heure_fin' => $movement['end_hour'],
+                        'date_debut' => $infraction_start_date->format('Y-m-d'),
+                        'date_fin' => $infraction_end_date->format('Y-m-d'),
+                        'heure_debut' => $infraction_start_date->format('H:i:s'),
+                        'heure_fin' => $infraction_end_date->format('H:i:s'),
+                        'week_date_start' => $start_date_time->format('Y-m-d'),
+                        'week_date_end' => $end_date_time->format('Y-m-d'),
+                        'week_time_start' => $start_date_time->format('H:i:s'),
+                        'week_time_end' => $end_date_time->format('H:i:s'),
                         'point' => $point, // Points calculés
                         'insuffisance' => ($condition - $stopDuration) // Différence en secondes
                     ];
@@ -154,15 +162,17 @@ class ReposJournalierService
             // $all_journey = $calendarService->getAllJourneyDuringCalendar($console);
             foreach($all_trucks as $truck){
                 $imei = $truck->imei;
-                // $imei = "865135060353990";
+                // $imei = "865135060358353";
                 
                 $all_journey = $calendarService->getAllWorkJouneys($imei ,$start_date, $end_date);
+                // dd($all_journey);
                 if(is_array($all_journey)){
                     $journeyCount = count($all_journey);
                     $console->withProgressBar($journeyCount, function($progressBar) use ($all_journey, $mouvementService, $repos_journalier_service, &$data_infraction, $imei) {
                         foreach($all_journey as $journey){    
-                            $max_stop_movement = $mouvementService->getMaxStopInJourney($imei, $journey['start'], $journey['end']);
-                            $infraction = $repos_journalier_service->checkForInfractionReposJournalier($max_stop_movement);
+                            // $max_stop_movement = $mouvementService->getMaxStopInJourney($imei, $journey['start'], $journey['end']);
+                            // $max_stop_movement = $journey['max_stop_duration'];
+                            $infraction = $repos_journalier_service->checkForInfractionReposJournalier($journey);
                             if (!empty($infraction)) {
                                 $data_infraction[] = $infraction;
                             }
