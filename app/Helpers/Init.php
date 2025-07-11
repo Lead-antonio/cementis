@@ -559,12 +559,47 @@ if (!function_exists('truck_detail_scoring_card')) {
             ->distinct();
 
         // --- Partie 2 : repos hebdomadaire
-        $reposHebdo = DB::table('import_excel as c')
+        // $reposHebdo = DB::table('import_excel as c')
+        //     ->select([
+        //         'c.badge_chauffeur AS badge_calendar',
+        //         'i.imei',
+        //         'c.camion',
+        //         'c.rfid_chauffeur AS rfid_calendar',
+        //         'i.rfid AS rfid_conducteur',
+        //         'i.event AS infraction',
+        //         'i.date_debut',
+        //         'i.heure_debut',
+        //         'i.date_fin',
+        //         'i.heure_fin',
+        //         'i.gps_debut',
+        //         'i.gps_fin',
+        //         'i.duree_infraction',
+        //         'i.insuffisance',
+        //         'i.point',
+        //     ])
+        //     ->joinSub(
+        //         DB::table('infraction')
+        //             ->select(
+        //                 DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
+        //             )
+        //             ->where('event', 'Temps de repos hebdomadaire')
+        //             ->whereMonth('date_debut', '=', $month)
+        //             ->whereMonth('date_fin', '=', $month)
+        //             ->where('imei', $imei),
+        //         'i',
+        //         'i.imei',
+        //         '=',
+        //         'c.imei'
+        //     )
+        //     ->where('c.import_calendar_id', $id_planning)
+        //     ->where('c.imei', $imei)
+        //     ->distinct();
+        $reposHebdo = DB::table('infraction as i')
             ->select([
-                'c.badge_chauffeur AS badge_calendar',
+                DB::raw('NULL AS badge_calendar'),
                 'i.imei',
-                'c.camion',
-                'c.rfid_chauffeur AS rfid_calendar',
+                DB::raw('NULL AS camion'),
+                DB::raw('NULL AS rfid_calendar'),
                 'i.rfid AS rfid_conducteur',
                 'i.event AS infraction',
                 'i.date_debut',
@@ -577,23 +612,11 @@ if (!function_exists('truck_detail_scoring_card')) {
                 'i.insuffisance',
                 'i.point',
             ])
-            ->joinSub(
-                DB::table('infraction')
-                    ->select(
-                        DB::raw('DISTINCT id, imei, rfid, event, date_debut, heure_debut, date_fin, heure_fin, gps_debut, gps_fin, duree_infraction, insuffisance, point')
-                    )
-                    ->where('event', 'Temps de repos hebdomadaire')
-                    ->whereMonth('date_debut', '=', $month)
-                    ->whereMonth('date_fin', '=', $month)
-                    ->where('imei', $imei),
-                'i',
-                'i.imei',
-                '=',
-                'c.imei'
-            )
-            ->where('c.import_calendar_id', $id_planning)
-            ->where('c.imei', $imei)
-            ->distinct();
+            ->where('i.event', 'Temps de repos hebdomadaire')
+            ->whereMonth('i.date_debut', $month)
+            ->whereMonth('i.date_fin', $month)
+            ->where('i.imei', $imei);
+
         $resultats = $normalInfractions
             ->unionAll($reposHebdo)
             ->get();

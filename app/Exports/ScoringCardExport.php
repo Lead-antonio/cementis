@@ -87,7 +87,11 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
                 'Transporteur' => $scoring->transporteur->nom ?? '',
                 'Camion' => $scoring->camion,
                 'Scoring' => $scoring->point,
-                'Infraction le plus fréquent' => !empty($scoring->driver) ? getDriverInfractionWithmaximumPoint($scoring->driver->id, $scoring->imei, $this->planning) : getTruckInfractionWithmaximumPoint($scoring->imei, $this->planning),
+                'Infraction le plus fréquent' =>  $scoring->point == 0 
+                                                    ? null 
+                                                    : (!empty($scoring->driver) 
+                                                    ? getDriverInfractionWithmaximumPoint($scoring->driver->id, $scoring->imei, $this->planning) 
+                                                    : getTruckInfractionWithmaximumPoint($scoring->imei, $this->planning)),
                 'Commentaire' => $scoring->comment
             ];
         });
