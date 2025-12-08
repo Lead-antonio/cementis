@@ -52,7 +52,7 @@ class GetEvent extends Command
         $endDate->modify('last day of this month')->setTime(23, 59, 59);
 
         $eventService = new EventService();
-        $eventService->proccessEventForPeriod($this, $startDate, $endDate);
+        $eventService->proccessEventForPeriod($this, $startDate, $endDate, $lastmonth->id);
 
         $this->info('Process completed!');
     }

@@ -1,106 +1,3 @@
-{{-- <div class="card">
-    <div id="dataTable" class="card-body p-0" >
-        <form id="commentForm" method="POST" action="{{ route('save.comments') }}">
-            @csrf
-            <table id="scoringTable" class="table table-bordered" width="100%">
-                <thead>
-                    <tr>
-                        <th style="text-align: center;background-color: darkgray;">Chauffeur dans le calendrier</th>
-                        <th style="text-align: center;background-color: darkgray;">N° badge dans le calendrier</th>
-                        <th style="text-align: center;background-color: darkgray;">Chauffeur dans l'infraction</th>
-                        <th style="text-align: center;background-color: darkgray;">N° badge sur RFID</th>
-                        <th style="text-align: center;background-color: darkgray;">Transporteur</th>
-                        <th style="text-align: center;background-color: darkgray;width: 10%;">Camion</th>
-                        <th style="text-align: center;width: 10%;background-color: #101010;color: white" id="maiHeader">Scoring <span id="maiSortIcon" class="mai-sort-icon fas fa-sort-amount-down" style="margin-left: 5px; cursor: pointer"></span></th>
-                        <th style="text-align: center;width: 20%;background-color: #101010;color: white">Infraction les plus fréquentes</th>
-                        <th style="text-align: center;width: 20%;background-color: darkgray">Commentaire</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php
-                        $countCheckedTrucks = 0;
-                        $chauffeurBadge = 0;
-                    @endphp
-                    @foreach ($scoring as $item)
-                        <tr>
-                            <td style="text-align: center;">
-                                @php
-                                    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar);
-                                @endphp
-                                @if (!empty($item->imei) && !empty($item->badge_calendar))
-                                    <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $chauffeur_calendar }}
-                                    </a>
-                                @elseif ($chauffeur_calendar)
-                                    <small class="text-muted"> {{ $chauffeur_calendar }}</small>
-                                @else
-                                    <small class="text-muted">Chauffeur inexistant pour le badge : {{$item->badge_calendar}}</small>
-                                @endif
-                            </td>
-                            <td style="text-align: center">{{ $item->badge_calendar }}</td>
-                            <td style="text-align: center">
-                                @php
-                                    $conducteur = getDriverByRFID(false, $item->rfid_chauffeur);
-                                @endphp
-                                @if (isset($item) && ( !empty($item->imei) && !empty($item->badge_calendar) ))
-                                    <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $conducteur}}
-                                    </a>
-                                @elseif (empty($item->rfid_chauffeur))
-                                    <span>Pas de RFID et  IMEI pour le véhicule</span>
-                                @else
-                                    <span>Chauffeur inexistant pour le RFID dans infraction : {{$item->rfid_chauffeur}}</span>
-                                @endif
-                            </td>
-                            <td style="text-align: center">{{ $item->badge_rfid }}</td>
-                            <td style="text-align: center;">
-                                @if (!empty($item->transporteur))
-                                   {{ $item->transporteur->nom }}
-                                @else
-                                    
-                                @endif
-                            </td>
-                            <td style="text-align: center;">
-                                <a href="{{ route('truck.detail.scoring', ['vehicule' => $item->camion, 'id_planning'  => $selectedPlanning]) }}">
-                                    {{  $item->camion  }}
-                                </a>
-                            </td>
-                            <td style="text-align: center;" class="
-                                @php
-                                    $score = round($item->point, 2);
-                                    
-                                    if($score == 0){
-                                        echo 'scoring-green';
-                                    } elseif ($score > 0 && $score <= 2) {
-                                        echo 'scoring-green';
-                                    } elseif ($score > 2 && $score <= 5) {
-                                        echo 'scoring-yellow';
-                                    } elseif ($score > 5 && $score <= 10) {
-                                        echo 'scoring-orange';
-                                    } elseif ($score > 10) {
-                                        echo 'scoring-red';
-                                    }
-                                @endphp
-                            ">{{ round($item->point, 2) }}</td>
-                            <td>
-                                @if (round($item->point, 2) > 0)
-                                    @if (!empty($item->driver))
-                                        {{ getDriverInfractionWithmaximumPoint($item->driver->id, $item->imei, $selectedPlanning) }}
-                                    @else
-                                        {{ getTruckInfractionWithmaximumPoint($item->imei, $selectedPlanning) }}
-                                    @endif
-                                @endif
-                            </td>
-                            <td style="text-align: center;"><textarea class="form-control" name="commentaire[{{ $item->id }}]" id="" cols="30" rows="2 ">{{ $item->comment }}</textarea></td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </form>
-        <div id="noResultsMessage" style="display: none;text-align: center">Aucun résultat trouvé.</div>
-    </div>        
-</div> --}}
-
 <div class="card shadow-sm rounded overflow-auto">
     <div id="dataTable" class="card-body table-responsive p-0">
         <form id="commentForm" method="POST" action="{{ route('save.comments') }}">
@@ -122,74 +19,15 @@
                         <th>Commentaire</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($scoring as $item)
-                        <tr>
-                            <td>
-                                @php
-                                    $chauffeur_calendar = getDriverByNumberBadge($item->badge_calendar, $selectedPlanning);
-                                @endphp
-                                @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($chauffeur_calendar))
-                                    <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $chauffeur_calendar }}
-                                    </a>
-                                @elseif ($chauffeur_calendar)
-                                    <small class="text-muted"> {{ $chauffeur_calendar }}</small>
-                                @else
-                                    <small class="text-muted">Chauffeur inexistant pour le badge : {{$item->badge_calendar}}</small>
-                                @endif
-                            </td>
-                            <td>{{ $item->badge_calendar }}</td>
-                            <td>
-                                @php
-                                    $conducteur = getDriverByRFID(false, $item->rfid_chauffeur, $selectedPlanning);
-                                @endphp
-                                @if (!empty($item->imei) && !empty($item->badge_calendar) && !empty($conducteur))
-                                    <a href="{{ route('driver.detail.scoring', ['imei' => $item->imei, 'badge' => $item->badge_calendar, 'id_planning'  => $selectedPlanning]) }}">
-                                        {{ $conducteur }}
-                                    </a>
-                                @elseif (empty($item->rfid_chauffeur))
-                                    <small class="text-muted">Pas de RFID ni IMEI</small>
-                                @elseif (is_null($conducteur))
-                                    <small class="text-muted">Chauffeur inexistant pour RFID : {{$item->rfid_chauffeur}}</small>
-                                @endif
-                            </td>
-                            <td>{{ $item->badge_rfid }}</td>
-                            <td>{{ $item->transporteur->nom ?? '' }}</td>
-                            <td>
-                                <a href="{{ route('truck.detail.scoring', ['vehicule' => $item->camion, 'id_planning'  => $selectedPlanning]) }}">
-                                    {{ $item->camion }}
-                                </a>
-                            </td>
-                            <td>
-                                @php
-                                    $score = round($item->point, 2);
-                                    $scoreClass = match(true) {
-                                        $score == 0, $score <= 2 => 'badge badge-success',
-                                        $score <= 5 => 'badge badge-warning',
-                                        $score <= 10 => 'badge badge-danger',
-                                        default => 'badge badge-dark'
-                                    };
-                                @endphp
-                                <span class="{{ $scoreClass }}">{{ $score }}</span>
-                            </td>
-                            <td>
-                                @if ($score > 0)
-                                    @if (!empty($item->driver))
-                                        {{ getDriverInfractionWithmaximumPoint($item->driver->id, $item->imei, $selectedPlanning) }}
-                                    @else
-                                        {{ getTruckInfractionWithmaximumPoint($item->imei, $selectedPlanning) }}
-                                    @endif
-                                @endif
-                            </td>
-                            <td>
-                                <textarea class="form-control" name="commentaire[{{ $item->id }}]" rows="2">{{ $item->comment }}</textarea>
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody id="scoringBody">
+                    @include('events.scoring_rows', ['scoring' => $scoring])
                 </tbody>
             </table>
         </form>
+        <div id="scoringMeta" data-last-page="{{ $scoring->lastPage() }}" data-current-page="1" style="display:none;"></div>
+        <div id="loading" class="text-center my-3" style="display:none;">
+            <span class="spinner-border"></span> Chargement...
+        </div>
         <div id="noResultsMessage" class="py-3 text-center text-muted" style="display: none;">Aucun résultat trouvé.</div>
     </div>        
 </div>
@@ -435,6 +273,56 @@
             });
 
             sortTableByMai();
+        });
+
+        $(document).ready(function() {
+            let isLoading = false; // Pour éviter les appels AJAX multiples
+
+            $(window).on('scroll', function() {
+                var scrollBottom = $(window).scrollTop() + $(window).height();
+                var docHeight = $(document).height();
+
+                if(scrollBottom >= docHeight - 200){
+                    let meta = $('#scoringMeta');
+                    let currentPage = parseInt(meta.data('current-page'));
+                    let lastPage = parseInt(meta.data('last-page'));
+
+                    if(currentPage >= lastPage || isLoading) return;
+
+                    isLoading = true;
+                    $('#loading').show();
+
+                    let planning = $('#planning').val();
+                    let alphaciment = $('#alphaciment_driver').val();
+
+                    $.ajax({
+                        url: "{{ route('new.scoring') }}",
+                        type: 'GET',
+                        data: {
+                            page: currentPage + 1,
+                            planning: planning,
+                            alphaciment_driver: alphaciment
+                        },
+                        success: function(response){
+                            if(response.trim().length){
+                                $('#scoringTable tbody').append(response);
+                                meta.data('current-page', currentPage + 1); // Mise à jour de la page actuelle
+                            }
+                            $('#loading').hide();
+                            isLoading = false;
+
+                            // Réattacher les listeners sur les nouveaux champs de commentaire et tri
+                            attachCommentListeners();
+                            attachSortListeners();
+                        },
+                        error: function(err){
+                            console.error(err);
+                            $('#loading').hide();
+                            isLoading = false;
+                        }
+                    });
+                }
+            });
         });
 
 

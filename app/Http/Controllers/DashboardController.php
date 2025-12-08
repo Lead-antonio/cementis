@@ -8,9 +8,11 @@ use App\Models\Vehicule;
 use App\Models\Chauffeur;
 use App\Models\ImportExcel;
 use App\Models\Importcalendar;
+use App\Models\ScoreDriver;
 use App\Models\Scoring;
 use App\Repositories\DashboardRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -35,43 +37,64 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $structuredData = [];
+        $userName = Auth::user()->name;
+        $transporteurs_id = Transporteur::where('nom', 'like', '%' . $userName . '%')->value('id');
         $selectedPlanning = $request->selectedPlanning ?? DB::table('import_calendar')->latest('id')->value('id');
-        $totalVehicules = Vehicule::count();
+        $selectedTransporteur = $request->selectedTransporteur ?? $transporteurs_id ?? null;
+        $totalVehicules = DB::table('vehicule')
+            ->when($selectedPlanning, function($query) use ($selectedPlanning) {
+                    $query->where('id_planning', $selectedPlanning);
+                })
+            ->when($selectedTransporteur, function($query) use ($selectedTransporteur) {
+                $query->where('id_transporteur', $selectedTransporteur);
+            })
+            ->count();
         $totalTransporteurs = Transporteur::count();
-        $totalChauffeurs = Chauffeur::where('id_planning', $selectedPlanning)->count();
+        $totalChauffeurs = DB::table('chauffeur')
+                ->when($selectedPlanning, function($query) use ($selectedPlanning) {
+                    $query->where('id_planning', $selectedPlanning);
+                })
+                ->when($selectedTransporteur, function($query) use ($selectedTransporteur) {
+                    $query->where('transporteur_id', $selectedTransporteur);
+                })
+                ->count();
         $data = $this->dashboardRepository->GetData();
-        $data['import_calendar'] = $import_calendar = Importcalendar::all();
+        $data['import_calendar'] =  Importcalendar::all();
+        $data['transporteurs'] =  Transporteur::all();
         $data['selectedPlanning'] = $selectedPlanning;
+        $data['selectedTransporteur'] = $selectedTransporteur;
         $data['totalVehicules'] = $totalVehicules;
         $data['totalTransporteurs'] = $totalTransporteurs;
         $data['totalChauffeurs'] = $totalChauffeurs;
-        $data['transporteurData'] = json_encode($structuredData);
 
-        $data['best_scoring'] = getAllGoodScoring($selectedPlanning);
-        $data['bad_scoring'] = getAllBadScoring($selectedPlanning);
-        // dd($this->getRfidMatchingStats($selectedPlanning));
-        $data['match_rfid'] = $this->getRfidMatchingStats($selectedPlanning);
+
+        $data['best_scoring'] = $this->get_top_3_score($selectedPlanning, $selectedTransporteur);
+        $data['bad_scoring'] = $this->get_worst_3_score($selectedPlanning, $selectedTransporteur);
+        $data['match_rfid'] = $this->getRfidMatchingStats($selectedPlanning, $selectedTransporteur);
         
-        $data['driver_has_score'] = $this->driver_has_scoring($selectedPlanning);
+        $data['driver_has_score'] = $this->driver_has_scoring($selectedPlanning, $selectedTransporteur);
         $data['driver_not_has_score'] = $this->driver_not_have_scoring($selectedPlanning);  
-        $data['driver_not_fix'] = $this->driver_not_fix();
-        $data['truck_in_calendar'] = $this->count_truck_in_calendar($selectedPlanning);
-        $data['drivers_badge_in_calendars'] = $this->count_badge_number_in_calendar($selectedPlanning);
+        $data['truck_in_calendar'] = $this->count_truck_in_calendar($selectedPlanning, $selectedTransporteur);
+        $data['drivers_badge_in_calendars'] = $this->count_badge_number_in_calendar($selectedPlanning, $selectedTransporteur);
+        $data['score_zero'] = $this->countDriverScoreWithPointZero($selectedPlanning, $selectedTransporteur);
+        $data['score_zero_more_than_3_planning'] = $this->countMoreThan3TrajectScoreWithPointZero($selectedPlanning, $selectedTransporteur);
+        $data['vehicule_transporteur'] = Transporteur::withCount('vehicule')->orderByDesc('vehicule_count')->get();
+        $data['driver_transporteur'] = Transporteur::withCount('chauffeurs')->orderByDesc('chauffeurs_count')->get();
+
         
         if ($request->ajax()) {
             return response()->json([
                 'driver_has_score' => $data['driver_has_score'],
                 'driver_not_has_score' => $data['driver_not_has_score'],
-                'driver_not_has_score' => $data['driver_not_has_score'],
                 'truck_in_calendar' => $data['truck_in_calendar'],
                 'total_chauffeur' => $data['totalChauffeurs'],
+                'total_vehicule' => $data['totalVehicules'],
                 'match_rfid' => $data['match_rfid'],
-                // 'driver_in_calendar' => $data['driver_in_calendar'],
+                'score_zero' => $data['score_zero'],
+                'score_zero_more_than_3_planning' => $data['score_zero_more_than_3_planning'],
                 'drivers_badge_in_calendars' => $data['drivers_badge_in_calendars'],
                 'best_scoring' => view('dashboard.best_scoring', ['best_scoring' => $data['best_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
                 'bad_scoring' => view('dashboard.bad_scoring', ['bad_scoring' => $data['bad_scoring'], 'selectedPlanning' => $selectedPlanning])->render(),
-                
             ]);
         }
         
@@ -132,8 +155,11 @@ class DashboardController extends Controller
         return count(array_unique($result));
     }
 
-    public function getRfidMatchingStats($id_planning){
+    public function getRfidMatchingStats($id_planning, $id_transporteur = null){
         return DB::table('scoring')
+            ->when($id_transporteur, function ($query, $id_transporteur) {
+                $query->where('transporteur_id', $id_transporteur);
+            })
             ->where('id_planning', $id_planning)
             ->selectRaw('
                 COUNT(*) AS total_rows,
@@ -166,7 +192,7 @@ class DashboardController extends Controller
     }
 
 
-    public function count_truck_in_calendar($id_planning)
+    public function count_truck_in_calendar($id_planning, $id_transporteur = null)
     {
         $importTrucks = ImportExcel::where('import_calendar_id', $id_planning)
         ->distinct()
@@ -174,10 +200,21 @@ class DashboardController extends Controller
         ->map(function ($camion) {
             return strpos($camion, ' - ') !== false ? explode(' - ', $camion)[0] : $camion;
         })
-        ->unique() // Supprime les doublons après transformation
+        ->unique()
         ->toArray();
 
-        return count($importTrucks);
+        if (is_null($id_transporteur)) {
+            return count($importTrucks);
+        }
+
+        $matricules_transporteur = Vehicule::where('id_transporteur', $id_transporteur)
+            ->where('id_planning', $id_planning)
+            ->pluck('nom')
+            ->toArray();
+
+        $camions_filtres = array_intersect($importTrucks, $matricules_transporteur);
+
+        return count($camions_filtres);
     }
 
     public function driver_not_fix(){
@@ -191,7 +228,7 @@ class DashboardController extends Controller
         return $repartitionChauffeurs;
     }
 
-    public function driver_has_scoring($id_planning){
+    public function driver_has_scoring($id_planning, $transporteur_id){
          // Récupérer les camions uniques depuis ImportExcel
          $badge_calendars = ImportExcel::where('import_calendar_id', $id_planning)
          ->distinct()
@@ -200,28 +237,15 @@ class DashboardController extends Controller
          ->toArray();
 
         $badge_calendars = array_map('trim', $badge_calendars);
-        
-        // $scoringBadge = Scoring::where('id_planning', $id_planning)
-        //     ->with('driver.latest_update')
-        //     ->get();
 
-        $scoringBadge = Scoring::where('id_planning', $id_planning)
+        $scoringBadge = Scoring::
+            when($transporteur_id, function ($query, $transporteur_id) {
+                return $query->where('transporteur_id', $transporteur_id);
+            })
+            ->where('id_planning', $id_planning)
             ->pluck('badge_calendar')->toArray();
-        
-        // Créer un tableau avec les badges des chauffeurs
-        // $badges_scoring = $scoringBadge->map(function($scoring) {
-        //     return $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
-        // })->toArray();
-        // $badges_scoring = $scoringBadge->map(function($scoring) {
-        //     if ($scoring->driver && $scoring->driver->latest_update) {
-        //         return $scoring->driver->latest_update->numero_badge;
-        //     }
-        //     // Handle case where there is no driver or latest_update
-        //     return $scoring->driver ? $scoring->driver->numero_badge : null; // or some other default value
-        // })->toArray();
+            
 
-
-        // $badge_has_scoring = array_intersect($scoringBadge, $badge_calendars);
         $compteur = 0;
 
         foreach ($badge_calendars as $badge) {
@@ -249,37 +273,93 @@ class DashboardController extends Controller
             ->with('driver.latest_update')
             ->get();
 
-        // Créer un tableau avec les badges des chauffeurs
-        // $badges_scoring = $scoringBadge->map(function($scoring) {
-        //     if ($scoring->driver && $scoring->driver->latest_update) {
-        //         // Retourner le badge de la mise à jour, si elle existe
-        //         return $scoring->driver->latest_update->numero_badge;
-        //     }
-            
-        //     return $scoring->driver ? $scoring->driver->numero_badge : null;
-        // })->toArray();
         $badges_scoring = $scoringBadge->map(function($scoring) {
             return $scoring->badge_calendar;
         })->toArray();
-        // dd($badges_scoring, $badge_calendars);
 
-        // Trouver les badges dans badge_calendars qui ne sont pas dans badges_scoring
         $badge_not_in_scoring = array_diff($badges_scoring, $badge_calendars);
         
-
-        // Compter et retourner le nombre de badges qui ne sont pas dans scoring
         return count($badge_not_in_scoring);
 
     }
 
-    public function count_badge_number_in_calendar($id_planning){
+    public function count_badge_number_in_calendar($id_planning, $transporteur_id = null){
         $drivers_badge_in_calendars = ImportExcel::where('import_calendar_id', $id_planning)
             ->distinct()
             ->pluck('badge_chauffeur')
             ->filter()
             ->unique()
             ->toArray();
+        
+        if (is_null($transporteur_id)) {
+            return count($drivers_badge_in_calendars) ?? 0;
+        }
            
-        return count($drivers_badge_in_calendars) ?? 0;
+        $driver_badge_transporteur = Chauffeur::where('transporteur_id', $transporteur_id)
+            ->where('id_planning', $id_planning)
+            ->pluck('numero_badge')
+            ->toArray();
+
+        $driver_badge_filtres = array_intersect($drivers_badge_in_calendars, $driver_badge_transporteur);
+
+        return count($driver_badge_filtres);
+    }
+
+    public function countDriverScoreWithPointZero($id_planning, $transporteur_id)
+    {
+        // Exécuter la requête avec Query Builder
+        $count = ScoreDriver::when($transporteur_id, function ($query, $transporteur_id) {
+                        return $query->where('transporteur', $transporteur_id);
+                    })
+        ->where('id_planning', $id_planning)
+        ->where('score', 0)
+        ->count('badge');
+
+        return $count;
+    }
+
+    public function countMoreThan3TrajectScoreWithPointZero($id_planning, $transporteur_id)
+    {
+        // Exécuter la requête avec Query Builder
+        $subQuery = DB::table('import_excel as ie')
+            ->join('score_driver as s', 'ie.badge_chauffeur', '=', 's.badge')
+            ->where('s.score', 0)
+            ->where('s.id_planning', $id_planning)
+            ->when($transporteur_id, function ($query, $transporteur_id) {
+                return $query->where('transporteur', $transporteur_id);
+            })
+            ->where('ie.import_calendar_id', $id_planning)
+            ->groupBy('ie.badge_chauffeur')
+            ->havingRaw('COUNT(ie.id) >= 3')
+            ->select('ie.camion');
+
+        // Requête principale : compter le nombre total de camions dans la sous-requête
+        $count = DB::table(DB::raw("({$subQuery->toSql()}) as sub"))
+            ->mergeBindings($subQuery) // ✅ nécessaire pour inclure les bindings (sécurisé)
+            ->count();
+        
+        return $count;
+    }
+
+    public function get_top_3_score($id_planning, $transporteur_id){
+        $top = ScoreDriver::when($transporteur_id, function ($query, $transporteur_id) {
+                        return $query->where('transporteur', $transporteur_id);
+                    })
+                ->where('id_planning', $id_planning)
+                ->orderBy('score')->limit(3)
+                ->get();
+        
+        return $top;
+    }
+
+    public function get_worst_3_score($id_planning, $transporteur_id){
+        $worst = ScoreDriver::when($transporteur_id, function ($query, $transporteur_id) {
+                return $query->where('transporteur', $transporteur_id);
+            })
+            ->where('id_planning', $id_planning)
+            ->orderByDesc('score')->limit(3)
+            ->get();
+
+        return $worst;
     }
 }

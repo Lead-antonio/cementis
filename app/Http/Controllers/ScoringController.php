@@ -24,6 +24,8 @@ use App\Models\Importcalendar;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ScoringCardExport;
 use App\Exports\ScoringExport;
+use App\Models\Transporteur;
+use Illuminate\Support\Facades\Auth;
 
 class ScoringController extends AppBaseController
 {
@@ -47,14 +49,24 @@ class ScoringController extends AppBaseController
         return $scoringDataTable->render('scorings.index');
     }
 
+
     // Antonio
     // Scoring card
     public function scoring_card(Request $request){
+        $userName = Auth::user()->name;
+        $transporteur_id = Transporteur::where('nom', 'like', '%' . $userName . '%')->value('id');
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
         $existingScoring = Scoring::where('id_planning', $selectedPlanning)->exists();
         $import_calendar = Importcalendar::all();
         $alphaciment_driver = $request->query('alphaciment_driver', null);
-        $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
+        $scoring = Scoring::when($transporteur_id, function ($query, $transporteur_id) {
+            return $query->where('transporteur_id', $transporteur_id);
+        })
+        ->where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->paginate(50);
+        if ($request->ajax() && $request->has('page')) {
+            // Retourner seulement les lignes pour le lazy loading
+            return view('events.scoring_rows', compact('scoring', 'selectedPlanning'))->render();
+        }
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
     }
 
@@ -64,7 +76,7 @@ class ScoringController extends AppBaseController
         $selectedPlanning = $request->input('planning');
         
         $data = [];
-        $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->get();
+        $scoring = Scoring::where('id_planning', $selectedPlanning)->orderBy('point', 'desc')->paginate(50);
         return view('events.scoring_filtre', compact('data', 'selectedPlanning', 'scoring'));
     }
 
@@ -80,26 +92,6 @@ class ScoringController extends AppBaseController
 
         // Vérifier si $this->alphaciment_driver n'est pas null avant d'appliquer le filtre
         if ($alphaciment_driver !== null) {
-            // Récupérer la liste des camions du ImportExcel en fonction du planning sélectionné
-            // $camionsImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
-            //                     ->pluck('camion') // Récupère uniquement la colonne "camion"
-            //                     ->toArray();
-
-            // if ($alphaciment_driver === "oui") {
-            //     // $query->whereIn('camion', $camionsImport); // Ne garder que les camions présents dans ImportExcel
-            //     $query->where(function ($q) use ($camionsImport) {
-            //         foreach ($camionsImport as $camion) {
-            //             $q->orWhere('camion', 'LIKE', "%{$camion}%");
-            //         }
-            //     });
-            // } elseif ($alphaciment_driver === "non") {
-            //     // $query->whereNotIn('camion', $camionsImport); // Exclure ces camions
-            //     $query->where(function ($q) use ($camionsImport) {
-            //         foreach ($camionsImport as $camion) {
-            //             $q->where('camion', 'NOT LIKE', "%{$camion}%");
-            //         }
-            //     });
-            // }
             $badgesImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
                                 ->distinct()
                                 ->pluck('badge_chauffeur') // Récupère uniquement la colonne "badge"
@@ -132,6 +124,8 @@ class ScoringController extends AppBaseController
     // List of driver having a rfid martching with rfid infraction
     public function driver_match_rfid(Request $request){
         $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
+        $selectedTransporteur= $request->id_transporteur ?? null;
+        
 
         $import_calendar = Importcalendar::all();
         $alphaciment_driver = 'oui';
@@ -139,8 +133,11 @@ class ScoringController extends AppBaseController
         // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
         $scoring = Scoring::where('id_planning', $selectedPlanning)
         ->whereColumn('badge_rfid', 'badge_calendar')
+        ->when($selectedTransporteur, function ($query, $transporteurId) {
+            $query->where('transporteur_id', $transporteurId);
+        })
         ->with('driver.latest_update')
-        ->get();
+        ->paginate(50);
         
                 
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
@@ -148,7 +145,7 @@ class ScoringController extends AppBaseController
 
     // Antonio
     // List of driver having a scoring
-    public function driver_has_scoring(Request $request){
+    public function detail_scoring_zero(Request $request){
         $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
 
         $import_calendar = Importcalendar::all();
@@ -160,19 +157,58 @@ class ScoringController extends AppBaseController
         ->toArray();
 
         // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
+        $scoring = Scoring::where('point', 0) // Condition sur le champ `point`
+        ->where('id_planning', $selectedPlanning) // Condition sur `id_planning`
+        ->paginate(100);
+       
+
+        return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
+    }
+
+    public function detail_scoring_zero_more_than_3(Request $request){
+        $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
+
+        $import_calendar = Importcalendar::all();
+        $alphaciment_driver = 'oui';
+
+        $camionsAvecTrajets = DB::table('import_excel')
+            ->select('camion')
+            ->where('import_calendar_id', $selectedPlanning)
+            ->groupBy('camion')
+            ->havingRaw('COUNT(id) >= 3')
+            ->pluck('camion'); // renvoie une collection de camions
+
+        // 2️⃣ Filtrer le scoring
+        $scoring = Scoring::with('driver') // charge la relation chauffeur
+        ->where('point', 0)
+        ->where('id_planning', $selectedPlanning)
+        ->whereIn('camion', $camionsAvecTrajets)
+        ->paginate(150);
+       
+
+        return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
+    }
+
+    // Antonio
+    // List of driver having a scoring
+    public function driver_has_scoring(Request $request){
+        $selectedPlanning = $request->id_planning ?? DB::table('import_calendar')->latest('id')->value('id');
+        $selectedTransporteur = $request->id_transporteur;
+
+        $import_calendar = Importcalendar::all();
+        $alphaciment_driver = 'oui';
+        $badge_calendars = ImportExcel::where('import_calendar_id', $selectedPlanning)
+        ->distinct()
+        ->pluck('badge_chauffeur') // Récupère uniquement la colonne "camion"
+        ->unique()
+        ->toArray();
+
+        // Récupérer les Scoring avec les chauffeurs et leurs mises à jour
         $scoring = Scoring::where('id_planning', $selectedPlanning)
+        ->when($selectedTransporteur, fn($q) => $q->where('transporteur_id', $selectedTransporteur))
         ->with('driver.latest_update') // Charger la dernière mise à jour des chauffeurs
-        ->get();
+        ->paginate(50);
 
-        // Filtrer les Scoring en fonction des badges (mis à jour ou actuel)
-        // $scoring = $scoringBadge->filter(function ($scoring) use ($badge_calendars) {
-        //     // Récupérer le badge du chauffeur (mettre à jour ou actuel)
-        //     $badge = $scoring->driver->latest_update ? $scoring->driver->latest_update->numero_badge : $scoring->driver->numero_badge;
-
-        //     // Vérifier si le badge du chauffeur est présent dans la liste des badges
-        //     return in_array(trim($badge), $badge_calendars);
-        // });
-                
         return view('events.scoring', compact('import_calendar', 'selectedPlanning', 'scoring','alphaciment_driver'));
     }
 

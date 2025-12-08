@@ -189,8 +189,8 @@ class GeolocalisationService
     {
         try {
             // Créer l'URL complète avec les paramètres
-            $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_EVENTS,{$imei},{$start_date->format('YmdHis')},{$end_date->format('YmdHis')},20";
-            
+            $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_EVENTS,{$imei},{$start_date->format('YmdHis')},{$end_date->format('YmdHis')},1";
+
             // Faire l'appel API
             $response = $this->makeRequest($url);
             
@@ -215,7 +215,7 @@ class GeolocalisationService
      */
     public  function getMovementDriveAndStop($imei_vehicule, $start_date, $end_date){
         $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",1";
-        
+        echo $url;
         try {
 
             $response = $this->makeRequest($url);

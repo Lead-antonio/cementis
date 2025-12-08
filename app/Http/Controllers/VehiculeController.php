@@ -19,6 +19,8 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\DB;
 use App\Models\VehiculeUpdate;
 use Response;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Importcalendar;
 
 class VehiculeController extends AppBaseController
 {
@@ -37,9 +39,23 @@ class VehiculeController extends AppBaseController
      *
      * @return Response
      */
-    public function index(VehiculeDataTable $vehiculeDataTable)
+    public function index(VehiculeDataTable $vehiculeDataTable,  Request $request)
     {
-        return $vehiculeDataTable->render('vehicules.index');
+        $transporteur_id = null;
+        if(Auth::user()->roles->first()->name === "transporteur"){
+            $userName = Auth::user()->name;
+            $transporteurs_id = Transporteur::where('nom', 'like', '%' . $userName . '%')->value('id');
+        }
+        
+        $plannings = Importcalendar::all();
+        $selected_planning =  $request->input('id_planning') ?? DB::table('import_calendar')->latest('id')->value('id');
+        $selectedTransporteur = request()->input('selectedTransporteur') ?? $transporteurs_id ?? null;
+        $vehiculeDataTable->setSelectedTransporteur($selectedTransporteur);
+        $vehiculeDataTable->setSelectedPlanning($selected_planning);
+
+        return $vehiculeDataTable->render('vehicules.index', [
+            'selectedTransporteur' => $selectedTransporteur,
+        ], compact('plannings', 'selected_planning'));
     }
 
     /**

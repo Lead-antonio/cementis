@@ -67,66 +67,72 @@ class InstallationImport implements ToCollection, WithHeadingRow
             $dateInstallation = !empty($rawDateInstallation) ? $this->excelDateToCarbon($rawDateInstallation) : null;
 
             // Vérifier et insérer le transporteur
-            if (!isset($this->transporteurs[$transporteurNom])) {
-                $transporteur = Transporteur::firstOrCreate(
-                    ['nom' => $transporteurNom],
-                    ['adresse' => $adresse, 'tel' => $tel]
-                );
-                $this->transporteurs[$transporteurNom] = $transporteur->id;
+            if (!empty($transporteurNom)) {
+                if (!isset($this->transporteurs[$transporteurNom])) {
+                    $transporteur = Transporteur::firstOrCreate(
+                        ['nom' => $transporteurNom],
+                        ['adresse' => $adresse, 'tel' => $tel]
+                    );
+                    $this->transporteurs[$transporteurNom] = $transporteur->id;
+                } else {
+                    $transporteur = Transporteur::find($this->transporteurs[$transporteurNom]);
+                }
             } else {
-                $transporteur = Transporteur::find($this->transporteurs[$transporteurNom]);
+                // Si $transporteurNom est null ou vide, on ne fait rien
+                // (et surtout, on ne crée pas de transporteur vide)
+                $transporteur = null;
             }
 
             // Vérifier chauffeur et véhicule
-            $existingChauffeur = !empty($rfid) ? Chauffeur::where('rfid', $rfid)->where('id_planning', $selectedPlanning)->first() : null;
-            $existingVehicule = !empty($imei) ? Vehicule::where('imei', $imei)->first() : null;
+            $existingChauffeur = !empty($nom) ? Chauffeur::where('nom', $nom)->where('id_planning', $selectedPlanning)->first() : null;
+            // $existingVehicule = !empty($immatriculation) ? Vehicule::where('nom', $immatriculation)->where('id_planning', $selectedPlanning)->first() : null;
 
-            if ($existingChauffeur) {
-                $existsInChauffeur = Chauffeur::where('rfid', $rfid)
-                    ->where('nom', $nom)
-                    ->where('transporteur_id', $transporteur->id)
-                    ->first();
+            // if ($existingChauffeur) {
+            //     $existsInChauffeur = Chauffeur::where('rfid', $rfid)
+            //         ->where('nom', $nom)
+            //         ->where('transporteur_id', $transporteur->id)
+            //         ->first();
 
-                $updateData = [];
+            //     $updateData = [];
 
-                if ($existsInChauffeur) {
-                    if (is_null($existsInChauffeur->rfid_physique)) {
-                        $updateData['rfid_physique'] = $rfid_physique;
-                    }
+            //     if ($existsInChauffeur) {
+            //         if (is_null($existsInChauffeur->rfid_physique)) {
+            //             $updateData['rfid_physique'] = $rfid_physique;
+            //         }
 
-                    if (is_null($existsInChauffeur->numero_badge)) {
-                        $updateData['numero_badge'] = $numero_badge;
-                    }
+            //         if (is_null($existsInChauffeur->numero_badge)) {
+            //             $updateData['numero_badge'] = $numero_badge;
+            //         }
 
-                    if (!empty($updateData)) {
-                        $existsInChauffeur->update($updateData);
-                    }
+            //         if (!empty($updateData)) {
+            //             $existsInChauffeur->update($updateData);
+            //         }
 
-                    $this->addError("Ligne N° {$numero_ligne}: Les informations du chauffeur avec le RFID [{$rfid}] et le nom [{$nom}] existent déjà dans la table Chauffeur.");
-                    $this->errorCount++;
-                } else {
-                    $existingChauffeurUpdate = ChauffeurUpdate::where('chauffeur_id', $existingChauffeur->id)
-                        ->where('rfid', $rfid)
-                        ->where('nom', $nom)
-                        ->first();
+            //         $this->addError("Ligne N° {$numero_ligne}: Les informations du chauffeur avec le RFID [{$rfid}] et le nom [{$nom}] existent déjà dans la table Chauffeur.");
+            //         $this->errorCount++;
+            //     } else {
+            //         $existingChauffeurUpdate = ChauffeurUpdate::where('chauffeur_id', $existingChauffeur->id)
+            //             ->where('rfid', $rfid)
+            //             ->where('nom', $nom)
+            //             ->first();
 
-                    if (empty($existingChauffeurUpdate)) {
-                        ChauffeurUpdate::create([
-                            'chauffeur_id'       => $existingChauffeur->id,
-                            'rfid'               => $rfid,
-                            'rfid_physique'      => $rfid_physique,
-                            'numero_badge'       => $numero_badge,
-                            'nom'                => $nom,
-                            'contact'            => $chauffeur_tel,
-                            'transporteur_id'    => $transporteur->id,
-                            'date_installation'  => $dateInstallation,
-                        ]);
+            //         if (empty($existingChauffeurUpdate)) {
+            //             ChauffeurUpdate::create([
+            //                 'chauffeur_id'       => $existingChauffeur->id,
+            //                 'rfid'               => $rfid,
+            //                 'rfid_physique'      => $rfid_physique,
+            //                 'numero_badge'       => $numero_badge,
+            //                 'nom'                => $nom,
+            //                 'contact'            => $chauffeur_tel,
+            //                 'transporteur_id'    => $transporteur->id,
+            //                 'date_installation'  => $dateInstallation,
+            //             ]);
 
-                        $this->addError("Ligne N° {$numero_ligne}: RFID [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}] existe déjà. Nouveau nom attribué à ce RFID: {$nom}.");
-                        $this->errorCount++;
-                    }
-                }
-            }
+            //             $this->addError("Ligne N° {$numero_ligne}: RFID [{$existingChauffeur->rfid}] du chauffeur [{$existingChauffeur->nom}] existe déjà. Nouveau nom attribué à ce RFID: {$nom}.");
+            //             $this->errorCount++;
+            //         }
+            //     }
+            // }
 
             if (!$existingChauffeur) {
                 $chauffeur = Chauffeur::create([
@@ -135,7 +141,7 @@ class InstallationImport implements ToCollection, WithHeadingRow
                     'rfid_physique'   => $rfid_physique,
                     'numero_badge'    => $numero_badge,
                     'contact'         => $chauffeur_tel,
-                    'transporteur_id' => $transporteur->id,
+                    'transporteur_id' => $transporteur?->id,
                     'id_planning'     => $selectedPlanning,
                 ]);
             } else {

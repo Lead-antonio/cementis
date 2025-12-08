@@ -13,7 +13,7 @@
                         <select id="filter-planning" class="form-control">
                             <option value="">Filtrer par planning</option>
                             @foreach($plannings as $planning)
-                                <option value="{{ $planning->id }}" {{ $selected_planning->id == $planning->id ? 'selected' : '' }}>{{ $planning->name }}</option>
+                                <option value="{{ $planning->id }}" {{ $selected_planning == $planning->id ? 'selected' : '' }}>{{ $planning->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -47,6 +47,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('filter-planning').addEventListener('change', function() {
+            let planningId = this.value;
+            let url = "{{ route('chauffeurs.index') }}"; // Remplace par la route de ta page
+            if (planningId) {
+                window.location.href = url + '?id_planning=' + planningId;
+            } else {
+                window.location.href = url; // si "aucun filtre"
+            }
+        });
+    </script>
 
 @endsection
 

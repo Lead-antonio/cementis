@@ -19,7 +19,7 @@ class OverSpeedService{
         $eventTypes = [
             'Excès de vitesse en agglomération', 
             'Excès de vitesse hors agglomération', 
-            'Survitesse excessive',
+            // 'Survitesse excessive',
             'Survitesse sur la piste de Tritriva',
             'Survitesse sur la piste d\'Ibity',
         ];

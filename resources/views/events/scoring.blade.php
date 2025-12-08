@@ -1,57 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-2">
-                   <h1>SCORING CARD</h1>
-                </div>
-                
-                <div class="col-sm-10">
-                    <div class="row"> <!-- Ajout d'une row ici -->
-                        @can('export.excel.scoring')    
-                            <div class="col-md-3 col-sm-6 mb-2 excel-button"> <!-- Ajustement des tailles -->
-                                <a id="export-link" class="btn btn-success w-100" 
-                                    href="{{ route('export.excel.scoring', ['planning' => $selectedPlanning, 'alphaciment_driver' => $alphaciment_driver]) }}">
-                                    <i class="fas fa-file-excel"></i> Excel
-                                </a>
-                            </div>
-                        @endcan
-                
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <select class="form-control" name="planning" id="planning">
-                                <option value="">Veuillez choisir le planning</option>
-                                @foreach($import_calendar as $calendar)
-                                    <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>
-                                        {{$calendar->name}}
-                                    </option>    
-                                @endforeach
-                            </select>
-                        </div>
-                
-                        <div class="col-md-3 col-sm-6 mb-2">
-                            <select class="form-control" name="alphaciment_driver" id="alphaciment_driver">
-                                <option value="">Type de scoring card...</option>
-                                <option value="oui" {{ $alphaciment_driver === 'oui' ? 'selected' : '' }}>Score alpha ciment</option>
-                                <option value="non" {{ $alphaciment_driver === 'non' ? 'selected' : '' }}>Hors alpha ciment</option>
-                            </select>
-                        </div> 
-                
-                        <div class="col-md-4 col-sm-6 mb-2">
-                            <div class="input-group">
-                                <input class="form-control" type="text" id="searchInput" placeholder="Chauffeur, transporteur">
-                                <div class="input-group-append">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </section> --}}
     <section class="content-header py-4">
         <div class="container-fluid">
             <div class="card shadow-sm rounded">

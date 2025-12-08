@@ -38,35 +38,6 @@ class ScoringCardExport implements FromCollection, WithHeadings,WithStyles
             $badgesImport = ImportExcel::where('import_calendar_id', $selectedPlanning)
                                 ->pluck('badge_chauffeur') // Récupère uniquement la colonne "camion"
                                 ->toArray();
-
-            // if ($this->alphaciment_driver === "oui") {
-            //     $query->where(function ($q) use ($camionsImport) {
-            //         foreach ($camionsImport as $camion) {
-            //             $q->orWhere('camion', 'LIKE', "%{$camion}%");
-            //         }
-            //     }); // Ne garder que les camions présents dans ImportExcel
-            // } elseif ($this->alphaciment_driver === "non") {
-            //     $query->where(function ($q) use ($camionsImport) {
-            //         foreach ($camionsImport as $camion) {
-            //             $q->where('camion', 'NOT LIKE', "%{$camion}%");
-            //         }
-            //     }); // Exclure ces camions
-            // }
-            // if ($this->alphaciment_driver === "oui") {
-            //     $query->whereHas('driver', function($q) use ($badgesImport) {
-            //         $q->whereHas('latest_update', function($query) use ($badgesImport) {
-            //             $query->whereIn('numero_badge', $badgesImport);  // Filtre par badge en utilisant la relation latest_update
-            //         })
-            //         ->orWhereIn('numero_badge', $badgesImport);
-            //     });
-            // } elseif ($this->alphaciment_driver === "non") {
-            //     $query->whereHas('driver', function($q) use ($badgesImport) {
-            //         $q->whereHas('latest_update', function($query) use ($badgesImport) {
-            //             $query->whereNotIn('numero_badge', $badgesImport);  // Exclure les badges présents dans ImportExcel
-            //         })
-            //         ->orWhereNotIn('numero_badge', $badgesImport);
-            //     });
-            // }
         }
         
         return $query->orderBy('point', 'desc')->get()->map(function($scoring) use ($selectedPlanning) {

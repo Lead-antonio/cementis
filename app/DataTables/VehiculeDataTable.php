@@ -9,6 +9,17 @@ use Yajra\DataTables\Html\Column;
 
 class VehiculeDataTable extends DataTable
 {
+
+    public function setSelectedTransporteur($transporteurId)
+    {
+        $this->selectedTransporteur = $transporteurId;
+    }
+
+    public function setSelectedPlanning($id_planning)
+    {
+        $this->setSelectedPlanning = $id_planning;
+    }
+   
     /**
      * Build DataTable class.
      *
@@ -30,8 +41,25 @@ class VehiculeDataTable extends DataTable
      */
     public function query(Vehicule $model)
     {
-        return $model->newQuery()->with(['related_transporteur','installation', 'vehicule_update' => function($query) {
-            $query->latest()->limit(1);}])->select('vehicule.*');
+        $query =  $model->newQuery()
+                ->with([
+                    'related_transporteur',
+                    'installation',
+                    'vehicule_update' => function($query) {
+                        $query->latest()->limit(1);
+                    }
+                ])
+            ->select('vehicule.*');
+        if (!empty($this->setSelectedPlanning)) {
+            $query->where('id_planning', $this->setSelectedPlanning);
+        }
+
+        if (!empty($this->selectedTransporteur)) {
+            $query->where('id_transporteur', $this->selectedTransporteur);
+        }
+        
+
+        return $query;
     }
 
     /**

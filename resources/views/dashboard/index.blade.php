@@ -22,118 +22,45 @@
 <!-- Main content -->
 <section class="content">
     <div class="container-fluid">
+        <div class="card shadow-sm rounded">
+            <div class="card-body">
+                <div class="row align-items-center justify-content-between">
+                    <!-- Colonne gauche : Filtres et boutons -->
+                    <div class="col-md-8">
+                        <div class="d-flex flex-wrap align-items-center gap-3">
 
-        <div class="col-md-3 col-sm-6 mb-2">
-            <select class="form-control" name="planning" id="planning">
-                <option value="">Veuillez choisir le planning</option>
-                @foreach($import_calendar as $calendar)
-                    <option value="{{$calendar->id}}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>
-                        {{$calendar->name}}
-                    </option>    
-                @endforeach
-            </select>
+                            <div class="form-group">
+                                <label for="planning" class="form-label">Planning</label>
+                                <select class="form-control custom-select w-auto" name="planning" id="planning">
+                                    <option value="">Veuillez choisir le planning</option>
+                                    @foreach($import_calendar as $calendar)
+                                        <option value="{{ $calendar->id }}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>
+                                            {{ $calendar->name }}
+                                        </option>    
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if (Auth::user()->role_text != "transporteur")    
+                                <div class="form-group">
+                                    <label for="planning" class="form-label">Transporteur</label>
+                                    <select class="form-control custom-select w-auto" name="transporteur" id="transporteur">
+                                        <option value="" selected>Veuillez choisir un transporteur</option>
+                                        @foreach($transporteurs as $transporteur)
+                                            <option value="{{ $transporteur->id }}">
+                                                {{ $transporteur->nom }}
+                                            </option>    
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
-        {{-- <div class="row">
-            <!-- Transporteurs -->
-            <div class="col-md-2">
-                <a href="{{ route('transporteurs.index') }}" class="text-decoration-none">
-                    <div class="card card-custom transporteur">
-                        <div class="card-body card-body-transporteurs">
-                            <div>
-                                <h4 class="card-title-custom">Transporteurs</h4>
-                                <h3>{{$totalTransporteurs}}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-city"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        
-            <!-- Véhicules -->
-            <div class="col-md-2">
-                <a href="{{ route('vehicules.index') }}" class="text-decoration-none">
-                    <div class="card card-custom vehicule">
-                        <div class="card-body card-body-vehicules">
-                            <div>
-                                <h4 class="card-title-custom">Véhicules</h4>
-                                <h3>{{ $totalVehicules }}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-truck"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        
-            <!-- Chauffeurs -->
-            <div class="col-md-2">
-                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
-                    <div class="card card-custom chauffeur">
-                        <div class="card-body card-body-chauffeurs">
-                            <div>
-                                <h4 class="card-title-custom">Chauffeurs</h4>
-                                <h3>{{ $totalChauffeurs }}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-user"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-md-2">
-                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none" id="truck-having-scoring">
-                    <div class="card card-custom scoring">
-                        <div class="card-body card-body-custom">
-                            <div>
-                                <h4 class="card-title-custom">Nombre de chauffeur avec score</h4>
-                                <h3 id="driver_has_score">{{ $driver_has_score }}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-user"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-md-2">
-                <a href="{{ route('detail.truck-have-not-scoring') }}" class="text-decoration-none" id="truck-not-having-scoring">
-                    <div class="card card-custom no-scoring">
-                        <div class="card-body card-body-custom">
-                            <div>
-                                <h4 class="card-title-custom">Nombre de véhicules dans calendrier sans score</h4>
-                                <h3 id="driver_not_has_score">{{ $driver_not_has_score }}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-user"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-md-2">
-                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none" id="truck-in-calendar">
-                    <div class="card card-custom calendar">
-                        <div class="card-body card-body-custom">
-                            <div>
-                                <h4 class="card-title-custom">Nombre de véhicules dans le calendrier</h4>
-                                <h3 id="driver_in_calendar">{{ $driver_in_calendar }}</h3>
-                            </div>
-                            <div class="icon-container">
-                                <i class="nav-icon fas fa-truck"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div> --}}
+       
         <div class="row">
             <!-- Première ligne -->
             <div class="col-md-3">
@@ -153,12 +80,12 @@
             </div>
         
             <div class="col-md-3">
-                <a href="{{ route('vehicules.index') }}" class="text-decoration-none">
+                <a id="vehicule-link" href="{{ route('vehicules.index', ['selectedTransporteur' => $selectedTransporteur]) }}" class="text-decoration-none">
                     <div class="card card-custom vehicule">
                         <div class="card-body card-body-vehicules">
                             <div>
                                 <h4 class="card-title-custom">Véhicules</h4>
-                                <h3>{{ $totalVehicules }}</h3>
+                                <h3 id="total_vehicule">{{ $totalVehicules }}</h3>
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-truck"></i>
@@ -169,7 +96,7 @@
             </div>
         
             <div class="col-md-3">
-                <a href="{{ route('chauffeurs.index') }}" class="text-decoration-none">
+                <a id="driver-link" href="{{ route('chauffeurs.index', ['selectedTransporteur' => $selectedTransporteur]) }}" class="text-decoration-none">
                     <div class="card card-custom chauffeur">
                         <div class="card-body card-body-chauffeurs">
                             <div>
@@ -185,7 +112,7 @@
             </div>
 
             <div class="col-md-3">
-                <a href="{{ route('detail.truck-calendar') }}" class="text-decoration-none">
+                <a id="truck-calendar-link" href="{{ route('detail.truck-calendar') }}" class="text-decoration-none">
                     <div class="card card-custom chauffeur">
                         <div class="card-body card-body-chauffeurs">
                             <div>
@@ -204,7 +131,7 @@
         
         <div class="row">
             <div class="col-md-3">
-                <a href="{{ route('detail.driver-has-scoring') }}" class="text-decoration-none">
+                <a id="driver-has-scoring-link" href="{{ route('driver.score') }}" class="text-decoration-none">
                     <div class="card card-custom scoring">
                         <div class="card-body card-body-custom">
                             <div>
@@ -220,7 +147,7 @@
             </div>
             <!-- Deuxième ligne -->
             <div class="col-md-3">
-                <a href="{{ route('detail.driver-have-not-scoring') }}" class="text-decoration-none">
+                <a id="driver-have-not-scoring-link" href="{{ route('detail.driver-have-not-scoring') }}" class="text-decoration-none">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
@@ -236,7 +163,7 @@
             </div>
 
             <div class="col-md-3">
-                <a href="{{ route('detail.badge-calendar') }}" class="text-decoration-none">
+                <a id="badge-calendar-link" href="{{ route('detail.badge-calendar') }}" class="text-decoration-none">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
@@ -254,7 +181,7 @@
             </div>
 
             <div class="col-md-3">
-                <a href="{{ route('detail.driver-match-rfid') }}" class="text-decoration-none">
+                <a id="driver-match-rfid-link" href="{{ route('detail.driver-match-rfid') }}" class="text-decoration-none">
                     <div class="card card-custom no-scoring">
                         <div class="card-body card-body-custom">
                             <div>
@@ -265,6 +192,42 @@
                             </div>
                             <div class="icon-container">
                                 <i class="nav-icon fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a id="score-zero-link" href="{{ route('driver.detail.score.zero') }}" class="text-decoration-none">
+                    <div class="card card-custom no-scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre de cas avec score 0</h4>
+                                <h3 id="score_zero">
+                                    {{ $score_zero }}
+                                </h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a id="score-zero-more-than-3-planning-link" href="{{ route('driver.detail.score.zero.more.than.3.plannings') }}" class="text-decoration-none">
+                    <div class="card card-custom no-scoring">
+                        <div class="card-body card-body-custom">
+                            <div>
+                                <h4 class="card-title-custom">Nombre score 0 plus de 3 trajets</h4>
+                                <h3 id="score_zero_more_than_3_planning">
+                                    {{ $score_zero_more_than_3_planning }}
+                                </h3>
+                            </div>
+                            <div class="icon-container">
+                                <i class="nav-icon fas fa-circle"></i>
                             </div>
                         </div>
                     </div>
@@ -296,11 +259,6 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="chauffeur-tab" data-bs-toggle="tab" data-bs-target="#chauffeur" type="button" role="tab" aria-controls="chauffeur" aria-selected="false">
                                     <strong>Répartition des chauffeurs par transporteurs</strong> 
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">
-                                    <strong>Répartition des chauffeurs non fixes</strong> 
                                 </button>
                             </li>
                         </ul>
@@ -378,9 +336,9 @@
                             <div class="tab-pane fade" id="chauffeur" role="tabpanel" aria-labelledby="chauffeur-tab">
                                 <canvas id="chauffeurChart" ></canvas>
                             </div>
-                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                            {{-- <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                                 <canvas id="driver_not_fix"></canvas>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </div>
@@ -409,130 +367,180 @@
 <script>
 
     $(document).ready(function () {
-        $('#planning').change(function () {
+        function updateDashboard(selectedPlanning, selectedTransporteur) {
             $('#overlay').show();
             $('#loader').show();
-            var selectedPlanning = $(this).val();
-            
-            if (selectedPlanning) {
-                $.ajax({
-                    url: "{{ route('dashboard') }}",
-                    type: "GET",
-                    data: { selectedPlanning: selectedPlanning },
-                    success: function (response) {
-                        // Mettre à jour les données dynamiquement (exemple)
-                        $('#driver_has_score').text(response.driver_has_score);
-                        $('#driver_not_has_score').text(response.driver_not_has_score);
-                        $('#truck_in_calendar').text(response.truck_in_calendar);
-                        $('#total_chauffeur').text(response.total_chauffeur);
-                        $('#badge_numbers_in_calendars').text(response.drivers_badge_in_calendars);
-                        $('#driver_in_calendar').text(response.driver_in_calendar);
-                        $('#best_scoring_container').html(response.best_scoring);
-                        $('#bad_scoring_container').html(response.bad_scoring);
-                        let percentage = response.match_rfid.match_percentage;
-                        let displayValue = (percentage !== null && percentage !== undefined) ? percentage + ' %' : '0';
-                        $('#driver_match_rfid').html(displayValue);
-                        // Autres mises à jour selon tes données
-                        $('#overlay').hide();
-                        $('#loader').hide();
-                    }
-                });
-            }
+            $.ajax({
+                url: "{{ route('dashboard') }}",
+                type: "GET",
+                data: { 
+                    selectedPlanning: selectedPlanning,
+                    selectedTransporteur: selectedTransporteur
+                },
+                success: function (response) {
+                    console.log(response);
+                    $('#driver_has_score').text(response.driver_has_score);
+                    $('#driver_not_has_score').text(response.driver_not_has_score);
+                    $('#truck_in_calendar').text(response.truck_in_calendar);
+                    $('#total_chauffeur').text(response.total_chauffeur);
+                    $('#total_vehicule').text(response.total_vehicule);
+                    $('#badge_numbers_in_calendars').text(response.drivers_badge_in_calendars);
+                    $('#driver_in_calendar').text(response.driver_in_calendar);
+                    $('#best_scoring_container').html(response.best_scoring);
+                    $('#bad_scoring_container').html(response.bad_scoring);
+                    $('#score_zero').html(response.score_zero);
+                    $('#score_zero_more_than_3_planning').html(response.score_zero_more_than_3_planning);
+
+                    let percentage = response.match_rfid.match_percentage;
+                    let displayValue = (percentage !== null && percentage !== undefined) ? percentage + ' %' : '0';
+                    $('#driver_match_rfid').html(displayValue);
+
+                    $('#overlay').hide();
+                    $('#loader').hide();
+                }
+            });
+        }
+
+        // Filtre Planning
+        $('#planning').change(function () {
+            let selectedPlanning = $(this).val();
+            let selectedTransporteur = $('#transporteur').val();
+            updateDashboard(selectedPlanning, selectedTransporteur);
+        });
+
+        // Filtre Transporteur
+        $('#transporteur').change(function () {
+            let selectedPlanning = $('#planning').val();
+            let selectedTransporteur = $(this).val();
+            updateDashboard(selectedPlanning, selectedTransporteur);
         });
     });
 
-    // document.addEventListener("DOMContentLoaded", function() {
-    //     let select = document.getElementById("planning");
-    //     let link = document.getElementById("truck-not-having-scoring");
-
-    //     function updateLink() {
-    //         let selectedValue = select.value;
-    //         let baseUrl = "{{ route('detail.truck-have-not-scoring') }}";
-    //         link.href = selectedValue ? `${baseUrl}?id_planning=${selectedValue}` : baseUrl;
-    //     }
-
-    //     // Mettre à jour le lien au chargement de la page
-    //     updateLink();
-
-    //     // Mettre à jour le lien lorsqu'on change la sélection
-    //     select.addEventListener("change", updateLink);
-    // });
-
-    // document.addEventListener("DOMContentLoaded", function() {
-    //     let select = document.getElementById("planning");
-    //     let link = document.getElementById("truck-having-scoring");
-
-    //     function updateLink() {
-    //         let selectedValue = select.value;
-    //         let baseUrl = "{{ route('detail.driver-has-scoring') }}";
-    //         link.href = selectedValue ? `${baseUrl}?id_planning=${selectedValue}` : baseUrl;
-    //     }
-
-    //     // Mettre à jour le lien au chargement de la page
-    //     updateLink();
-
-    //     // Mettre à jour le lien lorsqu'on change la sélection
-    //     select.addEventListener("change", updateLink);
-    // });
-
     document.addEventListener("DOMContentLoaded", function() {
-        let select = document.getElementById("planning");
-        let links = {
-            "driver-not-having-scoring": "{{ route('detail.driver-have-not-scoring') }}",
-            "driver-having-scoring": "{{ route('detail.driver-has-scoring') }}",
-            "truck-in-calendar": "{{ route('detail.truck-calendar') }}",
-            "badge-in-calendar": "{{ route('detail.badge-calendar') }}",
-        };
+        const planningSelect = document.getElementById("planning");
+        const transporteurSelect = document.getElementById("transporteur");
+        
+        // Récupérer tous les liens à mettre à jour
+        const linksToUpdate = [
+            document.getElementById("driver-match-rfid-link"),
+            document.getElementById("score-zero-link"),
+            document.getElementById("score-zero-more-than-3-planning-link"),
+            document.getElementById("badge-calendar-link"),
+            document.getElementById("driver-has-scoring-link"),
+            document.getElementById("driver-have-not-scoring-link"),
+            document.getElementById("truck-calendar-link"),
+            document.getElementById("driver-link"),
+            document.getElementById("vehicule-link"),
+        ];
 
         function updateLinks() {
-            let selectedValue = select.value;
-            for (let id in links) {
-                let linkElement = document.getElementById(id);
-                if (linkElement) {
-                    linkElement.href = selectedValue ? `${links[id]}?id_planning=${selectedValue}` : links[id];
+            const planning = planningSelect.value;
+            const transporteur = transporteurSelect.value;
+
+            const params = [];
+            if (planning) params.push(`id_planning=${planning}`);
+            if (transporteur) params.push(`id_transporteur=${transporteur}`);
+
+            // Parcourir tous les liens à mettre à jour
+            linksToUpdate.forEach(link => {
+                if (link) {
+                    // Récupérer l'URL existante du lien
+                    const currentUrl = new URL(link.href);  // Crée un objet URL à partir du href actuel
+                    
+                    // Ajouter ou mettre à jour les paramètres existants
+                    params.forEach(param => {
+                        // Extraire le nom du paramètre
+                        const paramName = param.split('=')[0];
+                        const paramValue = param.split('=')[1];
+
+                        // Vérifier si le paramètre existe déjà dans l'URL
+                        if (currentUrl.searchParams.has(paramName)) {
+                            // Si le paramètre existe déjà, le mettre à jour
+                            currentUrl.searchParams.set(paramName, paramValue);
+                        } else {
+                            // Sinon, ajouter le paramètre
+                            currentUrl.searchParams.append(paramName, paramValue);
+                        }
+                    });
+
+                    // Mettre à jour le href du lien avec les nouveaux paramètres
+                    link.href = currentUrl.toString();
+
+                    console.log("Lien mis à jour : ", link.href);  // Pour vérifier
                 }
-            }
+            });
         }
 
-        // Mettre à jour les liens au chargement de la page
+        // Mise à jour au chargement
         updateLinks();
 
-        // Mettre à jour les liens lorsqu'on change la sélection
-        select.addEventListener("change", updateLinks);
+        // Mise à jour à chaque changement
+        planningSelect.addEventListener("change", updateLinks);
+        transporteurSelect.addEventListener("change", updateLinks);
     });
 
-// var userCheckinChart = new Chart(document.getElementById('userCheckinChart').getContext('2d'), @json($chartUserCheckin));
 
-// var driverStat = new Chart(document.getElementById('driverStat').getContext('2d'), @json($chartDriver));
 
-    // $('#jstree').jstree({
-    //     'core': {
-    //         'data': {!! $transporteurData !!},
-    //     },
-    //     'types': {
-    //         'default': {
-    //             'icon': 'fa fa-truck transporteur-icon'
-    //         },
-    //         'transporteur': {
-    //             'icon': 'fa fa-truck transporteur-icon' // Icône pour les transporteurs
-    //         },
-    //         'top': {
-    //             'icon': 'fa fa-trophy top-icon' // Icône pour les éléments "Top"
-    //         },
-    //         'worst': {
-    //             'icon': 'fa fa-arrow-circle-down worst-icon' // Icône pour les éléments "Worst"
-    //         },
-    //         'chauffeur': {
-    //             'icon': 'fa fa-user' // Icône pour les chauffeurs
-    //         }
-    //     },
-    //     'plugins': ['types']
+
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     const planningSelect = document.getElementById("planning");
+    //     const transporteurSelect = document.getElementById("transporteur");
+    //     const rfidLink = document.getElementById("driver-match-rfid-link");
+    //     console.log(rfidLink);
+    //     function updateRfidLink() {
+    //         const planning = planningSelect.value;
+    //         const transporteur = transporteurSelect.value;
+
+    //         const params = [];
+    //         if (planning) params.push(`id_planning=${planning}`);
+    //         if (transporteur) params.push(`id_transporteur=${transporteur}`);
+
+    //         rfidLink.href = params.length 
+    //             ? `{{ route('detail.driver-match-rfid') }}?${params.join("&")}` 
+    //             : `{{ route('detail.driver-match-rfid') }}`;
+
+    //         console.log("Lien RFID mis à jour :", rfidLink.href); // pour vérifier
+    //     }
+
+    //     // Mise à jour au chargement
+    //     updateRfidLink();
+
+    //     // Mise à jour à chaque changement
+    //     planningSelect.addEventListener("change", updateRfidLink);
+    //     transporteurSelect.addEventListener("change", updateRfidLink);
     // });
+
+    // document.addEventListener("DOMContentLoaded", function() {
+    //     let select = document.getElementById("planning");
+    //     let links = {
+    //         "driver-not-having-scoring": "{{ route('detail.driver-have-not-scoring') }}",
+    //         "driver-having-scoring": "{{ route('detail.driver-has-scoring') }}",
+    //         "truck-in-calendar": "{{ route('detail.truck-calendar') }}",
+    //         "badge-in-calendar": "{{ route('detail.badge-calendar') }}",
+    //     };
+
+    //     function updateLinks() {
+    //         let selectedValue = select.value;
+    //         for (let id in links) {
+    //             let linkElement = document.getElementById(id);
+    //             if (linkElement) {
+    //                 linkElement.href = selectedValue ? `${links[id]}?id_planning=${selectedValue}` : links[id];
+    //             }
+    //         }
+    //     }
+
+    //     // Mettre à jour les liens au chargement de la page
+    //     updateLinks();
+
+    //     // Mettre à jour les liens lorsqu'on change la sélection
+    //     select.addEventListener("change", updateLinks);
+    // });
+
     
     Chart.register(ChartDataLabels);
 // ---------------------------------- CHART TRANSPORTEUR VEHICULE-------------------------------------------
     var ctx = document.getElementById('vehiculeChart').getContext('2d');
-    var vehicules = @json($dashboardInfo['vehicule_transporteur']); // On récupère les données
+    var vehicules = @json($vehicule_transporteur); // On récupère les données
 
     // Extraire les noms, le nombre de véhicules et de chauffeurs
     var labels = vehicules.map(t => t.nom);
@@ -594,7 +602,7 @@
 
 // ---------------------------------- CHART TRANSPORTEUR CHAUFFEUR-------------------------------------------
 var ctx = document.getElementById('chauffeurChart').getContext('2d');
-    var chauffeurs = @json($dashboardInfo['driver_transporteur']); // On récupère les données
+    var chauffeurs = @json($driver_transporteur); // On récupère les données
 
     // Extraire les noms, le nombre de véhicules et de chauffeurs
     var labels = chauffeurs.map(t => t.nom);
@@ -652,82 +660,6 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
         }
     });
 // ---------------------------------------------------------------------------------------------------
-
-// ---------------------------------- CHART DRIVER NON FIXE -------------------------------------------
-// Créer un graphique à barres avec Chart.js
-    var ctx = document.getElementById('driver_not_fix').getContext('2d');
-
-    var driver_not_fix = @json($driver_not_fix);
-    
-    // Extraire les données nécessaires pour le graphique
-    var labels = driver_not_fix.map(function(item) {
-        return item.nom; // Nom du transporteur
-    });
-    
-    var data = driver_not_fix.map(function(item) {
-        return item.nombre_chauffeurs_non_fixes; // Nombre de chauffeurs non fixes
-    });
-
-    var totalNonFixed = data.reduce(function(total, current) {
-        return total + current; // Additionner les chauffeurs non fixes
-    }, 0);
-
-    
-    var myChart = new Chart(ctx, {
-        type: 'bar', // Type de graphique (ici un graphique à barres)
-        data: {
-            labels: labels, // Étiquettes (noms des transporteurs)
-            datasets: [{
-                label: 'Nombre de chauffeurs non fixes',
-                data: data, // Données (nombre de chauffeurs non fixes)
-                backgroundColor: 'rgba(54, 162, 235, 0.2)', // Couleur de fond des barres
-                borderColor: 'rgba(54, 162, 235, 1)', // Couleur des bordures des barres
-                borderWidth: 1
-            }, {
-                // label: 'Total des Chauffeurs non fixes: ' + totalNonFixed, // Légende supplémentaire
-                label: 'Total des chauffeurs non fixes : '+ totalNonFixed,
-                backgroundColor: 'rgba(255, 99, 132, 0)', // Transparent
-                borderColor: 'rgba(255, 99, 132, 1)', // Couleur pour le total
-                borderWidth: 0,
-                borderDash: [5, 5], // Style de ligne en tirets
-                pointRadius: 0, // Pas de point
-                fill: false // Pas de remplissage
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            scales: {
-                x: {
-                    beginAtZero: true // Commencer l'axe Y à zéro
-                }
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            size: 16, // Taille de la police pour la légende
-                            family: 'Arial', // Police de caractères
-                            weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
-                            lineHeight: 1.2 // Hauteur de ligne
-                        },
-                        color: '#333' // Couleur de la légende
-                    }
-                },
-                datalabels: {
-                    anchor: 'center', // Positionnement du texte
-                    align: 'center', // Alignement du texte
-                    color: '#000', // Couleur du texte
-                    font: {
-                        size: 15, // Taille de la police pour la légende
-                        family: 'Arial', // Police de caractères
-                        weight: 'bold', // Poids de la police (ex. 'normal', 'bold')
-                        lineHeight: 1.2 // Hauteur de ligne
-                    },
-                }
-            }
-        }
-    });
     
 </script>
 
@@ -837,6 +769,36 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
         font-size: 0.8rem; /* Ajuster la taille du texte du footer */
         opacity: 0.7;
     }
+
+    .scoring-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b; /* gris foncé élégant */
+            text-transform: uppercase;
+            margin-bottom: 0;
+        }
+
+        .search-group input {
+            min-width: 250px;
+        }
+
+        .gap-3 > * {
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .gap-3 > * {
+                width: 100% !important;
+                margin-right: 0;
+            }
+
+            .scoring-title {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+        }
 
 </style>
 

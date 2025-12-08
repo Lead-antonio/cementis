@@ -98,7 +98,9 @@ class ReposJournalierService
                 $infraction_start_date = new \DateTime($movement['moov_start_date']);
                 $infraction_end_date = new \DateTime($movement['moov_end_date']);
     
-                $condition = (8 * 3600) + 600;
+                $condition = (8 * 3600);
+                $tolérance = 10 * 60;     
+                $seuil_minimum = $condition - $tolérance;
     
                 $result = [];
                 // $immatricule = $truckService->getTruckPlateNumberByImei($movement['imei']);
@@ -106,7 +108,7 @@ class ReposJournalierService
                 $stopDuration = $utils->convertTimeToSeconds($movement['max_stop_duration']);
     
                 // Vérifier si la durée du STOP est inférieure à la condition requise
-                if ($stopDuration < $condition) {
+                if ($stopDuration < $seuil_minimum) {
                     $event = "Temps de repos minimum après une journée de travail";
                     $point = $penaliteService->getPointPenaliteByEventType($event);
                     

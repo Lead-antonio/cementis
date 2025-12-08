@@ -51,9 +51,18 @@ class ChauffeurController extends AppBaseController
      */
     public function index(ChauffeurDataTable $chauffeurDataTable,  Request $request)
     {
-        // $query = Chauffeur::query();
+        $transporteur_id = null;
+        if(Auth::user()->roles->first()->name === "transporteur"){
+            $userName = Auth::user()->name;
+            $transporteurs_id = Transporteur::where('nom', 'like', '%' . $userName . '%')->value('id');
+        }
+ 
+
         $plannings = Importcalendar::all();
-        $selected_planning =  DB::table('import_calendar')->latest('id')->first();
+        $selected_planning =  $request->input('id_planning') ?? DB::table('import_calendar')->latest('id')->value('id');
+        $selectedTransporteur = request()->input('selectedTransporteur') ?? $transporteurs_id ?? null;
+        $chauffeurDataTable->setSelectedTransporteur($selectedTransporteur);
+        $chauffeurDataTable->setSelectedPlanning($selected_planning);
 
         // Si le paramètre 'non_fixe' est présent, filtre les chauffeurs
         if ($request->input('non_fixe') == 1) {
@@ -75,8 +84,9 @@ class ChauffeurController extends AppBaseController
             Alert::success(__('messages.deleted', ['model' => __('models/chauffeurs.singular')]));
             Session::forget('deleted');
         }
-        return $chauffeurDataTable->render('chauffeurs.index', compact('plannings', 'selected_planning'));
-        // return $chauffeurDataTable->withQuery($query)->render('chauffeurs.index');
+        return $chauffeurDataTable->render('chauffeurs.index', [
+            'selectedTransporteur' => $selectedTransporteur
+        ], compact('plannings', 'selected_planning'));
     }
 
     /**

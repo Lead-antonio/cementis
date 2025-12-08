@@ -162,7 +162,7 @@ class EventService
                 foreach ($apiData as $event) {
                     if (in_array(trim($event[1]), self::ALLOWED_EVENT) && isset($event[10]['rfid'])) {
                         // Filtre supplémentaire pour s'assurer que les données sont valides
-                        if ($event[10]['rfid'] != "0000000000" && trim($event[10]['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0")) {
+                        // if ($event[10]['rfid'] != "0000000000" && trim($event[10]['rfid']) != trim("u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0u00f0")) {
                             // Ajouter les données dans le tableau `$filteredData` sans les insérer
                             $date = (new \DateTime($event[4]))->modify('+3 hours');
                             $filteredData[] = [
@@ -180,7 +180,7 @@ class EventService
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];
-                        }
+                        // }
                     }
                 }
             }
@@ -227,10 +227,10 @@ class EventService
     //     $console->info('Tous les événements pour la période ont été traités.');
     // }
 
-    public function proccessEventForPeriod($console, $start_date, $end_date)
+    public function proccessEventForPeriod($console, $start_date, $end_date, $id_planning)
     {
         // Récupération des camions
-        $trucks = Vehicule::get();
+        $trucks = Vehicule::where('id_planning', $id_planning)->get();
 
         // Tableau pour stocker tous les événements
         $allEvents = [];

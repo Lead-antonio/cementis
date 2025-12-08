@@ -20,6 +20,7 @@ class CreateVehiculeTable extends Migration
             $table->string('nom');
             $table->unsignedInteger('id_transporteur')->nullable();
             $table->foreign('id_transporteur')->references('id')->on('transporteur');
+            $table->foreign('id_planning')->references('id')->on('import_calendar'); 
             $table->timestamps();
             $table->softDeletes();
         });
@@ -35,3 +36,4 @@ class CreateVehiculeTable extends Migration
         Schema::drop('vehicule');
     }
 }
+

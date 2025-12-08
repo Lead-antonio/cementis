@@ -38,25 +38,30 @@ class ReposHebdoService
                 });
             }
             if (!empty($data_infraction)) {
+                // dd($data_infraction);
                 try {
                     DB::beginTransaction(); // Démarre la transaction
 
                     foreach ($data_infraction as $infraction) {
-                        // Rechercher une entrée existante avec les mêmes colonnes uniques
-                        $existingInfraction = DB::table('infraction')
-                            ->where('calendar_id', $infraction['calendar_id'])
-                            ->where('imei', $infraction['imei'])
-                            ->where('rfid', $infraction['rfid'])
-                            ->where('event', $infraction['event'])
-                            ->where('date_debut', $infraction['date_debut'])
-                            ->where('date_fin', $infraction['date_fin'])
-                            ->where('heure_debut', $infraction['heure_debut'])
-                            ->where('heure_fin', $infraction['heure_fin'])
-                            ->first();
+                        if (is_array($infraction) && isset($infraction['imei'])) {
+                            // Rechercher une entrée existante avec les mêmes colonnes uniques
+                            $existingInfraction = DB::table('infraction')
+                                ->where('calendar_id', $infraction['calendar_id'])
+                                ->where('imei', $infraction['imei'])
+                                ->where('rfid', $infraction['rfid'])
+                                ->where('event', $infraction['event'])
+                                ->where('date_debut', $infraction['date_debut'])
+                                ->where('date_fin', $infraction['date_fin'])
+                                ->where('heure_debut', $infraction['heure_debut'])
+                                ->where('heure_fin', $infraction['heure_fin'])
+                                ->first();
 
-                        // Si une entrée existe
-                        if (!$existingInfraction) {
-                            DB::table('infraction')->insert($infraction);
+                            // Si une entrée existe
+                            if (!$existingInfraction) {
+                                DB::table('infraction')->insert($infraction);
+                            }
+                        } else {
+                            Log::warning('Infraction invalide ou vide : ' . print_r($infraction, true));
                         }
                     }
 
@@ -135,6 +140,8 @@ class ReposHebdoService
             $utils = new Utils();
             // Conditions de repos en secondes
             $condition = (24 * 3600);
+            $tolerance = 10 * 60;
+            $seuil_minimum = $condition - $tolerance;
             $start_date_time = new \DateTime($week['start']);
             $end_date_time = new \DateTime($week['end']);
             $infraction_start_date = new \DateTime($week['moov_start_date']);
@@ -145,7 +152,7 @@ class ReposHebdoService
             $max_stop_duration = $utils->convertTimeToSeconds($week['max_stop_duration']);
 
             // Vérifier si la durée du STOP est inférieure à la condition requise
-            if ($max_stop_duration < $condition) {
+            if ($max_stop_duration < $seuil_minimum) {
                 $event = "Temps de repos hebdomadaire";
                 $point = $penaliteService->getPointPenaliteByEventType($event);
 

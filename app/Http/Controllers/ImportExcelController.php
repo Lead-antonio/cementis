@@ -81,7 +81,7 @@ class ImportExcelController extends AppBaseController
 
         $badge_numbers = $drivers_badge_in_calendars;
         $badge_numbers = array_map(fn($badge_chauffeur) => ['badge_chauffeur' => $badge_chauffeur], $badge_numbers);
-        // dd($badge_numbers); 
+
         return $dataTable->with(['data' => $badge_numbers])->render('import_excels.badge_calendar');
     }
 

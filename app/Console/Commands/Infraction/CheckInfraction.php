@@ -3,9 +3,9 @@
 namespace App\Console\Commands\Infraction;
 
 use Illuminate\Console\Command;
-use App\Services\InfractionService;
-use App\Services\MovementService;
-use App\Services\TruckService;
+use App\Services\ScoreDriverService;
+use App\Models\Importcalendar;
+use App\Models\ScoreDriver;
 use Illuminate\Support\Facades\DB;
 
 class CheckInfraction extends Command
@@ -15,14 +15,14 @@ class CheckInfraction extends Command
      *
      * @var string
      */
-    protected $signature = 'check:infraction';
+    protected $signature = 'check:most-infraction';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'L\infraction plus fréquent';
 
     /**
      * Create a new command instance.
@@ -41,19 +41,14 @@ class CheckInfraction extends Command
      */
     public function handle()
     {
-        $this->info('Starting the process...');
-        $lastmonth = DB::table('import_calendar')->latest('id')->first();
+        $this->info('Starting the process most frequent infraction');
 
-        $startDate = new \DateTime($lastmonth->date_debut);
+        $calendar = DB::table('import_calendar')->latest('id')->first();
 
- 
-        $endDate = new \DateTime($lastmonth->date_fin);
+        $service = new ScoreDriverService();
 
-        // $infractionService = new InfractionService();
-        // $infractionService->saveInfraction($this, $startDate, $endDate);
-        $movementService = new MovementService();
-        $rep = $movementService->getMaxStopInJourney("865135060353990", "2025-04-02 18:08:27", "2025-04-03 18:08:27");
-        dd($rep);
-        $this->info('Process completed!');
+        $rep = $service->updateAllMostInfractions($calendar->id);
+        
+        $this->info('Process completed for most frequent infraction!');
     }
 }

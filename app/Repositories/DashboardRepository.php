@@ -38,28 +38,8 @@ class DashboardRepository
     private function getDashboardInfo()
     {
         $dashboardInfo = [];
-        $dashboardInfo['user_count'] =  $this->userRepository->count();
-        $dashboardInfo['role_count'] =  $this->roleRepository->count();
-        $dashboardInfo['permission_count'] =  $this->permissionRepository->count();
-        $dashboardInfo['user_online'] =  $this->attendanceRepository->CountUserOnline();
-        $dashboardInfo['topDriver'] = topDriver();
-        $dashboardInfo['driverTop'] = driverTop();
-        $dashboardInfo['driverWorst'] = driverWorst();
-        $dashboardInfo['scoring'] = scoringCard();
         $dashboardInfo['vehicule_transporteur'] = Transporteur::withCount('vehicule')->orderByDesc('vehicule_count')->get();
         $dashboardInfo['driver_transporteur'] = Transporteur::withCount('chauffeurs')->orderByDesc('chauffeurs_count')->get();
-        $transporteurs = Transporteur::withCount(['vehicule', 'chauffeurs'])
-                                        ->orderByDesc('vehicule_count')
-                                        ->orderByDesc('chauffeurs_count')
-                                        ->get();
-
-        $dashboardInfo['transporteurs'] = $transporteurs;
-        $totalChauffeurs = $transporteurs->sum('chauffeurs_count');
-        $totalVehicules = $transporteurs->sum('vehicule_count');
-        //$totalVehicules = $dashboardInfo['count_vehicule_transporteur']->sum('vehicule_count');
-        //$totalChauffeurs = $dashboardInfo['count_driver_transporteur']->sum('chauffeurs_count');
-        // dd($dashboardInfo['count_driver_transporteur']);
-        // dd($dashboardInfo['count_driver_transporteur']);
 
         return $dashboardInfo;
     }
@@ -105,9 +85,7 @@ class DashboardRepository
     }
     public function GetData(){
         $dashboard = [];
-        $dashboard['dashboardInfo'] = $this->getDashboardInfo();
-        $dashboard['chartUserCheckin'] = $this->getChartUserCheckinInfo();
-        $dashboard['chartDriver'] =  driverChart();
+        // $dashboard['dashboardInfo'] = $this->getDashboardInfo();
         return $dashboard;
     }
 }

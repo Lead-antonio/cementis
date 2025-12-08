@@ -11,6 +11,15 @@ use Yajra\DataTables\Html\Column;
 
 class ChauffeurDataTable extends DataTable
 {
+    public function setSelectedTransporteur($transporteurId)
+    {
+        $this->selectedTransporteur = $transporteurId;
+    }
+
+    public function setSelectedPlanning($id_planning)
+    {
+        $this->setSelectedPlanning = $id_planning;
+    }
     /**
      * Build DataTable class.
      *
@@ -131,8 +140,12 @@ class ChauffeurDataTable extends DataTable
             })->
             with(['related_transporteur', 'latest_update', 'validation']);
         
-            if ($planningId = request()->get('planning_id')) {
-                $query->where('id_planning', $planningId);
+            if (!empty($this->setSelectedPlanning)) {
+                $query->where('id_planning', $this->setSelectedPlanning);
+            }
+
+            if (!empty($this->selectedTransporteur)) {
+                $query->where('chauffeur.transporteur_id', $this->selectedTransporteur);
             }
 
             return $query;

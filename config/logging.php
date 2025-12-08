@@ -35,6 +35,12 @@ return [
     */
 
     'channels' => [
+        'movement_null' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/movement.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],

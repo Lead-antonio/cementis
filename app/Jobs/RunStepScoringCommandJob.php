@@ -26,14 +26,17 @@ class RunStepScoringCommandJob implements ShouldQueue
     public $maxExceptions = 10;
 
     protected $commands = [
-        1 => "get:event",
-        2 => "get:movement",
-        3 => "check:overspeed",
-        4 => "driver:cumul",
-        5 => "repos:journey",
-        6 => "repos:hebdo",
-        7 => "check:calendar",
-        8 => "scoring:generate",
+        1 => "clean:calendar",
+        2 => "vehicule:save",
+        3 => "update:calendar-date",
+        4 => "get:event",
+        5 => "get:movement",
+        6 => "check:overspeed",
+        7 => "driver:cumul",
+        8 => "repos:journey",
+        9 => "repos:hebdo",
+        10 => "generate:score-drive",
+        11 => "scoring:generate",
     ];
 
     /**
@@ -70,6 +73,7 @@ class RunStepScoringCommandJob implements ShouldQueue
                 Log::info("Lancement de la commande {$command}");
                 \Artisan::call($command);
             } else {
+                Log::info("Job libéré : run_jobs.is_running remis à false.");
                 throw new \Exception("Aucune commande définie pour l'étape {$this->stepId}");
             }
 

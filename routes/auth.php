@@ -54,8 +54,6 @@ Route::resource('rotations', App\Http\Controllers\RotationController::class);
 
 Route::resource('parametres', App\Http\Controllers\ParametreController::class);
 
-
-
 Route::resource('penalites', App\Http\Controllers\PenaliteController::class);
 
 Route::resource('importExcels', App\Http\Controllers\ImportExcelController::class);
@@ -81,17 +79,18 @@ Route::post('/import-installation', 'App\Http\Controllers\ImportInstallationCont
 Route::get('import-excels/installation/{id}', 'App\Http\Controllers\ImportInstallationController@liste_importation')->name('import_excels.installation');
 
 Route::get('/exportation-generale', 'App\Http\Controllers\ExportController@exportation_excel')->name('exportation.view');
-Route::post('/getcolumns', 'App\Http\Controllers\ExportController@getTableColumns')->name('exportation.getcolumns');
-Route::post('/exportation-table', 'App\Http\Controllers\ExportController@exportTable')->name('exportation.getexport');
 
+Route::post('/getcolumns', 'App\Http\Controllers\ExportController@getTableColumns')->name('exportation.getcolumns');
+
+Route::post('/exportation-table', 'App\Http\Controllers\ExportController@exportTable')->name('exportation.getexport');
 
 Route::resource('chauffeurs', App\Http\Controllers\ChauffeurController::class);
 
 Route::post('chauffeur/updatetransporteur', 'App\Http\Controllers\ChauffeurController@update_tranporteur_id')->name('chauffeur.updatetransporteur');
+
 Route::post('chauffeur/deleteSending', 'App\Http\Controllers\ChauffeurController@delete_sending')->name('chauffeur.deleteSending');
 
 Route::post('chauffeur/filtre', 'App\Http\Controllers\TransporteurController@filterChauffeurs')->name('chauffeur.filtre');
-
 
 Route::resource('penaliteChauffeurs', App\Http\Controllers\PenaliteChauffeurController::class);
 
@@ -110,6 +109,22 @@ Route::post('/save-comments', [App\Http\Controllers\ScoringController::class, 's
 Route::get('/new/scoring', 'App\Http\Controllers\ScoringController@scoring_card')->name('new.scoring');
 
 Route::get('/ajax/scoring', 'App\Http\Controllers\ScoringController@filter_scoring_by_planning')->name('ajax.scoring');
+
+// ---------------------------------------------------------X---------------------------------------------------------
+
+Route::get('/driver/score', 'App\Http\Controllers\ScoreDriverController@score_driver')->name('driver.score');
+
+Route::get('/driver/score/filter/planning', 'App\Http\Controllers\ScoreDriverController@filter_score_drive_by_planning')->name('driver.score.filter.planning');
+
+Route::get('/driver/score/excel', 'App\Http\Controllers\ScoreDriverController@export_excel_score_drive')->name('driver.score.excel');
+
+Route::get('/driver/score/detail/{badge}/{id_planning}', 'App\Http\Controllers\ScoreDriverController@detail_score_drive')->name('driver.score.detail');
+
+Route::get('/driver/detail/score/zero', 'App\Http\Controllers\ScoreDriverController@detail_score_driver_zero')->name('driver.detail.score.zero');
+
+Route::get('/driver/detail/score/zero/more/than/3/plannings', 'App\Http\Controllers\ScoreDriverController@detail_score_driver_zero_more_than_3_planning')->name('driver.detail.score.zero.more.than.3.plannings');
+
+// ---------------------------------------------------------X---------------------------------------------------------
 
 Route::get('/ajax/scoringdriver', 'App\Http\Controllers\ScoringController@FilterByTruckInCalendar')->name('ajax.scoringdriver');
 
@@ -130,6 +145,7 @@ Route::get('/driver/detail/scoring/{imei}/{badge}/{id_planning}', 'App\Http\Cont
 Route::get('/truck/detail/scoring/{vehicule}/{id_planning}', 'App\Http\Controllers\ScoringController@truck_detail_scoring')->name('truck.detail.scoring');
 
 Route::get('/scoring/pdf', 'App\Http\Controllers\EventController@TableauScoringPdf')->name('scoring.pdf');
+
 Route::get('/chauffeurs/edit_story/{id}', 'App\Http\Controllers\ChauffeurController@edit_story')->name('chauffeurs.edit_story');
 
 Route::resource('events', App\Http\Controllers\EventController::class);
@@ -169,7 +185,6 @@ Route::resource('importModels', App\Http\Controllers\ImportModelController::clas
 Route::resource('process', App\Http\Controllers\ProcessController::class);
 
 
-
 Route::resource('periodSettings', App\Http\Controllers\PeriodSettingController::class);
 
 
@@ -197,3 +212,6 @@ Route::resource('incidentVehicules', App\Http\Controllers\IncidentVehiculeContro
 
 
 Route::resource('incidentVehiculeCoordonnees', App\Http\Controllers\IncidentVehiculeCoordonneeController::class);
+
+
+Route::resource('scoreDrivers', App\Http\Controllers\ScoreDriverController::class);

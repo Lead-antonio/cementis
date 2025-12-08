@@ -3,18 +3,28 @@
 @section('content')
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="row align-items-center mb-3">
                 <div class="col-sm-6">
                    <h1>@lang('models/vehicules.plural')</h1>
                 </div>
-                @can('vehicules.create')    
-                    <div class="col-sm-6">
+
+                <div class="col-md-6 d-flex justify-content-end gap-2">
+                    <div class="mr-2">
+                        <select id="filter-planning" class="form-control">
+                            <option value="">Filtrer par planning</option>
+                            @foreach($plannings as $planning)
+                                <option value="{{ $planning->id }}" {{ $selected_planning == $planning->id ? 'selected' : '' }}>{{ $planning->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    @can('vehicules.create')    
                         <a class="btn btn-primary float-right"
                         href="{{ route('vehicules.create') }}">
                             @lang('crud.add_new')
                         </a>
-                    </div>
-                @endcan
+                    @endcan
+                </div>
             </div>
         </div>
     </section>
@@ -37,6 +47,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('filter-planning').addEventListener('change', function() {
+            let planningId = this.value;
+            let url = "{{ route('vehicules.index') }}"; // Remplace par la route de ta page
+            if (planningId) {
+                window.location.href = url + '?id_planning=' + planningId;
+            } else {
+                window.location.href = url; // si "aucun filtre"
+            }
+        });
+    </script>
 
 @endsection
 

@@ -229,74 +229,6 @@ if(!function_exists('scoring')){
         $calendar = Importcalendar::where('id', $id_planning)->first();
         $month = Carbon::parse($calendar->date_debut)->format('m');
         if($id_planning !== "" && $id_planning !== null){
-            // $results = DB::select("
-            //     SELECT 
-            //         final.badge_calendar,
-            //         final.imei,
-            //         final.camion,
-            //         final.rfid_calendar,
-            //         final.rfid_conducteur,
-            //         SUM(final.point) AS total_point
-            //     FROM (
-            //         -- 1. Infractions normales (dans la plage de dates du planning)
-            //         SELECT 
-            //             c.badge_chauffeur AS badge_calendar,
-            //             c.imei,
-            //             c.camion,
-            //             c.rfid_chauffeur AS rfid_calendar,
-            //             i.rfid AS rfid_conducteur,
-            //             i.point
-            //         FROM (
-            //             SELECT DISTINCT
-            //                 badge_chauffeur,
-            //                 imei,
-            //                 camion,
-            //                 rfid_chauffeur,
-            //                 date_debut,
-            //                 date_fin
-            //             FROM import_excel
-            //             WHERE import_calendar_id = $id_planning
-            //         ) c
-            //         JOIN infraction i 
-            //             ON i.imei = c.imei
-            //             AND i.event != 'Temps de repos hebdomadaire'
-            //             AND CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut
-            //             AND CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin
-
-            //         UNION ALL
-
-            //         -- 2. Repos hebdo (pas de contrainte de date)
-            //         SELECT 
-            //             c.badge_chauffeur AS badge_calendar,
-            //             c.imei,
-            //             c.camion,
-            //             c.rfid_chauffeur AS rfid_calendar,
-            //             i.rfid AS rfid_conducteur,
-            //             i.point
-            //         FROM (
-            //             SELECT DISTINCT
-            //                 badge_chauffeur,
-            //                 imei,
-            //                 camion,
-            //                 rfid_chauffeur
-            //             FROM import_excel
-            //             WHERE import_calendar_id = $id_planning
-            //         ) c
-            //         JOIN (
-            //             SELECT DISTINCT id, imei, rfid, point
-            //             FROM infraction
-            //             WHERE event = 'Temps de repos hebdomadaire'
-            //         ) i ON i.imei = c.imei
-            //     ) AS final
-            //     GROUP BY 
-            //         final.badge_calendar,
-            //         final.imei,
-            //         final.camion,
-            //         final.rfid_calendar,
-            //         final.rfid_conducteur
-            //     ORDER BY 
-            //         total_point DESC;
-            // ");
             $results = DB::select("
                 SELECT 
                     final.badge_calendar,
@@ -378,38 +310,6 @@ if(!function_exists('scoring')){
 
 // Detail driver scoring
 if (!function_exists('driver_detail_scoring_card')) {
-    // function driver_detail_scoring_card($imei, $badge, $id_planning)
-    // {
-    //     $resultats = DB::table('import_excel as c')
-    //         ->leftJoin('infraction as i', function ($join) {
-    //             $join->on('i.imei', '=', 'c.imei')
-    //                 ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-    //                 ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
-    //         })
-    //         ->select(
-    //             'c.badge_chauffeur AS badge_calendar',
-    //             'i.imei',
-    //             'c.camion',
-    //             'c.rfid_chauffeur AS rfid_calendar',
-    //             'i.event AS infraction',
-    //             'i.date_debut AS date_debut',
-    //             'i.heure_debut AS heure_debut',
-    //             'i.date_fin AS date_fin',
-    //             'i.heure_fin AS heure_fin',
-    //             'i.rfid AS rfid_conducteur',
-    //             'i.gps_debut',
-    //             'i.gps_fin',
-    //             'i.duree_infraction',
-    //             'i.insuffisance',
-    //             'i.point AS point'
-    //         )
-    //         ->where('c.import_calendar_id', $id_planning)
-    //         ->where('c.badge_chauffeur', $badge)
-    //         ->where('i.imei', $imei)
-    //         ->get();
-        
-    //     return $resultats;
-    // }
     function driver_detail_scoring_card($imei, $badge, $id_planning)
     {
         $calendar = Importcalendar::where('id', $id_planning)->first();
@@ -742,8 +642,8 @@ if(!function_exists('TotalScoringbyDriver')){
             'ch.nom as driver',
             't.nom as transporteur_nom',
             DB::raw('SUM(p.point_penalite) as total_penalty_point'),
-            DB::raw('SUM(DISTINCT pc.distance) as total_distance'), // Totalité de la distance
-            DB::raw('ROUND((SUM(p.point_penalite) * 100) / SUM(DISTINCT pc.distance), 2) as score_card')// Utilisation de SUM(DISTINCT) pour obtenir la somme des distances uniques
+            DB::raw('SUM(DISTINCT pc.distance) as total_distance'), 
+            DB::raw('ROUND((SUM(p.point_penalite) * 100) / SUM(DISTINCT pc.distance), 2) as score_card')
         )
         ->groupBy('ch.nom', 't.nom')
         ->orderBy('t.nom')
@@ -757,155 +657,88 @@ if(!function_exists('TotalScoringbyDriver')){
 }
 
 if(!function_exists('getAllGoodScoring')){
-    function getAllGoodScoring($lastmonth){
-        
-        // $topMinScores = DB::table('scoring as s')
-        // ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
-        // ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-        // ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-        // ->leftJoin('chauffeur_updates as cu', function ($join) {
-        //     $join->on('c.id', '=', 'cu.chauffeur_id')
-        //         ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
-        // })
-        // ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        // ->whereColumn('ie.import_calendar_id', 's.id_planning')
-        // ->where('s.id_planning', $lastmonth) // Filtre par id_planning
-        // ->select('t.nom AS transporteur' ,DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
-        // 'c.nom as driver_link', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
-        // ->groupBy('s.driver_id', 's.camion', 'c.nom','cu.nom', 't.nom')
-        // ->orderBy('point', 'asc')
-        // ->limit(3)
-        // ->get();
+    function getAllGoodScoring($lastmonth, $transporteur_id = null){
+        $query = DB::table('import_excel as c')
+            ->leftJoin('infraction as i', function ($join) {
+                $join->on('i.imei', '=', 'c.imei')
+                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+            })
+            ->select(
+                'c.badge_chauffeur as badge_calendar',
+                'c.imei',
+                'c.camion',
+                'c.rfid_chauffeur as rfid_calendar',
+                'i.rfid as rfid_conducteur',
+                DB::raw('COALESCE(SUM(i.point), 0) as total_point')
+            )
+            ->where('c.import_calendar_id', $lastmonth);
 
-        // $topMinScores = DB::table('scoring as s')
-        // ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-        // ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-        // ->leftJoin('chauffeur_updates as cu', function ($join) {
-        //     $join->on('c.id', '=', 'cu.chauffeur_id')
-        //          ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
-        // })
-        // ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        // ->where('s.id_planning', $lastmonth)  // Filtre par id_planning
-        // ->select(
-        //     't.nom AS transporteur',
-        //     DB::raw('COALESCE(cu.nom, c.nom) AS driver'),
-        //     'c.nom as driver_link',
-        //     's.driver_id',
-        //     's.camion',
-        //     DB::raw('MAX(s.point) AS point')
-        // )
-        // ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
-        // ->orderBy('point', 'asc')
-        // ->limit(3)
-        // ->get();
-        $topMinScores = DB::table('import_excel as c')
-        ->leftJoin('infraction as i', function ($join) {
-            $join->on('i.imei', '=', 'c.imei')
-                ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-                ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
-        })
-        ->select(
-            'c.badge_chauffeur as badge_calendar',
-            'c.imei',
-            'c.camion',
-            'c.rfid_chauffeur as rfid_calendar',
-            'i.rfid as rfid_conducteur',
-            DB::raw('COALESCE(SUM(i.point), 0) as total_point')
-        )
-        ->where('c.import_calendar_id', $lastmonth)
-        ->groupBy('c.badge_chauffeur', 'c.imei')
-        ->orderBy('total_point')
-        ->limit(3)
-        ->get();
-        // dd($results);
-        
-        return $topMinScores;
+        // Si transporteur_id est fourni, on joint vehicule + transporteur et on filtre
+        if (!is_null($transporteur_id)) {
+            $query->leftJoin('chauffeur as ch', function ($join) {
+                $join->on('ch.rfid', '=', 'c.rfid_chauffeur')
+                    ->orOn('ch.numero_badge', '=', 'c.badge_chauffeur');
+            })
+            ->addSelect('ch.transporteur_id')
+            ->where('ch.transporteur_id', $transporteur_id);
+        }
+
+        return $query
+            ->groupBy(
+                'c.badge_chauffeur',
+                'c.imei',
+                'c.camion',
+                'c.rfid_chauffeur',
+                'i.rfid'
+            )
+            ->orderBy('total_point', 'asc')
+            ->limit(3)
+            ->get();
     }
 }
 
 if(!function_exists('getAllBadScoring')){
-    function getAllBadScoring($lastmonth){
-        
-        // $topMaxScores_old = DB::table('scoring as s')
-        // ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
-        // ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-        // ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-        // ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        // ->whereColumn('ie.import_calendar_id', 's.id_planning')
-        // ->where('s.id_planning', $lastmonth)
-        // ->select('t.nom AS transporteur' ,'c.nom AS driver', 's.driver_id', 's.camion', DB::raw('MAX(s.point) AS point'))
-        // ->groupBy('s.driver_id', 's.camion', 'c.nom', 't.nom')
-        // ->orderBy('point', 'desc')
-        // ->limit(3)
-        // ->get();
+    function getAllBadScoring($lastmonth, $transporteur_id = null) {
+        $query = DB::table('import_excel as c')
+            ->leftJoin('infraction as i', function ($join) {
+                $join->on('i.imei', '=', 'c.imei')
+                    ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
+                    ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
+            })
+            ->select(
+                'c.badge_chauffeur as badge_calendar',
+                'c.imei',
+                'c.camion',
+                'c.rfid_chauffeur as rfid_calendar',
+                'i.rfid as rfid_conducteur',
+                DB::raw('COALESCE(SUM(i.point), 0) as total_point')
+            )
+            ->where('c.import_calendar_id', $lastmonth);
 
-        // $topMaxScores = DB::table('scoring as s')
-        //     ->join('import_excel as ie', 's.camion', 'like', DB::raw("CONCAT(ie.camion, '%')"))
-        //     ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-        //     ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-        //     ->leftJoin('chauffeur_updates as cu', function ($join) {
-        //         $join->on('c.id', '=', 'cu.chauffeur_id')
-        //             ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
-        //     })
-        //     ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        //     ->whereColumn('ie.import_calendar_id', 's.id_planning')
-        //     ->where('s.id_planning', $lastmonth)
-        //     ->select(
-        //         't.nom AS transporteur',
-        //          DB::raw('COALESCE(cu.nom, c.nom) AS driver'), 
-        //         'c.nom as driver_link',
-        //         's.driver_id',
-        //         's.camion',
-        //         DB::raw('MAX(s.point) AS point')
-        //     )
-        //     ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
-        //     ->orderBy('point', 'desc')
-        //     ->limit(3)
-        //     ->get();
-        // $topMaxScores = DB::table('scoring as s')
-        // ->join('import_calendar as ic', 's.id_planning', '=', 'ic.id')
-        // ->join('chauffeur as c', 's.driver_id', '=', 'c.id')
-        // ->leftJoin('chauffeur_updates as cu', function ($join) {
-        //     $join->on('c.id', '=', 'cu.chauffeur_id')
-        //          ->whereRaw('cu.id = (SELECT MAX(id) FROM chauffeur_updates WHERE chauffeur_id = c.id)');
-        // })
-        // ->join('transporteur as t', 's.transporteur_id', '=', 't.id')
-        // ->where('s.id_planning', $lastmonth)  // Filtre par id_planning
-        // ->select(
-        //     't.nom AS transporteur',
-        //     DB::raw('COALESCE(cu.nom, c.nom) AS driver'),
-        //     'c.nom as driver_link',
-        //     's.driver_id',
-        //     's.camion',
-        //     DB::raw('MAX(s.point) AS point')
-        // )
-        // ->groupBy('s.driver_id', 's.camion', 'c.nom', 'cu.nom', 't.nom')
-        // ->orderBy('point', 'desc')
-        // ->limit(3)
-        // ->get();
-        $topMaxScores = DB::table('import_excel as c')
-        ->leftJoin('infraction as i', function ($join) {
-            $join->on('i.imei', '=', 'c.imei')
-                ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= c.date_debut")
-                ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= c.date_fin");
-        })
-        ->select(
-            'c.badge_chauffeur as badge_calendar',
-            'c.imei',
-            'c.camion',
-            'c.rfid_chauffeur as rfid_calendar',
-            'i.rfid as rfid_conducteur',
-            DB::raw('COALESCE(SUM(i.point), 0) as total_point')
-        )
-        ->where('c.import_calendar_id', $lastmonth)
-        ->groupBy('c.badge_chauffeur', 'c.imei')
-        ->orderByDesc('total_point')
-        ->limit(3)
-        ->get();
-        
-        
-        return $topMaxScores;
+        // Si transporteur_id est fourni, on joint vehicule + transporteur et on filtre
+        if (!is_null($transporteur_id)) {
+            $query->leftJoin('chauffeur as ch', function ($join) {
+                $join->on('ch.rfid', '=', 'c.rfid_chauffeur')
+                    ->orOn('ch.numero_badge', '=', 'c.badge_chauffeur');
+            })
+            ->addSelect('ch.transporteur_id')
+            ->where('ch.transporteur_id', $transporteur_id);
+        }
+
+        return $query
+            ->groupBy(
+                'c.badge_chauffeur',
+                'c.imei',
+                'c.camion',
+                'c.rfid_chauffeur',
+                'i.rfid'
+            )
+            ->orderBy('total_point', 'desc')
+            ->limit(3)
+            ->get();
     }
+
 }
 
 if(!function_exists('topAndWorstChauffeur')){
@@ -1123,45 +956,6 @@ if (!function_exists('insertPenaliteDrive')) {
     }
 }
 
-// if(!function_exists('ApiToFileJson')){
-//     function ApiToFileJson(){
-//         // Formatage des dates au format YYYYMMDD
-//         $totalRecords = PenaliteChauffeur::where('distance', '=', 0.00)->where('drive_duration', '=', 0.00)->get();
-        
-//         foreach ($totalRecords as $item) {
-//             $start_date = Carbon::parse($item->related_calendar->date_debut);
-//             $end_date = $item->related_calendar->date_fin ? Carbon::parse($item->related_calendar->date_fin) : null;
-//             $imei = $item->related_event->imei;
-//             $rfid = $item->related_event->chauffeur;
-//             $event_date = Carbon::parse($item->related_event->date);
-
-//             if ($end_date === null) {
-//                 $dureeEnHeures = floatval($item->related_calendar->delais_route);
-//                 if ($dureeEnHeures <= 1) {
-//                     $end_date = $start_date->copy()->endOfDay();
-//                 } else {
-//                     $dureeEnJours = ceil($dureeEnHeures / 24);
-//                     $end_date = $start_date->copy()->addDays($dureeEnJours);
-//                 }
-//             }
-
-//             $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=OBJECT_GET_ROUTE,".$imei.",".$start_date->format('YmdHis').",".$end_date->format('YmdHis').",20";
-//             $response = Http::timeout(300)->get($url);
-//             $data = $response->json();
-//             $file_name = 'Api_'.$item->id.'.json';
-//             $file_path = public_path('Data/'. $file_name);
-//             if($response->successful()) {
-//                 // Enregistrement des données dans un fichier JSON
-//                 file_put_contents($file_path, json_encode($data));// Indique que l'opération s'est déroulée avec succès
-//             } 
-//         }
-
-//         return true;
-
-        
-//     }
-
-// }
 
 
 if (!function_exists('getDistanceWithImeiAndPeriod')) {
@@ -2770,26 +2564,10 @@ if(!function_exists('getBadgeCalendarByTruck')){
 
 if(!function_exists('getDriverInfractionWithmaximumPoint')){
     function getDriverInfractionWithmaximumPoint($id_driver, $imei, $id_planning){
-        // Créer la sous-requête
-        // $subquery = DB::table('infraction as i')
-        // ->leftJoin('import_excel as ie', function ($join) {
-        //         $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
-        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
-        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
-        //     })
-        // ->join('chauffeur as ch', 'i.rfid', '=', 'ch.rfid')
-        // ->join('transporteur as t', 'ch.transporteur_id', '=', 't.id')
-        // ->select(
-        //     'ch.nom as driver',
-        //     'ch.id as driver_id',
-        //     'ch.rfid as rfid',
-        //     't.nom as transporteur_nom',
-        //     'i.event as infraction',
-        //     DB::raw('SUM(i.point) as total_point')
-        // )
-        // ->where('ch.id', $id_driver)
-        // ->where('ie.import_calendar_id', $id_planning)
-        // ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
+        $mois = Importcalendar::where('id', $id_planning)
+        ->select(DB::raw('MONTH(date_debut) as mois'))
+        ->value('mois');
+
         $query1 = DB::table('infraction as i')
             ->leftJoin('import_excel as ie', function ($join) {
                 $join->on('i.imei', '=', 'ie.imei')
@@ -2824,7 +2602,7 @@ if(!function_exists('getDriverInfractionWithmaximumPoint')){
             )
             ->where('ch.id', $id_driver)
             ->where('i.event', 'temps de repos hebdomadaire')
-            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', 6)
+            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', $mois)
             ->groupBy('ch.id', 'ch.nom', 'ch.rfid', 't.nom', 'i.event');
 
         $subquery = $query1->union($query2);
@@ -2854,24 +2632,10 @@ if(!function_exists('getDriverInfractionWithmaximumPoint')){
 
 if(!function_exists('getTruckInfractionWithmaximumPoint')){
     function getTruckInfractionWithmaximumPoint($imei, $id_planning){
-        // Créer la sous-requête
-        // $subquery = DB::table('infraction as i')
-        //     ->leftJoin('import_excel as ie', function ($join) {
-        //         $join->on('i.imei', '=', 'ie.imei') // si tu as besoin de ça pour le lien
-        //             ->whereRaw("CONCAT(i.date_debut, ' ', i.heure_debut) >= ie.date_debut")
-        //             ->whereRaw("CONCAT(i.date_fin, ' ', i.heure_fin) <= ie.date_fin");
-        //     })
-        //     ->join('vehicule as v', 'i.imei', '=', 'v.imei')
-        //     ->join('transporteur as t', 'v.id_transporteur', '=', 't.id')
-        //     ->select(
-        //         'v.imei as imei',
-        //         't.nom as transporteur_nom',
-        //         'i.event as infraction',
-        //         DB::raw('SUM(i.point) as total_point')
-        //     )
-        //     ->where('v.imei', $imei)
-        //     ->where('ie.import_calendar_id', $id_planning)
-        //     ->groupBy('v.imei', 't.nom', 'i.event');
+        $mois = Importcalendar::where('id', $id_planning)
+        ->select(DB::raw('MONTH(date_debut) as mois'))
+        ->value('mois');
+            
         $query1 = DB::table('infraction as i')
             ->leftJoin('import_excel as ie', function ($join) {
                 $join->on('i.imei', '=', 'ie.imei')
@@ -2902,7 +2666,7 @@ if(!function_exists('getTruckInfractionWithmaximumPoint')){
             )
             ->where('v.imei', $imei)
             ->where('i.event', 'temps de repos hebdomadaire')
-            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', 6)
+            ->whereRaw('MONTH(CONCAT(i.date_debut, " ", i.heure_debut)) = ?', $mois)
             ->groupBy('v.imei', 't.nom', 'i.event');
         
         $subquery = $query1->union($query2);
@@ -3080,13 +2844,15 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
      * @param mixed $calendar
      * @return Illuminate\Http\JsonResponse|mixed
      */
-    function SaveVehiculeFromCalendar($id_planning) {
+    function SaveVehiculeFromCalendar($id_planning, $logger) {
         try{
             set_time_limit(2000);
         
             // Récupérer les données de ImportExcel
-            // $importExcelData = ImportExcel::all(); 
-            $importExcelData = ImportExcel::where('import_calendar_id', $id_planning)->get();
+            $camions = ImportExcel::where('import_calendar_id', $id_planning)
+            ->pluck('camion') 
+            ->unique()       
+            ->values();
 
             // URL de l'API
             $url = "www.m-tectracking.mg/api/api.php?api=user&ver=1.0&key=5AA542DBCE91297C4C3FB775895C7500&cmd=USER_GET_OBJECTS";
@@ -3101,7 +2867,6 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
             }
         
             // Création d'une collection pour faciliter la recherche
-            // $apiCollection = collect($apiData)->keyBy('plate_number');
             $apiCollection = collect($apiData)
             ->map(function ($item) {
                 $item['plate_number'] = trim($item['plate_number']);
@@ -3111,37 +2876,48 @@ if (!function_exists('SaveVehiculeFromCalendar()')) {
                     
             $imei_platenumber = [];
             // Mettre à jour les données ImportExcel
-            foreach ($importExcelData as $row) {
-                $plateNumber = $row->camion; // Assure-toi que cette colonne correspond bien à l'immatriculation du camion
+            foreach ($camions as $row) {
+                $plateNumber = $row; // Assure-toi que cette colonne correspond bien à l'immatriculation du camion
                 // Vérifier si l'immatriculation existe dans les données de l'API
                 if ($apiCollection->has($plateNumber)) {
                     $imei = (string) $apiCollection[$plateNumber]['imei'] ?? null;
-                    
                     $transporteur_name = $apiCollection[$plateNumber]['group_name'] ?? null;
 
+                    //  Si le group_name est null, on tente de le déduire depuis le champ "name"
+                    if (is_null($transporteur_name)) {
+                        $name = $apiCollection[$plateNumber]['name'] ?? null;
 
-                    if (!is_null($transporteur_name)) {
-                        $transporteur = Transporteur::firstOrCreate(
-                            ['nom' =>  $transporteur_name],
-                        );
-                    } else {
-                        $transporteur = Transporteur::find($transporteur_name);
+                        if (!is_null($name) && str_contains($name, '-')) {
+                            $parts = explode('-', $name);
+                            $transporteur_name = trim(end($parts)); // "BIOTRANS"
+                        }
                     }
 
-                    // if($transporteur){
-                        $existingVehicule =  Vehicule::where('imei', $imei )->first() ;
-                        //Mise à jour uniquement si un IMEI est trouvé
-                        if (!$existingVehicule) {
-                            $vehicule = Vehicule::create([
-                                'imei' =>  $imei,
-                                'nom' => $row->camion,
-                                'description' => $row['description'],
-                                'id_transporteur' => $transporteur->id ?? NULL
-                            ]);
-                        }
-                    // }else{
-                    //     echo "Transporteur null pour le vehicule : ". $plateNumber . "\n" ;
-                    // }        
+                    //  Créer ou récupérer le transporteur s'il y a un nom trouvé
+                    if (!empty($transporteur_name)) {
+                        $transporteur = Transporteur::firstOrCreate(
+                            ['nom' => $transporteur_name]
+                        );
+                    } else {
+                        $transporteur = null; // Aucun transporteur identifié
+                    }
+
+                    $existingVehicule =  Vehicule::where('imei', $imei )->where('id_planning', $id_planning)->first() ;
+                    //Mise à jour uniquement si un IMEI est trouvé
+                    if (!$existingVehicule) {
+                        $vehicule = Vehicule::create([
+                            'imei' =>  $imei,
+                            'nom' => $row,
+                            'description' => null,
+                            'id_transporteur' => $transporteur->id ?? NULL,
+                            'id_planning' => $id_planning
+                        ]);
+                    }    
+                } else {
+                    $logger->warning('Camion non géolocalisé : ', [
+                        'camion' => $row,
+                        'raison' => 'Aucune correspondance trouvée dans l\'API' 
+                    ]);
                 }
             }
 

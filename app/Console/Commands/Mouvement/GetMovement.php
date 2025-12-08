@@ -8,6 +8,8 @@ use App\Services\MovementService;
 use App\Services\CalendarService;
 use App\Models\ImportCalendar;
 use Illuminate\Support\Facades\DB;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 
 class GetMovement extends Command
@@ -44,6 +46,19 @@ class GetMovement extends Command
     public function handle()
     {
         $this->info('Starting the process...');
+
+        // 1️⃣ Créer un nom de fichier unique
+        $logFileName = 'movement_' . now()->format('Y_m_d_His') . '.log';
+        $logPath = storage_path('logs/' . $logFileName);
+        echo $logPath;
+
+        // 2️⃣ Créer un logger Monolog spécifique pour cette exécution
+        $movementLogger = new Logger('movement_logger');
+        $movementLogger->pushHandler(new StreamHandler($logPath, Logger::INFO));
+
+        
+        $movementLogger->info('=== Début du traitement get:movement ===');
+
         $movementService = new MovementService();
         $lastmonth = DB::table('import_calendar')->latest('id')->first();
 
@@ -58,7 +73,7 @@ class GetMovement extends Command
 
         // Pass the current console instance to the method
         // $movementService->saveDriveAndStop($this);
-        $movementService->getAllMouvementMonthly($this, $startDate, $endDate);
+        $movementService->getAllMouvementMonthly($this, $startDate, $endDate, $movementLogger, $lastmonth->id);
         // $movementService->getMissingMouvementMonthly($this, $startDate, $endDate);
         
         $this->info('Process completed!');

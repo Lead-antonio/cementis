@@ -6,6 +6,8 @@ use App\Services\GeolocalisationService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class SaveVehiculeFromCalendar extends Command
 {
@@ -40,7 +42,19 @@ class SaveVehiculeFromCalendar extends Command
      */
     public function handle()
     {
+        // 1️⃣ Créer un nom de fichier unique
+        $logFileName = 'vehicule_' . now()->format('Y_m_d_His') . '.log';
+        $logPath = storage_path('logs/' . $logFileName);
+        echo $logPath;
+
+        // 2️⃣ Créer un logger Monolog spécifique pour cette exécution
+        $vehiculeLogger = new Logger('vehicule_logger');
+        $vehiculeLogger->pushHandler(new StreamHandler($logPath, Logger::INFO));
+
+        
+        $vehiculeLogger->info('=== Début du traitement get:movement ===');
+
         $selectedPlanning = DB::table('import_calendar')->latest('id')->value('id');
-        SaveVehiculeFromCalendar($selectedPlanning);
+        SaveVehiculeFromCalendar($selectedPlanning, $vehiculeLogger);
     }
 }

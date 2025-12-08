@@ -36,6 +36,7 @@ class Vehicule extends Model
         'id_transporteur',
         'description',
         'description',
+        'id_planning'
     ];
 
     /**
@@ -48,7 +49,8 @@ class Vehicule extends Model
         'imei' => 'string',
         'nom' => 'string',
         'id_transporteur' => 'integer',
-        'description' => 'string'
+        'description' => 'string',
+        'id_planning' => 'integer'
     ];
 
     /**

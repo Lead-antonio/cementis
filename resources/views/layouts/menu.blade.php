@@ -14,7 +14,7 @@
     </li>
 @endcan
 
-{{-- @can('generator_builder.index')
+@can('generator_builder.index')
     @php
         $isUserActive = Request::is($urlAdmin . '*generator_builder*');
     @endphp
@@ -24,7 +24,7 @@
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-@endcan --}}
+@endcan
 
 
 @can('attendances.index')
@@ -93,15 +93,15 @@
     @endif
 @endcan
 
-@can('new.scoring')
+{{-- @can('new.scoring') --}}
     <li class="nav-item">
-        <a href="{{ route('new.scoring') }}" class="nav-link {{ Request::is('admin/new/scoring*') ? 'active' : '' }}"
+        <a href="{{ route('driver.score') }}" class="nav-link {{ Request::is('admin/new/scoring*') ? 'active' : '' }}"
             onclick="submitForm()">
             <i class="nav-icon fas fa-bullseye"></i>
             <p>@lang('models/events.fields.scoring')</p>
         </a>
     </li>
-@endcan
+{{-- @endcan --}}
 
 
 
@@ -373,3 +373,4 @@
         </a>
     </li>
 @endcan
+

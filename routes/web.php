@@ -60,6 +60,7 @@ Route::post('/process/{step}/run', function ($step) {
         ]
     );
 
+
     
     // Lancer le job en arrière-plan
     RunStepScoringCommandJob::dispatch($step);
