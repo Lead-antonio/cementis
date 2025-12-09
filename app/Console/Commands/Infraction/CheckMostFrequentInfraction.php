@@ -8,7 +8,7 @@ use App\Models\Importcalendar;
 use App\Models\ScoreDriver;
 use Illuminate\Support\Facades\DB;
 
-class CheckInfraction extends Command
+class CheckMostFrequentInfraction extends Command
 {
     /**
      * The name and signature of the console command.
