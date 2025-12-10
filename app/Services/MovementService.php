@@ -106,85 +106,97 @@ class MovementService
             ->chunk(50, function ($all_trucks) use ($console, $geoloc_service, $utils, $date_start_month, $date_end_month, $logger, &$insertData) {
                 $console->withProgressBar($all_trucks, function ($truck) use ($geoloc_service, $console, $utils, $date_start_month, $date_end_month, $logger, &$insertData) {
                     try {
+                        $alreadyProcessed = DB::table('movement')
+                            ->where('imei', $truck->imei)
+                            ->whereBetween('start_date', [$date_start_month, $date_end_month])
+                            ->exists();
+
+                        if ($alreadyProcessed) {
+                            $logger->info("Camion {$truck->imei} déjà traité, on passe.");
+                            return; // passe au camion suivant
+                        }
+
                         // Récupérer les mouvements pour ce camion
                         echo "Traitement pour le camion {$truck->nom}";
                         $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
                         // if (!$drive_and_stops) return;
                         if (!$drive_and_stops || (empty($drive_and_stops['drives']) && empty($drive_and_stops['stops']))) {
-                        echo "Aucun mouvement pour IMEI : {$truck->imei}";
-                        $logger->warning('Aucun mouvement trouvé pour le camion', [
-                            'imei' => $truck->imei,
-                            'nom' => $truck->nom,
-                            'periode' => [
-                                'start' => $date_start_month->format('Y-m-d'),
-                                'end' => $date_end_month->format('Y-m-d'),
-                            ],
-                        ]);
-                        return;
-                    }
-
-                        // Traitement des "drives"
-                        foreach ($drive_and_stops['drives'] ?? [] as $drive) {
-                            $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
-                            $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
-                            $exists = DB::table('movement')
-                            ->where('imei', $truck->imei)
-                            ->where('rfid', $drive_and_stops['rfid'])
-                            ->where('start_date', $drive_start_date)
-                            ->where('end_date', $drive_end_date)
-                            ->where('start_hour', $drive_start_date->format('H:i:s'))
-                            ->where('end_hour', $drive_end_date->format('H:i:s'))
-                            ->where('type', 'DRIVE')
-                            ->exists();
-                            if (!$exists) {
-                                DB::table('movement')->insert([
-                                    'imei' => $truck->imei,
-                                    'rfid' => $drive_and_stops['rfid'],
-                                    'start_date' => $drive_start_date,
-                                    'end_date' => $drive_end_date,
-                                    'start_hour' => $drive_start_date->format('H:i:s'),
-                                    'end_hour' => $drive_end_date->format('H:i:s'),
-                                    'duration' => $utils->convertDurationToTime($drive['duration']),
-                                    'type' => 'DRIVE',
-                                    'created_at' => new \DateTime(),
-                                    'updated_at' => new \DateTime(),
-                                ]);
-                            }
+                            echo "Aucun mouvement pour IMEI : {$truck->imei}";
+                            $logger->warning('Aucun mouvement trouvé pour le camion', [
+                                'imei' => $truck->imei,
+                                'nom' => $truck->nom,
+                                'periode' => [
+                                    'start' => $date_start_month->format('Y-m-d'),
+                                    'end' => $date_end_month->format('Y-m-d'),
+                                ],
+                            ]);
+                            return;
                         }
 
-                        // Traitement des "stops"
-                        foreach ($drive_and_stops['stops'] ?? [] as $stop) {
-                            $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
-                            $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
-                            $exists = DB::table('movement')
-                            ->where('imei', $truck->imei)
-                            ->where('rfid', $drive_and_stops['rfid'])
-                            ->where('start_date', $stop_start_date)
-                            ->where('end_date', $stop_end_date)
-                            ->where('start_hour', $stop_start_date->format('H:i:s'))
-                            ->where('end_hour', $stop_end_date->format('H:i:s'))
-                            ->where('type', 'STOP')
-                            ->exists();
-                            if (!$exists) {
-                                DB::table('movement')->insert([
-                                    'imei' => $truck->imei,
-                                    'rfid' => $drive_and_stops['rfid'],
-                                    'start_date' => $stop_start_date,
-                                    'end_date' => $stop_end_date,
-                                    'start_hour' => $stop_start_date->format('H:i:s'),
-                                    'end_hour' => $stop_end_date->format('H:i:s'),
-                                    'duration' => $utils->convertDurationToTime($stop['duration']),
-                                    'type' => 'STOP',
-                                    'created_at' => new \DateTime(),
-                                    'updated_at' => new \DateTime(),
-                                ]);
+                            // Traitement des "drives"
+                            foreach ($drive_and_stops['drives'] ?? [] as $drive) {
+                                $drive_start_date = (new \DateTime($drive['dt_start']))->modify('+3 hours');
+                                $drive_end_date = (new \DateTime($drive['dt_end']))->modify('+3 hours');
+                                $exists = DB::table('movement')
+                                ->where('imei', $truck->imei)
+                                ->where('rfid', $drive_and_stops['rfid'])
+                                ->where('start_date', $drive_start_date)
+                                ->where('end_date', $drive_end_date)
+                                ->where('start_hour', $drive_start_date->format('H:i:s'))
+                                ->where('end_hour', $drive_end_date->format('H:i:s'))
+                                ->where('type', 'DRIVE')
+                                ->exists();
+                                if (!$exists) {
+                                    DB::table('movement')->insert([
+                                        'imei' => $truck->imei,
+                                        'rfid' => $drive_and_stops['rfid'],
+                                        'start_date' => $drive_start_date,
+                                        'end_date' => $drive_end_date,
+                                        'start_hour' => $drive_start_date->format('H:i:s'),
+                                        'end_hour' => $drive_end_date->format('H:i:s'),
+                                        'duration' => $utils->convertDurationToTime($drive['duration']),
+                                        'type' => 'DRIVE',
+                                        'created_at' => new \DateTime(),
+                                        'updated_at' => new \DateTime(),
+                                    ]);
+                                }
                             }
 
-                        }
+                            // Traitement des "stops"
+                            foreach ($drive_and_stops['stops'] ?? [] as $stop) {
+                                $stop_start_date = (new \DateTime($stop['dt_start']))->modify('+3 hours');
+                                $stop_end_date = (new \DateTime($stop['dt_end']))->modify('+3 hours');
+                                $exists = DB::table('movement')
+                                ->where('imei', $truck->imei)
+                                ->where('rfid', $drive_and_stops['rfid'])
+                                ->where('start_date', $stop_start_date)
+                                ->where('end_date', $stop_end_date)
+                                ->where('start_hour', $stop_start_date->format('H:i:s'))
+                                ->where('end_hour', $stop_end_date->format('H:i:s'))
+                                ->where('type', 'STOP')
+                                ->exists();
+                                if (!$exists) {
+                                    DB::table('movement')->insert([
+                                        'imei' => $truck->imei,
+                                        'rfid' => $drive_and_stops['rfid'],
+                                        'start_date' => $stop_start_date,
+                                        'end_date' => $stop_end_date,
+                                        'start_hour' => $stop_start_date->format('H:i:s'),
+                                        'end_hour' => $stop_end_date->format('H:i:s'),
+                                        'duration' => $utils->convertDurationToTime($stop['duration']),
+                                        'type' => 'STOP',
+                                        'created_at' => new \DateTime(),
+                                        'updated_at' => new \DateTime(),
+                                    ]);
+                                }
 
-                    } catch (\Exception $e) {
-                        $console->error("Erreur avec le camion IMEI : {$truck->imei} - " . $e->getMessage());
-                    }
+                            }
+
+
+                        } catch (\Exception $e) {
+                            $console->error("Erreur avec le camion IMEI : {$truck->imei} - " . $e->getMessage());
+                            throw $e;
+                        }
                 });
             });
 
@@ -194,6 +206,7 @@ class MovementService
         } catch (\Exception $e) {
             $console->error("Erreur globale : " . $e->getMessage());
             $logger->critical('Erreur globale', ['message' => $e->getMessage()]);
+            throw $e;
         }
     }
 

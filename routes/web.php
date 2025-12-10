@@ -72,6 +72,41 @@ Route::post('/process/{step}/run', function ($step) {
     ], 200);
 })->name('process.run');
 
+Route::post('/process/{step}/restart', function ($step) {
+    $currentMonth = now()->format('Y-m');
+
+    // Vérifier si l’étape existe
+    $process = Process::findOrFail($step);
+
+    // Récupérer la progression en erreur
+    $progression = Progression::where('step_id', $step)
+        ->where('month', $currentMonth)
+        ->where('status', 'error')
+        ->first();
+
+    if (!$progression) {
+        return response()->json([
+            'message' => "Aucune progression en erreur trouvée pour l'étape {$process->name}.",
+            'process_name' => $process->name
+        ], 404);
+    }
+
+    // ---- RESET COMPLET de la progression en erreur ----
+    $progression->update([
+        'status' => 'in_progress',
+    ]);
+
+    // ---- Relancer le job ----
+    RunStepScoringCommandJob::dispatch($step);
+
+    return response()->json([
+        'message' => "Redémarrage complet lancé pour l'étape {$process->name}.",
+        'process_name' => $process->name
+    ], 200);
+})->name('process.restart');
+
+
+
 
 Route::post('/notifications/read-all', function (Request $request) {
     Auth::user()->unreadNotifications->markAsRead();

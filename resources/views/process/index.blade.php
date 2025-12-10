@@ -126,36 +126,6 @@
 <div class="content px-3">
     @include('flash::message')
 
-    <!-- Progress Overview Card -->
-    {{-- <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="card-body p-4 text-white">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h5 class="fw-bold mb-2">Progression Globale</h5>
-                            <div class="progress bg-white bg-opacity-25" style="height: 10px; border-radius: 10px;">
-                                @php
-                                    $totalSteps = count($steps);
-                                    $completedSteps = $steps->where(function($s) { 
-                                        $p = $s->currentProgression(); 
-                                        return $p && $p->status === 'completed'; 
-                                    })->count();
-                                    $progressPercent = $totalSteps > 0 ? ($completedSteps / $totalSteps) * 100 : 0;
-                                @endphp
-                                <div class="progress-bar bg-white" role="progressbar" style="width: {{ $progressPercent }}%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                            <h3 class="fw-bold mb-0">{{ $completedSteps }}/{{ $totalSteps }}</h3>
-                            <small class="opacity-75">Étapes complétées</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
     <!-- Stepper Card -->
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-5">
@@ -247,9 +217,14 @@
                                         <i class="fas fa-hourglass-half me-1"></i> En cours
                                     </button>
                                 @elseif ($status === 'error')
-                                    <button class="btn btn-outline-danger btn-sm rounded-pill" disabled>
-                                        <i class="fas fa-redo me-1"></i> Réessayer
+                                    {{-- Bouton Reprendre depuis checkpoint --}}
+                                    <button 
+                                        class="btn btn-outline-danger btn-sm rounded-pill restart-step"
+                                        data-step="{{ $step->id }}"
+                                    >
+                                        <i class="fas fa-redo me-1"></i> Reprendre
                                     </button>
+
                                 @elseif ($isBlocked)
                                     <button class="btn btn-outline-secondary btn-sm rounded-pill" disabled>
                                         <i class="fas fa-lock me-1"></i> Verrouillé
@@ -306,6 +281,37 @@
             });
         });
     });
+
+    document.querySelectorAll('.restart-step').forEach(button => {
+        button.addEventListener('click', function () {
+            const step = this.dataset.step;
+
+            fetch(`/process/${step}/restart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: data.process_name,
+                    text: "L'étape a été entièrement redémarrée.",
+                    confirmButtonText: 'Ok'
+                }).then(() => window.location.reload());
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Impossible de redémarrer l'étape.",
+                }).then(() => window.location.reload());
+            });
+        });
+    });
+
 </script>
 
 {{-- <style>
