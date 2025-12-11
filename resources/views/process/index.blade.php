@@ -219,7 +219,7 @@
                                 @elseif ($status === 'error')
                                     {{-- Bouton Reprendre depuis checkpoint --}}
                                     <button 
-                                        class="btn btn-outline-danger btn-sm rounded-pill restart-step"
+                                        class="btn btn-outline-danger btn-sm rounded-pill retry-step"
                                         data-step="{{ $step->id }}"
                                     >
                                         <i class="fas fa-redo me-1"></i> Reprendre
@@ -282,11 +282,11 @@
         });
     });
 
-    document.querySelectorAll('.restart-step').forEach(button => {
+    document.querySelectorAll('.retry-step').forEach(button => {
         button.addEventListener('click', function () {
             const step = this.dataset.step;
 
-            fetch(`/process/${step}/restart`, {
+            fetch(`/process/${step}/retry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

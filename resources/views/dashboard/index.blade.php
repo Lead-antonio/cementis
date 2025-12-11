@@ -620,7 +620,7 @@
 
         </div> --}}
 
-        <div class="row">
+        <div class="row" style="padding: 5px;">
             <div class="col-12">
                 <!-- Main Dashboard Card -->
                 <div class="card border-0 shadow-sm rounded-4">
@@ -1075,7 +1075,7 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     
 </script>
 
-<style>
+{{-- <style>
     .card-custom {
         border-radius: 10px;
         background: linear-gradient(145deg, #6e7bff, #5560ea);
@@ -1212,7 +1212,7 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
             }
         }
 
-</style>
+</style> --}}
 
 <style>
 /* KPI Card Styles */

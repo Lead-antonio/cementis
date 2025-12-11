@@ -169,13 +169,6 @@ class RunStepScoringCommandJob implements ShouldQueue
         }
     }
 
-    /**
-     * 🚨 Le job entre ici si :
-     * - réseau coupé
-     * - artisan s'arrête brusquement
-     * - timeout API
-     * - le worker queue crash / kill / restart
-     */
     public function failed(\Throwable $exception)
     {
         $currentMonth = Carbon::now()->format('Y-m');

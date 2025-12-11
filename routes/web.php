@@ -72,7 +72,7 @@ Route::post('/process/{step}/run', function ($step) {
     ], 200);
 })->name('process.run');
 
-Route::post('/process/{step}/restart', function ($step) {
+Route::post('/process/{step}/retry', function ($step) {
     $currentMonth = now()->format('Y-m');
 
     // Vérifier si l’étape existe
@@ -94,13 +94,18 @@ Route::post('/process/{step}/restart', function ($step) {
     // ---- RESET COMPLET de la progression en erreur ----
     $progression->update([
         'status' => 'in_progress',
+        'current_substep' => 0,
+        'resume_key' => null,
+        'resume_value' => null,
+        'retries' => 0,
+        'log' => null
     ]);
 
     // ---- Relancer le job ----
     RunStepScoringCommandJob::dispatch($step);
 
     return response()->json([
-        'message' => "Redémarrage complet lancé pour l'étape {$process->name}.",
+        'message' => "Reprendre complet lancé pour l'étape {$process->name}.",
         'process_name' => $process->name
     ], 200);
 })->name('process.restart');
