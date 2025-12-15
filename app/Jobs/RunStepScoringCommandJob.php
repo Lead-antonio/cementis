@@ -36,8 +36,9 @@ class RunStepScoringCommandJob implements ShouldQueue
         7 => "driver:cumul",
         8 => "repos:journey",
         9 => "repos:hebdo",
-        10 => "generate:score-drive",
-        11 => "scoring:generate",
+        10 => "clean:repos-journey",
+        11 => "generate:score-drive",
+        12 => "scoring:generate",
     ];
 
     /**
