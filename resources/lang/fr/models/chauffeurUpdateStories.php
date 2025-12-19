@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Historique de mise à jour chauffeur',
-  'plural' => 'Historique de mise à jour chauffeur',
+  'singular' => 'Journal chauffeur',
+  'plural' => 'Journal chauffeurs',
   'fields' => 
   array (
     'id' => 'Id',

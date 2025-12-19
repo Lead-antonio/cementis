@@ -237,11 +237,11 @@
         </div> --}}
 
         <!-- Filters Card -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
+        {{-- <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-4">
                 <div class="row g-3 align-items-end">
                     <!-- Planning Filter -->
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="planning" class="form-label fw-semibold text-secondary mb-2">
                             <i class="fas fa-calendar-alt me-2"></i> Planning
                         </label>
@@ -273,7 +273,53 @@
                     @endif
                 </div>
             </div>
+        </div> --}}
+       <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-4">
+                <!-- Ligne principale : bouton à gauche, selects à droite -->
+                <div class="d-flex align-items-end justify-content-between">
+                    <!-- Bouton filtre à gauche -->
+                    <button class="btn btn-outline-secondary" type="button" id="filterToggle">
+                        <i class="fas fa-filter"> Filtres</i>
+                    </button>
+
+                    <!-- Contenu du filtre (hidden au départ) -->
+                    <div id="filterContent" class="d-flex align-items-end gap-4" style="display: none;">
+                        <!-- Planning Filter -->
+                        <div class="d-flex align-items-center gap-2" style="padding: 0px 13px 0px 0px;">
+                            <i class="fas fa-calendar-alt text-secondary" style="padding: 0px 7px 0px 0px;"></i>
+                            <span class="text-secondary fw-semibold" style="padding: 0px 7px 0px 0px;"> Planning</span>
+                            <select class="form-select custom-select w-auto shadow-sm" name="planning" id="planning">
+                                <option value="">Sélectionner un planning</option>
+                                @foreach($import_calendar as $calendar)
+                                    <option value="{{ $calendar->id }}" {{ $calendar->id == $selectedPlanning ? 'selected' : '' }}>
+                                        {{ $calendar->name }}
+                                    </option>    
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Transporteur Filter -->
+                        @if (Auth::user()->role_text != "transporteur")
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-truck text-secondary" style="padding: 0px 7px 0px 0px;"></i>
+                            <span class="text-secondary fw-semibold" style="padding: 0px 7px 0px 0px;"> Transporteur</span>
+                            <select class="form-select custom-select w-auto shadow-sm" name="transporteur" id="transporteur">
+                                <option value="" selected>Sélectionner un transporteur</option>
+                                @foreach($transporteurs as $transporteur)
+                                    <option value="{{ $transporteur->id }}">
+                                        {{ $transporteur->nom }}
+                                    </option>    
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
+
+
 
         <!-- KPI Cards Grid -->
         <div class="row g-4 mb-4">
@@ -1559,7 +1605,7 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     }
 </style>
 
-    <script>
+<script>
     // Optional: Add smooth scroll behavior for ranking bodies
     document.addEventListener('DOMContentLoaded', function() {
         const rankingBodies = document.querySelectorAll('.ranking-body');
@@ -1576,6 +1622,16 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
             });
         });
     });
+
+    const filterToggle = document.getElementById('filterToggle');
+    const filterContent = document.getElementById('filterContent');
+
+    filterToggle.addEventListener('click', () => {
+        filterContent.style.display = filterContent.style.display === "none" ? "flex" : "none";
+    });
+
+     
 </script>
+
 
 @endpush
