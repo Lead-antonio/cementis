@@ -215,7 +215,7 @@ class GeolocalisationService
      */
     public  function getMovementDriveAndStop($imei_vehicule, $start_date, $end_date){
         $url = "{$this->apiUrl}?api=user&ver=1.0&key={$this->apiKey}&cmd=OBJECT_GET_ROUTE," . $imei_vehicule . "," . $start_date->format('YmdHis') . "," . $end_date->format('YmdHis') . ",1";
-        echo $url;
+
         try {
 
             $response = $this->makeRequest($url);

@@ -117,7 +117,7 @@ class MovementService
                         }
 
                         // Récupérer les mouvements pour ce camion
-                        echo "Traitement pour le camion {$truck->nom}";
+                        echo "Traitement pour le camion {$truck->nom} \n";
                         $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
                         // if (!$drive_and_stops) return;
                         if (!$drive_and_stops || (empty($drive_and_stops['drives']) && empty($drive_and_stops['stops']))) {
