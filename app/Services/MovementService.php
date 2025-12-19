@@ -121,7 +121,7 @@ class MovementService
                         $drive_and_stops = $geoloc_service->getMovementDriveAndStop($truck->imei, $date_start_month, $date_end_month);
                         // if (!$drive_and_stops) return;
                         if (!$drive_and_stops || (empty($drive_and_stops['drives']) && empty($drive_and_stops['stops']))) {
-                            echo "Aucun mouvement pour IMEI : {$truck->imei}";
+                            echo "Aucun mouvement pour IMEI : {$truck->imei} \n";
                             $logger->warning('Aucun mouvement trouvé pour le camion', [
                                 'imei' => $truck->imei,
                                 'nom' => $truck->nom,
