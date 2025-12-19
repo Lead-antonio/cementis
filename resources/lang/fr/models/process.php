@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Étape du scoring card',
-  'plural' => 'Étapes  du scoring card',
+  'singular' => 'Workflow scoring',
+  'plural' => 'Workflow scoring',
   'fields' => 
   array (
     'name' => 'Nom',

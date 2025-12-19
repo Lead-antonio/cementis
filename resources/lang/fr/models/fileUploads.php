@@ -8,7 +8,7 @@ return array(
     array(
       'id' => 'Id',
       'name' => 'Nom',
-      'file_upload' => 'File Upload',
+      'file_upload' => 'Téléverser un fichier ',
       'created_at' => 'Date',
       'updated_at' => 'Updated At',
     ),

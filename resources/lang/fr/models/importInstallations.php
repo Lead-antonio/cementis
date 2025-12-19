@@ -1,8 +1,8 @@
 <?php
 
 return array (
-  'singular' => 'Import Installation',
-  'plural' => 'Import Installations',
+  'singular' => 'Import chauffeur',
+  'plural' => 'Import chauffeurs',
   'fields' => 
   array (
     'id' => 'Id',

@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     <h1>Importation Installation</h1>
+                     <h1><h1>@lang('models/importInstallations.plural') </h1></h1>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 <div class="row">
                     <div class="form-group col-sm-6">
                         <div class="form-group ">
-                            {!! Form::label('file_upload', __('models/fileUploads.fields.file_upload').':') !!}
+                            {!! Form::label('Téléverser un fichier', __('models/fileUploads.fields.file_upload').':') !!}
                             <div class="input-group">
                                 <div class="custom-file">
                                     {!! Form::file('excel_file', ['class' => 'custom-file-input','id'=>'excel_file']) !!}

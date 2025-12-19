@@ -14,7 +14,7 @@
     </li>
 @endcan
 
-@can('generator_builder.index')
+{{-- @can('generator_builder.index')
     @php
         $isUserActive = Request::is($urlAdmin . '*generator_builder*');
     @endphp
@@ -24,7 +24,7 @@
             <p>@lang('menu.generator_builder.title')</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
 
 @can('attendances.index')
@@ -191,7 +191,7 @@
                     </a>
                 </li>
             @endcan
-            @can('penalites.index')    
+            {{-- @can('penalites.index')    
                 <li class="nav-item">
                     <a href="{{ route('penalites.index') }}" class="nav-link {{ Request::is('admin/penalites*') ? 'active' : '' }}"
                         onclick="submitForm()">
@@ -199,7 +199,7 @@
                         <p>@lang('models/penalites.plural')</p>
                     </a>
                 </li>
-            @endcan
+            @endcan --}}
             @can('transporteurs.index')    
                 <li class="nav-item">
                     <a href="{{ route('transporteurs.index') }}"
@@ -218,7 +218,7 @@
                     </a>
                 </li>
             @endcan
-            @can('chauffeurUpdateTypes.index')    
+            {{-- @can('chauffeurUpdateTypes.index')    
                 <li class="nav-item">
                     <a href="{{ route('chauffeurUpdateTypes.index') }}"
                     class="nav-link {{ Request::is('admin/chauffeurUpdateTypes*') ? 'active' : '' }}">
@@ -226,9 +226,9 @@
                         <p>@lang('models/chauffeurUpdateTypes.plural')</p>
                     </a>
                 </li>
-            @endcan
+            @endcan --}}
 
-            @can('incidentVehicules.index')   
+            {{-- @can('incidentVehicules.index')   
                 <li class="nav-item">
                     <a href="{{ route('incidentVehicules.index') }}"
                     class="nav-link {{ Request::is('incidentVehicules*') ? 'active' : '' }}">
@@ -245,7 +245,7 @@
                     <p>@lang('models/incidentVehiculeCoordonnees.plural')</p>
                     </a>
                 </li>
-            @endcan
+            @endcan --}}
 
         </ul>
     </li>
@@ -260,30 +260,30 @@
     </li>
 @endcan
 
-@can('installateurs.index')    
+{{-- @can('installateurs.index')    
     <li class="nav-item">
         <a href="{{ route('installateurs.index') }}" class="nav-link {{ Request::is('admin/installateurs*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user"></i>
             <p>@lang('models/installateurs.plural')</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
-@can('installations.index')
+{{-- @can('installations.index')
     <li class="nav-item">
         <a href="{{ route('installations.index') }}" class="nav-link {{ Request::is('admin/installations*') ? 'active' : '' }}">
             <i class="nav-icon fa-brands fa-instalod"></i>
             <p>@lang('models/installations.plural')</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
 @can('importNameInstallations.index')   
     <li class="nav-item">
         <a href="{{ route('importNameInstallations.index') }}"
             class="nav-link {{ Request::is('admin/importNameInstallations*') ? 'active' : '' }}">
             <i class="nav-icon fa fa-upload"></i>
-            <p>Import installation</p>
+            <p>Import chauffeurs</p>
         </a>
     </li>
 @endcan
@@ -297,7 +297,7 @@
     </li>
 @endcan
 
-@canany(['fileUploads.index', 'importModels.index'])
+{{-- @canany(['fileUploads.index', 'importModels.index'])
     @php
         $isImportModelActive = Request::is($urlAdmin . '*importModels*');
         $isFileUploadActive = Request::is($urlAdmin . '*fileUploads*');
@@ -330,19 +330,19 @@
             @endcan
         </ul>
     </li>
-@endcanany
+@endcanany --}}
 
 
-@can('exportation.view')    
+{{-- @can('exportation.view')    
     <li class="nav-item">
         <a href="{{ route('exportation.view') }}" class="nav-link {{ Request::is('admin/exportation*') ? 'active' : '' }}">
             <i class="nav-icon fa fa-file-export"></i>
             <p>Exportation generale</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
-@can('periodSettings.index')    
+{{-- @can('periodSettings.index')    
     <li class="nav-item">
         <a href="{{ route('periodSettings.index') }}"
         class="nav-link {{ Request::is('periodSettings*') ? 'active' : '' }}">
@@ -350,7 +350,7 @@
             <p>@lang('models/periodSettings.plural')</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 
 
 @can('chauffeurUpdateStorie.validation_list')    
@@ -364,7 +364,7 @@
 @endcan
 
 
-@can('chauffeurUpdateStorie.validation_list')    
+{{-- @can('chauffeurUpdateStorie.validation_list')    
     <li class="nav-item">
         <a href="{{ route('incident.index') }}"
         class="nav-link {{ Request::is('admin/chauffeurUpdateStorie*') ? 'active' : '' }}">
@@ -372,5 +372,5 @@
             <p>Rapport d'incident</p>
         </a>
     </li>
-@endcan
+@endcan --}}
 

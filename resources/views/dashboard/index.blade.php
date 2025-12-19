@@ -290,11 +290,11 @@
                                 <p class="kpi-label">Transporteurs</p>
                                 <h2 class="kpi-value">{{ $totalTransporteurs }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-up">
                                     <i class="fas fa-arrow-up"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -312,11 +312,11 @@
                                 <p class="kpi-label">Véhicules</p>
                                 <h2 class="kpi-value" id="total_vehicule">{{ $totalVehicules }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-up">
                                     <i class="fas fa-arrow-up"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -334,11 +334,11 @@
                                 <p class="kpi-label">Chauffeurs</p>
                                 <h2 class="kpi-value" id="total_chauffeur">{{ $totalChauffeurs }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-up">
                                     <i class="fas fa-arrow-up"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -356,11 +356,11 @@
                                 <p class="kpi-label">Véhicules au calendrier</p>
                                 <h2 class="kpi-value" id="truck_in_calendar">{{ $truck_in_calendar }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-neutral">
                                     <i class="fas fa-minus"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -383,11 +383,11 @@
                                 <p class="kpi-label">Chauffeurs avec score</p>
                                 <h2 class="kpi-value" id="driver_has_score">{{ $driver_has_score }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-up">
                                     <i class="fas fa-arrow-up"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -405,11 +405,11 @@
                                 <p class="kpi-label">Chauffeurs sans score</p>
                                 <h2 class="kpi-value" id="driver_not_has_score">{{ $driver_not_has_score }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-down">
                                     <i class="fas fa-arrow-down"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -427,11 +427,11 @@
                                 <p class="kpi-label">Badges au calendrier</p>
                                 <h2 class="kpi-value" id="badge_numbers_in_calendars">{{ $drivers_badge_in_calendars }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-neutral">
                                     <i class="fas fa-minus"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -451,11 +451,11 @@
                                     {{ $match_rfid->match_percentage !== null ? $match_rfid->match_percentage . '%' : '0%' }}
                                 </h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-up">
                                     <i class="fas fa-arrow-up"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -478,11 +478,11 @@
                                 <p class="kpi-label">Cas avec score 0</p>
                                 <h2 class="kpi-value" id="score_zero">{{ $score_zero }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-down">
                                     <i class="fas fa-exclamation-triangle"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -500,11 +500,11 @@
                                 <p class="kpi-label">Score 0 sur +3 trajets</p>
                                 <h2 class="kpi-value" id="score_zero_more_than_3_planning">{{ $score_zero_more_than_3_planning }}</h2>
                             </div>
-                            <div class="kpi-trend">
+                            {{-- <div class="kpi-trend">
                                 <span class="trend-badge trend-alert">
                                     <i class="fas fa-exclamation-circle"></i>
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
@@ -630,19 +630,19 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <ul class="nav nav-pills modern-tabs" id="dashboardTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="scores-tab" data-bs-toggle="tab" data-bs-target="#scores" type="button" role="tab" aria-controls="scores" aria-selected="true">
+                                    <button class="nav-link tab-link active" id="scores-tab" data-bs-toggle="tab" data-bs-target="#scores" type="button" role="tab" aria-controls="scores" aria-selected="true">
                                         <i class="fas fa-trophy me-2"></i>
                                         <span>Classement des Scores</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="vehicules-tab" data-bs-toggle="tab" data-bs-target="#vehicules" type="button" role="tab" aria-controls="vehicules" aria-selected="false">
+                                    <button class="nav-link tab-link" id="vehicules-tab" data-bs-toggle="tab" data-bs-target="#vehicules" type="button" role="tab" aria-controls="vehicules" aria-selected="false">
                                         <i class="fas fa-truck me-2"></i>
                                         <span>Répartition Véhicules</span>
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="chauffeurs-tab" data-bs-toggle="tab" data-bs-target="#chauffeurs" type="button" role="tab" aria-controls="chauffeurs" aria-selected="false">
+                                    <button class="nav-link tab-link" id="chauffeurs-tab" data-bs-toggle="tab" data-bs-target="#chauffeurs" type="button" role="tab" aria-controls="chauffeurs" aria-selected="false">
                                         <i class="fas fa-users me-2"></i>
                                         <span>Répartition Chauffeurs</span>
                                     </button>
@@ -1075,353 +1075,216 @@ var ctx = document.getElementById('chauffeurChart').getContext('2d');
     
 </script>
 
-{{-- <style>
-    .card-custom {
-        border-radius: 10px;
-        background: linear-gradient(145deg, #6e7bff, #5560ea);
-        color: white;
-        box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s;
-        width: 100%; /* Assurez-vous qu'elles occupent la même largeur */
-        min-height: 150px; /* Hauteur identique pour éviter les variations */
+
+
+<style>
+    /* KPI Card Styles */
+    .kpi-card {
+        position: relative;
+        border-radius: 1.25rem;
+        padding: 1.75rem;
+        background: white;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        transition: height 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        border-color: transparent;
+    }
+
+    .kpi-card:hover::before {
+        height: 8px;
+    }
+
+    .kpi-content {
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 10px; /* Espacement interne pour éviter que le texte ne touche les bords */
-    }
-
-    .card-custom.chauffeur {
-        background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.vehicule {
-        background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.transporteur {
-        background: linear-gradient(145deg, #5e5e65, #ee3e35);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.scoring {
-        background: linear-gradient(145deg, #000000, #ffffff);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.badge {
-        background: linear-gradient(145deg, #000000, #ffffff);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.calendar {
-        background: linear-gradient(145deg, #000000, #ffffff);
-        /* min-height: 94%; */
-    }
-
-    .card-custom.no-scoring {
-        background: linear-gradient(145deg, #000000, #ffffff);
-        /* max-height: 86%; */
-        /* max-height: 94%; */
-    }
-
-    .card-custom:hover {
-        transform: scale(1.05);
-        box-shadow: 2px 6px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .card-body-custom {
-        display: flex;
-        justify-content: space-between;
-        /* flex-direction: column; */
         align-items: center;
-        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+        gap: 1.25rem;
+        position: relative;
     }
 
-    .card-body-transporteurs {
+    .kpi-icon-bg {
+        width: 70px;
+        height: 70px;
+        border-radius: 1rem;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+        justify-content: center;
+        font-size: 1.75rem;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
     }
 
-    .card-body-vehicules {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+    .kpi-card:hover .kpi-icon-bg {
+        transform: scale(1.1) rotate(5deg);
     }
 
-    .card-body-chauffeurs {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-grow: 1; /* Permet à la carte de s'étendre pour remplir l'espace disponible */
+    .kpi-details {
+        flex-grow: 1;
     }
 
-    .icon-container {
-        font-size: 24px; /* Réduire la taille des icônes pour s'ajuster dans la carte */
-        background-color: rgba(255, 255, 255, 0.2);
-        padding: 5%;
+    .kpi-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        opacity: 0.8;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .kpi-trend {
+        position: absolute;
+        top: -0.5rem;
+        right: -0.5rem;
+    }
+
+    .trend-badge {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .card-title-custom {
-        font-size: 1rem; /* Ajuster la taille du texte */
-        font-weight: 700;
+    /* Color Themes */
+
+    /* Transporteur - Blue */
+    .kpi-transporteur::before { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .kpi-transporteur .kpi-icon-bg { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
+    .kpi-transporteur .kpi-label { color: #1e40af; }
+    .kpi-transporteur .kpi-value { color: #1e3a8a; }
+
+    /* Vehicule - Purple */
+    .kpi-vehicule::before { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .kpi-vehicule .kpi-icon-bg { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #6d28d9; }
+    .kpi-vehicule .kpi-label { color: #6d28d9; }
+    .kpi-vehicule .kpi-value { color: #5b21b6; }
+
+    /* Chauffeur - Indigo */
+    .kpi-chauffeur::before { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .kpi-chauffeur .kpi-icon-bg { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; }
+    .kpi-chauffeur .kpi-label { color: #4338ca; }
+    .kpi-chauffeur .kpi-value { color: #3730a3; }
+
+    /* Calendar - Teal */
+    .kpi-calendar::before { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .kpi-calendar .kpi-icon-bg { background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0f766e; }
+    .kpi-calendar .kpi-label { color: #0f766e; }
+    .kpi-calendar .kpi-value { color: #115e59; }
+
+    /* Success - Green */
+    .kpi-success::before { background: linear-gradient(135deg, #10b981, #059669); }
+    .kpi-success .kpi-icon-bg { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #047857; }
+    .kpi-success .kpi-label { color: #047857; }
+    .kpi-success .kpi-value { color: #065f46; }
+
+    /* Warning - Orange */
+    .kpi-warning::before { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .kpi-warning .kpi-icon-bg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309; }
+    .kpi-warning .kpi-label { color: #b45309; }
+    .kpi-warning .kpi-value { color: #92400e; }
+
+    /* Info - Cyan */
+    .kpi-info::before { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .kpi-info .kpi-icon-bg { background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0e7490; }
+    .kpi-info .kpi-label { color: #0e7490; }
+    .kpi-info .kpi-value { color: #155e75; }
+
+    /* Primary - Blue Gradient */
+    .kpi-primary::before { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+    .kpi-primary .kpi-icon-bg { background: linear-gradient(135deg, #dbeafe, #ede9fe); color: #4338ca; }
+    .kpi-primary .kpi-label { color: #4338ca; }
+    .kpi-primary .kpi-value { color: #3730a3; }
+
+    /* Danger - Red */
+    .kpi-danger::before { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .kpi-danger .kpi-icon-bg { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #b91c1c; }
+    .kpi-danger .kpi-label { color: #b91c1c; }
+    .kpi-danger .kpi-value { color: #991b1b; }
+
+    /* Danger Dark - Deep Red */
+    .kpi-danger-dark::before { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+    .kpi-danger-dark .kpi-icon-bg { background: linear-gradient(135deg, #fecaca, #fca5a5); color: #991b1b; }
+    .kpi-danger-dark .kpi-label { color: #991b1b; }
+    .kpi-danger-dark .kpi-value { color: #7f1d1d; }
+
+    /* Trend Badges */
+    .trend-up { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .trend-down { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .trend-neutral { background: linear-gradient(135deg, #6b7280, #4b5563); color: white; }
+    .trend-alert { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+
+    /* Animations */
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
     }
 
-    .card-footer-custom {
-        display: flex;
-        justify-content: flex-end;
-        font-size: 0.8rem; /* Ajuster la taille du texte du footer */
-        opacity: 0.7;
+    .kpi-card:hover .trend-badge {
+        animation: pulse-glow 2s infinite;
     }
 
-    .scoring-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1e293b; /* gris foncé élégant */
-            text-transform: uppercase;
-            margin-bottom: 0;
+    /* Form Select Enhancements */
+    .form-select {
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .kpi-card {
+            padding: 1.25rem;
         }
-
-        .search-group input {
-            min-width: 250px;
+        
+        .kpi-icon-bg {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
         }
-
-        .gap-3 > * {
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
+        
+        .kpi-value {
+            font-size: 1.75rem;
         }
-
-        @media (max-width: 768px) {
-            .gap-3 > * {
-                width: 100% !important;
-                margin-right: 0;
-            }
-
-            .scoring-title {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 1rem;
-            }
+        
+        .kpi-label {
+            font-size: 0.75rem;
         }
-
-</style> --}}
-
-<style>
-/* KPI Card Styles */
-.kpi-card {
-    position: relative;
-    border-radius: 1.25rem;
-    padding: 1.75rem;
-    background: white;
-    border: 2px solid #e5e7eb;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    height: 100%;
-}
-
-.kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    transition: height 0.3s ease;
-}
-
-.kpi-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-    border-color: transparent;
-}
-
-.kpi-card:hover::before {
-    height: 8px;
-}
-
-.kpi-content {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    position: relative;
-}
-
-.kpi-icon-bg {
-    width: 70px;
-    height: 70px;
-    border-radius: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-}
-
-.kpi-card:hover .kpi-icon-bg {
-    transform: scale(1.1) rotate(5deg);
-}
-
-.kpi-details {
-    flex-grow: 1;
-}
-
-.kpi-label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
-    opacity: 0.8;
-}
-
-.kpi-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1;
-}
-
-.kpi-trend {
-    position: absolute;
-    top: -0.5rem;
-    right: -0.5rem;
-}
-
-.trend-badge {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Color Themes */
-
-/* Transporteur - Blue */
-.kpi-transporteur::before { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-.kpi-transporteur .kpi-icon-bg { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; }
-.kpi-transporteur .kpi-label { color: #1e40af; }
-.kpi-transporteur .kpi-value { color: #1e3a8a; }
-
-/* Vehicule - Purple */
-.kpi-vehicule::before { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-.kpi-vehicule .kpi-icon-bg { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #6d28d9; }
-.kpi-vehicule .kpi-label { color: #6d28d9; }
-.kpi-vehicule .kpi-value { color: #5b21b6; }
-
-/* Chauffeur - Indigo */
-.kpi-chauffeur::before { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-.kpi-chauffeur .kpi-icon-bg { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; }
-.kpi-chauffeur .kpi-label { color: #4338ca; }
-.kpi-chauffeur .kpi-value { color: #3730a3; }
-
-/* Calendar - Teal */
-.kpi-calendar::before { background: linear-gradient(135deg, #14b8a6, #0d9488); }
-.kpi-calendar .kpi-icon-bg { background: linear-gradient(135deg, #ccfbf1, #99f6e4); color: #0f766e; }
-.kpi-calendar .kpi-label { color: #0f766e; }
-.kpi-calendar .kpi-value { color: #115e59; }
-
-/* Success - Green */
-.kpi-success::before { background: linear-gradient(135deg, #10b981, #059669); }
-.kpi-success .kpi-icon-bg { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #047857; }
-.kpi-success .kpi-label { color: #047857; }
-.kpi-success .kpi-value { color: #065f46; }
-
-/* Warning - Orange */
-.kpi-warning::before { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.kpi-warning .kpi-icon-bg { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #b45309; }
-.kpi-warning .kpi-label { color: #b45309; }
-.kpi-warning .kpi-value { color: #92400e; }
-
-/* Info - Cyan */
-.kpi-info::before { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-.kpi-info .kpi-icon-bg { background: linear-gradient(135deg, #cffafe, #a5f3fc); color: #0e7490; }
-.kpi-info .kpi-label { color: #0e7490; }
-.kpi-info .kpi-value { color: #155e75; }
-
-/* Primary - Blue Gradient */
-.kpi-primary::before { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-.kpi-primary .kpi-icon-bg { background: linear-gradient(135deg, #dbeafe, #ede9fe); color: #4338ca; }
-.kpi-primary .kpi-label { color: #4338ca; }
-.kpi-primary .kpi-value { color: #3730a3; }
-
-/* Danger - Red */
-.kpi-danger::before { background: linear-gradient(135deg, #ef4444, #dc2626); }
-.kpi-danger .kpi-icon-bg { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #b91c1c; }
-.kpi-danger .kpi-label { color: #b91c1c; }
-.kpi-danger .kpi-value { color: #991b1b; }
-
-/* Danger Dark - Deep Red */
-.kpi-danger-dark::before { background: linear-gradient(135deg, #dc2626, #b91c1c); }
-.kpi-danger-dark .kpi-icon-bg { background: linear-gradient(135deg, #fecaca, #fca5a5); color: #991b1b; }
-.kpi-danger-dark .kpi-label { color: #991b1b; }
-.kpi-danger-dark .kpi-value { color: #7f1d1d; }
-
-/* Trend Badges */
-.trend-up { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-.trend-down { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-.trend-neutral { background: linear-gradient(135deg, #6b7280, #4b5563); color: white; }
-.trend-alert { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-
-/* Animations */
-@keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
-    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
-}
-
-.kpi-card:hover .trend-badge {
-    animation: pulse-glow 2s infinite;
-}
-
-/* Form Select Enhancements */
-.form-select {
-    border: 2px solid #e5e7eb;
-    transition: all 0.3s ease;
-}
-
-.form-select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .kpi-card {
-        padding: 1.25rem;
     }
-    
-    .kpi-icon-bg {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-    }
-    
-    .kpi-value {
-        font-size: 1.75rem;
-    }
-    
-    .kpi-label {
-        font-size: 0.75rem;
-    }
-}
 
-/* Link Hover Effect */
-a:hover .kpi-card {
-    border-color: currentColor;
-}
+    /* Link Hover Effect */
+    a:hover .kpi-card {
+        border-color: currentColor;
+    }
 </style>
 
 <style>
@@ -1433,7 +1296,9 @@ a:hover .kpi-card {
         gap: 0.5rem;
     }
 
-    .modern-tabs .nav-link {
+    
+
+    .modern-tabs .tab-link {
         border: none;
         background: transparent;
         color: #6b7280;
@@ -1446,19 +1311,19 @@ a:hover .kpi-card {
         white-space: nowrap;
     }
 
-    .modern-tabs .nav-link:hover {
+    .modern-tabs .tab-link:hover {
         background: white;
         color: #3b82f6;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
-    .modern-tabs .nav-link.active {
+    .modern-tabs .tab-link.active {
         background: white;
         color: #3b82f6;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
     }
 
-    .modern-tabs .nav-link i {
+    .modern-tabs .tab-link i {
         font-size: 1rem;
     }
 
@@ -1580,7 +1445,7 @@ a:hover .kpi-card {
     }
 
     /* Animations */
-    @keyframes shine {
+    /* @keyframes shine {
         0%, 100% {
             box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
         }
@@ -1602,9 +1467,8 @@ a:hover .kpi-card {
 
     .tab-pane.show {
         animation: fadeIn 0.4s ease;
-    }
+    } */
 
-    /* Scrollbar Styling */
     .ranking-body::-webkit-scrollbar {
         width: 6px;
     }
@@ -1630,7 +1494,7 @@ a:hover .kpi-card {
             align-items: stretch;
         }
 
-        .modern-tabs .nav-link {
+        .modern-tabs .tab-link {
             justify-content: center;
         }
 
@@ -1647,7 +1511,7 @@ a:hover .kpi-card {
     }
 
     @media (max-width: 768px) {
-        .modern-tabs .nav-link span {
+        .modern-tabs .tab-link span {
             font-size: 0.875rem;
         }
 
@@ -1671,17 +1535,17 @@ a:hover .kpi-card {
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
     }
 
-    /* Tab Content Spacing */
+
     .tab-content {
         padding-top: 1rem;
     }
 
-    /* Interactive Hover States */
+
     .ranking-card .ranking-body:hover {
         background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
     }
 
-    /* Loading State (optional) */
+
     .chart-wrapper.loading {
         display: flex;
         align-items: center;
@@ -1693,7 +1557,7 @@ a:hover .kpi-card {
         color: #9ca3af;
         font-size: 1rem;
     }
-    </style>
+</style>
 
     <script>
     // Optional: Add smooth scroll behavior for ranking bodies
