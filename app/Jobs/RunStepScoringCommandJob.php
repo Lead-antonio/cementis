@@ -39,6 +39,7 @@ class RunStepScoringCommandJob implements ShouldQueue
         10 => "clean:repos-journey",
         11 => "generate:score-drive",
         12 => "scoring:generate",
+        13 => "check:most-infraction"
     ];
 
     /**
