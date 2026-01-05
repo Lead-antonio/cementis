@@ -12,6 +12,7 @@ use App\Repositories\RoleRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 use Flash;
 use Response;
 
@@ -139,8 +140,9 @@ class UserController extends AppBaseController
         }
 
         $user = $this->userRepository->update($request->all(), $id);
-        $role_data = $request->get('role_data');
-        $user->syncRoles($role_data);
+        $roles_id = $request->get('role_data');
+        $roles = Role::whereIn('id', $roles_id)->get();
+        $user->syncRoles($roles); 
         Flash::success('User updated successfully.');
 
         return redirect(route('users.index'));

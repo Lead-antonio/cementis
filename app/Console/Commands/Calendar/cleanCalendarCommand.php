@@ -5,6 +5,8 @@ namespace App\Console\Commands\Calendar;
 use Illuminate\Console\Command;
 use App\Services\CalendarService;
 use App\Models\ImportCalendar;
+use App\Models\Event;
+use App\Models\Movement;
 use Illuminate\Support\Facades\DB;
 
 class cleanCalendarCommand extends Command
@@ -41,6 +43,9 @@ class cleanCalendarCommand extends Command
     public function handle()
     {
 
+        
+        Event::withTrashed()->forceDelete();
+        Movement::withTrashed()->forceDelete();
         $planning = DB::table('import_calendar')->latest('id')->first();
         $this->info("Nettoyage du planning pour import_calendar_id = {$planning->name} ...");
 
