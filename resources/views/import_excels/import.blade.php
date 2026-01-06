@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                     <h1>@lang('models/importExcels.singular')</h1>
+                     <h1>Importation du calendrier</h1>
                 </div>
             </div>
         </div>

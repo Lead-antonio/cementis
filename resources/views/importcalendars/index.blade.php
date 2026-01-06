@@ -5,13 +5,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                   <h1>@lang('models/importcalendars.plural')</h1>
+                   <h1>Liste des importations</h1>
                 </div>
                 @can('import.affichage')
                     <div class="col-sm-6">
                         <a class="btn btn-primary float-right"
                         href="{{ route('import.affichage') }}">
-                            Import Excel
+                            Téléverser un fihier
                         </a>
                     </div>
                 @endcan

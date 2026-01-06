@@ -5,13 +5,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                   {{-- @lang('models/importNameInstallations.plural') --}}
-                   <h1> Importation de l'installation </h1>
+                   <h1>Liste des importations des chauffeurs à jour </h1>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
                        href="{{ route('import.installation.affichage') }}">
-                       Importer
+                       Téléverser un fichier
                     </a>
                 </div>
             </div>
