@@ -141,7 +141,7 @@ class RunStepScoringCommandJob implements ShouldQueue
 
             $progression->appendLog("Lancement commande {$command}…");
 
-            // 🟦 Lancer la commande SANS resume
+        
             Artisan::call($command);
 
             $output = Artisan::output();
@@ -160,7 +160,7 @@ class RunStepScoringCommandJob implements ShouldQueue
 
             Log::error("Erreur étape {$this->stepId}: " . $e->getMessage());
 
-            throw $e; // Permet de déclencher failed()
+            throw $e; 
 
         } finally {
             // Libérer le verrou
